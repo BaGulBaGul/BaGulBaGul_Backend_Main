@@ -1,0 +1,35 @@
+#dev용 db 설정
+spring:
+  config:
+    activate:
+      on-profile: 'db-dev'
+  jpa:
+    defer-datasource-initializtion: true
+    show-sql: true
+    hibernate:
+      ddl-auto: create-drop
+---
+#h2용 db 설정
+spring:
+  config:
+    activate:
+      on-profile: 'db-h2'
+  jpa:
+    database: h2
+  h2:
+    console:
+      enabled: true
+  datasource:
+    url: jdbc:h2:mem:BaGulBaGul;NON_KEYWORDS=USER
+    driverClassName: org.h2.Driver
+---
+#mysql용 db 설정
+spring:
+  config:
+    activate:
+      on-profile: 'db-mysql'
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${MYSQL_URL}
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
