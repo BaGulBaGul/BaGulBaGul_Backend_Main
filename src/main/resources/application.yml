@@ -1,7 +1,7 @@
 spring:
   profiles:
     active:
-      - dev
+      - dev2
     group:
       dev:
         - db-dev

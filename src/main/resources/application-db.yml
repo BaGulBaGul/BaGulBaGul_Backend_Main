@@ -7,7 +7,7 @@ spring:
     defer-datasource-initializtion: true
     show-sql: true
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: create
 ---
 #h2용 db 설정
 spring:
