@@ -1,2 +1,5 @@
-package com.BaGulBaGul.BaGulBaGul.domain.recruitment.contant;public class RecruitmentType {
+package com.BaGulBaGul.BaGulBaGul.domain.recruitment.contant;
+
+public enum RecruitmentType {
+    FESTIVAL, LOCAL_EVENT, PARTY
 }
