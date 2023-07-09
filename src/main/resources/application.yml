@@ -1,13 +1,13 @@
 spring:
-  jpa:
-    database: h2
-    defer-datasource-initializtion: true
-    show-sql: true
-    hibernate:
-      ddl-auto: create-drop
-  h2:
-    console:
-      enabled: true
-  datasource:
-    url: jdbc:h2:mem:BaGulBaGul
-    driverClassName: org.h2.Driver
+  profiles:
+    active:
+      - dev2
+    group:
+      dev:
+        - db-dev
+        - db-h2
+      dev2:
+        - db-dev
+        - db-mysql
+    include:
+      - db
