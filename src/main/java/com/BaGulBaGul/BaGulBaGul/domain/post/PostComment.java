@@ -1,5 +1,6 @@
 package com.BaGulBaGul.BaGulBaGul.domain.post;
 
+import com.BaGulBaGul.BaGulBaGul.domain.base.BaseTimeEntity;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -17,7 +18,7 @@ import lombok.Setter;
 @Getter
 @Entity(name = "post_comment")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PostComment {
+public class PostComment extends BaseTimeEntity {
     @Id
     @GeneratedValue
     @Column(name = "post_comment_id")

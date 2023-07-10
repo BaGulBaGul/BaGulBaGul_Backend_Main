@@ -1,5 +1,6 @@
 package com.BaGulBaGul.BaGulBaGul.domain.post;
 
+import com.BaGulBaGul.BaGulBaGul.domain.base.BaseTimeEntity;
 import com.BaGulBaGul.BaGulBaGul.domain.post.constant.PostType;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import java.time.LocalDateTime;
@@ -22,7 +23,7 @@ import lombok.Setter;
 @Getter
 @Entity(name = "post")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Post {
+public class Post extends BaseTimeEntity {
     @Id
     @GeneratedValue
     @Column(name = "post_id")
