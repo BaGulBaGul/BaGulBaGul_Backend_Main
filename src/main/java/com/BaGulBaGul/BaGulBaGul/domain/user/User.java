@@ -1,5 +1,6 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user;
 
+import com.BaGulBaGul.BaGulBaGul.domain.base.BaseTimeEntity;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,7 +15,7 @@ import javax.persistence.Id;
 @Getter
 @Entity(name = "user")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class User {
+public class User extends BaseTimeEntity {
     @Id
     @GeneratedValue
     @Column(name = "user_id")
