@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
 @IdClass(PostCommentLikeId.class)
 public class PostCommentLike {
     @EqualsAndHashCode
-    public class PostCommentLikeId implements Serializable {
+    public static class PostCommentLikeId implements Serializable {
         private Long postComment;
         private Long user;
     }

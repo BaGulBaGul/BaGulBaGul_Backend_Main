@@ -22,7 +22,7 @@ public class Recruitment extends BaseTimeEntity {
     RecruitmentType type;
 
     @JoinColumn(name = "user_id")
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     User user;
 
     @JoinColumn(name = "post_id")

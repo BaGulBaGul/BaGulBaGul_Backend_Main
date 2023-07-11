@@ -14,7 +14,7 @@ import java.io.Serializable;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PostCategory {
     @EqualsAndHashCode
-    public class PostCategoryId implements Serializable {
+    public static class PostCategoryId implements Serializable {
         Long post;
         Long category;
     }

@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 @IdClass(PostLikeId.class)
 public class PostLike {
     @EqualsAndHashCode
-    public class PostLikeId implements Serializable {
+    public static class PostLikeId implements Serializable {
         private Long post;
         private Long user;
     }
