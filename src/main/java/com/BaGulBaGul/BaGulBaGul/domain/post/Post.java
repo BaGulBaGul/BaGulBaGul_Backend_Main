@@ -4,6 +4,8 @@ import com.BaGulBaGul.BaGulBaGul.domain.base.BaseTimeEntity;
 import com.BaGulBaGul.BaGulBaGul.domain.post.constant.PostType;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -13,6 +15,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -66,6 +69,9 @@ public class Post extends BaseTimeEntity {
     @Setter
     @Column(name = "image_url")
     String image_url;
+
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
+    private List<PostCategory> categories = new ArrayList<>();
 
     @Builder
     public Post(
