@@ -1,7 +1,7 @@
 #기본 db설정
 spring:
   jpa:
-    defer-datasource-initializtion: true
+    defer-datasource-initialization: true
     properties:
       default_batch_fetch_size: 100
     open-in-view: false
