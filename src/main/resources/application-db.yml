@@ -1,13 +1,24 @@
+#기본 db설정
+spring:
+  jpa:
+    defer-datasource-initializtion: true
+    properties:
+      default_batch_fetch_size: 100
+    open-in-view: false
+---
 #dev용 db 설정
 spring:
   config:
     activate:
       on-profile: 'db-dev'
   jpa:
-    defer-datasource-initializtion: true
     show-sql: true
     hibernate:
       ddl-auto: create
+    properties:
+      hibernate:
+        use_sql_comments: true
+        format_sql: true
 ---
 #h2용 db 설정
 spring:
