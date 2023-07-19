@@ -1,5 +1,6 @@
 package com.BaGulBaGul.BaGulBaGul.domain.recruitment;
 
+import com.BaGulBaGul.BaGulBaGul.domain.base.BaseTimeEntity;
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.contant.RecruitmentType;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
@@ -10,7 +11,7 @@ import java.time.LocalDateTime;
 @Getter
 @Entity(name = "recruitment")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Recruitment {
+public class Recruitment extends BaseTimeEntity {
     @Id
     @GeneratedValue
     @Column(name = "recruitment_id")
@@ -21,7 +22,7 @@ public class Recruitment {
     RecruitmentType type;
 
     @JoinColumn(name = "user_id")
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     User user;
 
     @JoinColumn(name = "post_id")
