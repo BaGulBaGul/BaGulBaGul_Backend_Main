@@ -70,6 +70,14 @@ public class Post extends BaseTimeEntity {
     @Column(name = "image_url")
     String image_url;
 
+    @Setter
+    @Column(name = "like_count")
+    Integer likeCount;
+
+    @Setter
+    @Column(name = "comment_count")
+    Integer commentCount;
+
     @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
     private List<PostCategory> categories = new ArrayList<>();
 
@@ -83,7 +91,9 @@ public class Post extends BaseTimeEntity {
             LocalDateTime startDate,
             LocalDateTime endDate,
             String tags,
-            String image_url
+            String image_url,
+            Integer likeCount,
+            Integer commentCount
     ) {
         this.type = type;
         this.user = user;
@@ -94,5 +104,7 @@ public class Post extends BaseTimeEntity {
         this.endDate = endDate;
         this.tags = tags;
         this.image_url = image_url;
+        this.likeCount = likeCount;
+        this.commentCount = commentCount;
     }
 }
