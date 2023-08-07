@@ -2,9 +2,12 @@ package com.BaGulBaGul.BaGulBaGul.domain.post.controller;
 
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostConditionalRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostDetailResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostRegisterResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostSimpleResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostServiceImpl;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -34,6 +37,15 @@ public class PostControllerImpl implements PostController {
     ) {
         return ApiResponse.of(
                 postService.getPostPageByCondition(postConditionalRequest, pageable)
+        );
+    }
+
+    @Override
+    @PostMapping("")
+    public ApiResponse<PostRegisterResponse> registerPost(Long userId, @RequestBody @Valid PostRegisterRequest postRegisterRequest) {
+        Long postId = postService.registerPost(userId, postRegisterRequest);
+        return ApiResponse.of(
+                new PostRegisterResponse(postId)
         );
     }
 
