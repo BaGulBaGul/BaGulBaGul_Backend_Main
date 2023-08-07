@@ -3,6 +3,7 @@ package com.BaGulBaGul.BaGulBaGul.domain.post.dto;
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
 import com.BaGulBaGul.BaGulBaGul.domain.post.constant.PostType;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,6 +34,9 @@ public class PostDetailResponse {
     private LocalDateTime lastModifiedAt;
 
     public static PostDetailResponse of(Post post) {
+        List<String> tags = post.getTags().equals("") ?
+                new ArrayList<>() :
+                Arrays.asList(post.getTags().split(" ")).stream().filter(s -> !s.isEmpty()).collect(Collectors.toList());
         return PostDetailResponse.builder()
                 .id(post.getId())
                 .type(post.getType())
@@ -42,7 +46,7 @@ public class PostDetailResponse {
                 .headCount(post.getHeadCount())
                 .startDate(post.getStartDate())
                 .endDate(post.getEndDate())
-                .tags(Arrays.asList(post.getTags().split(" ")))
+                .tags(tags)
                 .categories(
                         post.getCategories()
                                 .stream()
