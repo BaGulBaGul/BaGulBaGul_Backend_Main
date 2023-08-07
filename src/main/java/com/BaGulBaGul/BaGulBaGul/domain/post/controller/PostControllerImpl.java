@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 public class PostControllerImpl implements PostController {
     private final PostServiceImpl postService;
 
+    @Override
     @GetMapping("/{postId}")
     public ApiResponse<PostDetailResponse> getPostById(
             @PathVariable(name="postId") Long postId
@@ -25,7 +26,8 @@ public class PostControllerImpl implements PostController {
         return ApiResponse.of(postDetailResponse);
     }
 
-    @GetMapping("/")
+    @Override
+    @GetMapping("")
     public ApiResponse<Page<PostSimpleResponse>> getPostPageByCondition(
             PostConditionalRequest postConditionalRequest,
             Pageable pageable
