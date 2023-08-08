@@ -2,7 +2,6 @@ package com.BaGulBaGul.BaGulBaGul.domain.recruitment.repository;
 
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.RecruitmentCommentChild;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
