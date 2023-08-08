@@ -50,8 +50,9 @@ public class Recruitment extends BaseTimeEntity {
     @Column(name="image_url")
     String imageURL;
 
-    @Builder(builderMethodName = "create")
+    @Builder
     public Recruitment(
+            RecruitmentType type,
             User user,
             Post post,
             String title,
@@ -62,6 +63,7 @@ public class Recruitment extends BaseTimeEntity {
             String tags,
             String imageURL
     ){
+        this.type = type;
         this.user = user;
         this.post = post;
         this.title = title;
