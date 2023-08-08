@@ -1,5 +1,6 @@
 package com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto;
 
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.contant.RecruitmentType;
 import lombok.Builder;
 import lombok.Data;
 
@@ -9,6 +10,11 @@ import java.time.LocalDateTime;
 public class RecruitmentRequestDto {
     @Data @Builder
     public static class RInfo {
+
+        private Long userId;
+
+        private RecruitmentType type;
+
         private String title;
 
         private String content;
@@ -26,5 +32,8 @@ public class RecruitmentRequestDto {
         private Integer likeCount;
 
         private Integer commentCount;
+
+        private Integer headCount;
     }
+
 }

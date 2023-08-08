@@ -1,6 +1,5 @@
 package com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto;
 
-import com.BaGulBaGul.BaGulBaGul.domain.base.BaseTimeEntity;
 import lombok.Builder;
 import lombok.Data;
 
@@ -56,5 +55,35 @@ public class RecruitmentResponseDto {
         private LocalDateTime createdAt;
 
         private LocalDateTime lastModifiedAt;
+    }
+
+    @Data @Builder
+    public static class RCommentWithPaging{
+
+        private Long recruitmentCommentId;
+
+        private String userImageURL;
+
+        private String content;
+
+        private LocalDateTime createdAt;
+
+        private LocalDateTime lastModifiedAt;
+
+        private boolean isWriter;
+    }
+
+    @Data @Builder
+    public static class RCommentChildWithPaging{
+
+        private String userImageURL;
+
+        private String content;
+
+        private LocalDateTime createdAt;
+
+        private LocalDateTime lastModifiedAt;
+
+        private boolean isWriter;
     }
 }
