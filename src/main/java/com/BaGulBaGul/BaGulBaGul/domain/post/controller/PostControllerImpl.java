@@ -5,7 +5,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostDetailResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostRegisterResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostSimpleResponse;
-import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostServiceImpl;
+import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostAPIService;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,14 +18,14 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/post")
 @RequiredArgsConstructor
 public class PostControllerImpl implements PostController {
-    private final PostServiceImpl postService;
+    private final PostAPIService postAPIService;
 
     @Override
     @GetMapping("/{postId}")
     public ApiResponse<PostDetailResponse> getPostById(
             @PathVariable(name="postId") Long postId
     ) {
-        PostDetailResponse postDetailResponse = postService.getPostDetailById(postId);
+        PostDetailResponse postDetailResponse = postAPIService.getPostDetailById(postId);
         return ApiResponse.of(postDetailResponse);
     }
 
@@ -36,14 +36,14 @@ public class PostControllerImpl implements PostController {
             Pageable pageable
     ) {
         return ApiResponse.of(
-                postService.getPostPageByCondition(postConditionalRequest, pageable)
+                postAPIService.getPostPageByCondition(postConditionalRequest, pageable)
         );
     }
 
     @Override
     @PostMapping("")
     public ApiResponse<PostRegisterResponse> registerPost(Long userId, @RequestBody @Valid PostRegisterRequest postRegisterRequest) {
-        Long postId = postService.registerPost(userId, postRegisterRequest);
+        Long postId = postAPIService.registerPost(userId, postRegisterRequest);
         return ApiResponse.of(
                 new PostRegisterResponse(postId)
         );
