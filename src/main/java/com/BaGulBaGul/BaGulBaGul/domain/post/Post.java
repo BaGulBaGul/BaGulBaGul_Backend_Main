@@ -6,6 +6,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -78,7 +79,7 @@ public class Post extends BaseTimeEntity {
     @Column(name = "comment_count")
     Integer commentCount;
 
-    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<PostCategory> categories = new ArrayList<>();
 
     @Builder
