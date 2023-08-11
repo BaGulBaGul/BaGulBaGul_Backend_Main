@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Entity(name = "post_like")
+@Entity
 @IdClass(PostLikeId.class)
 public class PostLike {
     @EqualsAndHashCode
