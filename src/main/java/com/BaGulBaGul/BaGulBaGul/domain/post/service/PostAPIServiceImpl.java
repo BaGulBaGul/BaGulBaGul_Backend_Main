@@ -3,6 +3,7 @@ package com.BaGulBaGul.BaGulBaGul.domain.post.service;
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostConditionalRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostDetailResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostSimpleResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
@@ -61,5 +62,49 @@ public class PostAPIServiceImpl implements PostAPIService {
         //post 생성
         postRepository.save(post);
         return post.getId();
+    }
+
+    @Override
+    @Transactional
+    public void modifyPost(Long postId, Long userId, PostModifyRequest postModifyRequest) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        Post post = postRepository.findById(postId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        //요청한 유저가 작성자가 아닐 경우 수정 권한 없음
+        if(post.getUser().getId() != userId) {
+            throw new GeneralException(ErrorCode.FORBIDDEN);
+        }
+        //patch 방식으로 postModifyRequest에서 null이 아닌 모든 필드를 변경
+        if(postModifyRequest.getType() != null) {
+            post.setType(postModifyRequest.getType());
+        }
+        if(postModifyRequest.getTitle() != null && !postModifyRequest.getTitle().isEmpty()) {
+            post.setTitle(postModifyRequest.getTitle());
+        }
+        if(postModifyRequest.getHeadCount() != null) {
+            post.setHeadCount(postModifyRequest.getHeadCount());
+        }
+        if(postModifyRequest.getContent() != null) {
+            post.setContent(postModifyRequest.getContent());
+        }
+        if(postModifyRequest.getStartDate() != null) {
+            post.setStartDate(postModifyRequest.getStartDate());
+        }
+        if(postModifyRequest.getEndDate() != null) {
+            post.setEndDate(postModifyRequest.getEndDate());
+        }
+        if(postModifyRequest.getTags() != null) {
+            post.setTags(postModifyRequest.getTags().stream().collect(Collectors.joining(" ")));
+        }
+        if(postModifyRequest.getCategories() != null) {
+            //카테고리 초기화
+            postService.clearCategory(post);
+            //수정 요청한 카테고리를 전부 추가
+            for(String categoryName : postModifyRequest.getCategories()) {
+                postService.addCategory(post, categoryName);
+            }
+        }
+        if(postModifyRequest.getImage_url() != null) {
+            post.setImage_url(postModifyRequest.getImage_url());
+        }
     }
 }

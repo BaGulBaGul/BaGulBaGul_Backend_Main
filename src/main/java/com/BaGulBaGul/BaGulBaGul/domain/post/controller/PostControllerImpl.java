@@ -2,6 +2,7 @@ package com.BaGulBaGul.BaGulBaGul.domain.post.controller;
 
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostConditionalRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostDetailResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostRegisterResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostSimpleResponse;
@@ -49,4 +50,14 @@ public class PostControllerImpl implements PostController {
         );
     }
 
+    @Override
+    @PatchMapping("/{postId}")
+    public ApiResponse<Object> modifyPost(
+            @PathVariable(name="postId") Long postId,
+            Long userId,
+            @RequestBody PostModifyRequest postModifyRequest
+    ) {
+        postAPIService.modifyPost(postId, userId, postModifyRequest);
+        return ApiResponse.of(null);
+    }
 }
