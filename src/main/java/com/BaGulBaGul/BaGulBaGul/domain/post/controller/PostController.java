@@ -15,4 +15,6 @@ public interface PostController {
     ApiResponse<Page<PostSimpleResponse>> getPostPageByCondition(PostConditionalRequest postConditionalRequest, Pageable pageable);
     ApiResponse<PostRegisterResponse> registerPost(Long userId, PostRegisterRequest postRegisterRequest);
     ApiResponse<Object> modifyPost(Long postId, Long userId, PostModifyRequest postModifyRequest);
+
+    ApiResponse<Object> deletePost(Long postId, Long userId);
 }

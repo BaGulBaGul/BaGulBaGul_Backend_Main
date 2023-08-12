@@ -60,4 +60,14 @@ public class PostControllerImpl implements PostController {
         postAPIService.modifyPost(postId, userId, postModifyRequest);
         return ApiResponse.of(null);
     }
+
+    @Override
+    @DeleteMapping("/{postId}")
+    public ApiResponse<Object> deletePost(
+            @PathVariable(name="postId") Long postId,
+            Long userId
+    ) {
+        postAPIService.deletePost(postId, userId);
+        return ApiResponse.of(null);
+    }
 }

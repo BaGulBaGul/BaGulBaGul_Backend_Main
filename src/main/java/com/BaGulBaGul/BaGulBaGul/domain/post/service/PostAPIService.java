@@ -13,4 +13,5 @@ public interface PostAPIService {
     Page<PostSimpleResponse> getPostPageByCondition(PostConditionalRequest postConditionalRequest, Pageable pageable);
     Long registerPost(Long userId, PostRegisterRequest postRegisterRequest);
     void modifyPost(Long postId, Long userId, PostModifyRequest postModifyRequest);
+    void deletePost(Long postId, Long userId);
 }

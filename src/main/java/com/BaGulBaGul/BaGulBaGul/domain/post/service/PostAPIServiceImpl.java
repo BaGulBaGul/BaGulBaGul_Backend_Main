@@ -107,4 +107,16 @@ public class PostAPIServiceImpl implements PostAPIService {
             post.setImage_url(postModifyRequest.getImage_url());
         }
     }
+
+    @Override
+    @Transactional
+    public void deletePost(Long postId, Long userId) {
+        Post post = postRepository.findById(postId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        //요청한 유저가 작성자가 아닐 경우 수정 권한 없음
+        if(post.getUser().getId() != userId) {
+            throw new GeneralException(ErrorCode.FORBIDDEN);
+        }
+        //삭제
+        postService.delete(post);
+    }
 }
