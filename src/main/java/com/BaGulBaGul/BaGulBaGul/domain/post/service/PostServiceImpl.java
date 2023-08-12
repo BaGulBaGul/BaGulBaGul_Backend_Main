@@ -3,7 +3,6 @@ package com.BaGulBaGul.BaGulBaGul.domain.post.service;
 import com.BaGulBaGul.BaGulBaGul.domain.post.Category;
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostCategory;
-import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentChild;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.CategoryNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.CategoryRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCategoryRepository;
@@ -12,18 +11,24 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentChildReposito
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentLikeRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostLikeRepository;
-import javax.persistence.EntityManager;
+import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class PostServiceImpl implements PostService {
 
+    private final PostRepository postRepository;
     private final PostCategoryRepository postCategoryRepository;
     private final CategoryRepository categoryRepository;
+    private final PostLikeRepository postLikeRepository;
+    private final PostCommentRepository postCommentRepository;
+    private final PostCommentLikeRepository postCommentLikeRepository;
+    private final PostCommentChildRepository postCommentChildRepository;
+    private final PostCommentChildLikeRepository postCommentChildLikeRepository;
+
     @Override
     @Transactional
     public void clearCategory(Post post) {
@@ -46,4 +51,15 @@ public class PostServiceImpl implements PostService {
         post.getCategories().add(postCategory);
     }
 
+    @Override
+    @Transactional
+    public void delete(Post post) {
+        postCategoryRepository.deleteAllByPost(post);
+        postLikeRepository.deleteAllByPost(post);
+        postCommentChildLikeRepository.deleteAllByPost(post);
+        postCommentChildRepository.deleteAllByPost(post);
+        postCommentLikeRepository.deleteAllByPost(post);
+        postCommentRepository.deleteAllByPost(post);
+        postRepository.delete(post);
+    }
 }
