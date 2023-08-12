@@ -79,7 +79,7 @@ public class Post extends BaseTimeEntity {
     @Column(name = "comment_count")
     Integer commentCount;
 
-    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private List<PostCategory> categories = new ArrayList<>();
 
     @Builder
