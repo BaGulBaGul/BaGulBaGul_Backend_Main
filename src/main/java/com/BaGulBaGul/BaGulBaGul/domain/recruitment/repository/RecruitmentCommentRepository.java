@@ -11,10 +11,7 @@ import java.util.List;
 public interface RecruitmentCommentRepository extends JpaRepository<RecruitmentComment, Long> {
 
     // 모집글의 댓글 조회
-    @Query("select r " +
-            "from recruitment_comment r " +
-            "where r.recruitment =: id order by r.createdAt desc")
-    List<RecruitmentComment> findCommentByRecruitmentId(Long id, PageRequest pageRequest);
+    List<RecruitmentComment> findCommentByRecruitmentIdOrderByCreatedAtDesc(Long id, PageRequest pageRequest);
 
     // 모집글의 댓글 개수 조회
     Integer countByRecruitmentId(Long id);

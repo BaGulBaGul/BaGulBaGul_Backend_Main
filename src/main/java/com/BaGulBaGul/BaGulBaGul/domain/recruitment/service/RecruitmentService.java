@@ -1,8 +1,6 @@
 package com.BaGulBaGul.BaGulBaGul.domain.recruitment.service;
 
-import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.Recruitment;
-import com.BaGulBaGul.BaGulBaGul.domain.recruitment.contant.RecruitmentType;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentRequestDto;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentResponseDto;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.repository.RecruitmentCommentRepository;
@@ -16,11 +14,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 
 @Service
@@ -49,7 +44,7 @@ public class RecruitmentService {
                 .startDate(requestDto.getStartDate())
                 .endDate(requestDto.getEndDate())
                 .tags(requestDto.getTags())
-                .imageURL(requestDto.getImageURL())
+                .imageURI(requestDto.getImageURI())
                 .build();
 
         recruitmentRepository.save(recruitment);
@@ -67,7 +62,7 @@ public class RecruitmentService {
                 .title(recruitment.getTitle())
                 .content(recruitment.getContent())
                 .tags(recruitment.getTags())
-                .imageURL(recruitment.getImageURL())
+                .imageURI(recruitment.getImageURI())
                 .startDate(recruitment.getStartDate())
                 .endDate(recruitment.getEndDate())
                 .commentCount(recruitmentCommentRepository.countByRecruitmentId(recruitment.getId()))
@@ -85,11 +80,11 @@ public class RecruitmentService {
         List<RecruitmentResponseDto.RInfoWithPaging> request = new ArrayList<>();
         PageRequest pageRequest = PageRequest.of(offset, 20);
 
-        recruitmentRepository.findRecruitmentByPostId(id, pageRequest)
+        recruitmentRepository.findRecruitmentByPostIdOrderByCreatedAtDesc(id, pageRequest)
                 .forEach(r -> request.add(RecruitmentResponseDto.RInfoWithPaging
                         .builder()
                         .recruitmentId(r.getId())
-                        .userImageURL(r.getUser().getImageURL())
+                        .userImageURI(r.getUser().getImageURI())
                         .title(r.getTitle())
                         .content(r.getContent())
                         .startDate(r.getStartDate())
@@ -98,6 +93,7 @@ public class RecruitmentService {
                         .createdAt(r.getCreatedAt())
                         .lastModifiedAt(r.getLastModifiedAt())
                         .build()));
+
         return ApiResponse.of(request);
     }
 }

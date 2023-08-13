@@ -10,8 +10,5 @@ import java.util.List;
 public interface RecruitmentCommentChildRepository extends JpaRepository<RecruitmentCommentChild, Long> {
 
     // 특정 댓글의 대댓글 조회
-    @Query("select r " +
-            "from recruitment_comment_child r " +
-            "where r.recruitmentComment =: id order by r.createdAt desc")
-    List<RecruitmentCommentChild> findCommentChildByRecruitmentCommentId(Long id, PageRequest pageRequest);
+    List<RecruitmentCommentChild> findCommentChildByRecruitmentCommentIdOrderByCreatedAt(Long id, PageRequest pageRequest);
 }

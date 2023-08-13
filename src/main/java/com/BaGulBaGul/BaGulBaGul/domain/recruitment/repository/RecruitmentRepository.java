@@ -14,11 +14,8 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long> 
     // 모집글 단일 조회
     Optional<Recruitment> findById(Long id);
 
-    // 특정 게시글의 모집글 조회 (정렬 기준 : (작성일, 좋아요)), dto 직접 조회
-    @Query("select r " +
-            "from recruitment r " +
-            "join recruitment_like rl " +
-            "where r.post =: id and rl.recruitment = r group by r order by r.createdAt desc, count(r) desc")
-    List<Recruitment> findRecruitmentByPostId(Long id, PageRequest pageRequest);
+    // 특정 게시글의 모집글 조회 (정렬기준 : 작성일)
+    List<Recruitment> findRecruitmentByPostIdOrderByCreatedAtDesc(Long id, PageRequest pageRequest);
+
 
 }

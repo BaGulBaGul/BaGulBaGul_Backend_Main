@@ -24,10 +24,10 @@ public class RecruitmentCommentChildService {
 
         // 작성자인지 판단하는 코드 추가 예정 (토큰으로 판단?)
 
-        recruitmentCommentChildRepository.findCommentChildByRecruitmentCommentId(id, pageRequest)
+        recruitmentCommentChildRepository.findCommentChildByRecruitmentCommentIdOrderByCreatedAt(id, pageRequest)
                 .forEach(r -> request.add(RecruitmentResponseDto.RCommentChildWithPaging
                         .builder()
-                        .userImageURL(r.getUser().getImageURL())
+                        .userImageURI(r.getUser().getImageURI())
                         .content(r.getContent())
                         .isWriter(false)
                         .createdAt(r.getCreatedAt())

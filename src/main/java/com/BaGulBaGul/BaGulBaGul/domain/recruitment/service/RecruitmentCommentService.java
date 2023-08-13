@@ -8,7 +8,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,11 +24,11 @@ public class RecruitmentCommentService {
 
         // 작성자인지 판단하는 코드 추가 예정 (토큰으로 판단?)
 
-        recruitmentCommentRepository.findCommentByRecruitmentId(id, pageRequest)
+        recruitmentCommentRepository.findCommentByRecruitmentIdOrderByCreatedAtDesc(id, pageRequest)
                 .forEach(r -> request.add(RecruitmentResponseDto.RCommentWithPaging
                         .builder()
                         .recruitmentCommentId(r.getId())
-                        .userImageURL(r.getUser().getImageURL())
+                        .userImageURI(r.getUser().getImageURI())
                         .content(r.getContent())
                         .isWriter(false) // 개발 예정
                         .createdAt(r.getCreatedAt())

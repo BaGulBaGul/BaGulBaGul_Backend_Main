@@ -47,8 +47,8 @@ public class Recruitment extends BaseTimeEntity {
     @Column(name="tags")
     String tags;
 
-    @Column(name="image_url")
-    String imageURL;
+    @Column(name="image_uri")
+    String imageURI;
 
     @Builder
     public Recruitment(
@@ -61,7 +61,7 @@ public class Recruitment extends BaseTimeEntity {
             LocalDateTime startDate,
             LocalDateTime endDate,
             String tags,
-            String imageURL
+            String imageURI
     ){
         this.type = type;
         this.user = user;
@@ -72,6 +72,6 @@ public class Recruitment extends BaseTimeEntity {
         this.startDate = startDate;
         this.endDate = endDate;
         this.tags = tags;
-        this.imageURL = imageURL;
+        this.imageURI = imageURI;
     }
 }
