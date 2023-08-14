@@ -4,6 +4,9 @@ import com.BaGulBaGul.BaGulBaGul.domain.base.BaseTimeEntity;
 import com.BaGulBaGul.BaGulBaGul.domain.post.constant.PostType;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -13,6 +16,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,7 +25,7 @@ import lombok.Setter;
 
 
 @Getter
-@Entity(name = "post")
+@Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Post extends BaseTimeEntity {
     @Id
@@ -67,6 +71,24 @@ public class Post extends BaseTimeEntity {
     @Column(name = "image_url")
     String image_url;
 
+    @Setter
+    @Column(name = "like_count")
+    Integer likeCount;
+
+    @Setter
+    @Column(name = "comment_count")
+    Integer commentCount;
+
+    @Setter
+    @Column(name = "views")
+    Integer views;
+
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    private List<PostCategory> categories = new ArrayList<>();
+
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
+    private List<PostLike> likes = new ArrayList<>();
+
     @Builder
     public Post(
             PostType type,
@@ -77,7 +99,10 @@ public class Post extends BaseTimeEntity {
             LocalDateTime startDate,
             LocalDateTime endDate,
             String tags,
-            String image_url
+            String image_url,
+            Integer likeCount,
+            Integer commentCount,
+            Integer views
     ) {
         this.type = type;
         this.user = user;
@@ -88,5 +113,8 @@ public class Post extends BaseTimeEntity {
         this.endDate = endDate;
         this.tags = tags;
         this.image_url = image_url;
+        this.likeCount = likeCount;
+        this.commentCount = commentCount;
+        this.views = views;
     }
 }

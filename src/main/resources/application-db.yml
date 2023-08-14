@@ -41,9 +41,9 @@ spring:
       on-profile: 'db-mysql'
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/ground
-    username: root
-    password: sonamu0928*
-#    url: ${MYSQL_URL}
-#    username: ${MYSQL_USERNAME}
-#    password: ${MYSQL_PASSWORD}
+    url: ${MYSQL_URL}
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
+  jpa:
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
