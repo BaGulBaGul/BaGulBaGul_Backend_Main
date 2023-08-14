@@ -82,6 +82,9 @@ public class Post extends BaseTimeEntity {
     @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private List<PostCategory> categories = new ArrayList<>();
 
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
+    private List<PostLike> likes = new ArrayList<>();
+
     @Builder
     public Post(
             PostType type,
