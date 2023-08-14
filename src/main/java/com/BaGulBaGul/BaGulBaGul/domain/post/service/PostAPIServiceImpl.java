@@ -32,6 +32,8 @@ public class PostAPIServiceImpl implements PostAPIService {
 
     @Transactional
     public PostDetailResponse getPostDetailById(Long postId) {
+        //일단 조회수 update, 존재하지 않는 글이라면 아무 일도 일어나지 않음. 방금 조회한 것도 조회수에 포함하기 위해 먼저 해줌.
+        postRepository.increaseViewsById(postId);
         Post post = postRepository.findWithUserAndCategoriesById(postId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
         return PostDetailResponse.of(post);
     }
@@ -68,6 +70,7 @@ public class PostAPIServiceImpl implements PostAPIService {
                 .image_url(postRegisterRequest.getImage_url())
                 .likeCount(0)
                 .commentCount(0)
+                .views(0)
                 .build();
         //카테고리 등록
         for(String categoryName : postRegisterRequest.getCategories()) {

@@ -30,6 +30,7 @@ public class PostDetailResponse {
     private String image_url;
     private int likeCount;
     private int commentCount;
+    private int views;
     private LocalDateTime createdAt;
     private LocalDateTime lastModifiedAt;
 
@@ -56,6 +57,7 @@ public class PostDetailResponse {
                 .image_url(post.getImage_url())
                 .likeCount(post.getLikeCount())
                 .commentCount(post.getCommentCount())
+                .views(post.getViews())
                 .createdAt(post.getCreatedAt())
                 .lastModifiedAt(post.getLastModifiedAt())
                 .build();

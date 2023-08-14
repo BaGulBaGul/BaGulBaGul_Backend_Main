@@ -79,6 +79,10 @@ public class Post extends BaseTimeEntity {
     @Column(name = "comment_count")
     Integer commentCount;
 
+    @Setter
+    @Column(name = "views")
+    Integer views;
+
     @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private List<PostCategory> categories = new ArrayList<>();
 
@@ -97,7 +101,8 @@ public class Post extends BaseTimeEntity {
             String tags,
             String image_url,
             Integer likeCount,
-            Integer commentCount
+            Integer commentCount,
+            Integer views
     ) {
         this.type = type;
         this.user = user;
@@ -110,5 +115,6 @@ public class Post extends BaseTimeEntity {
         this.image_url = image_url;
         this.likeCount = likeCount;
         this.commentCount = commentCount;
+        this.views = views;
     }
 }

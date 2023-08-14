@@ -25,6 +25,10 @@ public interface PostRepository extends JpaRepository<Post, Long>, FindPostByCon
     @Query(value = "update from Post post set post.likeCount = post.likeCount - 1 where post = :post")
     void decreaseLikeCount(@Param(value = "post") Post post);
 
+    @Modifying(clearAutomatically = true)
+    @Query(value = "update from Post post set post.views = post.views + 1 where post.id = :postId")
+    void increaseViewsById(@Param(value = "postId") Long postId);
+
     @Query(
             value = "SELECT p FROM Post p INNER JOIN p.likes pl WHERE p.type = :type and pl.user.id = :userId"
     )
