@@ -30,20 +30,20 @@ public class User extends BaseTimeEntity {
     @Column(name="sex")
     String sex;
 
-    @Column(name="image_url")
-    String imageURL;
+    @Column(name="image_uri")
+    String imageURI;
 
     @Builder
     public User(
             String email,
             String nickName,
             String sex,
-            String imageURL
+            String imageURI
     ) {
         this.email = email;
         this.nickname = nickName;
         this.sex = sex;
-        this.imageURL = imageURL;
+        this.imageURI = imageURI;
     }
 
 }
