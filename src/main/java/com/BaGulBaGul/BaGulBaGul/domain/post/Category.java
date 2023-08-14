@@ -8,7 +8,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 @Getter
-@Entity(name = "category")
+@Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Category {
     @Id

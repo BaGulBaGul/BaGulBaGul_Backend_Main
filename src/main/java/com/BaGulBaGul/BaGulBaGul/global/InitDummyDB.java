@@ -58,7 +58,7 @@ public class InitDummyDB {
                     .sex(sex)
                     .email("test" + cnt + "email.com")
                     .nickName("testUser" + cnt)
-                    .imageURL("testImage.png")
+                    .imageURI("testImage.png")
                     .build();
             userRepository.save(user);
             result.add(user);
@@ -127,6 +127,7 @@ public class InitDummyDB {
                     .headCount(rand.nextInt(100))
                     .image_url("tttt")
                     .content("테스트게시글" + cnt)
+                    .views(0)
                     .build();
             postRepository.save(post);
             int commentCount = 0, likeCount = rand.nextInt(10);//users.size());
@@ -152,7 +153,7 @@ public class InitDummyDB {
                             );
                 }
             }
-            //post.setCommentCount(commentCount);
+            post.setCommentCount(commentCount);
 
             //좋아요
             Set<User> likeUsers = new HashSet<>();
@@ -164,7 +165,7 @@ public class InitDummyDB {
                         new PostLike(post, user)
                 );
             }
-            //post.setLikeCount(likeUsers.size());
+            post.setLikeCount(likeUsers.size());
 
             //카테고리
             int categoryCnt = rand.nextInt(5);

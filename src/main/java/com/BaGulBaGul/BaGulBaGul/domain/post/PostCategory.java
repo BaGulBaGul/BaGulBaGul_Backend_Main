@@ -9,7 +9,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 
 @Getter
-@Entity(name = "post_category")
+@Entity
 @IdClass(PostCategory.PostCategoryId.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PostCategory {

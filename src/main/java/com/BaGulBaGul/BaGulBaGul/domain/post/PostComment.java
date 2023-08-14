@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
-@Entity(name = "post_comment")
+@Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PostComment extends BaseTimeEntity {
     @Id
