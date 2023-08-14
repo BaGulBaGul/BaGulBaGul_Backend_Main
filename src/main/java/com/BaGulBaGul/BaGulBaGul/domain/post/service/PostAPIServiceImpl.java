@@ -6,6 +6,8 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostDetailResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostSimpleResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
+import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserRepository;
@@ -118,5 +120,36 @@ public class PostAPIServiceImpl implements PostAPIService {
         }
         //삭제
         postService.delete(post);
+    }
+
+    @Override
+    @Transactional(rollbackFor = {DuplicateLikeException.class})
+    public void addLike(Long postId, Long userId) throws DuplicateLikeException {
+        User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        Post post = postRepository.findById(postId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        //addLike에서 db단의 검증이 수행되지만 애플리케이션에서도 한번 검사
+        if(postService.existsLike(post, user)) {
+            throw new DuplicateLikeException();
+        }
+        postService.addLike(post, user);
+    }
+
+    @Override
+    @Transactional(rollbackFor = {LikeNotExistException.class})
+    public void deleteLike(Long postId, Long userId) throws LikeNotExistException {
+        User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        Post post = postRepository.findById(postId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        if(!postService.existsLike(post, user)) {
+            throw new LikeNotExistException();
+        }
+        postService.deleteLike(post, user);
+    }
+
+    @Override
+    @Transactional
+    public boolean isMyLike(Long postId, Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        Post post = postRepository.findById(postId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        return postService.existsLike(post, user);
     }
 }

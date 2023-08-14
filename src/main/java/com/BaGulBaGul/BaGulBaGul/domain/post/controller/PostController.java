@@ -2,6 +2,7 @@ package com.BaGulBaGul.BaGulBaGul.domain.post.controller;
 
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostConditionalRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostDetailResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.IsMyLikeResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostRegisterResponse;
@@ -17,4 +18,8 @@ public interface PostController {
     ApiResponse<Object> modifyPost(Long postId, Long userId, PostModifyRequest postModifyRequest);
 
     ApiResponse<Object> deletePost(Long postId, Long userId);
+
+    ApiResponse<Object> addLike(Long postId, Long userId);
+    ApiResponse<Object> deleteLike(Long postId, Long userId);
+    ApiResponse<IsMyLikeResponse> isMyLike(Long postId, Long userId);
 }

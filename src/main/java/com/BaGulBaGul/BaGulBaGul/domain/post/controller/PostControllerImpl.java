@@ -1,11 +1,14 @@
 package com.BaGulBaGul.BaGulBaGul.domain.post.controller;
 
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.IsMyLikeResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostConditionalRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostDetailResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostRegisterResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostSimpleResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
+import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostAPIService;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
 import javax.validation.Valid;
@@ -69,5 +72,42 @@ public class PostControllerImpl implements PostController {
     ) {
         postAPIService.deletePost(postId, userId);
         return ApiResponse.of(null);
+    }
+
+    @Override
+    @PostMapping("/{postId}/addlike")
+    public ApiResponse<Object> addLike(
+            @PathVariable(name="postId") Long postId,
+            Long userId
+    ) {
+        try {
+            postAPIService.addLike(postId, userId);
+        } catch (DuplicateLikeException duplicateLikeException) {
+        }
+        return ApiResponse.of(null);
+    }
+
+    @Override
+    @DeleteMapping("/{postId}/deletelike")
+    public ApiResponse<Object> deleteLike(
+            @PathVariable(name="postId") Long postId,
+            Long userId
+    ) {
+        try {
+            postAPIService.deleteLike(postId, userId);
+        } catch (LikeNotExistException e) {
+        }
+        return ApiResponse.of(null);
+    }
+
+    @Override
+    @GetMapping("/{postId}/ismylike")
+    public ApiResponse<IsMyLikeResponse> isMyLike(
+            @PathVariable(name="postId") Long postId,
+            Long userId
+    ) {
+        return ApiResponse.of(
+                new IsMyLikeResponse(postAPIService.isMyLike(postId, userId))
+        );
     }
 }
