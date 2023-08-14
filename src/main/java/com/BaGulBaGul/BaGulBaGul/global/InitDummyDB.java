@@ -58,7 +58,7 @@ public class InitDummyDB {
                     .sex(sex)
                     .email("test" + cnt + "email.com")
                     .nickName("testUser" + cnt)
-                    .imageURL("testImage.png")
+                    .imageURI("testImage.png")
                     .build();
             userRepository.save(user);
             result.add(user);
