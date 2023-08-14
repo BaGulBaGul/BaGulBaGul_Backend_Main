@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface PostLikeRepository extends JpaRepository<PostLike, PostLike.PostLikeId> {
+public interface PostLikeRepository extends JpaRepository<PostLike, Long> {
     @Modifying
     @Query(value = "DELETE FROM PostLike pl WHERE pl.post = :post")
     void deleteAllByPost(@Param("post") Post post);

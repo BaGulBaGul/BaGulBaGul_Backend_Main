@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface PostCommentLikeRepository extends JpaRepository<PostCommentLike, PostCommentLike.PostCommentLikeId> {
+public interface PostCommentLikeRepository extends JpaRepository<PostCommentLike, Long> {
     @Modifying
     @Query(value =
             "DELETE FROM PostCommentLike pcl "
