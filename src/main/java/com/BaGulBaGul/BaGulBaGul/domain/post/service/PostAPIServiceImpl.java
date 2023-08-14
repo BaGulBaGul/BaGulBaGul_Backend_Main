@@ -1,6 +1,8 @@
 package com.BaGulBaGul.BaGulBaGul.domain.post.service;
 
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetLikePostRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetLikePostResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostConditionalRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostDetailResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostModifyRequest;
@@ -37,6 +39,16 @@ public class PostAPIServiceImpl implements PostAPIService {
     @Override
     public Page<PostSimpleResponse> getPostPageByCondition(PostConditionalRequest postConditionalRequest, Pageable pageable) {
         return postRepository.findPostSimpleResponsePageByCondition(postConditionalRequest, pageable);
+    }
+
+    @Override
+    public Page<GetLikePostResponse> getMyLikePost(
+            GetLikePostRequest getLikePostRequest,
+            Long userId,
+            Pageable pageable
+    ) {
+        Page<Post> posts = postRepository.getLikePostWithType(userId, getLikePostRequest.getType(), pageable);
+        return posts.map(GetLikePostResponse::of);
     }
 
     @Override

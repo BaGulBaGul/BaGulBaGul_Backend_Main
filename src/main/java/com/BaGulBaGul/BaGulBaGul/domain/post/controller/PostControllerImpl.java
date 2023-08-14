@@ -1,5 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.domain.post.controller;
 
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetLikePostRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetLikePostResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.IsMyLikeResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostConditionalRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostDetailResponse;
@@ -108,6 +110,18 @@ public class PostControllerImpl implements PostController {
     ) {
         return ApiResponse.of(
                 new IsMyLikeResponse(postAPIService.isMyLike(postId, userId))
+        );
+    }
+
+    @Override
+    @GetMapping("/mylike")
+    public ApiResponse<Page<GetLikePostResponse>> getMyLike(
+            Long userId,
+            GetLikePostRequest getLikePostRequest,
+            Pageable pageable
+    ) {
+        return ApiResponse.of(
+                postAPIService.getMyLikePost(getLikePostRequest, userId, pageable)
         );
     }
 }

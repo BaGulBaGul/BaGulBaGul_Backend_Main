@@ -1,5 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.domain.post.controller;
 
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetLikePostRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetLikePostResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostConditionalRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostDetailResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.IsMyLikeResponse;
@@ -22,4 +24,5 @@ public interface PostController {
     ApiResponse<Object> addLike(Long postId, Long userId);
     ApiResponse<Object> deleteLike(Long postId, Long userId);
     ApiResponse<IsMyLikeResponse> isMyLike(Long postId, Long userId);
+    ApiResponse<Page<GetLikePostResponse>> getMyLike(Long userId, GetLikePostRequest getLikePostRequest, Pageable pageable);
 }

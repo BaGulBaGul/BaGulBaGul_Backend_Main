@@ -1,5 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.domain.post.service;
 
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetLikePostRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetLikePostResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostConditionalRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostDetailResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostModifyRequest;
@@ -13,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 public interface PostAPIService {
     PostDetailResponse getPostDetailById(Long postId);
     Page<PostSimpleResponse> getPostPageByCondition(PostConditionalRequest postConditionalRequest, Pageable pageable);
+    Page<GetLikePostResponse> getMyLikePost(GetLikePostRequest getLikePostRequest, Long userId, Pageable pageable);
     Long registerPost(Long userId, PostRegisterRequest postRegisterRequest);
     void modifyPost(Long postId, Long userId, PostModifyRequest postModifyRequest);
     void deletePost(Long postId, Long userId);
