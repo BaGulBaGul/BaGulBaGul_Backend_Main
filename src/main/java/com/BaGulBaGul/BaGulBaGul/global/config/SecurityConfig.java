@@ -31,6 +31,10 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션x
                 .authorizeRequests()
+                //post 비로그인 허용 경로
+                .antMatchers(HttpMethod.GET, "/api/post/{\\d+}").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/post").permitAll()
+                //나머지 로그인 필요
                 .anyRequest().authenticated();
                 // JWT 및 로그인 필터 추가 예정
                 // 회원가입 및 로그인 예외 처리 EntryPoint 추가 예정
@@ -41,9 +45,7 @@ public class SecurityConfig {
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring()
-                .antMatchers("/doc", "/swagger*/**", "/favicon*/**", "/v2/api-docs")
-                .antMatchers(HttpMethod.GET, "/api/post")
-                .antMatchers(HttpMethod.GET, "/api/post/{\\d+}");
+                .antMatchers("/doc", "/swagger*/**", "/favicon*/**", "/v2/api-docs");
                 // 스웨거 경로
                 // 인증이 필요하지 않는 경로 추가
     }
