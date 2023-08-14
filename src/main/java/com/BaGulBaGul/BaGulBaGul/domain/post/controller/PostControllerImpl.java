@@ -17,6 +17,7 @@ import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -48,7 +49,10 @@ public class PostControllerImpl implements PostController {
 
     @Override
     @PostMapping("")
-    public ApiResponse<PostRegisterResponse> registerPost(Long userId, @RequestBody @Valid PostRegisterRequest postRegisterRequest) {
+    public ApiResponse<PostRegisterResponse> registerPost(
+            @AuthenticationPrincipal Long userId,
+            @RequestBody @Valid PostRegisterRequest postRegisterRequest
+    ) {
         Long postId = postAPIService.registerPost(userId, postRegisterRequest);
         return ApiResponse.of(
                 new PostRegisterResponse(postId)
@@ -59,7 +63,7 @@ public class PostControllerImpl implements PostController {
     @PatchMapping("/{postId}")
     public ApiResponse<Object> modifyPost(
             @PathVariable(name="postId") Long postId,
-            Long userId,
+            @AuthenticationPrincipal Long userId,
             @RequestBody PostModifyRequest postModifyRequest
     ) {
         postAPIService.modifyPost(postId, userId, postModifyRequest);
@@ -70,7 +74,7 @@ public class PostControllerImpl implements PostController {
     @DeleteMapping("/{postId}")
     public ApiResponse<Object> deletePost(
             @PathVariable(name="postId") Long postId,
-            Long userId
+            @AuthenticationPrincipal Long userId
     ) {
         postAPIService.deletePost(postId, userId);
         return ApiResponse.of(null);
@@ -80,7 +84,7 @@ public class PostControllerImpl implements PostController {
     @PostMapping("/{postId}/addlike")
     public ApiResponse<Object> addLike(
             @PathVariable(name="postId") Long postId,
-            Long userId
+            @AuthenticationPrincipal Long userId
     ) {
         try {
             postAPIService.addLike(postId, userId);
@@ -93,7 +97,7 @@ public class PostControllerImpl implements PostController {
     @DeleteMapping("/{postId}/deletelike")
     public ApiResponse<Object> deleteLike(
             @PathVariable(name="postId") Long postId,
-            Long userId
+            @AuthenticationPrincipal Long userId
     ) {
         try {
             postAPIService.deleteLike(postId, userId);
@@ -106,7 +110,7 @@ public class PostControllerImpl implements PostController {
     @GetMapping("/{postId}/ismylike")
     public ApiResponse<IsMyLikeResponse> isMyLike(
             @PathVariable(name="postId") Long postId,
-            Long userId
+            @AuthenticationPrincipal Long userId
     ) {
         return ApiResponse.of(
                 new IsMyLikeResponse(postAPIService.isMyLike(postId, userId))
@@ -116,7 +120,7 @@ public class PostControllerImpl implements PostController {
     @Override
     @GetMapping("/mylike")
     public ApiResponse<Page<GetLikePostResponse>> getMyLike(
-            Long userId,
+            @AuthenticationPrincipal Long userId,
             GetLikePostRequest getLikePostRequest,
             Pageable pageable
     ) {

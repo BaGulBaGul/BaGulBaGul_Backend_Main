@@ -3,6 +3,7 @@ package com.BaGulBaGul.BaGulBaGul.global.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -40,7 +41,10 @@ public class SecurityConfig {
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring()
-                .antMatchers("/doc", "/swagger*/**", "/favicon*/**", "/v2/api-docs"); // 스웨거 경로
+                .antMatchers("/doc", "/swagger*/**", "/favicon*/**", "/v2/api-docs")
+                .antMatchers(HttpMethod.GET, "/api/post")
+                .antMatchers(HttpMethod.GET, "/api/post/{\\d+}");
+                // 스웨거 경로
                 // 인증이 필요하지 않는 경로 추가
     }
 }
