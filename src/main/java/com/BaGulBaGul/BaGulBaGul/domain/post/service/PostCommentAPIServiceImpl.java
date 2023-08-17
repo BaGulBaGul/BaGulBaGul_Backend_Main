@@ -1,15 +1,24 @@
 package com.BaGulBaGul.BaGulBaGul.domain.post.service;
 
+import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
+import com.BaGulBaGul.BaGulBaGul.domain.post.PostComment;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetPostCommentChildPageResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetPostCommentPageResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentChildRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.user.User;
+import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserRepository;
+import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
+import com.BaGulBaGul.BaGulBaGul.global.response.ErrorCode;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -17,6 +26,10 @@ public class PostCommentAPIServiceImpl implements PostCommentAPIService {
 
     private final PostCommentRepository postCommentRepository;
     private final PostCommentChildRepository postCommentChildRepository;
+    private final PostRepository postRepository;
+    private final UserRepository userRepository;
+
+    private final PostCommentService postCommentService;
 
     @Override
     public Page<GetPostCommentPageResponse> getPostCommentPage(Long postId, Long requestUserId, Pageable pageable) {
@@ -44,5 +57,14 @@ public class PostCommentAPIServiceImpl implements PostCommentAPIService {
         }
         Long count = postCommentChildRepository.getPostCommentChildPageCount(postCommentId);
         return new PageImpl(result, pageable, count);
+    }
+
+    @Override
+    @Transactional
+    public Long registerPostComment(Long postId, Long userId, PostCommentRegisterRequest postCommentRegisterRequest) {
+        Post post = postRepository.findById(postId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        PostComment postComment = postCommentService.registerComment(post, user, postCommentRegisterRequest.getContent());
+        return postComment.getId();
     }
 }
