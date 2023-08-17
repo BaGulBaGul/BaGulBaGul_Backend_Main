@@ -32,8 +32,9 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션x
                 .authorizeRequests()
                 //post 비로그인 허용 경로
-                .antMatchers(HttpMethod.GET, "/api/post/{\\d+}").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/post").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/post/{\\d+}").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/post/{\\d+}/comment").permitAll()
                 //나머지 로그인 필요
                 .anyRequest().authenticated();
                 // JWT 및 로그인 필터 추가 예정
