@@ -1,5 +1,6 @@
 package com.BaGulBaGul.BaGulBaGul.domain.post.controller;
 
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetPostCommentChildPageResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetPostCommentPageResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostCommentAPIService;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
@@ -25,10 +26,20 @@ public class PostCommentControllerImpl implements PostCommentController {
             Long requestUserId,
             Pageable pageable
     ) {
+        return ApiResponse.of(postCommentAPIService.getPostCommentPage(postId, requestUserId, pageable));
+    }
+
+    @GetMapping("/comment/{postCommentId}/postCommentChild")
+    @Override
+    public ApiResponse<Page<GetPostCommentChildPageResponse>> getPostCommentChildPage(
+            @PathVariable(name = "postCommentId") Long postCommentId,
+            Long requestUserId,
+            Pageable pageable
+    ) {
         return ApiResponse.of(
-                postCommentAPIService.getPostCommentPage(
-                    postId, requestUserId, pageable
-            )
+                postCommentAPIService.getPostCommentChildPage(
+                        postCommentId, requestUserId, pageable
+                )
         );
     }
 }

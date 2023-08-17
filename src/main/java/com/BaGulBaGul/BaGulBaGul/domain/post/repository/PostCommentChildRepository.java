@@ -2,6 +2,9 @@ package com.BaGulBaGul.BaGulBaGul.domain.post.repository;
 
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentChild;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetPostCommentChildPageResponse;
+import java.util.List;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -18,4 +21,52 @@ public interface PostCommentChildRepository extends JpaRepository<PostCommentChi
                 + ")"
     )
     void deleteAllByPost(@Param("post") Post post);
+
+    @Query(
+            value = "SELECT new com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetPostCommentChildPageResponse( "
+                        + "pch.id, "
+                        + "user.id, "
+                        + "user.nickname, "
+                        + "pch.content, "
+                        + "pch.likeCount, "
+                        + "CASE "
+                            + "WHEN pchl.id IS NULL THEN false "
+                            + "ELSE true "
+                        + "END, "
+                        + "pch.createdAt"
+                    + ") "
+                    + "FROM PostCommentChild pch "
+                        + "INNER JOIN pch.user user "
+                        + "LEFT OUTER JOIN pch.likes pchl ON pchl.user.id = :requestUserId "
+                    + "WHERE pch.postComment.id = :postCommentId"
+    )
+    List<GetPostCommentChildPageResponse> getPostCommentChildPageWithMyLike(
+            @Param("postCommentId") Long postCommentId,
+            @Param("requestUserId") Long requestUserId,
+            Pageable pageable
+    );
+
+    @Query(
+            value = "SELECT new com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetPostCommentChildPageResponse( "
+                    + "pch.id, "
+                    + "user.id, "
+                    + "user.nickname, "
+                    + "pch.content, "
+                    + "pch.likeCount, "
+                    + "false, "
+                    + "pch.createdAt"
+                    + ") "
+                    + "FROM PostCommentChild pch "
+                    + "INNER JOIN pch.user user "
+                    + "WHERE pch.postComment.id = :postCommentId"
+    )
+    List<GetPostCommentChildPageResponse> getPostCommentChildPage(
+            @Param("postCommentId") Long postCommentId,
+            Pageable pageable
+    );
+
+    @Query("SELECT count(*) FROM PostCommentChild pch WHERE pch.postComment.id = :postCommentId")
+    Long getPostCommentChildPageCount (
+            @Param("postCommentId") Long postCommentId
+    );
 }

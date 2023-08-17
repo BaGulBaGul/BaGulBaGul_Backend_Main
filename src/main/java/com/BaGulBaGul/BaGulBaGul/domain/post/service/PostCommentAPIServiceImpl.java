@@ -1,6 +1,8 @@
 package com.BaGulBaGul.BaGulBaGul.domain.post.service;
 
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetPostCommentChildPageResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetPostCommentPageResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentChildRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 public class PostCommentAPIServiceImpl implements PostCommentAPIService {
 
     private final PostCommentRepository postCommentRepository;
+    private final PostCommentChildRepository postCommentChildRepository;
 
     @Override
     public Page<GetPostCommentPageResponse> getPostCommentPage(Long postId, Long requestUserId, Pageable pageable) {
@@ -27,6 +30,19 @@ public class PostCommentAPIServiceImpl implements PostCommentAPIService {
             result = postCommentRepository.getPostCommentPageWithMyLike(postId, requestUserId, pageable);
         }
         Long count = postCommentRepository.getPostCommentPageWithMyLikeCount(postId);
+        return new PageImpl(result, pageable, count);
+    }
+
+    @Override
+    public Page<GetPostCommentChildPageResponse> getPostCommentChildPage(Long postCommentId, Long requestUserId, Pageable pageable) {
+        List<GetPostCommentChildPageResponse> result;
+        if(requestUserId == null) {
+            result = postCommentChildRepository.getPostCommentChildPage(postCommentId, pageable);
+        }
+        else {
+            result = postCommentChildRepository.getPostCommentChildPageWithMyLike(postCommentId, requestUserId, pageable);
+        }
+        Long count = postCommentChildRepository.getPostCommentChildPageCount(postCommentId);
         return new PageImpl(result, pageable, count);
     }
 }
