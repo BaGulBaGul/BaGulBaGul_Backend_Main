@@ -36,7 +36,7 @@ public class PostCommentControllerImpl implements PostCommentController {
         return ApiResponse.of(postCommentAPIService.getPostCommentPage(postId, requestUserId, pageable));
     }
 
-    @GetMapping("/comment/{postCommentId}/postCommentChild")
+    @GetMapping("/comment/{postCommentId}/children")
     @Override
     public ApiResponse<Page<GetPostCommentChildPageResponse>> getPostCommentChildPage(
             @PathVariable(name = "postCommentId") Long postCommentId,
@@ -63,7 +63,7 @@ public class PostCommentControllerImpl implements PostCommentController {
         );
     }
 
-    @PostMapping("/comment/{postCommentId}/child")
+    @PostMapping("/comment/{postCommentId}/children")
     @Override
     public ApiResponse<PostCommentChildRegisterResponse> registerPostCommentChild(
             @PathVariable(name = "postCommentId") Long postCommentId,
