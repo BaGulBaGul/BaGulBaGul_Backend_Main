@@ -2,6 +2,7 @@ package com.BaGulBaGul.BaGulBaGul.domain.post.controller;
 
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetPostCommentChildPageResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetPostCommentPageResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentChildModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentChildRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentChildRegisterResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentModifyRequest;
@@ -87,5 +88,16 @@ public class PostCommentControllerImpl implements PostCommentController {
         return ApiResponse.of(
                 new PostCommentChildRegisterResponse(postCommentChildId)
         );
+    }
+
+    @PatchMapping("/comment/children/{postCommentChildId}")
+    @Override
+    public ApiResponse<Object> modifyPostCommentChild(
+            @PathVariable(name = "postCommentChildId") Long postCommentChildId,
+            Long userId,
+            @RequestBody PostCommentChildModifyRequest postCommentChildModifyRequest
+    ) {
+        postCommentAPIService.modifyPostCommentChild(postCommentChildId, userId, postCommentChildModifyRequest);
+        return ApiResponse.of(null);
     }
 }

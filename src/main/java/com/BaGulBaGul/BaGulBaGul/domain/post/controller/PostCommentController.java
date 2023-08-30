@@ -3,6 +3,7 @@ package com.BaGulBaGul.BaGulBaGul.domain.post.controller;
 
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetPostCommentChildPageResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetPostCommentPageResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentChildModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentChildRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentChildRegisterResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentModifyRequest;
@@ -18,4 +19,5 @@ public interface PostCommentController {
     ApiResponse<PostCommentRegisterResponse> registerPostComment(Long postId, Long userId, PostCommentRegisterRequest postCommentRegisterRequest);
     ApiResponse<Object> modifyPostComment(Long postCommentId, Long userId, PostCommentModifyRequest postCommentModifyRequest);
     ApiResponse<PostCommentChildRegisterResponse> registerPostCommentChild(Long postCommentId, Long userId, PostCommentChildRegisterRequest postCommentChildRegisterRequest);
+    ApiResponse<Object> modifyPostCommentChild(Long postCommentChildId, Long userId, PostCommentChildModifyRequest postCommentChildModifyRequest);
 }
