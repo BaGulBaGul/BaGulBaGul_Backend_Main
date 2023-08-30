@@ -64,4 +64,12 @@ public interface PostCommentRepository extends JpaRepository<PostComment, Long> 
     Long getPostCommentPageWithMyLikeCount (
             @Param("postId") Long postId
     );
+
+    @Modifying(clearAutomatically = true)
+    @Query(value = "update from PostComment pc set pc.commentChildCount = pc.commentChildCount + 1 where pc = :postComment")
+    void increaseCommentChildCount(@Param(value = "postComment") PostComment postComment);
+
+    @Modifying(clearAutomatically = true)
+    @Query(value = "update from PostComment pc set pc.commentChildCount = pc.commentChildCount - 1 where pc = :postComment")
+    void decreaseCommentChildCount(@Param(value = "postComment") PostComment postComment);
 }
