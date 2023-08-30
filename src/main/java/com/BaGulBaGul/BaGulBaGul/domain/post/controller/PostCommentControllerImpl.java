@@ -4,6 +4,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetPostCommentChildPageResponse
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetPostCommentPageResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentChildRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentChildRegisterResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentRegisterResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostCommentAPIService;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -61,6 +63,17 @@ public class PostCommentControllerImpl implements PostCommentController {
         return ApiResponse.of(
                 new PostCommentRegisterResponse(postCommentId)
         );
+    }
+
+    @PatchMapping("comment/{postCommentId}")
+    @Override
+    public ApiResponse<Object> modifyPostComment(
+            @PathVariable(name = "postCommentId") Long postCommentId,
+            Long userId,
+            @RequestBody PostCommentModifyRequest postCommentModifyRequest
+    ) {
+        postCommentAPIService.modifyPostComment(postCommentId, userId, postCommentModifyRequest);
+        return ApiResponse.of(null);
     }
 
     @PostMapping("/comment/{postCommentId}/children")

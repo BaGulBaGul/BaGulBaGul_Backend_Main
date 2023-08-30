@@ -6,6 +6,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentChild;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetPostCommentChildPageResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetPostCommentPageResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentChildRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentChildRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentRepository;
@@ -68,6 +69,21 @@ public class PostCommentAPIServiceImpl implements PostCommentAPIService {
         User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
         PostComment postComment = postCommentService.registerComment(post, user, postCommentRegisterRequest.getContent());
         return postComment.getId();
+    }
+
+    @Override
+    @Transactional
+    public void modifyPostComment(Long postCommentId, Long userId, PostCommentModifyRequest postCommentModifyRequest) {
+        //엔티티 로드 & 검증
+        PostComment postComment = postCommentRepository.findById(postCommentId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        if(postComment.getUser().getId() != user.getId()) {
+            throw new GeneralException(ErrorCode.FORBIDDEN);
+        }
+        // 수정
+        if(postCommentModifyRequest.getContent() != null) {
+            postComment.setContent(postCommentModifyRequest.getContent());
+        }
     }
 
     @Override
