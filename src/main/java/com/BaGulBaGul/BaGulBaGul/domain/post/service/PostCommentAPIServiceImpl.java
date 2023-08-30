@@ -2,8 +2,10 @@ package com.BaGulBaGul.BaGulBaGul.domain.post.service;
 
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostComment;
+import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentChild;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetPostCommentChildPageResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetPostCommentPageResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentChildRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentChildRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentRepository;
@@ -66,5 +68,18 @@ public class PostCommentAPIServiceImpl implements PostCommentAPIService {
         User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
         PostComment postComment = postCommentService.registerComment(post, user, postCommentRegisterRequest.getContent());
         return postComment.getId();
+    }
+
+    @Override
+    @Transactional
+    public Long registerPostCommentChild(
+            Long postCommentId,
+            Long userId,
+            PostCommentChildRegisterRequest postCommentChildRegisterRequest
+    ) {
+        PostComment postComment = postCommentRepository.findById(postCommentId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        PostCommentChild postCommentChild = postCommentService.registerCommentChild(postComment, user, postCommentChildRegisterRequest.getContent());
+        return postCommentChild.getId();
     }
 }

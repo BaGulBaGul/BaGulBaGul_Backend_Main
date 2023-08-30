@@ -2,6 +2,8 @@ package com.BaGulBaGul.BaGulBaGul.domain.post.service;
 
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostComment;
+import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentChild;
+import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentChildRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
@@ -13,8 +15,10 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class PostCommentServiceImpl implements PostCommentService {
 
-    private final PostCommentRepository postCommentRepository;
     private final PostRepository postRepository;
+    private final PostCommentRepository postCommentRepository;
+    private final PostCommentChildRepository postCommentChildRepository;
+
     @Override
     @Transactional
     public PostComment registerComment(Post post, User user, String content) {
@@ -29,5 +33,18 @@ public class PostCommentServiceImpl implements PostCommentService {
         //댓글 등록
         postCommentRepository.save(postComment);
         return postComment;
+    }
+
+    @Override
+    @Transactional
+    public PostCommentChild registerCommentChild(PostComment postComment, User user, String content) {
+        postCommentRepository.increaseCommentChildCount(postComment);
+        PostCommentChild postCommentChild = PostCommentChild.builder()
+                .postComment(postComment)
+                .user(user)
+                .content(content)
+                .build();
+        postCommentChildRepository.save(postCommentChild);
+        return postCommentChild;
     }
 }

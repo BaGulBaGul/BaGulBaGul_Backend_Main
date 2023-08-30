@@ -2,6 +2,8 @@ package com.BaGulBaGul.BaGulBaGul.domain.post.controller;
 
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetPostCommentChildPageResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetPostCommentPageResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentChildRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentChildRegisterResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentRegisterResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostCommentAPIService;
@@ -54,10 +56,23 @@ public class PostCommentControllerImpl implements PostCommentController {
             @PathVariable(name = "postId") Long postId,
             Long userId,
             @RequestBody @Valid PostCommentRegisterRequest postCommentRegisterRequest
-            ) {
+    ) {
         Long postCommentId = postCommentAPIService.registerPostComment(postId, userId, postCommentRegisterRequest);
         return ApiResponse.of(
                 new PostCommentRegisterResponse(postCommentId)
+        );
+    }
+
+    @PostMapping("/comment/{postCommentId}/child")
+    @Override
+    public ApiResponse<PostCommentChildRegisterResponse> registerPostCommentChild(
+            @PathVariable(name = "postCommentId") Long postCommentId,
+            Long userId,
+            @RequestBody @Valid PostCommentChildRegisterRequest postCommentChildRegisterRequest
+    ) {
+        Long postCommentChildId = postCommentAPIService.registerPostCommentChild(postCommentId, userId, postCommentChildRegisterRequest);
+        return ApiResponse.of(
+                new PostCommentChildRegisterResponse(postCommentChildId)
         );
     }
 }
