@@ -9,7 +9,9 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentChildModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentChildRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentChildRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentLikeRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
@@ -32,7 +34,7 @@ public class PostCommentAPIServiceImpl implements PostCommentAPIService {
     private final PostCommentChildRepository postCommentChildRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
-
+    private final PostCommentLikeRepository postCommentLikeRepository;
     private final PostCommentService postCommentService;
 
     @Override
@@ -143,5 +145,19 @@ public class PostCommentAPIServiceImpl implements PostCommentAPIService {
         }
         //삭제
         postCommentService.deleteCommentChild(postCommentChild);
+    }
+
+    @Override
+    @Transactional(rollbackFor = DuplicateLikeException.class)
+    public void addLikeToComment(Long postCommentId, Long userId) throws DuplicateLikeException {
+        //엔티티 로드 & 검증
+        PostComment postComment = postCommentRepository.findById(postCommentId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        //이미 존재하는지 검색
+        if(postCommentLikeRepository.existsByPostCommentAndUser(postComment, user)) {
+            throw new DuplicateLikeException();
+        }
+        //좋아요 추가
+        postCommentService.addLikeToComment(postComment, user);
     }
 }

@@ -8,6 +8,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentChildRegisterRespons
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentRegisterResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostCommentAPIService;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
 import javax.validation.Valid;
@@ -121,4 +122,19 @@ public class PostCommentControllerImpl implements PostCommentController {
         postCommentAPIService.deletePostCommentChild(postCommentChildId, userId);
         return ApiResponse.of(null);
     }
+
+    @PostMapping("comment/{postCommentId}/like")
+    @Override
+    public ApiResponse<Object> addLikeToComment(
+            @PathVariable(name = "postCommentId") Long postCommentId,
+            Long userId
+    ) {
+        try {
+            postCommentAPIService.addLikeToComment(postCommentId, userId);
+        }
+        catch (DuplicateLikeException duplicateLikeException) {
+        }
+        return ApiResponse.of(null);
+    }
+
 }

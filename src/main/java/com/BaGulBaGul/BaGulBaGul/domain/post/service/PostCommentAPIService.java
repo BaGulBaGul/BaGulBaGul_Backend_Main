@@ -6,6 +6,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentChildModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentChildRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -18,4 +19,5 @@ public interface PostCommentAPIService {
     Long registerPostCommentChild(Long postCommentId, Long userId, PostCommentChildRegisterRequest postCommentChildRegisterRequest);
     void modifyPostCommentChild(Long postCommentChildId, Long userId, PostCommentChildModifyRequest postCommentChildModifyRequest);
     void deletePostCommentChild(Long postCommentChildId, Long userId);
+    void addLikeToComment(Long postCommentId, Long userId) throws DuplicateLikeException;
 }

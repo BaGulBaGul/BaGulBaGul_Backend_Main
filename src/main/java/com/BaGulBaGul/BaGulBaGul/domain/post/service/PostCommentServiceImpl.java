@@ -3,6 +3,8 @@ package com.BaGulBaGul.BaGulBaGul.domain.post.service;
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostComment;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentChild;
+import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentLike;
+import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentChildLikeRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentChildRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentLikeRepository;
@@ -10,6 +12,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -76,5 +79,18 @@ public class PostCommentServiceImpl implements PostCommentService {
         postCommentChildRepository.delete(postCommentChild);
         //댓글의 대댓글 개수 1 감소
         postCommentRepository.decreaseCommentChildCount(postCommentChild.getPostComment());
+    }
+
+    @Override
+    @Transactional(rollbackFor = {DuplicateLikeException.class})
+    public void addLikeToComment(PostComment postComment, User user) throws DuplicateLikeException {
+        //먼저 w lock 획득 후 s lock(FK) 획득
+        postCommentRepository.increaseLikeCount(postComment);
+        try {
+            postCommentLikeRepository.save(new PostCommentLike(postComment, user));
+            postCommentLikeRepository.flush();
+        } catch (DataIntegrityViolationException dataIntegrityViolationException) {
+            throw new DuplicateLikeException();
+        }
     }
 }
