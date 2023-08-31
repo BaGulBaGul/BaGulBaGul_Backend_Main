@@ -4,6 +4,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostComment;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentChild;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetPostCommentChildPageResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -76,4 +77,12 @@ public interface PostCommentChildRepository extends JpaRepository<PostCommentChi
     Long getPostCommentChildPageCount (
             @Param("postCommentId") Long postCommentId
     );
+
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("UPDATE FROM PostCommentChild pch SET pch.likeCount = pch.likeCount + 1 WHERE pch = :postCommentChild")
+    void increaseLikeCount(@Param(value = "postCommentChild") PostCommentChild postCommentChild);
+
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("UPDATE FROM PostCommentChild pch SET pch.likeCount = pch.likeCount - 1 WHERE pch = :postCommentChild")
+    void decreaseLikeCount(@Param(value = "postCommentChild") PostCommentChild postCommentChild);
 }

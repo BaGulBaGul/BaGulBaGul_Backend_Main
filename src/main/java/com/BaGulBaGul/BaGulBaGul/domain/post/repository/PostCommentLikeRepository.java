@@ -3,6 +3,7 @@ package com.BaGulBaGul.BaGulBaGul.domain.post.repository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostComment;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentLike;
+import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -25,4 +26,6 @@ public interface PostCommentLikeRepository extends JpaRepository<PostCommentLike
             "DELETE FROM PostCommentLike pcl WHERE pcl.postComment = :postComment"
     )
     void deleteAllByPostComment(@Param("postComment") PostComment postComment);
+
+    boolean existsByPostCommentAndUser(PostComment postComment, User user);
 }
