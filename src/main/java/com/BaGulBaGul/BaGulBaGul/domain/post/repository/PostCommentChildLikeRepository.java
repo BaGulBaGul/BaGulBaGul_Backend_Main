@@ -2,6 +2,7 @@ package com.BaGulBaGul.BaGulBaGul.domain.post.repository;
 
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostComment;
+import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentChild;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentChildLike;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -31,4 +32,10 @@ public interface PostCommentChildLikeRepository extends JpaRepository<PostCommen
                     + ")"
     )
     void deleteAllByPostComment(@Param("postComment") PostComment postComment);
+
+    @Modifying
+    @Query(value =
+            "DELETE FROM PostCommentChildLike pchl WHERE pchl.postCommentChild = :postCommentChild"
+    )
+    void deleteAllByPostCommentChild(@Param("postCommentChild") PostCommentChild postCommentChild);
 }

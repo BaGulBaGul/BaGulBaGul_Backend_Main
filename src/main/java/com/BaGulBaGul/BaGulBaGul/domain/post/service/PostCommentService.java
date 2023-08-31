@@ -9,4 +9,5 @@ public interface PostCommentService {
     PostComment registerComment(Post post, User user, String content);
     void deleteComment(PostComment postComment);
     PostCommentChild registerCommentChild(PostComment postComment, User user, String content);
+    void deleteCommentChild(PostCommentChild postCommentChild);
 }

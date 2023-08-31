@@ -111,4 +111,14 @@ public class PostCommentControllerImpl implements PostCommentController {
         postCommentAPIService.modifyPostCommentChild(postCommentChildId, userId, postCommentChildModifyRequest);
         return ApiResponse.of(null);
     }
+
+    @DeleteMapping("/comment/children/{postCommentChildId}")
+    @Override
+    public ApiResponse<Object> deletePostCommentChild(
+            @PathVariable(name = "postCommentChildId") Long postCommentChildId,
+            Long userId
+    ) {
+        postCommentAPIService.deletePostCommentChild(postCommentChildId, userId);
+        return ApiResponse.of(null);
+    }
 }

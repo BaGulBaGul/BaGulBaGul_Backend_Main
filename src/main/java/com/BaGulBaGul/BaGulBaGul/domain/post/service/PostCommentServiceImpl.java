@@ -66,4 +66,15 @@ public class PostCommentServiceImpl implements PostCommentService {
         postCommentChildRepository.save(postCommentChild);
         return postCommentChild;
     }
+
+    @Override
+    @Transactional
+    public void deleteCommentChild(PostCommentChild postCommentChild) {
+        //대댓글과 연결된 좋아요 삭제
+        postCommentChildLikeRepository.deleteAllByPostCommentChild(postCommentChild);
+        //대댓글 삭제
+        postCommentChildRepository.delete(postCommentChild);
+        //댓글의 대댓글 개수 1 감소
+        postCommentRepository.decreaseCommentChildCount(postCommentChild.getPostComment());
+    }
 }

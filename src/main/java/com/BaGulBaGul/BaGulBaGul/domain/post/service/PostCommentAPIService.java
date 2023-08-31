@@ -17,4 +17,5 @@ public interface PostCommentAPIService {
     void deletePostComment(Long postCommentId, Long userId);
     Long registerPostCommentChild(Long postCommentId, Long userId, PostCommentChildRegisterRequest postCommentChildRegisterRequest);
     void modifyPostCommentChild(Long postCommentChildId, Long userId, PostCommentChildModifyRequest postCommentChildModifyRequest);
+    void deletePostCommentChild(Long postCommentChildId, Long userId);
 }

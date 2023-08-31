@@ -131,4 +131,17 @@ public class PostCommentAPIServiceImpl implements PostCommentAPIService {
             postCommentChild.setContent(postCommentChildModifyRequest.getContent());
         }
     }
+
+    @Override
+    @Transactional
+    public void deletePostCommentChild(Long postCommentChildId, Long userId) {
+        //엔티티 로드 & 검증
+        PostCommentChild postCommentChild = postCommentChildRepository.findById(postCommentChildId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        if(postCommentChild.getUser().getId() != user.getId()) {
+            throw new GeneralException(ErrorCode.FORBIDDEN);
+        }
+        //삭제
+        postCommentService.deleteCommentChild(postCommentChild);
+    }
 }
