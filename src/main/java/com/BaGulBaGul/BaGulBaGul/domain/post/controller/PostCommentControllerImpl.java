@@ -14,6 +14,7 @@ import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -74,6 +75,16 @@ public class PostCommentControllerImpl implements PostCommentController {
             @RequestBody PostCommentModifyRequest postCommentModifyRequest
     ) {
         postCommentAPIService.modifyPostComment(postCommentId, userId, postCommentModifyRequest);
+        return ApiResponse.of(null);
+    }
+
+    @DeleteMapping("comment/{postCommentId}")
+    @Override
+    public ApiResponse<Object> deletePostComment(
+            @PathVariable(name = "postCommentId") Long postCommentId,
+            Long userId
+    ) {
+        postCommentAPIService.deletePostComment(postCommentId, userId);
         return ApiResponse.of(null);
     }
 

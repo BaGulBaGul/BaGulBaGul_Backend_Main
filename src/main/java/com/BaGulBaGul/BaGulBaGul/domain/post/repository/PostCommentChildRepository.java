@@ -1,6 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.domain.post.repository;
 
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
+import com.BaGulBaGul.BaGulBaGul.domain.post.PostComment;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentChild;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetPostCommentChildPageResponse;
 import java.util.List;
@@ -21,6 +22,12 @@ public interface PostCommentChildRepository extends JpaRepository<PostCommentChi
                 + ")"
     )
     void deleteAllByPost(@Param("post") Post post);
+
+    @Modifying
+    @Query(value =
+            "DELETE FROM PostCommentChild pch WHERE pch.postComment = :postComment"
+    )
+    void deleteAllByPostComment(@Param("postComment") PostComment postComment);
 
     @Query(
             value = "SELECT new com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetPostCommentChildPageResponse( "

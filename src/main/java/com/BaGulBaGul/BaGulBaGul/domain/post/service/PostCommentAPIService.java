@@ -14,6 +14,7 @@ public interface PostCommentAPIService {
     Page<GetPostCommentChildPageResponse> getPostCommentChildPage(Long postCommentId, Long requestUserId, Pageable pageable);
     Long registerPostComment(Long postId, Long userId, PostCommentRegisterRequest postCommentRegisterRequest);
     void modifyPostComment(Long postCommentId, Long userId, PostCommentModifyRequest postCommentModifyRequest);
+    void deletePostComment(Long postCommentId, Long userId);
     Long registerPostCommentChild(Long postCommentId, Long userId, PostCommentChildRegisterRequest postCommentChildRegisterRequest);
     void modifyPostCommentChild(Long postCommentChildId, Long userId, PostCommentChildModifyRequest postCommentChildModifyRequest);
 }

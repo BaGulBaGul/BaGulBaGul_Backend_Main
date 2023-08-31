@@ -3,7 +3,9 @@ package com.BaGulBaGul.BaGulBaGul.domain.post.service;
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostComment;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentChild;
+import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentChildLikeRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentChildRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentLikeRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
@@ -18,6 +20,8 @@ public class PostCommentServiceImpl implements PostCommentService {
     private final PostRepository postRepository;
     private final PostCommentRepository postCommentRepository;
     private final PostCommentChildRepository postCommentChildRepository;
+    private final PostCommentLikeRepository postCommentLikeRepository;
+    private final PostCommentChildLikeRepository postCommentChildLikeRepository;
 
     @Override
     @Transactional
@@ -33,6 +37,21 @@ public class PostCommentServiceImpl implements PostCommentService {
         //댓글 등록
         postCommentRepository.save(postComment);
         return postComment;
+    }
+
+    @Override
+    @Transactional
+    public void deleteComment(PostComment postComment) {
+        //대댓글과 연결된 좋아요 전부 삭제
+        postCommentChildLikeRepository.deleteAllByPostComment(postComment);
+        //연결된 대댓글 전부 삭제
+        postCommentChildRepository.deleteAllByPostComment(postComment);
+        //댓글과 연결된 좋아요 전부 삭제
+        postCommentLikeRepository.deleteAllByPostComment(postComment);
+        //댓글 삭제
+        postCommentRepository.delete(postComment);
+        //게시글 댓글 개수 1 감소
+        postRepository.decreaseCommentCount(postComment.getPost());
     }
 
     @Override

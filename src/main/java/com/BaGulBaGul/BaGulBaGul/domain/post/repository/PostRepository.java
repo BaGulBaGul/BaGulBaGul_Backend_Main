@@ -29,7 +29,7 @@ public interface PostRepository extends JpaRepository<Post, Long>, FindPostByCon
     @Query(value = "update from Post post set post.commentCount = post.commentCount + 1 where post = :post")
     void increaseCommentCount(@Param(value = "post") Post post);
 
-    @Modifying(clearAutomatically = true)
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query(value = "update from Post post set post.commentCount = post.commentCount - 1 where post = :post")
     void decreaseCommentCount(@Param(value = "post") Post post);
 

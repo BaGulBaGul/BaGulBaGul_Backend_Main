@@ -89,6 +89,19 @@ public class PostCommentAPIServiceImpl implements PostCommentAPIService {
 
     @Override
     @Transactional
+    public void deletePostComment(Long postCommentId, Long userId) {
+        //엔티티 로드 & 검증
+        PostComment postComment = postCommentRepository.findById(postCommentId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        if(postComment.getUser().getId() != user.getId()) {
+            throw new GeneralException(ErrorCode.FORBIDDEN);
+        }
+        //삭제
+        postCommentService.deleteComment(postComment);
+    }
+
+    @Override
+    @Transactional
     public Long registerPostCommentChild(
             Long postCommentId,
             Long userId,

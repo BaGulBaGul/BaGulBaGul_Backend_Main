@@ -18,6 +18,7 @@ public interface PostCommentController {
     ApiResponse<Page<GetPostCommentChildPageResponse>> getPostCommentChildPage(Long postCommentId, Long requestUserId, Pageable pageable);
     ApiResponse<PostCommentRegisterResponse> registerPostComment(Long postId, Long userId, PostCommentRegisterRequest postCommentRegisterRequest);
     ApiResponse<Object> modifyPostComment(Long postCommentId, Long userId, PostCommentModifyRequest postCommentModifyRequest);
+    ApiResponse<Object> deletePostComment(Long postCommentId, Long userId);
     ApiResponse<PostCommentChildRegisterResponse> registerPostCommentChild(Long postCommentId, Long userId, PostCommentChildRegisterRequest postCommentChildRegisterRequest);
     ApiResponse<Object> modifyPostCommentChild(Long postCommentChildId, Long userId, PostCommentChildModifyRequest postCommentChildModifyRequest);
 }
