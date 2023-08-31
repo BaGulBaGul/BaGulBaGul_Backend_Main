@@ -65,11 +65,11 @@ public interface PostCommentRepository extends JpaRepository<PostComment, Long> 
             @Param("postId") Long postId
     );
 
-    @Modifying(clearAutomatically = true)
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query(value = "update from PostComment pc set pc.commentChildCount = pc.commentChildCount + 1 where pc = :postComment")
     void increaseCommentChildCount(@Param(value = "postComment") PostComment postComment);
 
-    @Modifying(clearAutomatically = true)
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query(value = "update from PostComment pc set pc.commentChildCount = pc.commentChildCount - 1 where pc = :postComment")
     void decreaseCommentChildCount(@Param(value = "postComment") PostComment postComment);
 }
