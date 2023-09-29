@@ -5,6 +5,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.PostComment;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentChild;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentLike;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
+import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentChildLikeRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentChildRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentLikeRepository;
@@ -91,6 +92,16 @@ public class PostCommentServiceImpl implements PostCommentService {
             postCommentLikeRepository.flush();
         } catch (DataIntegrityViolationException dataIntegrityViolationException) {
             throw new DuplicateLikeException();
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = LikeNotExistException.class)
+    public void deleteLikeToComment(PostComment postComment, User user) throws LikeNotExistException {
+        postCommentRepository.decreaseCommentChildCount(postComment);
+        int deletedCnt = postCommentLikeRepository.deleteAndGetCountByPostCommentAndUser(postComment, user);
+        if(deletedCnt == 0) {
+            throw new LikeNotExistException();
         }
     }
 }

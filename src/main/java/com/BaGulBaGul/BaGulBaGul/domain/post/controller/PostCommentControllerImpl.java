@@ -9,6 +9,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentRegisterResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
+import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostCommentAPIService;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
 import javax.validation.Valid;
@@ -137,4 +138,18 @@ public class PostCommentControllerImpl implements PostCommentController {
         return ApiResponse.of(null);
     }
 
+
+    @DeleteMapping("comment/{postCommentId}/like")
+    @Override
+    public ApiResponse<Object> deleteLikeToComment(
+            @PathVariable(name = "postCommentId") Long postCommentId,
+            Long userId
+    ) {
+        try {
+            postCommentAPIService.deleteLikeToComment(postCommentId, userId);
+        }
+        catch (LikeNotExistException likeNotExistException) {
+        }
+        return ApiResponse.of(null);
+    }
 }

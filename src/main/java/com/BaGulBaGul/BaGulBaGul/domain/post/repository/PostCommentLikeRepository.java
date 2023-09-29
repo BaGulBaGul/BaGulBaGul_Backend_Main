@@ -28,4 +28,8 @@ public interface PostCommentLikeRepository extends JpaRepository<PostCommentLike
     void deleteAllByPostComment(@Param("postComment") PostComment postComment);
 
     boolean existsByPostCommentAndUser(PostComment postComment, User user);
+
+    @Modifying
+    @Query(value = "DELETE FROM PostCommentLike pcl WHERE pcl.postComment = :postComment and pcl.user = :user")
+    int deleteAndGetCountByPostCommentAndUser(@Param("postComment") PostComment postComment, @Param("user") User user);
 }

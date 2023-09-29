@@ -10,6 +10,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentChildRegisterRequest
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
+import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentChildRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentLikeRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentRepository;
@@ -159,5 +160,19 @@ public class PostCommentAPIServiceImpl implements PostCommentAPIService {
         }
         //좋아요 추가
         postCommentService.addLikeToComment(postComment, user);
+    }
+
+    @Override
+    @Transactional(rollbackFor = LikeNotExistException.class)
+    public void deleteLikeToComment(Long postCommentId, Long userId) throws LikeNotExistException {
+        //엔티티 로드 & 검증
+        PostComment postComment = postCommentRepository.findById(postCommentId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        //존재하지 않는지 검색
+        if(postCommentLikeRepository.existsByPostCommentAndUser(postComment, user) != true) {
+            throw new LikeNotExistException();
+        }
+        //좋아요 삭제
+        postCommentService.deleteLikeToComment(postComment, user);
     }
 }
