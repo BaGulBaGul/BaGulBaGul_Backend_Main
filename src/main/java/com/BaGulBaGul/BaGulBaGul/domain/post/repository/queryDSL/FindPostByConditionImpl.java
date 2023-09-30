@@ -7,30 +7,34 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.QCategory;
 import com.BaGulBaGul.BaGulBaGul.domain.post.QPost;
 import com.BaGulBaGul.BaGulBaGul.domain.post.QPostCategory;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostConditionalRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostDetailResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostSimpleResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.user.QUser;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.jpa.JPQLQuery;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.querydsl.jpa.impl.JPAQuery;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.springframework.transaction.annotation.Transactional;
 
-public class FindPostByConditionImpl extends QuerydslRepositorySupport implements FindPostByCondition {
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
-    public FindPostByConditionImpl() {
-        super(Post.class);
-    }
+@RequiredArgsConstructor
+public class FindPostByConditionImpl implements FindPostByCondition {
 
+    @PersistenceContext
+    private EntityManager em;
+    private final JPAQueryFactory queryFactory;
 
     /*
         Post에 대해 조건 검색하고 페이징을 적용한 결과를 반환
@@ -45,27 +49,36 @@ public class FindPostByConditionImpl extends QuerydslRepositorySupport implement
         QPostCategory postCategory = QPostCategory.postCategory;
         QCategory category = QCategory.category;
 
-        // select
-        JPQLQuery<Post> query = from(post).select(post);
+        JPAQuery<Long> query = queryFactory.select(post.id).from(post);
 
         // 조건 적용
         applyCondition(query, postConditionalRequest);
         // 페이징 적용
         applyPageable(query, pageable);
-        // fetch join
-        query.join(post.categories, postCategory).fetchJoin();
-        query.join(postCategory.category, category).fetchJoin();
-        // fetch 후 응답 dto로 변환
-        List<PostSimpleResponse> result = query.fetch().stream().map(PostSimpleResponse::of).collect(Collectors.toList());
+
+        //fetch join과 페이징은 같이 동작 안하므로 id만 받아서 따로 조회
+        List<Long> ids = query.fetch();
+        queryFactory.select(post)
+                .from(post)
+                .where(post.id.in(ids))
+                .leftJoin(post.categories, postCategory).fetchJoin()
+                .leftJoin(postCategory.category, category).fetchJoin()
+                .fetch();
+        List<PostSimpleResponse> result = ids.stream()
+                .map(x -> em.find(Post.class, x))
+                .map(PostSimpleResponse::of)
+                .collect(Collectors.toList());
+
         Long count = getCountQuery(postConditionalRequest).fetchFirst();
+
         return new PageImpl<>(result, pageable, count);
     }
 
     /*
         쿼리에 조건 검색 구현
      */
-    private <T> JPQLQuery<T> applyCondition(
-            JPQLQuery<T> query,
+    private <T> JPAQuery<T> applyCondition(
+            JPAQuery<T> query,
             PostConditionalRequest postConditionalRequest
     ){
         QPost post = QPost.post;
@@ -106,8 +119,8 @@ public class FindPostByConditionImpl extends QuerydslRepositorySupport implement
     /*
         Spring의 Pageable의 정렬, offset, limit 정보를 이용해 페이징 수행
      */
-    private <T> JPQLQuery<T> applyPageable(
-            JPQLQuery<T> query,
+    private <T> JPAQuery<T> applyPageable(
+            JPAQuery<T> query,
             Pageable pageable
     ){
         //쿼리에 페이징 적용
@@ -150,10 +163,10 @@ public class FindPostByConditionImpl extends QuerydslRepositorySupport implement
     /*
         조건 검색만 적용해서 count 전용 쿼리를 반환
      */
-    private JPQLQuery<Long> getCountQuery(PostConditionalRequest postConditionalRequest) {
+    private JPAQuery<Long> getCountQuery(PostConditionalRequest postConditionalRequest) {
         QPost post = QPost.post;
-        JPQLQuery<Long> jpqlQuery = from(post).select(post.count());
-        applyCondition(jpqlQuery, postConditionalRequest);
-        return jpqlQuery;
+        JPAQuery<Long> countQuery = queryFactory.select(post.count()).from(post);//from(post).select(post.count());
+        applyCondition(countQuery, postConditionalRequest);
+        return countQuery;
     }
 }
