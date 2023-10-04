@@ -99,7 +99,7 @@ public class PostCommentServiceImpl implements PostCommentService {
     @Override
     @Transactional(rollbackFor = LikeNotExistException.class)
     public void deleteLikeToComment(PostComment postComment, User user) throws LikeNotExistException {
-        postCommentRepository.decreaseCommentChildCount(postComment);
+        postCommentRepository.decreaseLikeCount(postComment);
         int deletedCnt = postCommentLikeRepository.deleteAndGetCountByPostCommentAndUser(postComment, user);
         if(deletedCnt == 0) {
             throw new LikeNotExistException();
