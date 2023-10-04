@@ -3,6 +3,7 @@ package com.BaGulBaGul.BaGulBaGul.domain.post.service;
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostComment;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentChild;
+import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentChildLike;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentLike;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
@@ -100,6 +101,28 @@ public class PostCommentServiceImpl implements PostCommentService {
     public void deleteLikeToComment(PostComment postComment, User user) throws LikeNotExistException {
         postCommentRepository.decreaseCommentChildCount(postComment);
         int deletedCnt = postCommentLikeRepository.deleteAndGetCountByPostCommentAndUser(postComment, user);
+        if(deletedCnt == 0) {
+            throw new LikeNotExistException();
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = {DuplicateLikeException.class})
+    public void addLikeToCommentChild(PostCommentChild postCommentChild, User user) throws DuplicateLikeException {
+        postCommentChildRepository.increaseLikeCount(postCommentChild);
+        try {
+            postCommentChildLikeRepository.save(new PostCommentChildLike(postCommentChild, user));
+            postCommentChildLikeRepository.flush();
+        } catch (DataIntegrityViolationException dataIntegrityViolationException) {
+            throw new DuplicateLikeException();
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = LikeNotExistException.class)
+    public void deleteLikeToCommentChild(PostCommentChild postCommentChild, User user) throws LikeNotExistException {
+        postCommentChildRepository.decreaseLikeCount(postCommentChild);
+        int deletedCnt = postCommentChildLikeRepository.deleteAndGetCountByPostCommentChildAndUser(postCommentChild, user);
         if(deletedCnt == 0) {
             throw new LikeNotExistException();
         }

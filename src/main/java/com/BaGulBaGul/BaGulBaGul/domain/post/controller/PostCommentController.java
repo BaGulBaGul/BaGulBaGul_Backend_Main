@@ -24,4 +24,6 @@ public interface PostCommentController {
     ApiResponse<Object> deletePostCommentChild(Long postCommentChildId, Long userId);
     ApiResponse<Object> addLikeToComment(Long postCommentId, Long userId);
     ApiResponse<Object> deleteLikeToComment(Long postCommentId, Long userId);
+    ApiResponse<Object> addLikeToCommentChild(Long postCommentChildId, Long userId);
+    ApiResponse<Object> deleteLikeToCommentChild(Long postCommentChildId, Long userId);
 }

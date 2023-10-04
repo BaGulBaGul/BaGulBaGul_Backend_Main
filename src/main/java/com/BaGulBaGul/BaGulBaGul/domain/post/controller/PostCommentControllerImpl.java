@@ -152,4 +152,24 @@ public class PostCommentControllerImpl implements PostCommentController {
         }
         return ApiResponse.of(null);
     }
+
+    @Override
+    public ApiResponse<Object> addLikeToCommentChild(Long postCommentChildId, Long userId) {
+        try {
+            postCommentAPIService.addLikeToCommentChild(postCommentChildId, userId);
+        }
+        catch (DuplicateLikeException duplicateLikeException) {
+        }
+        return ApiResponse.of(null);
+    }
+
+    @Override
+    public ApiResponse<Object> deleteLikeToCommentChild(Long postCommentChildId, Long userId) {
+        try {
+            postCommentAPIService.deleteLikeToCommentChild(postCommentChildId, userId);
+        }
+        catch (LikeNotExistException likeNotExistException) {
+        }
+        return ApiResponse.of(null);
+    }
 }

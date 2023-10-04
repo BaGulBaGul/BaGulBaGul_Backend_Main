@@ -14,4 +14,6 @@ public interface PostCommentService {
     void deleteCommentChild(PostCommentChild postCommentChild);
     void addLikeToComment(PostComment postComment, User user) throws DuplicateLikeException;
     void deleteLikeToComment(PostComment postComment, User user) throws LikeNotExistException;
+    void addLikeToCommentChild(PostCommentChild postCommentChild, User user) throws DuplicateLikeException;
+    void deleteLikeToCommentChild(PostCommentChild postCommentChild, User user) throws LikeNotExistException;
 }

@@ -11,6 +11,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
+import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentChildLikeRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentChildRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentLikeRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentRepository;
@@ -36,6 +37,7 @@ public class PostCommentAPIServiceImpl implements PostCommentAPIService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final PostCommentLikeRepository postCommentLikeRepository;
+    private final PostCommentChildLikeRepository postCommentChildLikeRepository;
     private final PostCommentService postCommentService;
 
     @Override
@@ -174,5 +176,27 @@ public class PostCommentAPIServiceImpl implements PostCommentAPIService {
         }
         //좋아요 삭제
         postCommentService.deleteLikeToComment(postComment, user);
+    }
+
+    @Override
+    public void addLikeToCommentChild(Long postCommentChildId, Long userId) throws DuplicateLikeException {
+        PostCommentChild postCommentChild = postCommentChildRepository.findById(postCommentChildId)
+                .orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        if(postCommentChildLikeRepository.existsByPostCommentChildAndUser(postCommentChild, user)) {
+            throw new DuplicateLikeException();
+        }
+        postCommentService.addLikeToCommentChild(postCommentChild, user);
+    }
+
+    @Override
+    public void deleteLikeToCommentChild(Long postCommentChildId, Long userId) throws LikeNotExistException {
+        PostCommentChild postCommentChild = postCommentChildRepository.findById(postCommentChildId)
+                .orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        if(postCommentChildLikeRepository.existsByPostCommentChildAndUser(postCommentChild, user) != true) {
+            throw new LikeNotExistException();
+        }
+        postCommentService.deleteLikeToCommentChild(postCommentChild, user);
     }
 }
