@@ -1,7 +1,10 @@
 package com.BaGulBaGul.BaGulBaGul.domain.post.repository;
 
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
+import com.BaGulBaGul.BaGulBaGul.domain.post.PostComment;
+import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentChild;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentChildLike;
+import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -19,4 +22,27 @@ public interface PostCommentChildLikeRepository extends JpaRepository<PostCommen
                 + ")"
     )
     void deleteAllByPost(@Param("post") Post post);
+
+    @Modifying
+    @Query(value =
+            "DELETE FROM PostCommentChildLike pchl "
+                    + "WHERE pchl.postCommentChild.id in ("
+                    + "SELECT pch.id "
+                    + "FROM PostCommentChild pch "
+                    + "WHERE pch.postComment = :postComment"
+                    + ")"
+    )
+    void deleteAllByPostComment(@Param("postComment") PostComment postComment);
+
+    @Modifying
+    @Query(value =
+            "DELETE FROM PostCommentChildLike pchl WHERE pchl.postCommentChild = :postCommentChild"
+    )
+    void deleteAllByPostCommentChild(@Param("postCommentChild") PostCommentChild postCommentChild);
+
+    boolean existsByPostCommentChildAndUser(PostCommentChild postCommentChild, User user);
+
+    @Modifying
+    @Query(value = "DELETE FROM PostCommentChildLike pchl WHERE pchl.postCommentChild = :postCommentChild and pchl.user = :user")
+    int deleteAndGetCountByPostCommentChildAndUser(@Param("postCommentChild") PostCommentChild postCommentChild, @Param("user") User user);
 }

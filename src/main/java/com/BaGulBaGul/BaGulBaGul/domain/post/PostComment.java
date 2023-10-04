@@ -2,6 +2,8 @@ package com.BaGulBaGul.BaGulBaGul.domain.post;
 
 import com.BaGulBaGul.BaGulBaGul.domain.base.BaseTimeEntity;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -9,6 +11,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -38,6 +41,20 @@ public class PostComment extends BaseTimeEntity {
     @Column(name = "contnet")
     String content;
 
+    @Setter
+    @Column(name = "comment_child_count")
+    int commentChildCount;
+
+    @Setter
+    @Column(name = "like_count")
+    int likeCount;
+
+    @OneToMany(mappedBy = "postComment", fetch = FetchType.LAZY)
+    List<PostCommentChild> children = new ArrayList<>();
+
+    @OneToMany(mappedBy = "postComment", fetch = FetchType.LAZY)
+    List<PostCommentLike> likes = new ArrayList<>();
+
     @Builder
     public PostComment(
             Post post,
@@ -47,5 +64,7 @@ public class PostComment extends BaseTimeEntity {
         this.post = post;
         this.user = user;
         this.content = content;
+        this.commentChildCount = 0;
+        this.likeCount = 0;
     }
 }

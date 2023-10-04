@@ -17,15 +17,23 @@ public interface PostRepository extends JpaRepository<Post, Long>, FindPostByCon
     @EntityGraph(attributePaths = {"user", "categories.category"})
     Optional<Post> findWithUserAndCategoriesById(Long id);
 
-    @Modifying(clearAutomatically = true)
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query(value = "update from Post post set post.likeCount = post.likeCount + 1 where post = :post")
     void increaseLikeCount(@Param(value = "post") Post post);
 
-    @Modifying(clearAutomatically = true)
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query(value = "update from Post post set post.likeCount = post.likeCount - 1 where post = :post")
     void decreaseLikeCount(@Param(value = "post") Post post);
 
-    @Modifying(clearAutomatically = true)
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query(value = "update from Post post set post.commentCount = post.commentCount + 1 where post = :post")
+    void increaseCommentCount(@Param(value = "post") Post post);
+
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query(value = "update from Post post set post.commentCount = post.commentCount - 1 where post = :post")
+    void decreaseCommentCount(@Param(value = "post") Post post);
+
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query(value = "update from Post post set post.views = post.views + 1 where post.id = :postId")
     void increaseViewsById(@Param(value = "postId") Long postId);
 

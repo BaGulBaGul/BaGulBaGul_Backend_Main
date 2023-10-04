@@ -4,6 +4,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.Category;
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostCategory;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostLike;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetPostCommentPageResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.CategoryNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
