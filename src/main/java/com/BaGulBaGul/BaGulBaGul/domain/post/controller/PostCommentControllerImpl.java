@@ -153,8 +153,12 @@ public class PostCommentControllerImpl implements PostCommentController {
         return ApiResponse.of(null);
     }
 
+    @PostMapping("comment/children/{postCommentChildId}/like")
     @Override
-    public ApiResponse<Object> addLikeToCommentChild(Long postCommentChildId, Long userId) {
+    public ApiResponse<Object> addLikeToCommentChild(
+            @PathVariable(name = "postCommentChildId") Long postCommentChildId,
+            Long userId
+    ) {
         try {
             postCommentAPIService.addLikeToCommentChild(postCommentChildId, userId);
         }
@@ -163,8 +167,12 @@ public class PostCommentControllerImpl implements PostCommentController {
         return ApiResponse.of(null);
     }
 
+    @DeleteMapping("comment/children/{postCommentChildId}/like")
     @Override
-    public ApiResponse<Object> deleteLikeToCommentChild(Long postCommentChildId, Long userId) {
+    public ApiResponse<Object> deleteLikeToCommentChild(
+            @PathVariable(name = "postCommentChildId") Long postCommentChildId,
+            Long userId
+    ) {
         try {
             postCommentAPIService.deleteLikeToCommentChild(postCommentChildId, userId);
         }
