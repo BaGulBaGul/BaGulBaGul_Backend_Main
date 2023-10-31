@@ -35,7 +35,8 @@ public class SecurityConfig {
                 .antMatchers(HttpMethod.GET, "/api/post").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/post/{\\d+}").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/post/{\\d+}/comment").permitAll()
-                .antMatchers(HttpMethod.GET, "/api/post/comment/{\\d+}/postCommentChild").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/post/comment/{\\d+}/children").permitAll()
+
                 //나머지 로그인 필요
                 .anyRequest().authenticated();
                 // JWT 및 로그인 필터 추가 예정
