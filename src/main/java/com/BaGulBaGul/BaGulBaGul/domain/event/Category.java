@@ -1,4 +1,4 @@
-package com.BaGulBaGul.BaGulBaGul.domain.post;
+package com.BaGulBaGul.BaGulBaGul.domain.event;
 
 import lombok.*;
 

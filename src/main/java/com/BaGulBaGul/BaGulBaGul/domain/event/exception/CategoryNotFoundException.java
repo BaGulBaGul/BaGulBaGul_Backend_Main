@@ -1,4 +1,4 @@
-package com.BaGulBaGul.BaGulBaGul.domain.post.exception;
+package com.BaGulBaGul.BaGulBaGul.domain.event.exception;
 
 public class CategoryNotFoundException extends RuntimeException {
 }

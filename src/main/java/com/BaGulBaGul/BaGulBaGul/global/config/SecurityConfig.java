@@ -32,8 +32,8 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션x
                 .authorizeRequests()
                 //post 비로그인 허용 경로
-                .antMatchers(HttpMethod.GET, "/api/post").permitAll()
-                .antMatchers(HttpMethod.GET, "/api/post/{\\d+}").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/event").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/event/{\\d+}").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/post/{\\d+}/comment").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/post/comment/{\\d+}/children").permitAll()
 

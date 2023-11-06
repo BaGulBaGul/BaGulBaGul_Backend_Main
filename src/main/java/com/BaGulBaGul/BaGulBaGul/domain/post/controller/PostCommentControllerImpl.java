@@ -16,6 +16,7 @@ import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -36,7 +37,7 @@ public class PostCommentControllerImpl implements PostCommentController {
     @Override
     public ApiResponse<Page<GetPostCommentPageResponse>> getPostCommentPage(
             @PathVariable(name = "postId") Long postId,
-            Long requestUserId,
+            @AuthenticationPrincipal Long requestUserId,
             Pageable pageable
     ) {
         return ApiResponse.of(postCommentAPIService.getPostCommentPage(postId, requestUserId, pageable));
@@ -46,7 +47,7 @@ public class PostCommentControllerImpl implements PostCommentController {
     @Override
     public ApiResponse<Page<GetPostCommentChildPageResponse>> getPostCommentChildPage(
             @PathVariable(name = "postCommentId") Long postCommentId,
-            Long requestUserId,
+            @AuthenticationPrincipal Long requestUserId,
             Pageable pageable
     ) {
         return ApiResponse.of(
@@ -60,7 +61,7 @@ public class PostCommentControllerImpl implements PostCommentController {
     @Override
     public ApiResponse<PostCommentRegisterResponse> registerPostComment(
             @PathVariable(name = "postId") Long postId,
-            Long userId,
+            @AuthenticationPrincipal Long userId,
             @RequestBody @Valid PostCommentRegisterRequest postCommentRegisterRequest
     ) {
         Long postCommentId = postCommentAPIService.registerPostComment(postId, userId, postCommentRegisterRequest);
@@ -73,7 +74,7 @@ public class PostCommentControllerImpl implements PostCommentController {
     @Override
     public ApiResponse<Object> modifyPostComment(
             @PathVariable(name = "postCommentId") Long postCommentId,
-            Long userId,
+            @AuthenticationPrincipal Long userId,
             @RequestBody PostCommentModifyRequest postCommentModifyRequest
     ) {
         postCommentAPIService.modifyPostComment(postCommentId, userId, postCommentModifyRequest);
@@ -84,7 +85,7 @@ public class PostCommentControllerImpl implements PostCommentController {
     @Override
     public ApiResponse<Object> deletePostComment(
             @PathVariable(name = "postCommentId") Long postCommentId,
-            Long userId
+            @AuthenticationPrincipal Long userId
     ) {
         postCommentAPIService.deletePostComment(postCommentId, userId);
         return ApiResponse.of(null);
@@ -94,7 +95,7 @@ public class PostCommentControllerImpl implements PostCommentController {
     @Override
     public ApiResponse<PostCommentChildRegisterResponse> registerPostCommentChild(
             @PathVariable(name = "postCommentId") Long postCommentId,
-            Long userId,
+            @AuthenticationPrincipal Long userId,
             @RequestBody @Valid PostCommentChildRegisterRequest postCommentChildRegisterRequest
     ) {
         Long postCommentChildId = postCommentAPIService.registerPostCommentChild(postCommentId, userId, postCommentChildRegisterRequest);
@@ -107,7 +108,7 @@ public class PostCommentControllerImpl implements PostCommentController {
     @Override
     public ApiResponse<Object> modifyPostCommentChild(
             @PathVariable(name = "postCommentChildId") Long postCommentChildId,
-            Long userId,
+            @AuthenticationPrincipal Long userId,
             @RequestBody PostCommentChildModifyRequest postCommentChildModifyRequest
     ) {
         postCommentAPIService.modifyPostCommentChild(postCommentChildId, userId, postCommentChildModifyRequest);
@@ -118,7 +119,7 @@ public class PostCommentControllerImpl implements PostCommentController {
     @Override
     public ApiResponse<Object> deletePostCommentChild(
             @PathVariable(name = "postCommentChildId") Long postCommentChildId,
-            Long userId
+            @AuthenticationPrincipal Long userId
     ) {
         postCommentAPIService.deletePostCommentChild(postCommentChildId, userId);
         return ApiResponse.of(null);
@@ -128,7 +129,7 @@ public class PostCommentControllerImpl implements PostCommentController {
     @Override
     public ApiResponse<Object> addLikeToComment(
             @PathVariable(name = "postCommentId") Long postCommentId,
-            Long userId
+            @AuthenticationPrincipal Long userId
     ) {
         try {
             postCommentAPIService.addLikeToComment(postCommentId, userId);
@@ -143,7 +144,7 @@ public class PostCommentControllerImpl implements PostCommentController {
     @Override
     public ApiResponse<Object> deleteLikeToComment(
             @PathVariable(name = "postCommentId") Long postCommentId,
-            Long userId
+            @AuthenticationPrincipal Long userId
     ) {
         try {
             postCommentAPIService.deleteLikeToComment(postCommentId, userId);
@@ -157,7 +158,7 @@ public class PostCommentControllerImpl implements PostCommentController {
     @Override
     public ApiResponse<Object> addLikeToCommentChild(
             @PathVariable(name = "postCommentChildId") Long postCommentChildId,
-            Long userId
+            @AuthenticationPrincipal Long userId
     ) {
         try {
             postCommentAPIService.addLikeToCommentChild(postCommentChildId, userId);
@@ -171,7 +172,7 @@ public class PostCommentControllerImpl implements PostCommentController {
     @Override
     public ApiResponse<Object> deleteLikeToCommentChild(
             @PathVariable(name = "postCommentChildId") Long postCommentChildId,
-            Long userId
+            @AuthenticationPrincipal Long userId
     ) {
         try {
             postCommentAPIService.deleteLikeToCommentChild(postCommentChildId, userId);

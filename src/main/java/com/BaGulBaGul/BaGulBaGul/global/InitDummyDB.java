@@ -1,16 +1,20 @@
 package com.BaGulBaGul.BaGulBaGul.global;
 
+import com.BaGulBaGul.BaGulBaGul.domain.event.Category;
+import com.BaGulBaGul.BaGulBaGul.domain.event.Event;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.event.repository.CategoryRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.event.repository.EventRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.event.service.EventService;
 import com.BaGulBaGul.BaGulBaGul.domain.post.*;
-import com.BaGulBaGul.BaGulBaGul.domain.post.constant.PostType;
+import com.BaGulBaGul.BaGulBaGul.domain.event.constant.EventType;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.*;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
-import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,28 +22,29 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class InitDummyDB {
 
-    private final PostRepository postRepository;
     private final PostLikeRepository postLikeRepository;
     private final CategoryRepository categoryRepository;
-    private final PostCategoryRepository postCategoryRepository;
     private final PostCommentRepository postCommentRepository;
     private final PostCommentLikeRepository postCommentLikeRepository;
     private final PostCommentChildRepository postCommentChildRepository;
     private final PostCommentChildLikeRepository postCommentChildLikeRepository;
     private final UserRepository userRepository;
+    private final EventRepository eventRepository;
+
+    private final EventService eventService;
 
     private List<User> users;
     private List<Category> categories;
-    private List<Post> posts;
+    private List<Event> events;
 
     @Transactional
     public void init(){
-        users = initUser(10);
-        categories = initCategory();
-        posts = initPost(10);
+        users = createUser(10);
+        categories = createCategory();
+        events = createEvent(10);
     }
 
-    private List<User> initUser(int userCnt) {
+    private List<User> createUser(int userCnt) {
         Random rand = new Random();
         List<User> result = new ArrayList<>();
 
@@ -58,7 +63,7 @@ public class InitDummyDB {
         return result;
     }
 
-    private List<Category> initCategory() {
+    private List<Category> createCategory() {
         String[] names = {"문화/예술","공연전시/행사","식품/음료","교육/체험","스포츠/레저"};
         List<Category> result = new ArrayList<>();
         for(String name:names){
@@ -71,17 +76,19 @@ public class InitDummyDB {
         return result;
     }
 
-    private List<Post> initPost(int postCnt) {
+    private List<Event> createEvent(int eventCnt) {
         Random rand = new Random();
         final String[] tags = {"태그1", "태그2", "태그3", "태그4", "태그5", "태그6", "태그7", "태그8", "태그9"};
-        final PostType[] postTypes = {PostType.FESTIVAL, PostType.PARTY, PostType.LOCAL_EVENT};
-        List<Post> result = new ArrayList<>();
-        for(int cnt = 0; cnt < postCnt; cnt++) {
+        final EventType[] eventTypes = {EventType.FESTIVAL, EventType.PARTY, EventType.LOCAL_EVENT};
+        List<Event> result = new ArrayList<>();
+        for(int cnt = 0; cnt < eventCnt; cnt++) {
+
             //태그
             Set<String> tagSet = new HashSet<>();
             for (int i = 0; i < rand.nextInt(7); i++) {
                 tagSet.add(tags[rand.nextInt(tags.length)]);
             }
+
             //시간
             LocalDateTime startDate = null;//LocalDateTime.now().minusHours(rand.nextInt(168));
             LocalDateTime endDate = null;
@@ -108,40 +115,16 @@ public class InitDummyDB {
                 while(endDate.isBefore(startDate));
             }
 
-            Post post = Post.builder()
-                    .user(users.get(rand.nextInt(users.size())))
-                    .title("테스트" + cnt)
-                    .tags(tagSet.stream().collect(Collectors.joining(" ")))
-                    .type(postTypes[rand.nextInt(postTypes.length)])
-                    .startDate(startDate)
-                    .endDate(endDate)
-                    .headCount(rand.nextInt(100))
-                    .image_url("tttt")
-                    .content("테스트게시글" + cnt)
-                    .views(0)
-                    .build();
-            postRepository.save(post);
+            //작성자
+            User writer = users.get(rand.nextInt(users.size()));
 
-            //댓글, 대댓글
-            int commentCount = rand.nextInt(30);
-            initComment(post, commentCount);
-
-            //좋아요
-            int likeCount = rand.nextInt(users.size());
-            Set<User> likeUsers = new HashSet<>();
-            for(int i=0;i<likeCount;i++) {
-                //자기가 쓴 글이 아니라면 추가
-                User temp = users.get(rand.nextInt(users.size()));
-                if(temp != post.getUser()) {
-                    likeUsers.add(users.get(rand.nextInt(users.size())));
-                }
-            }
-            for(User user : likeUsers) {
-                postLikeRepository.save(
-                        new PostLike(post, user)
-                );
-            }
-            post.setLikeCount(likeUsers.size());
+            //기타
+            EventType type = eventTypes[rand.nextInt(eventTypes.length)];
+            int headCount = rand.nextInt(100);
+            String imageURL = "test";
+            String title = "테스트" + cnt;
+            String content = "테스트게시글" + cnt;
+            List<String> tagStr = tagSet.stream().collect(Collectors.toList());
 
             //카테고리
             int categoryCnt = rand.nextInt(5);
@@ -149,15 +132,56 @@ public class InitDummyDB {
             for(int i=0;i<categoryCnt;i++) {
                 categorySet.add(categories.get(rand.nextInt(categories.size())));
             }
-            for(Category category : categorySet) {
-                postCategoryRepository.save(
-                        new PostCategory(post, category)
-                );
-            }
+            List<String> categoryNames = categorySet.stream().map((category) -> category.getName()).collect(Collectors.toList());
+
+            Long eventId = eventService.registerEvent(
+                    writer.getId(),
+                    EventRegisterRequest.builder()
+                            .type(type)
+                            .title(title)
+                            .headCount(headCount)
+                            .content(content)
+                            .startDate(startDate)
+                            .endDate(endDate)
+                            .tags(tagStr)
+                            .categories(categoryNames)
+                            .image_url(imageURL)
+                            .build()
+            );
+
+            Event event = eventRepository.findById(eventId).get();
+            Post post = event.getPost();
+            initPost(post);
         }
         return result;
     }
-    public void initComment(Post post, int commentCount) {
+
+    public void initPost(Post post) {
+        Random rand = new Random();
+
+        //댓글, 대댓글
+        int commentCount = rand.nextInt(30);
+        createComment(post, commentCount);
+
+        //좋아요
+        int likeCount = rand.nextInt(users.size());
+        Set<User> likeUsers = new HashSet<>();
+        for(int i=0;i<likeCount;i++) {
+            //자기가 쓴 글이 아니라면 추가
+            User temp = users.get(rand.nextInt(users.size()));
+            if(temp != post.getUser()) {
+                likeUsers.add(users.get(rand.nextInt(users.size())));
+            }
+        }
+        for(User user : likeUsers) {
+            postLikeRepository.save(
+                    new PostLike(post, user)
+            );
+        }
+        post.setLikeCount(likeUsers.size());
+    }
+
+    public void createComment(Post post, int commentCount) {
         Random rand = new Random();
         //댓글
         for (int cnt = 0; cnt < commentCount; cnt++) {
@@ -173,7 +197,7 @@ public class InitDummyDB {
             //대댓글 50%확률로 생성
             if(rand.nextBoolean()) {
                 int commentChildCount = rand.nextInt(10);
-                initPostChild(postComment, commentChildCount);
+                createCommentChild(postComment, commentChildCount);
                 postComment.setCommentChildCount(commentChildCount);
             }
             //댓글 좋아요 추가
@@ -193,7 +217,7 @@ public class InitDummyDB {
         }
         post.setCommentCount(commentCount);
     }
-    public void initPostChild(PostComment postComment, int commentChildCount) {
+    public void createCommentChild(PostComment postComment, int commentChildCount) {
         Random rand = new Random();
         for(int cnt=0;cnt<commentChildCount;cnt++) {
             PostCommentChild postCommentChild = postCommentChildRepository.save(

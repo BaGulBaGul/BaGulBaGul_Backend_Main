@@ -1,5 +1,6 @@
-package com.BaGulBaGul.BaGulBaGul.domain.post;
+package com.BaGulBaGul.BaGulBaGul.domain.event;
 
+import com.BaGulBaGul.BaGulBaGul.domain.event.EventCategory.EventCategoryId;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -10,30 +11,30 @@ import java.io.Serializable;
 
 @Getter
 @Entity
-@IdClass(PostCategory.PostCategoryId.class)
+@IdClass(EventCategoryId.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PostCategory {
+public class EventCategory {
     @EqualsAndHashCode
-    public static class PostCategoryId implements Serializable {
-        Long post;
+    public static class EventCategoryId implements Serializable {
+        Long event;
         Long category;
     }
 
     @Id
-    @JoinColumn(name = "post_id")
+    @JoinColumn(name = "event_id")
     @ManyToOne(fetch = FetchType.LAZY)
-    Post post;
+    Event event;
 
     @Id
     @JoinColumn(name = "category_id")
     @ManyToOne(fetch = FetchType.LAZY)
     Category category;
 
-    public PostCategory(
-            Post post,
+    public EventCategory(
+            Event event,
             Category category
     ) {
-        this.post = post;
+        this.event = event;
         this.category = category;
     }
 }

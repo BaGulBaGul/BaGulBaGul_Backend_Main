@@ -1,6 +1,6 @@
-package com.BaGulBaGul.BaGulBaGul.domain.post.repository;
+package com.BaGulBaGul.BaGulBaGul.domain.event.repository;
 
-import com.BaGulBaGul.BaGulBaGul.domain.post.Category;
+import com.BaGulBaGul.BaGulBaGul.domain.event.Category;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 

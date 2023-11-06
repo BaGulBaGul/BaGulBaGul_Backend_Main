@@ -1,14 +1,14 @@
-package com.BaGulBaGul.BaGulBaGul.domain.post.dto;
+package com.BaGulBaGul.BaGulBaGul.domain.event.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
 @Setter
+@Getter
 @Builder
 @AllArgsConstructor
-public class PostRegisterResponse {
-    private Long postId;
+public class IsMyLikeResponse {
+    private boolean isMyLike;
 }
