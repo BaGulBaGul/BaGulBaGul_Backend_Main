@@ -1,4 +1,4 @@
-package com.BaGulBaGul.BaGulBaGul.global.config;
+package com.BaGulBaGul.BaGulBaGul.global.swagger;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
