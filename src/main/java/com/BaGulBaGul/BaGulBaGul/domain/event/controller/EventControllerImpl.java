@@ -45,11 +45,13 @@ public class EventControllerImpl implements EventController {
     @Override
     @GetMapping("")
     @Operation(summary = "조건에 맞는 이벤트를 페이징 조회",
-            description = "페이징 관련 파라메터는 \n "
+            description = "ex) http://localhost:8080/api/event?type=LOCAL_EVENT&title=테스트&categories=스포츠/레저&categories=문화/예술&tags=태그5&startDate=2023-11-13T00:00:00&endDate=2023-11-14T00:00:00&page=0&size=10&sort=startDate,desc\n"
+                    + "모든 조건은 and로 처리됨.\n"
+                    + "startDate, endDate는 해당 기간 내에 진행되는 모든 이벤트를 검색\n"
+                    + "페이징 관련 파라메터는 \n "
                     + "http://localhost:8080/api/event?size=10&page=0&sort=startDate,desc \n "
-                    + "이런 식으로 넘기면 됨 \n "
-                    + "sort가 여러 개면 앞에서부터 순서대로 정렬 적용\n"
-                    + "파라메터로 명시하지 않은 조건은 무시되지만 페이징은 기본 페이징 조건 적용됨(page 0 size 20)"
+                    + "이런 식으로 넘기면 됨. sort가 여러 개면 앞에서부터 순서대로 정렬 적용\n"
+                    + "파라메터로 명시하지 않거나 null인 조건은 무시되지만(즉 쿼리파라메터가 없으면 모든 이벤트 검색) 페이징은 기본 페이징 조건 적용됨(page 0 size 20)"
     )
     public ApiResponse<Page<EventSimpleResponse>> getEventPageByCondition(
             EventConditionalRequest eventConditionalRequest,

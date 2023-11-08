@@ -5,7 +5,6 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostConditionalRequest;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -20,7 +19,10 @@ public class EventConditionalRequest {
     private List<String> categories;
     private String username;
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime minimumStartDate;
+    private LocalDateTime startDate;
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private LocalDateTime endDate;
+
 
     public PostConditionalRequest toPostConditionalRequest() {
         return PostConditionalRequest.builder()

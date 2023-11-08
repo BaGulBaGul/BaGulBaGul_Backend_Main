@@ -10,9 +10,11 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.QPost;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.queryDSL.FindPostByConditionApplier;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -39,13 +41,18 @@ public class FindEventByConditionApplierImpl implements FindEventByConditionAppl
             EventConditionalRequest eventConditionalRequest,
             QEvent event
     ) {
-        // 조건
+        //이벤트 조건 적용
+        //이벤트 타입
         if(eventConditionalRequest.getType() != null) {
             query.where(event.type.eq(eventConditionalRequest.getType()));
         }
-        if(eventConditionalRequest.getMinimumStartDate() != null) {
-            query.where(event.startDate.goe(eventConditionalRequest.getMinimumStartDate()));
+        //검색기간 적용
+        if(eventConditionalRequest.getStartDate() != null && eventConditionalRequest.getEndDate() != null) {
+            query.where(
+                getDateSearchExpression(event, eventConditionalRequest.getStartDate(), eventConditionalRequest.getEndDate())
+            );
         }
+        //카테고리
         if(eventConditionalRequest.getCategories() != null) {
             QEventCategory postCategory = QEventCategory.eventCategory;
             int categoryNum = 0;
@@ -64,20 +71,20 @@ public class FindEventByConditionApplierImpl implements FindEventByConditionAppl
         return query;
     }
 
-//    @Override
-//    public <T> JPAQuery<T> applyFetchJoin(
-//            JPAQuery<T> query,
-//            QEvent event
-//    ){
-//        QEventCategory eventCategory = QEventCategory.eventCategory;
-//        QCategory category = QCategory.category;
-//        QPost post = QPost.post;
-//        query.leftJoin(event.categories, eventCategory).fetchJoin();
-//        query.leftJoin(eventCategory.category, category).fetchJoin();
-//        query.join(event.post, post).fetchJoin();
-//        findPostByConditionApplier.applyFetchJoin(query, post);
-//        return query;
-//    }
+    private BooleanExpression getDateSearchExpression(QEvent event, LocalDateTime searchStartDate, LocalDateTime searchEndDate) {
+        /*
+         * 검색기간 사이에 진행되는 모든 이벤트를 검색
+         * ss = 검색시작시간 se = 검색종료시간 es = 이벤트시작시간 ee = 이벤트종료시간
+         * (ss<=es and es<=se) or (es<=ss and se<=ee) or (ss<=ee and ee<=se) or (ss<=es and ee<=se)
+         * = not(se<es or ee<ss)
+         * = (se>=es and ee>=ss)
+         */
+        //se>=es
+        BooleanExpression condition1 = event.startDate.loe(searchEndDate);
+        //ee>=ss
+        BooleanExpression condition2 = event.endDate.goe(searchStartDate);
+        return condition1.and(condition2);
+    }
 
     public List<OrderSpecifier> getOrderSpecifiers(
             Pageable pageable
