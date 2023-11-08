@@ -38,7 +38,7 @@ public class Event {
 
     @Setter
     @JoinColumn(name = "post_id")
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     Post post;
 
     @Setter

@@ -3,6 +3,7 @@ package com.BaGulBaGul.BaGulBaGul.domain.event.repository;
 import com.BaGulBaGul.BaGulBaGul.domain.event.Event;
 import com.BaGulBaGul.BaGulBaGul.domain.event.constant.EventType;
 import com.BaGulBaGul.BaGulBaGul.domain.event.repository.querydsl.FindEventByCondition;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,4 +22,9 @@ public interface EventRepository extends JpaRepository<Event, Long>, FindEventBy
     Page<Event> getLikeEventByUserAndType(
             @Param("userId") Long userId, @Param("type")EventType type, Pageable pageable
     );
+
+    @Query(
+            value = "SELECT e FROM Event e INNER JOIN FETCH e.post where e.id in :ids"
+    )
+    List<Event> findWithPostByIds(List<Long> ids);
 }

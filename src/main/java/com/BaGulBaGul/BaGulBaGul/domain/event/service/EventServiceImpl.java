@@ -24,6 +24,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserRepository;
 import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
 import com.BaGulBaGul.BaGulBaGul.global.response.ErrorCode;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -65,12 +66,18 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public Page<GetLikeEventResponse> getMyLikeEvent(
             GetLikeEventRequest getLikeEventRequest,
             Long userId,
             Pageable pageable
     ) {
         Page<Event> events = eventRepository.getLikeEventByUserAndType(userId, getLikeEventRequest.getType(), pageable);
+        //post와 fetch join
+        if(events.getNumberOfElements() > 0) {
+            List<Long> ids = events.stream().map(Event::getId).collect(Collectors.toList());
+            eventRepository.findWithPostByIds(ids);
+        }
         return events.map(GetLikeEventResponse::of);
     }
 
