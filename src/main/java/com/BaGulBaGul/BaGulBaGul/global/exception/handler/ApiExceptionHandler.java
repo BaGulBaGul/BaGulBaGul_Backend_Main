@@ -13,14 +13,13 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 @RestControllerAdvice
 public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
-    @ExceptionHandler
+    @ExceptionHandler({GeneralException.class})
     public ResponseEntity<Object> general(GeneralException e, WebRequest request) {
         return handleExceptionInternal(e, e.getErrorCode(), request);
     }
 
-    @ExceptionHandler
+    @ExceptionHandler({Exception.class})
     public ResponseEntity<Object> internalServerError(Exception e, WebRequest request) {
-
         return handleExceptionInternal(e, ErrorCode.INTERNAL_SERVER_ERROR, request);
     }
 
@@ -32,13 +31,13 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex, ErrorCode.valueOf(status), headers, status, request);
     }
 
-    private ResponseEntity<Object> handleExceptionInternal(
+    protected ResponseEntity<Object> handleExceptionInternal(
             Exception ex, ErrorCode errorCode, WebRequest request
     ) {
         return handleExceptionInternal(ex, errorCode, HttpHeaders.EMPTY, errorCode.getHttpStatus(), request);
     }
 
-    private ResponseEntity<Object> handleExceptionInternal(Exception ex, ErrorCode errorCode, HttpHeaders headers,
+    protected ResponseEntity<Object> handleExceptionInternal(Exception ex, ErrorCode errorCode, HttpHeaders headers,
                                                            HttpStatus status, WebRequest request) {
         return super.handleExceptionInternal(
                 ex,
