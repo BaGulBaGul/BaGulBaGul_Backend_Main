@@ -23,7 +23,7 @@ public class FindPostByConditionApplierImpl implements FindPostByConditionApplie
     @PersistenceContext
     private EntityManager em;
     private final JPAQueryFactory queryFactory;
-    private static final String[] orderNames = {"createdAt", "likeCount"};
+    private static final String[] orderNames = {"createdAt", "views", "likeCount", "commentCount"};
     @Override
     public <T>JPAQuery<T> applyCondition(
             JPAQuery<T> query,

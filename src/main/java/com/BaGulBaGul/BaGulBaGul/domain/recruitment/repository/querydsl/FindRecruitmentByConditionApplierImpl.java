@@ -32,7 +32,7 @@ public class FindRecruitmentByConditionApplierImpl implements FindRecruitmentByC
     private final JPAQueryFactory queryFactory;
     private final FindPostByConditionApplier findPostByConditionApplier;
 
-    private static final String[] orderNames = {};
+    private static final String[] orderNames = {"startDate", "endDate", "headCount"};
 
     @Override
     @Transactional

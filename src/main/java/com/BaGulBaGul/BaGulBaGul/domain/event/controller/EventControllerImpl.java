@@ -49,8 +49,9 @@ public class EventControllerImpl implements EventController {
                     + "모든 조건은 and로 처리됨.\n"
                     + "startDate, endDate는 해당 기간 내에 진행되는 모든 이벤트를 검색\n"
                     + "페이징 관련 파라메터는 \n "
-                    + "http://localhost:8080/api/event?size=10&page=0&sort=startDate,desc \n "
+                    + "http://localhost:8080/api/event?size=10&page=0&sort=startDate,asc&sort=views,desc\n "
                     + "이런 식으로 넘기면 됨. sort가 여러 개면 앞에서부터 순서대로 정렬 적용\n"
+                    + "정렬 가능 속성 : createdAt, views, likeCount, commentCount, startDate, endDate, headCount\n"
                     + "파라메터로 명시하지 않거나 null인 조건은 무시되지만(즉 쿼리파라메터가 없으면 모든 이벤트 검색) 페이징은 기본 페이징 조건 적용됨(page 0 size 20)"
     )
     public ApiResponse<Page<EventSimpleResponse>> getEventPageByCondition(

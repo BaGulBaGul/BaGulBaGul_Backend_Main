@@ -33,7 +33,7 @@ public class FindEventByConditionApplierImpl implements FindEventByConditionAppl
     private EntityManager em;
     private final JPAQueryFactory queryFactory;
     private final FindPostByConditionApplier findPostByConditionApplier;
-    private static final String[] orderNames = {"likeCount","startDate"};
+    private static final String[] orderNames = {"startDate", "endDate", "headCount"};
 
     @Override
     public <T> JPAQuery<T> applyCondition(
