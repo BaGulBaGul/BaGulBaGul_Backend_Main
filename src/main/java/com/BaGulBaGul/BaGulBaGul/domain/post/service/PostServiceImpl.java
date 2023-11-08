@@ -1,15 +1,11 @@
 package com.BaGulBaGul.BaGulBaGul.domain.post.service;
 
-import com.BaGulBaGul.BaGulBaGul.domain.post.Category;
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
-import com.BaGulBaGul.BaGulBaGul.domain.post.PostCategory;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostLike;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetPostCommentPageResponse;
-import com.BaGulBaGul.BaGulBaGul.domain.post.exception.CategoryNotFoundException;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
-import com.BaGulBaGul.BaGulBaGul.domain.post.repository.CategoryRepository;
-import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCategoryRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentChildLikeRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentChildRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentLikeRepository;
@@ -17,6 +13,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostLikeRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -27,8 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class PostServiceImpl implements PostService {
 
     private final PostRepository postRepository;
-    private final PostCategoryRepository postCategoryRepository;
-    private final CategoryRepository categoryRepository;
     private final PostLikeRepository postLikeRepository;
     private final PostCommentRepository postCommentRepository;
     private final PostCommentLikeRepository postCommentLikeRepository;
@@ -36,25 +31,48 @@ public class PostServiceImpl implements PostService {
     private final PostCommentChildLikeRepository postCommentChildLikeRepository;
 
     @Override
-    @Transactional
-    public void clearCategory(Post post) {
-        postCategoryRepository.deleteAll(post.getCategories());
-        post.getCategories().clear();
-        postCategoryRepository.flush();
+    public Post registerPost(User user, PostRegisterRequest postRegisterRequest) {
+        Post post = Post.builder()
+                .user(user)
+                .title(postRegisterRequest.getTitle())
+                .content(postRegisterRequest.getContent())
+                .tags(postRegisterRequest.getTags().stream().collect(Collectors.joining(" ")))
+                .image_url(postRegisterRequest.getImage_url())
+                .likeCount(0)
+                .commentCount(0)
+                .views(0)
+                .build();
+        //post 생성
+        postRepository.save(post);
+        return post;
+    }
+
+    @Override
+    public void modifyPost(Post post, PostModifyRequest postModifyRequest) {
+        //patch 방식으로 postModifyRequest에서 null이 아닌 모든 필드를 변경
+        if(postModifyRequest.getTitle() != null && !postModifyRequest.getTitle().isEmpty()) {
+            post.setTitle(postModifyRequest.getTitle());
+        }
+        if(postModifyRequest.getContent() != null) {
+            post.setContent(postModifyRequest.getContent());
+        }
+        if(postModifyRequest.getTags() != null) {
+            post.setTags(postModifyRequest.getTags().stream().collect(Collectors.joining(" ")));
+        }
+        if(postModifyRequest.getImage_url() != null) {
+            post.setImage_url(postModifyRequest.getImage_url());
+        }
     }
 
     @Override
     @Transactional
-    public void addCategory(Post post, String categoryName) {
-        Category category = categoryRepository.findByName(categoryName).orElseThrow(CategoryNotFoundException::new);
-        this.addCategory(post, category);
-    }
-
-    @Override
-    @Transactional
-    public void addCategory(Post post, Category category) {
-        PostCategory postCategory = new PostCategory(post, category);
-        post.getCategories().add(postCategory);
+    public void deletePost(Post post) {
+        postLikeRepository.deleteAllByPost(post);
+        postCommentChildLikeRepository.deleteAllByPost(post);
+        postCommentChildRepository.deleteAllByPost(post);
+        postCommentLikeRepository.deleteAllByPost(post);
+        postCommentRepository.deleteAllByPost(post);
+        postRepository.delete(post);
     }
 
     @Override
@@ -90,17 +108,5 @@ public class PostServiceImpl implements PostService {
     @Override
     public boolean existsLike(Post post, User user) {
         return postLikeRepository.existsByPostAndUser(post, user);
-    }
-
-    @Override
-    @Transactional
-    public void delete(Post post) {
-        postCategoryRepository.deleteAllByPost(post);
-        postLikeRepository.deleteAllByPost(post);
-        postCommentChildLikeRepository.deleteAllByPost(post);
-        postCommentChildRepository.deleteAllByPost(post);
-        postCommentLikeRepository.deleteAllByPost(post);
-        postCommentRepository.deleteAllByPost(post);
-        postRepository.delete(post);
     }
 }

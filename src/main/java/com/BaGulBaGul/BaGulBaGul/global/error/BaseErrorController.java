@@ -8,8 +8,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import springfox.documentation.annotations.ApiIgnore;
 
 @Controller
+@ApiIgnore
 public class BaseErrorController implements ErrorController {
     @RequestMapping("/error")
     public ResponseEntity<ApiResponse> error(HttpServletResponse response) {

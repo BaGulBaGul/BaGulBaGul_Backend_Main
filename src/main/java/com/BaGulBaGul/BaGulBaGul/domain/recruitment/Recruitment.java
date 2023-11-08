@@ -1,15 +1,15 @@
 package com.BaGulBaGul.BaGulBaGul.domain.recruitment;
 
 import com.BaGulBaGul.BaGulBaGul.domain.base.BaseTimeEntity;
+import com.BaGulBaGul.BaGulBaGul.domain.event.Event;
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
-import com.BaGulBaGul.BaGulBaGul.domain.recruitment.contant.RecruitmentType;
-import com.BaGulBaGul.BaGulBaGul.domain.user.User;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.constant.RecruitmentState;
+import java.time.LocalDateTime;
 import lombok.*;
 import javax.persistence.*;
-import java.time.LocalDateTime;
 
 @Getter
-@Entity(name = "recruitment")
+@Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Recruitment extends BaseTimeEntity {
     @Id
@@ -17,61 +17,46 @@ public class Recruitment extends BaseTimeEntity {
     @Column(name = "recruitment_id")
     Long id;
 
-    @Column(name = "type")
-    @Enumerated(value = EnumType.STRING)
-    RecruitmentType type;
+    @Setter
+    @Column(name = "state")
+    RecruitmentState state;
 
-    @JoinColumn(name = "user_id")
-    @ManyToOne(fetch = FetchType.LAZY)
-    User user;
+    @Setter
+    @JoinColumn(name = "event_id")
+    @OneToOne(fetch = FetchType.LAZY)
+    Event event;
 
+    @Setter
     @JoinColumn(name = "post_id")
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     Post post;
 
-    @Column(name="title")
-    String title;
-
-    @Column(name="content")
-    String content;
-
+    @Setter
     @Column(name="head_count")
     Integer headCount;
 
-    @Column(name="start_date")
+    @Setter
+    @Column(name = "startdate")
     LocalDateTime startDate;
 
-    @Column(name="end_date")
+    @Setter
+    @Column(name = "enddate")
     LocalDateTime endDate;
-
-    @Column(name="tags")
-    String tags;
-
-    @Column(name="image_uri")
-    String imageURI;
 
     @Builder
     public Recruitment(
-            RecruitmentType type,
-            User user,
+            Event event,
             Post post,
-            String title,
-            String content,
             Integer headCount,
             LocalDateTime startDate,
-            LocalDateTime endDate,
-            String tags,
-            String imageURI
+            LocalDateTime endDate
     ){
-        this.type = type;
-        this.user = user;
+        this.event = event;
         this.post = post;
-        this.title = title;
-        this.content = content;
         this.headCount = headCount;
         this.startDate = startDate;
         this.endDate = endDate;
-        this.tags = tags;
-        this.imageURI = imageURI;
+
+        this.state = RecruitmentState.PROCEEDING;
     }
 }

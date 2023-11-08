@@ -1,16 +1,11 @@
 package com.BaGulBaGul.BaGulBaGul.domain.post;
 
 import com.BaGulBaGul.BaGulBaGul.domain.base.BaseTimeEntity;
-import com.BaGulBaGul.BaGulBaGul.domain.post.constant.PostType;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -34,11 +29,6 @@ public class Post extends BaseTimeEntity {
     Long id;
 
     @Setter
-    @Column(name = "type")
-    @Enumerated(value = EnumType.STRING)
-    PostType type;
-
-    @Setter
     @JoinColumn(name = "user_id")
     @ManyToOne(fetch = FetchType.LAZY)
     User user;
@@ -50,18 +40,6 @@ public class Post extends BaseTimeEntity {
     @Setter
     @Column(name = "content")
     String content;
-
-    @Setter
-    @Column(name = "headcount")
-    Integer headCount;
-
-    @Setter
-    @Column(name = "startdate")
-    LocalDateTime startDate;
-
-    @Setter
-    @Column(name = "enddate")
-    LocalDateTime endDate;
 
     @Setter
     @Column(name = "tags")
@@ -83,9 +61,6 @@ public class Post extends BaseTimeEntity {
     @Column(name = "views")
     Integer views;
 
-    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
-    private List<PostCategory> categories = new ArrayList<>();
-
     @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
     private List<PostLike> likes = new ArrayList<>();
 
@@ -94,26 +69,18 @@ public class Post extends BaseTimeEntity {
 
     @Builder
     public Post(
-            PostType type,
             User user,
             String title,
             String content,
-            Integer headCount,
-            LocalDateTime startDate,
-            LocalDateTime endDate,
             String tags,
             String image_url,
             Integer likeCount,
             Integer commentCount,
             Integer views
     ) {
-        this.type = type;
         this.user = user;
         this.title = title;
         this.content = content;
-        this.headCount = headCount;
-        this.startDate = startDate;
-        this.endDate = endDate;
         this.tags = tags;
         this.image_url = image_url;
         this.likeCount = likeCount;

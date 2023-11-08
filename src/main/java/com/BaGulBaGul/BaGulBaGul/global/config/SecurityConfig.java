@@ -31,11 +31,17 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션x
                 .authorizeRequests()
+                //event 비로그인 허용 경로
+                .antMatchers(HttpMethod.GET, "/api/event").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/event/{\\d+}").permitAll()
+
                 //post 비로그인 허용 경로
-                .antMatchers(HttpMethod.GET, "/api/post").permitAll()
-                .antMatchers(HttpMethod.GET, "/api/post/{\\d+}").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/post/{\\d+}/comment").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/post/comment/{\\d+}/children").permitAll()
+
+                //recruitment 비로그인 혀용 경로
+                .antMatchers(HttpMethod.GET, "/api/event/{\\d+}/recruitment").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/event/recruitment/{\\d+}").permitAll()
 
                 //나머지 로그인 필요
                 .anyRequest().authenticated();
