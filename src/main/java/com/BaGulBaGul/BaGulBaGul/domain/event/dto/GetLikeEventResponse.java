@@ -19,7 +19,7 @@ public class GetLikeEventResponse {
 
     public static GetLikeEventResponse of(Event event) {
         return GetLikeEventResponse.builder()
-                .id(event.getPost().getId())
+                .id(event.getId())
                 .title(event.getPost().getTitle())
                 .startDate(event.getStartDate())
                 .endDate(event.getEndDate())
