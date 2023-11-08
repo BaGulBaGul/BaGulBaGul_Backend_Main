@@ -9,6 +9,10 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.service.EventService;
 import com.BaGulBaGul.BaGulBaGul.domain.post.*;
 import com.BaGulBaGul.BaGulBaGul.domain.event.constant.EventType;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.*;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.Recruitment;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.repository.RecruitmentRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.service.RecruitmentService;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserRepository;
 import java.time.LocalDateTime;
@@ -30,8 +34,10 @@ public class InitDummyDB {
     private final PostCommentChildLikeRepository postCommentChildLikeRepository;
     private final UserRepository userRepository;
     private final EventRepository eventRepository;
+    private final RecruitmentRepository recruitmentRepository;
 
     private final EventService eventService;
+    private final RecruitmentService recruitmentService;
 
     private List<User> users;
     private List<Category> categories;
@@ -151,6 +157,78 @@ public class InitDummyDB {
 
             Event event = eventRepository.findById(eventId).get();
             Post post = event.getPost();
+            initPost(post);
+
+            //모집글
+            int recruitmentCnt = rand.nextInt(10);
+            createRecruitment(event, recruitmentCnt);
+        }
+        return result;
+    }
+
+    private List<Recruitment> createRecruitment(Event event, int recruitmentCnt) {
+        Random rand = new Random();
+        final String[] tags = {"태그1", "태그2", "태그3", "태그4", "태그5", "태그6", "태그7", "태그8", "태그9"};
+        List<Recruitment> result = new ArrayList<>();
+        for(int cnt = 0; cnt < recruitmentCnt; cnt++) {
+            //태그
+            Set<String> tagSet = new HashSet<>();
+            for (int i = 0; i < rand.nextInt(7); i++) {
+                tagSet.add(tags[rand.nextInt(tags.length)]);
+            }
+
+            //시간
+            LocalDateTime startDate = null;//LocalDateTime.now().minusHours(rand.nextInt(168));
+            LocalDateTime endDate = null;
+            int r = rand.nextInt(3);
+            //기간이 이미 지난 경우
+            if(r == 0) {
+                startDate = LocalDateTime.now().minusHours(24).minusHours(rand.nextInt(168));
+                do {
+                    endDate = LocalDateTime.now().minusHours(rand.nextInt(84));
+                }
+                while(endDate.isBefore(startDate));
+            }
+            //현재 진행중
+            else if(r == 1){
+                startDate = LocalDateTime.now().minusHours(rand.nextInt(48));
+                endDate = LocalDateTime.now().plusHours(rand.nextInt(96));
+            }
+            //아직 시작 안함
+            else {
+                startDate = LocalDateTime.now().plusHours(rand.nextInt(100));
+                do {
+                    endDate = LocalDateTime.now().plusHours(24).plusHours(rand.nextInt(200));
+                }
+                while(endDate.isBefore(startDate));
+            }
+
+            //작성자
+            User writer = users.get(rand.nextInt(users.size()));
+
+            //기타
+            int headCount = rand.nextInt(100);
+            String imageURL = "test";
+            String title = "테스트" + cnt;
+            String content = "테스트게시글" + cnt;
+            List<String> tagStr = tagSet.stream().collect(Collectors.toList());
+
+            Long recruitmentId = recruitmentService.registerRecruitment(
+                    event.getId(),
+                    writer.getId(),
+                    RecruitmentRegisterRequest.builder()
+                            .headCount(headCount)
+                            .startDate(startDate)
+                            .endDate(endDate)
+                            .title(title)
+                            .content(content)
+                            .tags(tagStr)
+                            .image_url(imageURL)
+                            .build()
+            );
+
+            Recruitment recruitment = recruitmentRepository.findById(recruitmentId).get();
+            Post post = recruitment.getPost();
             initPost(post);
         }
         return result;
