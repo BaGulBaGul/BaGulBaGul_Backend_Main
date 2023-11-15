@@ -55,9 +55,7 @@ public class InitDummyDB {
         List<User> result = new ArrayList<>();
 
         for(int cnt=0; cnt<userCnt; cnt++) {
-            String sex = rand.nextBoolean() ? "man" : "woman";
             User user = User.builder()
-                    .sex(sex)
                     .email("test" + cnt + "email.com")
                     .nickName("testUser" + cnt)
                     .imageURI("testImage.png")

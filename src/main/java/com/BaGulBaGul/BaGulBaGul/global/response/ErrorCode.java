@@ -16,7 +16,10 @@ public enum ErrorCode {
     UNAUTHORIZED("C10001", HttpStatus.UNAUTHORIZED, "UNAUTHORIZED"),
     FORBIDDEN("C10002", HttpStatus.FORBIDDEN, "FORBIDDEN"),
     NOT_FOUND("C10003", HttpStatus.NOT_FOUND, "PAGE NOT FOUND"),
-    INTERNAL_SERVER_ERROR("C20000", HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_SERVER_ERROR");
+    INTERNAL_SERVER_ERROR("C20000", HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_SERVER_ERROR"),
+
+    //UserJoin
+    UJ_WRONG_JOINTOKEN("UJ00000", HttpStatus.OK, "소셜 로그인 회원가입 인증 토큰이 만료되었거나 잘못되었습니다.");
 
     private final String code;
     private final HttpStatus httpStatus;
