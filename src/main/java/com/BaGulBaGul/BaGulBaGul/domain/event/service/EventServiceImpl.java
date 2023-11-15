@@ -92,6 +92,10 @@ public class EventServiceImpl implements EventService {
                 .type(eventRegisterRequest.getType())
                 .post(post)
                 .headCount(eventRegisterRequest.getHeadCount())
+                .fullLocation(eventRegisterRequest.getFullLocation())
+                .abstractLocation(eventRegisterRequest.getAbstractLocation())
+                .latitudeLocation(eventRegisterRequest.getLatitudeLocation())
+                .longitudeLocation(eventRegisterRequest.getLongitudeLocation())
                 .startDate(eventRegisterRequest.getStartDate())
                 .endDate(eventRegisterRequest.getEndDate()).build();
         //카테고리 추가
@@ -118,7 +122,19 @@ public class EventServiceImpl implements EventService {
             event.setType(eventModifyRequest.getType());
         }
         if(eventModifyRequest.getHeadCount() != null) {
-            event.setHeadCount(event.getHeadCount());
+            event.setHeadCount(eventModifyRequest.getHeadCount());
+        }
+        if(eventModifyRequest.getFullLocation() != null) {
+            event.setFullLocation(eventModifyRequest.getFullLocation());
+        }
+        if(eventModifyRequest.getAbstractLocation() != null) {
+            event.setAbstractLocation(eventModifyRequest.getAbstractLocation());
+        }
+        if(eventModifyRequest.getLatitudeLocation() != null) {
+            event.setLatitudeLocation(eventModifyRequest.getLatitudeLocation());
+        }
+        if(eventModifyRequest.getLongitudeLocation() != null) {
+            event.setLongitudeLocation(eventModifyRequest.getLongitudeLocation());
         }
         if(eventModifyRequest.getStartDate() != null) {
             event.setStartDate(eventModifyRequest.getStartDate());

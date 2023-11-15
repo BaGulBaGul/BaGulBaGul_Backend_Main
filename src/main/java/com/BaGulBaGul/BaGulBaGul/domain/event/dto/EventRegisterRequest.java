@@ -2,6 +2,7 @@ package com.BaGulBaGul.BaGulBaGul.domain.event.dto;
 
 import com.BaGulBaGul.BaGulBaGul.domain.event.constant.EventType;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostRegisterRequest;
+import io.swagger.annotations.ApiModelProperty;
 import java.time.LocalDateTime;
 import java.util.List;
 import javax.validation.constraints.NotBlank;
@@ -22,6 +23,10 @@ public class EventRegisterRequest {
     @NotBlank
     private String title;
     private int headCount;
+    private String fullLocation;
+    private String abstractLocation;
+    private Float latitudeLocation;
+    private Float longitudeLocation;
     private String content;
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime startDate;

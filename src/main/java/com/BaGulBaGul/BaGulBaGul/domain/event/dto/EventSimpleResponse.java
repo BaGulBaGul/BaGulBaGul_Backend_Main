@@ -19,6 +19,7 @@ public class EventSimpleResponse {
     private Long id;
     private EventType type;
     private String title;
+    private String abstractLocation;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private List<String> tags;
@@ -32,6 +33,7 @@ public class EventSimpleResponse {
                 .id(event.getId())
                 .type(event.getType())
                 .title(event.getPost().getTitle())
+                .abstractLocation(event.getAbstractLocation())
                 .startDate(event.getStartDate())
                 .endDate(event.getEndDate())
                 .tags(Arrays.asList(event.getPost().getTags().split(" ")))

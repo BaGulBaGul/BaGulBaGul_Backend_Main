@@ -14,6 +14,7 @@ import lombok.Setter;
 public class GetLikeEventResponse {
     private Long id;
     private String title;
+    private String abstractLocation;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
 
@@ -21,6 +22,7 @@ public class GetLikeEventResponse {
         return GetLikeEventResponse.builder()
                 .id(event.getId())
                 .title(event.getPost().getTitle())
+                .abstractLocation(event.getAbstractLocation())
                 .startDate(event.getStartDate())
                 .endDate(event.getEndDate())
                 .build();

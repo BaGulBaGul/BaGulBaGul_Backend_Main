@@ -24,6 +24,10 @@ public class EventDetailResponse {
     private String title;
     private String content;
     private Integer headCount;
+    private String fullLocation;
+    private String abstractLocation;
+    private Float latitudeLocation;
+    private Float longitudeLocation;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private List<String> tags;
@@ -47,6 +51,10 @@ public class EventDetailResponse {
                 .title(event.getPost().getTitle())
                 .content(event.getPost().getContent())
                 .headCount(event.getHeadCount())
+                .fullLocation(event.getFullLocation())
+                .abstractLocation(event.getAbstractLocation())
+                .latitudeLocation(event.getLatitudeLocation())
+                .longitudeLocation(event.getLongitudeLocation())
                 .startDate(event.getStartDate())
                 .endDate(event.getEndDate())
                 .tags(tags)

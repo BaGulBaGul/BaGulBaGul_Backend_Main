@@ -18,6 +18,10 @@ public class EventModifyRequest {
     private EventType type;
     private String title;
     private Integer headCount;
+    private String fullLocation;
+    private String abstractLocation;
+    private Float latitudeLocation;
+    private Float longitudeLocation;
     private String content;
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime startDate;

@@ -41,18 +41,42 @@ public class Event {
     @OneToOne(fetch = FetchType.LAZY)
     Post post;
 
+    //인원수
     @Setter
     @Column(name = "headcount")
     Integer headCount;
 
+    //세부 주소
+    @Setter
+    @Column(name = "location_full")
+    String fullLocation;
+
+    //시/군구 까지의 축약된 주소
+    @Setter
+    @Column(name = "location_abstract")
+    String abstractLocation;
+
+    //위도
+    @Setter
+    @Column(name = "location_latitude")
+    Float latitudeLocation;
+
+    //경도
+    @Setter
+    @Column(name = "location_longitude")
+    Float longitudeLocation;
+
+    //시작 시간
     @Setter
     @Column(name = "startdate")
     LocalDateTime startDate;
 
+    //종료 시간
     @Setter
     @Column(name = "enddate")
     LocalDateTime endDate;
 
+    //카테고리들
     @OneToMany(mappedBy = "event", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private List<EventCategory> categories = new ArrayList<>();
 
@@ -61,12 +85,20 @@ public class Event {
             EventType type,
             Post post,
             Integer headCount,
+            String fullLocation,
+            String abstractLocation,
+            Float latitudeLocation,
+            Float longitudeLocation,
             LocalDateTime startDate,
             LocalDateTime endDate
     ) {
         this.type = type;
         this.post = post;
         this.headCount = headCount;
+        this.fullLocation = fullLocation;
+        this.abstractLocation = abstractLocation;
+        this.latitudeLocation = latitudeLocation;
+        this.longitudeLocation = longitudeLocation;
         this.startDate = startDate;
         this.endDate = endDate;
     }
