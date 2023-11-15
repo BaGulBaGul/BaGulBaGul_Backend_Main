@@ -46,6 +46,10 @@ public class FindEventByConditionApplierImpl implements FindEventByConditionAppl
         if(eventConditionalRequest.getType() != null) {
             query.where(event.type.eq(eventConditionalRequest.getType()));
         }
+        //장소 검색
+        if(eventConditionalRequest.getLocation() != null) {
+            query.where(event.fullLocation.contains(eventConditionalRequest.getLocation()));
+        }
         //검색기간 적용
         if(eventConditionalRequest.getStartDate() != null && eventConditionalRequest.getEndDate() != null) {
             query.where(

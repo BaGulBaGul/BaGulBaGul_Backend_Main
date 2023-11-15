@@ -18,11 +18,11 @@ public class EventConditionalRequest {
     private List<String> tags;
     private List<String> categories;
     private String username;
+    private String location;
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime startDate;
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime endDate;
-
 
     public PostConditionalRequest toPostConditionalRequest() {
         return PostConditionalRequest.builder()
@@ -31,5 +31,4 @@ public class EventConditionalRequest {
                 .tags(tags)
                 .build();
     }
-
 }
