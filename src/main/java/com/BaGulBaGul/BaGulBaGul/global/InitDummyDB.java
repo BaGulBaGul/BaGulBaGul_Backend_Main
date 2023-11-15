@@ -119,6 +119,20 @@ public class InitDummyDB {
                 while(endDate.isBefore(startDate));
             }
 
+            //위치
+            String[] LOCATION_NAMES = {"서울특별시", "경기도", "강원도"};
+            final Map<String, String[]> LOCATION_NAMES2 = new HashMap<>();
+            LOCATION_NAMES2.put("서울특별시", new String[]{"강남구", "강동구", "강서구", "관악구", "광진구", "구로구", "동대문구", "도봉구", "서대문구", "서초구", "성동구", "용산구", "영등포구", "종로구", "은평구"});
+            LOCATION_NAMES2.put("경기도", new String[]{"고양시", "수원시", "성남시", "용인시", "안양시", "안산시", "과천시", "광주시", "군포시", "김포시", "화성시", "평택시", "하남시", "여주시", "부천시", "구리시", "파주시", "의정부시"});
+            LOCATION_NAMES2.put("강원도", new String[]{"철원군", "화천군", "양구군", "고성군", "인제군", "속초시", "양양군", "평창군", "춘천시"});
+
+            String l1 = LOCATION_NAMES[rand.nextInt(LOCATION_NAMES.length)];
+            String l2 = LOCATION_NAMES2.get(l1)[rand.nextInt(LOCATION_NAMES2.get(l1).length)];
+            String fullLocation = l1 + " " + l2;
+            String abstractLocation = fullLocation;
+            Float latitudeLocation = (float)(rand.nextInt(1000)) / 10;
+            Float longitudeLocation = (float)(rand.nextInt(1000)) / 10;
+
             //작성자
             User writer = users.get(rand.nextInt(users.size()));
 
@@ -144,6 +158,10 @@ public class InitDummyDB {
                             .type(type)
                             .title(title)
                             .headCount(headCount)
+                            .fullLocation(fullLocation)
+                            .abstractLocation(abstractLocation)
+                            .latitudeLocation(latitudeLocation)
+                            .longitudeLocation(longitudeLocation)
                             .content(content)
                             .startDate(startDate)
                             .endDate(endDate)
