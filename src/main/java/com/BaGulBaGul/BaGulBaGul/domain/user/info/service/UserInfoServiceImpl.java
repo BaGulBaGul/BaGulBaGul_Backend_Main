@@ -1,6 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user.info.service;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
+import com.BaGulBaGul.BaGulBaGul.domain.user.info.dto.UserInfoResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.dto.UserModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.UserRepository;
 import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
@@ -14,6 +15,18 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserInfoServiceImpl implements UserInfoService {
 
     private final UserRepository userRepository;
+
+    @Override
+    public UserInfoResponse getUserInfo(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        return UserInfoResponse.builder()
+                .id(userId)
+                .nickname(user.getNickname())
+                .email(user.getEmail())
+                .profileMessage(user.getProfileMessage())
+                .imageURI(user.getImageURI())
+                .build();
+    }
 
     @Override
     @Transactional
