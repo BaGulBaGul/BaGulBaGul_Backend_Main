@@ -16,11 +16,6 @@ public interface FindEventByConditionApplier {
             QEvent event
     );
 
-//    <T> JPAQuery<T> applyFetchJoin(
-//            JPAQuery<T> query,
-//            QEvent event
-//    );
-
     List<OrderSpecifier> getOrderSpecifiers(
             Pageable pageable
     );
