@@ -5,6 +5,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.info.dto.UserModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.service.UserInfoService;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
 import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +24,9 @@ public class UserInfoControllerImpl implements UserInfoController {
 
     @Override
     @GetMapping("/info")
+    @Operation(summary = "유저 정보 조회",
+            description = "로그인 필수. 인증 토큰을 기반으로 유저 정보를 반환."
+    )
     public ApiResponse<UserInfoResponse> getUserInfo(
             @AuthenticationPrincipal Long userId
     ) {
@@ -31,6 +35,9 @@ public class UserInfoControllerImpl implements UserInfoController {
 
     @Override
     @PatchMapping("/info")
+    @Operation(summary = "유저 정보 수정 요청",
+            description = "로그인 필수. 유저 정보 수정"
+    )
     public ApiResponse<Object> modifyUserInfo(
             @AuthenticationPrincipal Long userId,
             @RequestBody UserModifyRequest userModifyRequest

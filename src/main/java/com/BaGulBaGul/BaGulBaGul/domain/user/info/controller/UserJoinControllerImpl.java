@@ -41,6 +41,9 @@ public class UserJoinControllerImpl implements UserJoinController {
 
     @Override
     @DeleteMapping("")
+    @Operation(summary = "회원탈퇴 요청",
+            description = "회원탈퇴 후 인증 토큰 쿠키 삭제"
+    )
     public ApiResponse<Object> deleteUser(
             @AuthenticationPrincipal Long userId,
             HttpServletResponse response
