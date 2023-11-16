@@ -27,6 +27,9 @@ public class User extends BaseTimeEntity {
     @Column(name="nickname")
     String nickname;
 
+    @Column(name="profile_message")
+    String profileMessage;
+
     @Column(name="image_uri")
     String imageURI;
 
@@ -34,11 +37,12 @@ public class User extends BaseTimeEntity {
     public User(
             String email,
             String nickName,
+            String profileMessage,
             String imageURI
     ) {
         this.email = email;
         this.nickname = nickName;
+        this.profileMessage = profileMessage;
         this.imageURI = imageURI;
     }
-
 }
