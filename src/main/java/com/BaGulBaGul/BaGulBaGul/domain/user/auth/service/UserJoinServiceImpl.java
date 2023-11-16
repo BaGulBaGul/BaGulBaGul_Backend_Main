@@ -17,7 +17,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class UserAuthServiceImpl implements UserAuthService {
+public class UserJoinServiceImpl implements UserJoinService {
 
     private final JwtProvider jwtProvider;
     private final SocialLoginUserRepository socialLoginUserRepository;
