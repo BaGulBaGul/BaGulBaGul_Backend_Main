@@ -20,7 +20,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostService;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
-import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.UserRepository;
 import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
 import com.BaGulBaGul.BaGulBaGul.global.response.ErrorCode;
 import java.util.List;

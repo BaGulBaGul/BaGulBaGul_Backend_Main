@@ -14,7 +14,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentRegisterReque
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.repository.RecruitmentRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.service.RecruitmentService;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
-import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;

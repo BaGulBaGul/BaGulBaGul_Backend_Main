@@ -1,4 +1,4 @@
-package com.BaGulBaGul.BaGulBaGul.domain.user.repository;
+package com.BaGulBaGul.BaGulBaGul.domain.user.info.repository;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.SocialLoginUser;
 import org.springframework.data.jpa.repository.EntityGraph;
