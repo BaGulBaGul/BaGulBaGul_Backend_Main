@@ -4,7 +4,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.SocialLoginUser;
 import com.BaGulBaGul.BaGulBaGul.domain.user.auth.service.JwtProvider;
 import com.BaGulBaGul.BaGulBaGul.domain.user.auth.oauth2.dto.ApplicationOAuth2User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.auth.oauth2.dto.OAuth2JoinTokenSubject;
-import com.BaGulBaGul.BaGulBaGul.domain.user.repository.SocialLoginUserRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.SocialLoginUserRepository;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

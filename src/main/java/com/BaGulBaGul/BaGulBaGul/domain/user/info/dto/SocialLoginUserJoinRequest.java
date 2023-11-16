@@ -1,4 +1,4 @@
-package com.BaGulBaGul.BaGulBaGul.domain.user.auth.dto;
+package com.BaGulBaGul.BaGulBaGul.domain.user.info.dto;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;

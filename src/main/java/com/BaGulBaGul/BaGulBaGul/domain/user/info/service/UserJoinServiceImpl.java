@@ -1,11 +1,12 @@
-package com.BaGulBaGul.BaGulBaGul.domain.user.auth.service;
+package com.BaGulBaGul.BaGulBaGul.domain.user.info.service;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.SocialLoginUser;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
-import com.BaGulBaGul.BaGulBaGul.domain.user.auth.dto.SocialLoginUserJoinRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.user.auth.dto.UserRegisterRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.user.repository.SocialLoginUserRepository;
-import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.user.auth.service.JwtProvider;
+import com.BaGulBaGul.BaGulBaGul.domain.user.info.dto.SocialLoginUserJoinRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.info.dto.UserRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.SocialLoginUserRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.UserRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.auth.oauth2.dto.OAuth2JoinTokenSubject;
 import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
 import com.BaGulBaGul.BaGulBaGul.global.response.ErrorCode;
@@ -17,7 +18,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class UserAuthServiceImpl implements UserAuthService {
+public class UserJoinServiceImpl implements UserJoinService {
 
     private final JwtProvider jwtProvider;
     private final SocialLoginUserRepository socialLoginUserRepository;
@@ -50,5 +51,17 @@ public class UserAuthServiceImpl implements UserAuthService {
                 .build();
         userRepository.save(user);
         return user;
+    }
+
+    @Override
+    @Transactional
+    public void deleteUser(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() ->new GeneralException(ErrorCode.BAD_REQUEST));
+        //소셜로그인 정보의 경우 탈퇴 후에도 불필요한 정보. 재가입을 고려해 바로 삭제
+        socialLoginUserRepository.deleteByUser(user);
+        //유저 정보의 경우 게시글 유지를 위해 soft delete
+        user.setDeleted(true);
+        //다른 유저가 사용 가능하도록 닉네임을 null로 변경
+        user.setNickname(null);
     }
 }

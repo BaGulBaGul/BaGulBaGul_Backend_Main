@@ -10,6 +10,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import lombok.Setter;
 
 
 @Getter
@@ -21,24 +22,37 @@ public class User extends BaseTimeEntity {
     @Column(name = "user_id")
     Long id;
 
+    @Setter
     @Column(name="email")
     String email;
 
-    @Column(name="nickname")
+    @Setter
+    @Column(name="nickname", unique = true)
     String nickname;
 
+    @Setter
+    @Column(name="profile_message")
+    String profileMessage;
+
+    @Setter
     @Column(name="image_uri")
     String imageURI;
+
+    @Setter
+    @Column(name="deleted")
+    boolean deleted;
 
     @Builder
     public User(
             String email,
             String nickName,
+            String profileMessage,
             String imageURI
     ) {
         this.email = email;
         this.nickname = nickName;
+        this.profileMessage = profileMessage;
         this.imageURI = imageURI;
+        this.deleted = false;
     }
-
 }
