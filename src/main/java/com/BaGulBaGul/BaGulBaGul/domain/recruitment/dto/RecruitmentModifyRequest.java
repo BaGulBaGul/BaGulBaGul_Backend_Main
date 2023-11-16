@@ -33,7 +33,6 @@ public class RecruitmentModifyRequest {
     private LocalDateTime endDate;
 
     @ApiModelProperty(value = "게시글 제목")
-    @NotBlank
     private String title;
 
     @ApiModelProperty(value = "게시글 내용")
