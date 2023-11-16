@@ -1,7 +1,7 @@
-package com.BaGulBaGul.BaGulBaGul.domain.user.auth.controller;
+package com.BaGulBaGul.BaGulBaGul.domain.user.info.controller;
 
-import com.BaGulBaGul.BaGulBaGul.domain.user.auth.dto.SocialLoginUserJoinRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.user.auth.service.UserJoinService;
+import com.BaGulBaGul.BaGulBaGul.domain.user.info.dto.SocialLoginUserJoinRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.info.service.UserJoinService;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;

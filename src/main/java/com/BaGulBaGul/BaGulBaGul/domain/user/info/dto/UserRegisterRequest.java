@@ -1,4 +1,4 @@
-package com.BaGulBaGul.BaGulBaGul.domain.user.auth.dto;
+package com.BaGulBaGul.BaGulBaGul.domain.user.info.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

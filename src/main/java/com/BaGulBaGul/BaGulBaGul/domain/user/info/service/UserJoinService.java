@@ -1,8 +1,8 @@
-package com.BaGulBaGul.BaGulBaGul.domain.user.auth.service;
+package com.BaGulBaGul.BaGulBaGul.domain.user.info.service;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
-import com.BaGulBaGul.BaGulBaGul.domain.user.auth.dto.SocialLoginUserJoinRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.user.auth.dto.UserRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.info.dto.SocialLoginUserJoinRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.info.dto.UserRegisterRequest;
 
 public interface UserJoinService {
     void registerSocialLoginUser(SocialLoginUserJoinRequest socialLoginUserJoinRequest);

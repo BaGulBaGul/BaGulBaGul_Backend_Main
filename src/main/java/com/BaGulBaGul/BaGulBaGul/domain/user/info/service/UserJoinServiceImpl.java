@@ -1,9 +1,10 @@
-package com.BaGulBaGul.BaGulBaGul.domain.user.auth.service;
+package com.BaGulBaGul.BaGulBaGul.domain.user.info.service;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.SocialLoginUser;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
-import com.BaGulBaGul.BaGulBaGul.domain.user.auth.dto.SocialLoginUserJoinRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.user.auth.dto.UserRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.auth.service.JwtProvider;
+import com.BaGulBaGul.BaGulBaGul.domain.user.info.dto.SocialLoginUserJoinRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.info.dto.UserRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.SocialLoginUserRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.UserRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.auth.oauth2.dto.OAuth2JoinTokenSubject;
