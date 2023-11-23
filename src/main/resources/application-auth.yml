@@ -21,8 +21,8 @@ spring:
         front_join_redirect_url: ${OAUTH_FRONT_JOIN_REDIRECT_URL}
         registration:
           kakao:
-            client-id: c355a6b616120cbf00fa1fb4cc95a6ff
-            client-secret: iIlFwpyeGsuDS5k2eopytYZtilXZkXcZ
+            client-id: ${KAKAO_CLIENT_ID}
+            client-secret: ${KAKAO_CLIENT_SECRET}
 #            scope: profile_nickname, account_email
             client-name: kakao-login
             authorization-grant-type: authorization_code
