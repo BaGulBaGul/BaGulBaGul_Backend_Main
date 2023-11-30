@@ -3,6 +3,7 @@ package com.BaGulBaGul.BaGulBaGul.global.exception.handler;
 import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
 import com.BaGulBaGul.BaGulBaGul.global.response.ErrorCode;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +13,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @RestControllerAdvice
+@Order(2)
 public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({GeneralException.class})
     public ResponseEntity<Object> general(GeneralException e, WebRequest request) {
