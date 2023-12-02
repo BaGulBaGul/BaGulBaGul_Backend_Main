@@ -6,6 +6,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostImageService;
 import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostService;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.Recruitment;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.GetLikeRecruitmentResponse;
@@ -37,15 +38,17 @@ public class RecruitmentServiceImpl implements RecruitmentService {
     private final PostRepository postRepository;
 
     private final PostService postService;
+    private final PostImageService postImageService;
 
     @Override
     @Transactional
     public RecruitmentDetailResponse getRecruitmentDetailById(Long recruitmentId) {
         Recruitment recruitment = recruitmentRepository.findWithPostAndUserById(recruitmentId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        List<String> imageUrls = postImageService.getImageUrls(recruitment.getPost());
         //조회수 증가
         postRepository.increaseViewsById(recruitment.getPost().getId());
         //응답 dto 추출
-        RecruitmentDetailResponse recruitmentDetailResponse = RecruitmentDetailResponse.of(recruitment);
+        RecruitmentDetailResponse recruitmentDetailResponse = RecruitmentDetailResponse.of(recruitment, imageUrls);
         //방금 조회한 조회수를 반영해줌.
         recruitmentDetailResponse.setViews(recruitmentDetailResponse.getViews() + 1);
         return recruitmentDetailResponse;

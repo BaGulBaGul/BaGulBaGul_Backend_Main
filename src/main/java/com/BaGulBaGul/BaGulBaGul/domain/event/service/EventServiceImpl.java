@@ -18,6 +18,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostImageService;
 import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostService;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.UserRepository;
@@ -43,15 +44,17 @@ public class EventServiceImpl implements EventService {
 
 //    private final PostAPIService postService;
     private final PostService postService;
+    private final PostImageService postImageService;
 
     @Override
     @Transactional
     public EventDetailResponse getEventDetailById(Long eventId) {
         Event event = eventRepository.findWithPostAndUserAndCategoryById(eventId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        List<String> imageUrls = postImageService.getImageUrls(event.getPost());
         //조회수 증가
         postRepository.increaseViewsById(event.getPost().getId());
         //응답 dto 추출
-        EventDetailResponse eventDetailResponse = EventDetailResponse.of(event);
+        EventDetailResponse eventDetailResponse = EventDetailResponse.of(event, imageUrls);
         //방금 조회한 조회수를 반영해줌.
         eventDetailResponse.setViews(eventDetailResponse.getViews() + 1);
         return eventDetailResponse;

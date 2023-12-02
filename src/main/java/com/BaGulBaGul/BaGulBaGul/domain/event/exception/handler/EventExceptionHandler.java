@@ -5,6 +5,8 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.exception.CategoryNotFoundExceptio
 import com.BaGulBaGul.BaGulBaGul.global.exception.handler.ApiExceptionHandler;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
 import com.BaGulBaGul.BaGulBaGul.global.response.ErrorCode;
+import com.BaGulBaGul.BaGulBaGul.global.upload.exception.NotImageException;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -13,6 +15,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @RestControllerAdvice(basePackageClasses = EventController.class)
+@Order(1)
 public class EventExceptionHandler extends ApiExceptionHandler {
     @ExceptionHandler(
             CategoryNotFoundException.class

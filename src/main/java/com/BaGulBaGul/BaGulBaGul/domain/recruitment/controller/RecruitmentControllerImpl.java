@@ -14,9 +14,11 @@ import com.BaGulBaGul.BaGulBaGul.domain.recruitment.service.RecruitmentService;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -77,8 +79,8 @@ public class RecruitmentControllerImpl implements RecruitmentController {
     )
     public ApiResponse<RecruitmentRegisterResponse> registerRecruitment(
             @PathVariable(name = "eventId") Long eventId,
-            Long userId,
-            @RequestBody RecruitmentRegisterRequest recruitmentRegisterRequest
+            @AuthenticationPrincipal Long userId,
+            @RequestBody @Valid RecruitmentRegisterRequest recruitmentRegisterRequest
     ) {
         Long id = recruitmentService.registerRecruitment(eventId, userId, recruitmentRegisterRequest);
         return ApiResponse.of(
@@ -94,8 +96,8 @@ public class RecruitmentControllerImpl implements RecruitmentController {
     )
     public ApiResponse<Object> modifyRecruitment(
             @PathVariable(name="recruitmentId") Long recruitmentId,
-            Long userId,
-            @RequestBody RecruitmentModifyRequest recruitmentModifyRequest
+            @AuthenticationPrincipal Long userId,
+            @RequestBody @Valid RecruitmentModifyRequest recruitmentModifyRequest
     ) {
         recruitmentService.modifyRecruitment(recruitmentId, userId, recruitmentModifyRequest);
         return ApiResponse.of(null);
@@ -108,7 +110,7 @@ public class RecruitmentControllerImpl implements RecruitmentController {
     )
     public ApiResponse<Object> deleteRecruitment(
             @PathVariable(name="recruitmentId") Long recruitmentId,
-            Long userId
+            @AuthenticationPrincipal Long userId
     ) {
         recruitmentService.deleteRecruitment(recruitmentId, userId);
         return ApiResponse.of(null);
@@ -123,7 +125,7 @@ public class RecruitmentControllerImpl implements RecruitmentController {
     )
     public ApiResponse<Object> addLike(
             @PathVariable(name="recruitmentId") Long recruitmentId,
-            Long userId
+            @AuthenticationPrincipal Long userId
     ) {
         try {
             recruitmentService.addLike(recruitmentId, userId);
@@ -140,7 +142,7 @@ public class RecruitmentControllerImpl implements RecruitmentController {
     )
     public ApiResponse<Object> deleteLike(
             @PathVariable(name="recruitmentId") Long recruitmentId,
-            Long userId
+            @AuthenticationPrincipal Long userId
     ) {
         try {
             recruitmentService.deleteLike(recruitmentId, userId);
@@ -157,7 +159,7 @@ public class RecruitmentControllerImpl implements RecruitmentController {
     )
     public ApiResponse<IsMyLikeResponse> isMyLike(
             @PathVariable(name="recruitmentId") Long recruitmentId,
-            Long userId
+            @AuthenticationPrincipal Long userId
     ) {
         return ApiResponse.of(
                 new IsMyLikeResponse(recruitmentService.isMyLike(recruitmentId, userId))
@@ -171,7 +173,7 @@ public class RecruitmentControllerImpl implements RecruitmentController {
                     + "페이징 지원"
     )
     public ApiResponse<Page<GetLikeRecruitmentResponse>> getMyLike(
-            Long userId,
+            @AuthenticationPrincipal Long userId,
             Pageable pageable
     ) {
         return ApiResponse.of(
