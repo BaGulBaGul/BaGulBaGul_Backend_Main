@@ -7,8 +7,10 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectResult;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -44,6 +46,16 @@ public class S3ResourceUploadService extends ResourceUploadService{
     @Override
     public void deleteResource(String key) {
         amazonS3.deleteObject(bucketName, key);
+    }
+
+    @Override
+    @Async
+    public void deleteResourcesAsync(List<String> keys) {
+        if(keys == null)
+            return;
+        for(String key : keys) {
+            amazonS3.deleteObject(bucketName, key);
+        }
     }
 
     @Override

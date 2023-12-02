@@ -17,6 +17,7 @@ public abstract class ResourceUploadService {
 
     public abstract String uploadResource(String path, MultipartFile multipartFile) throws IOException;
     public abstract void deleteResource(String key);
+    public abstract void deleteResourcesAsync(List<String> keys);
     public abstract String getResourceUrlFromKey(String key);
 
     public String uploadImage(MultipartFile multipartFile) throws NotImageException, IOException {
