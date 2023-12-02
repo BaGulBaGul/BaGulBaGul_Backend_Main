@@ -38,6 +38,9 @@ public class RecruitmentSimpleResponse {
     @ApiModelProperty(value = "등록자 닉네임")
     private String username;
 
+    @ApiModelProperty(value = "등록자 이미지 url")
+    private String userImage;
+
     @ApiModelProperty(value = "태그들", example = "[\"물놀이\",\"바베큐\"]")
     private List<String> tags;
 
@@ -55,6 +58,7 @@ public class RecruitmentSimpleResponse {
                 .state(recruitment.getState())
                 .title(recruitment.getPost().getTitle())
                 .username(recruitment.getPost().getUser().getNickname())
+                .userImage(recruitment.getPost().getUser().getImageURI())
                 .tags(Arrays.asList(recruitment.getPost().getTags().split(" ")))
                 .createdAt(recruitment.getPost().getCreatedAt())
                 .lastModifiedAt(recruitment.getPost().getLastModifiedAt())

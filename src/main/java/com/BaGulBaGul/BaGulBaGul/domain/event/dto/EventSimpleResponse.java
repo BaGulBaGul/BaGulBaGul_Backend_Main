@@ -27,6 +27,9 @@ public class EventSimpleResponse {
     @ApiModelProperty(value = "등록자 닉네임")
     private String userName;
 
+    @ApiModelProperty(value = "등록자 이미지 url")
+    private String userImage;
+
     @ApiModelProperty(value = "게시글 제목")
     private String title;
 
@@ -59,6 +62,7 @@ public class EventSimpleResponse {
                 .id(event.getId())
                 .type(event.getType())
                 .userName(event.getPost().getUser().getNickname())
+                .userImage(event.getPost().getUser().getImageURI())
                 .title(event.getPost().getTitle())
                 .abstractLocation(event.getAbstractLocation())
                 .startDate(event.getStartDate())
