@@ -139,7 +139,6 @@ public class InitDummyDB {
             //기타
             EventType type = eventTypes[rand.nextInt(eventTypes.length)];
             int headCount = rand.nextInt(100);
-            String imageURL = "test";
             String title = "테스트" + cnt;
             String content = "테스트게시글" + cnt;
             List<String> tagStr = tagSet.stream().collect(Collectors.toList());
@@ -167,7 +166,7 @@ public class InitDummyDB {
                             .endDate(endDate)
                             .tags(tagStr)
                             .categories(categoryNames)
-                            .image_url(imageURL)
+                            .images(null)
                             .build()
             );
 
@@ -224,7 +223,6 @@ public class InitDummyDB {
 
             //기타
             int headCount = rand.nextInt(100);
-            String imageURL = "test";
             String title = "테스트" + cnt;
             String content = "테스트게시글" + cnt;
             List<String> tagStr = tagSet.stream().collect(Collectors.toList());
@@ -239,7 +237,7 @@ public class InitDummyDB {
                             .title(title)
                             .content(content)
                             .tags(tagStr)
-                            .image_url(imageURL)
+                            .images(null)
                             .build()
             );
 
