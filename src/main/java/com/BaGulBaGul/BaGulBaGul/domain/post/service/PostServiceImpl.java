@@ -29,25 +29,29 @@ public class PostServiceImpl implements PostService {
     private final PostCommentLikeRepository postCommentLikeRepository;
     private final PostCommentChildRepository postCommentChildRepository;
     private final PostCommentChildLikeRepository postCommentChildLikeRepository;
+    private final PostImageService postImageService;
 
     @Override
+    @Transactional
     public Post registerPost(User user, PostRegisterRequest postRegisterRequest) {
         Post post = Post.builder()
                 .user(user)
                 .title(postRegisterRequest.getTitle())
                 .content(postRegisterRequest.getContent())
                 .tags(postRegisterRequest.getTags().stream().collect(Collectors.joining(" ")))
-                .image_url(postRegisterRequest.getImage_url())
                 .likeCount(0)
                 .commentCount(0)
                 .views(0)
                 .build();
         //post 생성
         postRepository.save(post);
+        //이미지 연결
+        postImageService.setImages(post, postRegisterRequest.getImages());
         return post;
     }
 
     @Override
+    @Transactional
     public void modifyPost(Post post, PostModifyRequest postModifyRequest) {
         //patch 방식으로 postModifyRequest에서 null이 아닌 모든 필드를 변경
         if(postModifyRequest.getTitle() != null && !postModifyRequest.getTitle().isEmpty()) {
@@ -59,8 +63,9 @@ public class PostServiceImpl implements PostService {
         if(postModifyRequest.getTags() != null) {
             post.setTags(postModifyRequest.getTags().stream().collect(Collectors.joining(" ")));
         }
-        if(postModifyRequest.getImage_url() != null) {
-            post.setImage_url(postModifyRequest.getImage_url());
+        //이미지 연결 수정
+        if(postModifyRequest.getImages() != null) {
+            postImageService.setImages(post, postModifyRequest.getImages());
         }
     }
 
@@ -72,6 +77,7 @@ public class PostServiceImpl implements PostService {
         postCommentChildRepository.deleteAllByPost(post);
         postCommentLikeRepository.deleteAllByPost(post);
         postCommentRepository.deleteAllByPost(post);
+        postImageService.setImages(post, null);
         postRepository.delete(post);
     }
 

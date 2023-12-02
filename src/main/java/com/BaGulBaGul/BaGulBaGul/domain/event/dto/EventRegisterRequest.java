@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -59,15 +60,16 @@ public class EventRegisterRequest {
     @ApiModelProperty(value = "등록할 카테고리의 이름들", example = "[\"스포츠/레저\",\"식품/음료\",\"문화/예술\"]")
     private List<String> categories;
 
-    @ApiModelProperty(value = "대표이미지 경로")
-    private String image_url;
+    @ApiModelProperty(value = "등록한 이미지들의 키. 순서는 보존되며 첫번째 이미지가 대표이미지가 된다.")
+    @Size(max = 10)
+    private List<String> images;
 
     public PostRegisterRequest toPostRegisterRequest() {
         return PostRegisterRequest.builder()
                 .title(title)
                 .content(content)
                 .tags(tags)
-                .image_url(image_url)
+                .images(images)
                 .build();
     }
 }

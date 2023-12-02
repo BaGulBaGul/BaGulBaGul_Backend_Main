@@ -1,8 +1,8 @@
 package com.BaGulBaGul.BaGulBaGul.domain.post.dto;
 
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventRegisterRequest;
 import java.util.List;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,5 +17,5 @@ public class PostRegisterRequest {
     private String title;
     private String content;
     private List<String> tags;
-    private String image_url;
+    private List<String> images;
 }
