@@ -14,6 +14,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.recruitment.service.RecruitmentService;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -78,7 +79,7 @@ public class RecruitmentControllerImpl implements RecruitmentController {
     public ApiResponse<RecruitmentRegisterResponse> registerRecruitment(
             @PathVariable(name = "eventId") Long eventId,
             Long userId,
-            @RequestBody RecruitmentRegisterRequest recruitmentRegisterRequest
+            @RequestBody @Valid RecruitmentRegisterRequest recruitmentRegisterRequest
     ) {
         Long id = recruitmentService.registerRecruitment(eventId, userId, recruitmentRegisterRequest);
         return ApiResponse.of(
@@ -95,7 +96,7 @@ public class RecruitmentControllerImpl implements RecruitmentController {
     public ApiResponse<Object> modifyRecruitment(
             @PathVariable(name="recruitmentId") Long recruitmentId,
             Long userId,
-            @RequestBody RecruitmentModifyRequest recruitmentModifyRequest
+            @RequestBody @Valid RecruitmentModifyRequest recruitmentModifyRequest
     ) {
         recruitmentService.modifyRecruitment(recruitmentId, userId, recruitmentModifyRequest);
         return ApiResponse.of(null);

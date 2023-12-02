@@ -71,7 +71,7 @@ public class EventControllerImpl implements EventController {
     )
     public ApiResponse<EventRegisterResponse> registerEvent(
             @AuthenticationPrincipal Long userId,
-            @RequestBody EventRegisterRequest eventRegisterRequest
+            @RequestBody @Valid EventRegisterRequest eventRegisterRequest
     ) {
         Long eventId = eventService.registerEvent(userId, eventRegisterRequest);
         return ApiResponse.of(
@@ -88,7 +88,7 @@ public class EventControllerImpl implements EventController {
     public ApiResponse<Object> modifyEvent(
             @PathVariable(name="eventId") Long eventId,
             @AuthenticationPrincipal Long userId,
-            @RequestBody EventModifyRequest eventModifyRequest
+            @RequestBody @Valid EventModifyRequest eventModifyRequest
     ) {
         eventService.modifyEvent(eventId, userId, eventModifyRequest);
         return ApiResponse.of(null);
