@@ -24,6 +24,9 @@ public class EventSimpleResponse {
     @ApiModelProperty(value = "이벤트 타입 FESTIVAL, LOCAL_EVENT, PARTY 중 하나")
     private EventType type;
 
+    @ApiModelProperty(value = "등록자 닉네임")
+    private String userName;
+
     @ApiModelProperty(value = "게시글 제목")
     private String title;
 
@@ -55,6 +58,7 @@ public class EventSimpleResponse {
         return EventSimpleResponse.builder()
                 .id(event.getId())
                 .type(event.getType())
+                .userName(event.getPost().getUser().getNickname())
                 .title(event.getPost().getTitle())
                 .abstractLocation(event.getAbstractLocation())
                 .startDate(event.getStartDate())

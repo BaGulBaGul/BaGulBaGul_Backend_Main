@@ -7,6 +7,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.QEventCategory;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventConditionalRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventSimpleResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.QPost;
+import com.BaGulBaGul.BaGulBaGul.domain.user.QUser;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -83,10 +84,12 @@ public class FindEventByConditionImpl implements FindEventByCondition {
         QEventCategory eventCategory = QEventCategory.eventCategory;
         QCategory category = QCategory.category;
         QPost post = QPost.post;
+        QUser user = QUser.user;
 
         query.leftJoin(event.categories, eventCategory).fetchJoin();
         query.leftJoin(eventCategory.category, category).fetchJoin();
         query.join(event.post, post).fetchJoin();
+        query.join(post.user, user).fetchJoin();
 
         return query;
     }
