@@ -8,9 +8,9 @@ import com.BaGulBaGul.BaGulBaGul.global.upload.repository.ResourceRepository;
 import com.BaGulBaGul.BaGulBaGul.global.upload.repository.S3TempResourceRepository;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectResult;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -83,7 +83,23 @@ public class S3ResourceService extends ResourceService {
     public String getResourceUrlFromId(Long resourceId) {
         Resource resource = resourceRepository.findById(resourceId).orElseThrow(() -> new ResourceNotFoundException());
         String key = resource.getKey();
-        return amazonS3.getUrl(bucketName, key).toString();
+        return getUrlFromKey(key);
+    }
+
+    @Override
+    public List<String> getResourceUrlsFromIds(List<Long> resourceIds) {
+        //한번에 받아옴
+        resourceRepository.findAllByIds(resourceIds);
+        //순서 유지하면서 url로 변환
+        List<String> urls = new ArrayList<>();
+        for(Long id:resourceIds) {
+            Resource resource = resourceRepository.findById(id).orElse(null);
+            if(resource == null)
+                urls.add(null);
+            else
+                urls.add(getUrlFromKey(resource.getKey()));
+        }
+        return urls;
     }
 
     @Override
@@ -94,5 +110,9 @@ public class S3ResourceService extends ResourceService {
     @Override
     public void cancelTempResources(List<Long> resourceIds) {
         s3TempResourceRepository.deleteAllByIdInBatch(resourceIds);
+    }
+
+    private String getUrlFromKey(String key) {
+        return amazonS3.getUrl(bucketName, key).toString();
     }
 }
