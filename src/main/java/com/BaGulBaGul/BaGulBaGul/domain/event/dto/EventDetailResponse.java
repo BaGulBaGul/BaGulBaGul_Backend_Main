@@ -67,8 +67,10 @@ public class EventDetailResponse {
     @ApiModelProperty(value = "대표이미지 경로")
     private String headImageUrl;
 
+    @ApiModelProperty(value = "이미지들의 key")
     private List<String> imageKeys;
 
+    @ApiModelProperty(value = "이미지들의 url")
     private List<String> imageUrls;
 
     @ApiModelProperty(value = "종아요 수")
