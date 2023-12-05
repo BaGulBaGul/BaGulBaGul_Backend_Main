@@ -51,11 +51,11 @@ public class RecruitmentDetailResponse {
     private List<String> tags;
 
     @ApiModelProperty(value = "대표이미지 경로")
-    private String image_url;
+    private String headImageUrl;
 
     private List<String> imageKeys;
 
-    private List<String> images;
+    private List<String> imageUrls;
 
     @ApiModelProperty(value = "종아요 수")
     private int likeCount;
@@ -85,9 +85,9 @@ public class RecruitmentDetailResponse {
                 .title(recruitment.getPost().getTitle())
                 .content(recruitment.getPost().getContent())
                 .tags(Arrays.asList(recruitment.getPost().getTags().split(" ")))
-                .image_url(recruitment.getPost().getImage_url())
+                .headImageUrl(recruitment.getPost().getImage_url())
                 .imageKeys(imageKeys)
-                .images(imageUrls)
+                .imageUrls(imageUrls)
                 .likeCount(recruitment.getPost().getLikeCount())
                 .commentCount(recruitment.getPost().getCommentCount())
                 .views(recruitment.getPost().getViews())

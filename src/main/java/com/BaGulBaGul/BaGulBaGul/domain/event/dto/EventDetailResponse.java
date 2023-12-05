@@ -65,11 +65,11 @@ public class EventDetailResponse {
     private List<String> categories;
 
     @ApiModelProperty(value = "대표이미지 경로")
-    private String image_url;
-
-    private List<String> images;
+    private String headImageUrl;
 
     private List<String> imageKeys;
+
+    private List<String> imageUrls;
 
     @ApiModelProperty(value = "종아요 수")
     private int likeCount;
@@ -111,9 +111,9 @@ public class EventDetailResponse {
                                 .map(eventCategory -> eventCategory.getCategory().getName())
                                 .collect(Collectors.toList())
                 )
-                .image_url(event.getPost().getImage_url())
+                .headImageUrl(event.getPost().getImage_url())
                 .imageKeys(imageKeys)
-                .images(imageUrls)
+                .imageUrls(imageUrls)
                 .likeCount(event.getPost().getLikeCount())
                 .commentCount(event.getPost().getCommentCount())
                 .views(event.getPost().getViews())
