@@ -16,7 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
-public class S3ResourceUploadService extends ResourceUploadService{
+public class S3ResourceService extends ResourceService {
 
     private final AmazonS3 amazonS3;
     private final S3TempResourceRepository s3TempResourceRepository;

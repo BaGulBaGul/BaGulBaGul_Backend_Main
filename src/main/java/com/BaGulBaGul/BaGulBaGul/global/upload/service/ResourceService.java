@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.UUID;
 import org.springframework.web.multipart.MultipartFile;
 
-public abstract class ResourceUploadService {
+public abstract class ResourceService {
 
     private final String IMAGE_PATH = "image";
     private final Set<String> IMAGE_EXT = new HashSet<>(List.of(

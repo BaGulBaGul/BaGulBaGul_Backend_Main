@@ -4,7 +4,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostS3Image;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostS3ImageRepository;
 import com.BaGulBaGul.BaGulBaGul.global.upload.repository.S3TempResourceRepository;
-import com.BaGulBaGul.BaGulBaGul.global.upload.service.ResourceUploadService;
+import com.BaGulBaGul.BaGulBaGul.global.upload.service.ResourceService;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class PostS3ImageService implements PostImageService {
 
     private final PostS3ImageRepository postS3ImageRepository;
-    private final ResourceUploadService resourceUploadService;
+    private final ResourceService resourceUploadService;
     private final S3TempResourceRepository s3TempResourceRepository;
 
     /*

@@ -4,7 +4,7 @@ import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
 import com.BaGulBaGul.BaGulBaGul.global.response.ErrorCode;
 import com.BaGulBaGul.BaGulBaGul.global.upload.dto.UploadResponse;
-import com.BaGulBaGul.BaGulBaGul.global.upload.service.ResourceUploadService;
+import com.BaGulBaGul.BaGulBaGul.global.upload.service.ResourceService;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,7 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class UploadControllerImpl implements UploadController {
 
-    private final ResourceUploadService resourceUploadService;
+    private final ResourceService resourceUploadService;
 
     @Override
     @PostMapping("/api/upload/image")
