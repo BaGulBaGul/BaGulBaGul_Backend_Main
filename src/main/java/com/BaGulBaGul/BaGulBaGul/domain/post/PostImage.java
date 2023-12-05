@@ -1,11 +1,13 @@
 package com.BaGulBaGul.BaGulBaGul.domain.post;
 
+import com.BaGulBaGul.BaGulBaGul.global.upload.Resource;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,10 +17,11 @@ import lombok.Setter;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PostS3Image {
+public class PostImage {
     @Id
-    @Column(name = "s3_key")
-    String key;
+    @JoinColumn(name = "resource_id")
+    @OneToOne(fetch = FetchType.LAZY)
+    Resource resource;
 
     @JoinColumn(name = "post_id")
     @ManyToOne(fetch = FetchType.LAZY)
@@ -29,9 +32,9 @@ public class PostS3Image {
     int order;
 
     @Builder
-    public PostS3Image(Post post, String key, int order) {
+    public PostImage(Post post, Resource resource, int order) {
         this.post = post;
-        this.key = key;
+        this.resource = resource;
         this.order = order;
     }
 }

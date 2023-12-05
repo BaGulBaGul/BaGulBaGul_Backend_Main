@@ -1,7 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.domain.post.service;
 
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
-import com.BaGulBaGul.BaGulBaGul.domain.post.PostS3Image;
+import com.BaGulBaGul.BaGulBaGul.domain.post.PostImage;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostS3ImageRepository;
 import com.BaGulBaGul.BaGulBaGul.global.upload.repository.S3TempResourceRepository;
 import com.BaGulBaGul.BaGulBaGul.global.upload.service.ResourceService;
@@ -31,7 +31,7 @@ public class PostS3ImageService implements PostImageService {
     @Transactional
     public List<String> getImageKeys(Post post) {
         //post와 연결된 s3이미지 검색
-        List<PostS3Image> images = postS3ImageRepository.findImageByPost(post);
+        List<PostImage> images = postS3ImageRepository.findImageByPost(post);
         //이미지를 순서에 따라 정렬
         images.sort((o1, o2) -> o1.getOrder() > o2.getOrder() ? 1 : o1.getOrder() == o2.getOrder() ? 0 : -1);
         //이미지의 키만 추출해서 반환
@@ -69,13 +69,13 @@ public class PostS3ImageService implements PostImageService {
 
         // * 기존 이미지 삭제, 순서변경
         //기존에 연결되어 있던 이미지들을 검색
-        List<PostS3Image> originalImages = postS3ImageRepository.findImageByPost(post);
+        List<PostImage> originalImages = postS3ImageRepository.findImageByPost(post);
         //기존 이미지의 키를 set으로 생성
-        Set<String> originalImageKeySet = originalImages.stream().map(PostS3Image::getKey).collect(Collectors.toSet());
+        Set<String> originalImageKeySet = originalImages.stream().map(PostImage::getKey).collect(Collectors.toSet());
         //삭제될 이미지들(삭제 대상은 여기서 찾지만 rollback을 대비해서 s3에 삭제 요청은 마지막에 보냄.
-        List<PostS3Image> imagesToDelete = new ArrayList<>();
+        List<PostImage> imagesToDelete = new ArrayList<>();
         //기존 이미지를 중에서 남길 이미지와 삭제할 이미지를 찾는다.
-        for(PostS3Image image : originalImages) {
+        for(PostImage image : originalImages) {
             //남아있을 이미지는 순서만 변경
             if(orders.containsKey(image.getKey())) {
                 image.setOrder(orders.get(image.getKey()));
@@ -97,7 +97,7 @@ public class PostS3ImageService implements PostImageService {
                 newImageKeys.add(key);
                 //PostS3Image를 저장
                 postS3ImageRepository.save(
-                        PostS3Image.builder()
+                        PostImage.builder()
                                 .post(post)
                                 .key(key)
                                 .order(i)
@@ -116,7 +116,7 @@ public class PostS3ImageService implements PostImageService {
 
         // * 연결 끊긴 이미지 삭제
         //삭제 대상 이미지들의 키값
-        List<String> imageKeysToDelete = imagesToDelete.stream().map(PostS3Image::getKey).collect(Collectors.toList());
+        List<String> imageKeysToDelete = imagesToDelete.stream().map(PostImage::getKey).collect(Collectors.toList());
         //삭제 대상인 PostS3Image db에서 삭제
         postS3ImageRepository.deleteAllByIdInBatch(imageKeysToDelete);
         //s3에 삭제 요청을 보내기 전에 db요청을 전부 보내서 삭제 후에 db가 rollback되는 상황을 방지
