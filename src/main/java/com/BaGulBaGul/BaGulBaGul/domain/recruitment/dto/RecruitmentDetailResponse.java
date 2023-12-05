@@ -53,6 +53,8 @@ public class RecruitmentDetailResponse {
     @ApiModelProperty(value = "대표이미지 경로")
     private String image_url;
 
+    private List<String> imageKeys;
+
     private List<String> images;
 
     @ApiModelProperty(value = "종아요 수")
@@ -70,7 +72,7 @@ public class RecruitmentDetailResponse {
     @ApiModelProperty(value = "마지막 수정일")
     private LocalDateTime lastModifiedAt;
 
-    public static RecruitmentDetailResponse of(Recruitment recruitment, List<String> imageUrls) {
+    public static RecruitmentDetailResponse of(Recruitment recruitment, List<String> imageKeys, List<String> imageUrls) {
         return RecruitmentDetailResponse.builder()
                 .id(recruitment.getId())
                 .state(recruitment.getState())
@@ -84,6 +86,7 @@ public class RecruitmentDetailResponse {
                 .content(recruitment.getPost().getContent())
                 .tags(Arrays.asList(recruitment.getPost().getTags().split(" ")))
                 .image_url(recruitment.getPost().getImage_url())
+                .imageKeys(imageKeys)
                 .images(imageUrls)
                 .likeCount(recruitment.getPost().getLikeCount())
                 .commentCount(recruitment.getPost().getCommentCount())

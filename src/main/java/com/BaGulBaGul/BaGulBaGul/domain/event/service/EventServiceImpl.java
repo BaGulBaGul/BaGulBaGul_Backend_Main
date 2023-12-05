@@ -50,11 +50,12 @@ public class EventServiceImpl implements EventService {
     @Transactional
     public EventDetailResponse getEventDetailById(Long eventId) {
         Event event = eventRepository.findWithPostAndUserAndCategoryById(eventId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
-        List<String> imageUrls = postImageService.getImageUrls(event.getPost());
+        List<String> imageKeys = postImageService.getImageKeys(event.getPost());
+        List<String> imageUrls = postImageService.getImageUrls(imageKeys);
         //조회수 증가
         postRepository.increaseViewsById(event.getPost().getId());
         //응답 dto 추출
-        EventDetailResponse eventDetailResponse = EventDetailResponse.of(event, imageUrls);
+        EventDetailResponse eventDetailResponse = EventDetailResponse.of(event, imageKeys, imageUrls);
         //방금 조회한 조회수를 반영해줌.
         eventDetailResponse.setViews(eventDetailResponse.getViews() + 1);
         return eventDetailResponse;

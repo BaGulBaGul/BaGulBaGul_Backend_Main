@@ -44,11 +44,12 @@ public class RecruitmentServiceImpl implements RecruitmentService {
     @Transactional
     public RecruitmentDetailResponse getRecruitmentDetailById(Long recruitmentId) {
         Recruitment recruitment = recruitmentRepository.findWithPostAndUserById(recruitmentId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
-        List<String> imageUrls = postImageService.getImageUrls(recruitment.getPost());
+        List<String> imageKeys = postImageService.getImageKeys(recruitment.getPost());
+        List<String> imageUrls = postImageService.getImageUrls(imageKeys);
         //조회수 증가
         postRepository.increaseViewsById(recruitment.getPost().getId());
         //응답 dto 추출
-        RecruitmentDetailResponse recruitmentDetailResponse = RecruitmentDetailResponse.of(recruitment, imageUrls);
+        RecruitmentDetailResponse recruitmentDetailResponse = RecruitmentDetailResponse.of(recruitment, imageKeys, imageUrls);
         //방금 조회한 조회수를 반영해줌.
         recruitmentDetailResponse.setViews(recruitmentDetailResponse.getViews() + 1);
         return recruitmentDetailResponse;
