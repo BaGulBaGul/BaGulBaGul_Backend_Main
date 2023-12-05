@@ -166,7 +166,7 @@ public class InitDummyDB {
                             .endDate(endDate)
                             .tags(tagStr)
                             .categories(categoryNames)
-                            .images(null)
+                            .imageIds(null)
                             .build()
             );
 
@@ -237,7 +237,7 @@ public class InitDummyDB {
                             .title(title)
                             .content(content)
                             .tags(tagStr)
-                            .images(null)
+                            .imageIds(null)
                             .build()
             );
 
