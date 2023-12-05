@@ -1,19 +1,16 @@
 package com.BaGulBaGul.BaGulBaGul.global.upload.service;
 
-import com.BaGulBaGul.BaGulBaGul.global.upload.exception.NotImageException;
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import org.springframework.web.multipart.MultipartFile;
 
 public abstract class ResourceService {
 
-    public abstract String uploadResource(String path, MultipartFile multipartFile) throws IOException;
-    public abstract void deleteResource(String key);
-    public abstract void deleteResourcesAsync(List<String> keys);
-    public abstract String getResourceUrlFromKey(String key);
+    public abstract Long uploadResource(String path, MultipartFile multipartFile) throws IOException;
+    public abstract void deleteResource(Long resourceId);
+    public abstract void deleteResourcesAsync(List<Long> resourceIds);
+    public abstract String getResourceUrlFromId(Long resourceId);
 
     protected String createKey(String path, String uploadedName) {
         return path + "/" + createRandomFileName(uploadedName);

@@ -30,7 +30,7 @@ public class UploadControllerImpl implements UploadController {
         return ApiResponse.of(
                 new UploadResponse(
                         key,
-                        resourceUploadService.getResourceUrlFromKey(key)
+                        resourceUploadService.getResourceUrlFromId(key)
                 )
         );
     }

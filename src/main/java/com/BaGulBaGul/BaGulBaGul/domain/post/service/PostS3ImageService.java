@@ -43,7 +43,7 @@ public class PostS3ImageService implements PostImageService {
     @Override
     public List<String> getImageUrls(List<String> keys) {
         return keys.stream()
-                .map(key -> resourceUploadService.getResourceUrlFromKey(key))
+                .map(key -> resourceUploadService.getResourceUrlFromId(key))
                 .collect(Collectors.toList());
     }
 
@@ -111,7 +111,7 @@ public class PostS3ImageService implements PostImageService {
         // * 대표이미지 설정
         //첫번째 이미지를 대표이미지로 설정. 작성자는 한명이므로 FK로 인한 데드락은 없다고 가정.
         post.setImage_url(
-                keys.isEmpty() ? null : resourceUploadService.getResourceUrlFromKey(keys.get(0))
+                keys.isEmpty() ? null : resourceUploadService.getResourceUrlFromId(keys.get(0))
         );
 
         // * 연결 끊긴 이미지 삭제

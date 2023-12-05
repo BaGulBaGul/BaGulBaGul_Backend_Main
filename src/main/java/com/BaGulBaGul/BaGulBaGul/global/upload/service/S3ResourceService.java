@@ -1,6 +1,10 @@
 package com.BaGulBaGul.BaGulBaGul.global.upload.service;
 
+import com.BaGulBaGul.BaGulBaGul.global.upload.Resource;
 import com.BaGulBaGul.BaGulBaGul.global.upload.S3TempResource;
+import com.BaGulBaGul.BaGulBaGul.global.upload.constant.StorageVendor;
+import com.BaGulBaGul.BaGulBaGul.global.upload.exception.ResourceNotFoundException;
+import com.BaGulBaGul.BaGulBaGul.global.upload.repository.ResourceRepository;
 import com.BaGulBaGul.BaGulBaGul.global.upload.repository.S3TempResourceRepository;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -8,10 +12,12 @@ import com.amazonaws.services.s3.model.PutObjectResult;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -19,47 +25,64 @@ import org.springframework.web.multipart.MultipartFile;
 public class S3ResourceService extends ResourceService {
 
     private final AmazonS3 amazonS3;
+    private final ResourceRepository resourceRepository;
     private final S3TempResourceRepository s3TempResourceRepository;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
 
     @Override
-    public String uploadResource(String path, MultipartFile multipartFile) throws IOException {
+    @Transactional
+    public Long uploadResource(String path, MultipartFile multipartFile) throws IOException {
         String key = createKey(path, multipartFile.getOriginalFilename());
-        ObjectMetadata metadata = new ObjectMetadata();
-        metadata.setContentLength(multipartFile.getSize());
-        metadata.setContentType(multipartFile.getContentType());
-        PutObjectResult qq;
-
-        qq = amazonS3.putObject(bucketName, key, multipartFile.getInputStream(), metadata);
-
-        s3TempResourceRepository.save(
-                S3TempResource.builder()
+        //먼저 db에 업로드
+        Resource resource = resourceRepository.save(
+                Resource.builder()
                         .key(key)
+                        .storageVendor(StorageVendor.S3)
                         .uploadTime(LocalDateTime.now())
                         .build()
         );
-        return key;
+        s3TempResourceRepository.save(
+                S3TempResource.builder()
+                        .resource(resource)
+                        .uploadTime(LocalDateTime.now())
+                        .build()
+        );
+        resourceRepository.flush();
+
+        //s3 업로드
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.setContentLength(multipartFile.getSize());
+        metadata.setContentType(multipartFile.getContentType());
+        amazonS3.putObject(bucketName, key, multipartFile.getInputStream(), metadata);
+
+        return resource.getId();
     }
 
     @Override
-    public void deleteResource(String key) {
+    public void deleteResource(Long resourceId) {
+        Resource resource = resourceRepository.findById(resourceId).orElseThrow(() -> new ResourceNotFoundException());
+        String key = resource.getKey();
         amazonS3.deleteObject(bucketName, key);
     }
 
     @Override
     @Async
-    public void deleteResourcesAsync(List<String> keys) {
-        if(keys == null)
+    public void deleteResourcesAsync(List<Long> resourceIds) {
+        if(resourceIds == null)
             return;
+        List<Resource> resources = resourceRepository.findAllById(resourceIds);
+        List<String> keys = resources.stream().map(Resource::getKey).collect(Collectors.toList());
         for(String key : keys) {
             amazonS3.deleteObject(bucketName, key);
         }
     }
 
     @Override
-    public String getResourceUrlFromKey(String key) {
+    public String getResourceUrlFromId(Long resourceId) {
+        Resource resource = resourceRepository.findById(resourceId).orElseThrow(() -> new ResourceNotFoundException());
+        String key = resource.getKey();
         return amazonS3.getUrl(bucketName, key).toString();
     }
 }
