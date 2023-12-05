@@ -10,24 +10,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 public abstract class ResourceService {
 
-    private final String IMAGE_PATH = "image";
-    private final Set<String> IMAGE_EXT = new HashSet<>(List.of(
-            ".jpg",".png",".gif"
-    ));
-
     public abstract String uploadResource(String path, MultipartFile multipartFile) throws IOException;
     public abstract void deleteResource(String key);
     public abstract void deleteResourcesAsync(List<String> keys);
     public abstract String getResourceUrlFromKey(String key);
-
-    public String uploadImage(MultipartFile multipartFile) throws NotImageException, IOException {
-        String ext = getFileExtention(multipartFile.getOriginalFilename());
-        if(!IMAGE_EXT.contains(ext.toLowerCase())){
-            throw new NotImageException();
-        }
-
-        return uploadResource(IMAGE_PATH, multipartFile);
-    }
 
     protected String createKey(String path, String uploadedName) {
         return path + "/" + createRandomFileName(uploadedName);
