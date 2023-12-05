@@ -19,7 +19,7 @@ public class ImageUploadServiceImpl implements ImageUploadService {
     private final ResourceService resourceService;
 
     @Override
-    public String uploadImage(MultipartFile multipartFile) throws NotImageException, IOException {
+    public Long uploadImage(MultipartFile multipartFile) throws NotImageException, IOException {
         String ext = getFileExtention(multipartFile.getOriginalFilename());
         if(!IMAGE_EXT.contains(ext.toLowerCase())){
             throw new NotImageException();

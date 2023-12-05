@@ -12,6 +12,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UploadResponse {
-    private String key;
+    private Long resourceId;
     private String url;
 }
