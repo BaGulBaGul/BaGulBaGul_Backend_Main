@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class PostS3ImageService implements PostImageService {
+public class PostImageServiceImpl implements PostImageService {
 
     private final PostS3ImageRepository postS3ImageRepository;
     private final ResourceService resourceUploadService;
