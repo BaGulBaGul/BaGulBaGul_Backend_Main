@@ -15,6 +15,5 @@ public class PostModifyRequest {
     private String title;
     private String content;
     private List<String> tags;
-    @Size(max = 10)
-    private List<String> images;
+    private List<Long> imageIds;
 }
