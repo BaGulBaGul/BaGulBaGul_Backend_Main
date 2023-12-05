@@ -49,7 +49,7 @@ public class EventSimpleResponse {
     private List<String> categories;
 
     @ApiModelProperty(value = "대표이미지 경로")
-    private String image_url;
+    private String headImageUrl;
 
     @ApiModelProperty(value = "생성일")
     private LocalDateTime createdAt;
@@ -74,7 +74,7 @@ public class EventSimpleResponse {
                                 .map(eventCategory -> eventCategory.getCategory().getName())
                                 .collect(Collectors.toList())
                 )
-                .image_url(event.getPost().getImage_url())
+                .headImageUrl(event.getPost().getImage_url())
                 .createdAt(event.getPost().getCreatedAt())
                 .lastModifiedAt(event.getPost().getLastModifiedAt())
                 .build();

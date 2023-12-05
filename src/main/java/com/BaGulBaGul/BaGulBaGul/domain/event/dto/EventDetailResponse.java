@@ -65,9 +65,13 @@ public class EventDetailResponse {
     private List<String> categories;
 
     @ApiModelProperty(value = "대표이미지 경로")
-    private String image_url;
+    private String headImageUrl;
 
-    private List<String> images;
+    @ApiModelProperty(value = "이미지들의 key")
+    private List<String> imageKeys;
+
+    @ApiModelProperty(value = "이미지들의 url")
+    private List<String> imageUrls;
 
     @ApiModelProperty(value = "종아요 수")
     private int likeCount;
@@ -84,7 +88,7 @@ public class EventDetailResponse {
     @ApiModelProperty(value = "마지막 수정일")
     private LocalDateTime lastModifiedAt;
 
-    public static EventDetailResponse of(Event event, List<String> imageUrls) {
+    public static EventDetailResponse of(Event event, List<String> imageKeys, List<String> imageUrls) {
         List<String> tags = event.getPost().getTags().equals("") ?
                 new ArrayList<>() :
                 Arrays.asList(event.getPost().getTags().split(" ")).stream().filter(s -> !s.isEmpty()).collect(Collectors.toList());
@@ -109,8 +113,9 @@ public class EventDetailResponse {
                                 .map(eventCategory -> eventCategory.getCategory().getName())
                                 .collect(Collectors.toList())
                 )
-                .image_url(event.getPost().getImage_url())
-                .images(imageUrls)
+                .headImageUrl(event.getPost().getImage_url())
+                .imageKeys(imageKeys)
+                .imageUrls(imageUrls)
                 .likeCount(event.getPost().getLikeCount())
                 .commentCount(event.getPost().getCommentCount())
                 .views(event.getPost().getViews())
