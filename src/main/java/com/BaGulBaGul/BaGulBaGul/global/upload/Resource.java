@@ -6,6 +6,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,23 +15,32 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
-@Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
 public class Resource {
     @Id
+    @GeneratedValue
     @Column(name = "resource_id")
     private Long id;
 
+    @Setter
     @Column(name = "resource_key")
     private String key;
 
+    @Setter
     @Column(name = "storage_vendor")
     @Enumerated(value = EnumType.STRING)
     private StorageVendor storageVendor;
 
+    @Setter
     @Column(name = "upload_time")
     private LocalDateTime uploadTime;
+
+    @Builder
+    public Resource(String key, StorageVendor storageVendor, LocalDateTime uploadTime) {
+        this.key = key;
+        this.storageVendor = storageVendor;
+        this.uploadTime = uploadTime;
+    }
 }
