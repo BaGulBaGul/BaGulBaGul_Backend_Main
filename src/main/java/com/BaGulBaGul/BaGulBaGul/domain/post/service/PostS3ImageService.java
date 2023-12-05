@@ -29,7 +29,7 @@ public class PostS3ImageService implements PostImageService {
      */
     @Override
     @Transactional
-    public List<String> getImageUrls(Post post) {
+    public List<String> getImageKeys(Post post) {
         //post와 연결된 s3이미지 검색
         List<PostS3Image> images = postS3ImageRepository.findImageByPost(post);
         //이미지를 순서에 따라 정렬
@@ -37,6 +37,12 @@ public class PostS3ImageService implements PostImageService {
         //이미지의 키만 추출해서 반환
         return images.stream()
                 .map(image -> image.getKey())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<String> getImageUrls(List<String> keys) {
+        return keys.stream()
                 .map(key -> resourceUploadService.getResourceUrlFromKey(key))
                 .collect(Collectors.toList());
     }
