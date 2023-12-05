@@ -11,6 +11,8 @@ public abstract class ResourceService {
     public abstract void deleteResource(Long resourceId);
     public abstract void deleteResourcesAsync(List<Long> resourceIds);
     public abstract String getResourceUrlFromId(Long resourceId);
+    public abstract void cancelTempResource(Long resourceId);
+    public abstract void cancelTempResources(List<Long> resourceIds);
 
     protected String createKey(String path, String uploadedName) {
         return path + "/" + createRandomFileName(uploadedName);
