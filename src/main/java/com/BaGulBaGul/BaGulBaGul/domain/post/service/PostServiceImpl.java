@@ -46,7 +46,7 @@ public class PostServiceImpl implements PostService {
         //post 생성
         postRepository.save(post);
         //이미지 연결
-        postImageService.setImages(post, postRegisterRequest.getImages());
+        postImageService.setImages(post, postRegisterRequest.getImageIds());
         return post;
     }
 
@@ -64,8 +64,8 @@ public class PostServiceImpl implements PostService {
             post.setTags(postModifyRequest.getTags().stream().collect(Collectors.joining(" ")));
         }
         //이미지 연결 수정
-        if(postModifyRequest.getImages() != null) {
-            postImageService.setImages(post, postModifyRequest.getImages());
+        if(postModifyRequest.getImageIds() != null) {
+            postImageService.setImages(post, postModifyRequest.getImageIds());
         }
     }
 

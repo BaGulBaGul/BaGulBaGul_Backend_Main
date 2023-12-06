@@ -3,6 +3,7 @@ package com.BaGulBaGul.BaGulBaGul.domain.recruitment.service;
 import com.BaGulBaGul.BaGulBaGul.domain.event.Event;
 import com.BaGulBaGul.BaGulBaGul.domain.event.repository.EventRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
+import com.BaGulBaGul.BaGulBaGul.domain.post.PostImage;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
@@ -20,6 +21,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.UserRepository;
 import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
 import com.BaGulBaGul.BaGulBaGul.global.response.ErrorCode;
+import com.BaGulBaGul.BaGulBaGul.global.upload.service.ResourceService;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -39,17 +41,22 @@ public class RecruitmentServiceImpl implements RecruitmentService {
 
     private final PostService postService;
     private final PostImageService postImageService;
+    private final ResourceService resourceService;
 
     @Override
     @Transactional
     public RecruitmentDetailResponse getRecruitmentDetailById(Long recruitmentId) {
         Recruitment recruitment = recruitmentRepository.findWithPostAndUserById(recruitmentId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
-        List<String> imageKeys = postImageService.getImageKeys(recruitment.getPost());
-        List<String> imageUrls = postImageService.getImageUrls(imageKeys);
+        //연결된 이미지의 resource id와 url을 조회
+        List<PostImage> images = postImageService.getByOrder(recruitment.getPost());
+        List<Long> resourceIds = images.stream().map(x -> x.getResource().getId()).collect(Collectors.toList());
+        List<String> imageUrls = resourceService.getResourceUrlsFromIds(resourceIds);
+        //조회수 증가
+        postRepository.increaseViewsById(recruitment.getPost().getId());
         //조회수 증가
         postRepository.increaseViewsById(recruitment.getPost().getId());
         //응답 dto 추출
-        RecruitmentDetailResponse recruitmentDetailResponse = RecruitmentDetailResponse.of(recruitment, imageKeys, imageUrls);
+        RecruitmentDetailResponse recruitmentDetailResponse = RecruitmentDetailResponse.of(recruitment, resourceIds, imageUrls);
         //방금 조회한 조회수를 반영해줌.
         recruitmentDetailResponse.setViews(recruitmentDetailResponse.getViews() + 1);
         return recruitmentDetailResponse;

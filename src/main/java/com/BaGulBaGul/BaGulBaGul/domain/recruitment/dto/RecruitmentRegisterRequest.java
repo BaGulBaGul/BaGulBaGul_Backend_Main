@@ -39,16 +39,16 @@ public class RecruitmentRegisterRequest {
     @ApiModelProperty(value = "태그들", example = "[\"물놀이\",\"바베큐\"]")
     private List<String> tags;
 
-    @ApiModelProperty(value = "등록한 이미지들의 키. 순서는 보존되며 첫번째 이미지가 대표이미지가 된다.")
+    @ApiModelProperty(value = "등록한 이미지들의 resource id. 순서는 보존되며 첫번째 이미지가 대표이미지가 된다.")
     @Size(max = 10)
-    private List<String> images;
+    private List<Long> imageIds;
 
     public PostRegisterRequest toPostRegisterRequest() {
         return PostRegisterRequest.builder()
                 .title(title)
                 .content(content)
                 .tags(tags)
-                .images(images)
+                .imageIds(imageIds)
                 .build();
     }
 }
