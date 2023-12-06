@@ -53,8 +53,6 @@ public class RecruitmentServiceImpl implements RecruitmentService {
         List<String> imageUrls = resourceService.getResourceUrlsFromIds(resourceIds);
         //조회수 증가
         postRepository.increaseViewsById(recruitment.getPost().getId());
-        //조회수 증가
-        postRepository.increaseViewsById(recruitment.getPost().getId());
         //응답 dto 추출
         RecruitmentDetailResponse recruitmentDetailResponse = RecruitmentDetailResponse.of(recruitment, resourceIds, imageUrls);
         //방금 조회한 조회수를 반영해줌.
