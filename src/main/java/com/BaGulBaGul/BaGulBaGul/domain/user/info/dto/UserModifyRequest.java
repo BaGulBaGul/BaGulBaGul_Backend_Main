@@ -15,6 +15,6 @@ public class UserModifyRequest {
     String email;
     @ApiModelProperty(value = "프로필 상태 메세지")
     String profileMessage;
-    @ApiModelProperty(value = "프로필 이미지")
-    String imageURI;
+    @ApiModelProperty(value = "프로필 이미지의 resource id")
+    Long imageResourceId;
 }

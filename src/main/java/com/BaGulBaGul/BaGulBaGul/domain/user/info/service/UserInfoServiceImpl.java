@@ -16,6 +16,8 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     private final UserRepository userRepository;
 
+    private final UserImageService userImageService;
+
     @Override
     public UserInfoResponse getUserInfo(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
@@ -39,8 +41,8 @@ public class UserInfoServiceImpl implements UserInfoService {
         if(userModifyRequest.getProfileMessage() != null) {
             user.setProfileMessage(userModifyRequest.getProfileMessage());
         }
-        if(userModifyRequest.getImageURI() != null) {
-            user.setImageURI(userModifyRequest.getImageURI());
+        if(userModifyRequest.getImageResourceId() != null) {
+            userImageService.setImage(user, userModifyRequest.getImageResourceId());
         }
     }
 }
