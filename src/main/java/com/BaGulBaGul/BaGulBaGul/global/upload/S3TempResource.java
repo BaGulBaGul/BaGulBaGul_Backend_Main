@@ -6,6 +6,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.MapsId;
 import javax.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,6 +22,10 @@ import lombok.Setter;
 @Entity
 public class S3TempResource {
     @Id
+    @Column(name = "resource_id")
+    Long resourceId;
+
+    @MapsId
     @JoinColumn(name = "resource_id")
     @OneToOne(fetch = FetchType.LAZY)
     private Resource resource;

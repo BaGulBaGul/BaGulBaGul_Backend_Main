@@ -7,6 +7,7 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapsId;
 import javax.persistence.OneToOne;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -19,6 +20,10 @@ import lombok.Setter;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PostImage {
     @Id
+    @Column(name = "resource_id")
+    Long resourceId;
+
+    @MapsId
     @JoinColumn(name = "resource_id")
     @OneToOne(fetch = FetchType.LAZY)
     Resource resource;

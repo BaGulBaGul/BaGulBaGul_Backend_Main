@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface PostImageRepository extends JpaRepository<PostImage, Resource> {
+public interface PostImageRepository extends JpaRepository<PostImage, Long> {
 
     @Query(value = "SELECT pi from PostImage pi where pi.post = :post")
     List<PostImage> findImageByPost(@Param("post") Post post);

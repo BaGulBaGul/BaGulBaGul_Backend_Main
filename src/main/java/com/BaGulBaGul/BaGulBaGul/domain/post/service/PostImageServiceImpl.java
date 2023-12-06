@@ -116,7 +116,7 @@ public class PostImageServiceImpl implements PostImageService {
         //삭제 대상 이미지들의 resource id값
         List<Long> resourceIdsToDelete = imagesToDelete.stream().map(x -> x.getResource().getId()).collect(Collectors.toList());
         //삭제 대상인 PostS3Image db에서 삭제
-        postImageRepository.deleteAllByIdInBatch(resourcesToDelete);
+        postImageRepository.deleteAllByIdInBatch(resourceIdsToDelete);
         //리소스 삭제 요청을 보내기 전에 db요청을 전부 보내서 삭제 후에 db가 rollback되는 상황을 방지
         postImageRepository.flush();
         //삭제 대상 리소스를 비동기로 삭제
