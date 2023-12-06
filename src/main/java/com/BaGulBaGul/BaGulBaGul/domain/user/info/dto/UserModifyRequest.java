@@ -4,17 +4,20 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.openapitools.jackson.nullable.JsonNullable;
 
 @Setter
 @Getter
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class UserModifyRequest {
     @ApiModelProperty(value = "이메일")
-    String email;
+    JsonNullable<String> email = JsonNullable.undefined();
     @ApiModelProperty(value = "프로필 상태 메세지")
-    String profileMessage;
+    JsonNullable<String> profileMessage = JsonNullable.undefined();
     @ApiModelProperty(value = "프로필 이미지의 resource id")
-    Long imageResourceId;
+    JsonNullable<Long> imageResourceId = JsonNullable.undefined();
 }

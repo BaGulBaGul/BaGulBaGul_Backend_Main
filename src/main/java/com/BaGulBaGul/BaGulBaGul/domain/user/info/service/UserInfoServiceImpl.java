@@ -35,14 +35,14 @@ public class UserInfoServiceImpl implements UserInfoService {
     public void modifyUserInfo(UserModifyRequest userModifyRequest, Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
         //null이 아니라면 해당 필드를 변경
-        if(userModifyRequest.getEmail() != null) {
-            user.setEmail(userModifyRequest.getEmail());
+        if(userModifyRequest.getEmail().isPresent()) {
+            user.setEmail(userModifyRequest.getEmail().get());
         }
-        if(userModifyRequest.getProfileMessage() != null) {
-            user.setProfileMessage(userModifyRequest.getProfileMessage());
+        if(userModifyRequest.getProfileMessage().isPresent()) {
+            user.setProfileMessage(userModifyRequest.getProfileMessage().get());
         }
-        if(userModifyRequest.getImageResourceId() != null) {
-            userImageService.setImage(user, userModifyRequest.getImageResourceId());
+        if(userModifyRequest.getImageResourceId().isPresent()) {
+            userImageService.setImage(user, userModifyRequest.getImageResourceId().get());
         }
     }
 }
