@@ -64,6 +64,7 @@ public class S3ResourceService extends ResourceService {
     public void deleteResource(Long resourceId) {
         Resource resource = resourceRepository.findById(resourceId).orElseThrow(() -> new ResourceNotFoundException());
         String key = resource.getKey();
+        resourceRepository.delete(resource);
         amazonS3.deleteObject(bucketName, key);
     }
 
@@ -74,6 +75,7 @@ public class S3ResourceService extends ResourceService {
             return;
         List<Resource> resources = resourceRepository.findAllById(resourceIds);
         List<String> keys = resources.stream().map(Resource::getKey).collect(Collectors.toList());
+        resourceRepository.deleteAllByIdInBatch(resourceIds);
         for(String key : keys) {
             amazonS3.deleteObject(bucketName, key);
         }
