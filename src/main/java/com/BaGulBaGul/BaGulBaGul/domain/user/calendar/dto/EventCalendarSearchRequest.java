@@ -1,5 +1,6 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user.calendar.dto;
 
+import io.swagger.annotations.ApiModelProperty;
 import java.time.LocalDateTime;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -17,8 +18,10 @@ import org.springframework.format.annotation.DateTimeFormat;
 public class EventCalendarSearchRequest {
     @NotNull
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @ApiModelProperty(value = "검색 시작 시간")
     private LocalDateTime searchStartTime;
     @NotNull
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @ApiModelProperty(value = "검색 종료 시간")
     private LocalDateTime searchEndTime;
 }

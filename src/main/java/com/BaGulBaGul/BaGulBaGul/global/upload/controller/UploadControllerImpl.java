@@ -7,6 +7,8 @@ import com.BaGulBaGul.BaGulBaGul.global.upload.dto.UploadResponse;
 import com.BaGulBaGul.BaGulBaGul.global.upload.service.ImageUploadService;
 import com.BaGulBaGul.BaGulBaGul.global.upload.service.ImageUploadServiceImpl;
 import com.BaGulBaGul.BaGulBaGul.global.upload.service.ResourceService;
+import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.Operation;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
+@Api(tags = "업로드")
 public class UploadControllerImpl implements UploadController {
 
     private final ImageUploadService imageUploadService;
@@ -23,6 +26,9 @@ public class UploadControllerImpl implements UploadController {
 
     @Override
     @PostMapping("/api/upload/image")
+    @Operation(summary = "이미지 파일을 받아 리소스를 등록하고 resource id를 응답",
+            description = "참고 : 로그인 필요, 이미지 확장자가 아니라면 에러"
+    )
     public ApiResponse<UploadResponse> uploadImage(@RequestParam MultipartFile imageFile) {
         Long resourceId;
         try {
