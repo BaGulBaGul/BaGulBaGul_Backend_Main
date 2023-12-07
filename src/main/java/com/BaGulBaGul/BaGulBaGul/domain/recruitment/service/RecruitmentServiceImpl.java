@@ -117,8 +117,8 @@ public class RecruitmentServiceImpl implements RecruitmentService {
         if(recruitmentModifyRequest.getState() != null) {
             recruitment.setState(recruitmentModifyRequest.getState());
         }
-        if(recruitmentModifyRequest.getHeadCount() != null) {
-            recruitment.setHeadCount(recruitmentModifyRequest.getHeadCount());
+        if(recruitmentModifyRequest.getHeadCount().isPresent()) {
+            recruitment.setHeadCount(recruitmentModifyRequest.getHeadCount().get());
         }
         if(recruitmentModifyRequest.getStartDate() != null) {
             recruitment.setStartDate(recruitmentModifyRequest.getStartDate());

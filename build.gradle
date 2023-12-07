@@ -58,6 +58,9 @@ dependencies {
 	//jwt
 	implementation "io.jsonwebtoken:jjwt:0.9.1"
 
+	//JsonNullable
+	implementation "org.openapitools:jackson-databind-nullable:0.2.4"
+
 	//Log4j2
 //	implementation 'org.springframework.boot:spring-boot-starter-log4j2'
 

@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import org.openapitools.jackson.nullable.JsonNullable;
 import org.springframework.format.annotation.DateTimeFormat;
 
 @Getter
@@ -22,7 +23,7 @@ public class RecruitmentModifyRequest {
     private RecruitmentState state;
 
     @ApiModelProperty(value = "인원")
-    private Integer headCount;
+    private JsonNullable<Integer> headCount = JsonNullable.undefined();
 
     @ApiModelProperty(value = "시작 시간")
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")

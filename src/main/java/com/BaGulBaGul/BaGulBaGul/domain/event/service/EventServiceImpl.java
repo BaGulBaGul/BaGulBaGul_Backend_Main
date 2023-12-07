@@ -133,8 +133,8 @@ public class EventServiceImpl implements EventService {
         if(eventModifyRequest.getType() != null) {
             event.setType(eventModifyRequest.getType());
         }
-        if(eventModifyRequest.getHeadCount() != null) {
-            event.setHeadCount(eventModifyRequest.getHeadCount());
+        if(eventModifyRequest.getHeadCount().isPresent()) {
+            event.setHeadCount(eventModifyRequest.getHeadCount().get());
         }
         if(eventModifyRequest.getFullLocation() != null) {
             event.setFullLocation(eventModifyRequest.getFullLocation());

@@ -29,23 +29,29 @@ public class UserImageServiceImpl implements UserImageService {
         //이미 존재하면 삭제
         if(userImage != null) {
             userImageRepository.delete(userImage);
+            resourceService.deleteResource(resourceId);
         }
-        //resourceId가 null이면 이미지 삭제만 진행
-        if(resourceId == null) {
-            return;
+        //resourceId가 존재하면 프로필 이미지 연결
+        if(resourceId != null) {
+            //리소스 검색, 없으면 예외
+            Resource resource = resourceRepository.findById(resourceId)
+                    .orElseThrow(() -> new ResourceNotFoundException());
+            //리소스를 유저에 연결
+            userImageRepository.save(
+                    UserImage.builder()
+                            .user(user)
+                            .resource(resource)
+                            .build()
+            );
+            //리소스 임시자원 해제
+            resourceService.cancelTempResource(resourceId);
         }
-        //리소스 검색, 없으면 예외
-        Resource resource = resourceRepository.findById(resourceId).orElseThrow(() -> new ResourceNotFoundException());
-        //리소스를 유저에 연결
-        userImageRepository.save(
-                UserImage.builder()
-                        .user(user)
-                        .resource(resource)
-                        .build()
-        );
-        //리소스 임시자원 해제
-        resourceService.cancelTempResource(resourceId);
         //유저 프로필 이미지 url 변경
-        user.setImageURI(resourceService.getResourceUrlFromId(resourceId));
+        if(resourceId == null) {
+            user.setImageURI(null);
+        }
+        else {
+            user.setImageURI(resourceService.getResourceUrlFromId(resourceId));
+        }
     }
 }
