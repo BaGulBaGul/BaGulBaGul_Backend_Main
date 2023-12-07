@@ -18,6 +18,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class EventCalendarSearchResponse {
+    @ApiModelProperty(value = "이벤트 id")
+    private Long eventId;
     @ApiModelProperty(value = "이벤트 종류")
     private EventType type;
     @ApiModelProperty(value = "게시글 제목")
@@ -37,6 +39,7 @@ public class EventCalendarSearchResponse {
         Event event = eventCalendar.getEvent();
         Post post = event.getPost();
         return EventCalendarSearchResponse.builder()
+                .eventId(event.getId())
                 .type(event.getType())
                 .title(post.getTitle())
                 .content(post.getContent())
