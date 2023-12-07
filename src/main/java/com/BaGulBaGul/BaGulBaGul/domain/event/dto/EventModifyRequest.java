@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import org.openapitools.jackson.nullable.JsonNullable;
 import org.springframework.format.annotation.DateTimeFormat;
 
 @Getter
@@ -25,7 +26,7 @@ public class EventModifyRequest {
     private String title;
 
     @ApiModelProperty(value = "인원")
-    private Integer headCount;
+    private JsonNullable<Integer> headCount = JsonNullable.undefined();
 
     @ApiModelProperty(value = "세부 주소", example = "서울시 영등포구 xxx로 xxx타워 x층")
     private String fullLocation;
