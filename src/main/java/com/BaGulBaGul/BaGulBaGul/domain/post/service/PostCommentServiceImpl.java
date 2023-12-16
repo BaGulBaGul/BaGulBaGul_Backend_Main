@@ -61,7 +61,12 @@ public class PostCommentServiceImpl implements PostCommentService {
 
     @Override
     @Transactional
-    public PostCommentChild registerCommentChild(PostComment postComment, User user, String content) {
+    public PostCommentChild registerCommentChild(
+            PostComment postComment,
+            PostCommentChild originalPostCommentChild,
+            User user,
+            String content
+    ) {
         postCommentRepository.increaseCommentChildCount(postComment);
         PostCommentChild postCommentChild = PostCommentChild.builder()
                 .postComment(postComment)

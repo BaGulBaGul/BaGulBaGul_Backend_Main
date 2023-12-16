@@ -113,8 +113,17 @@ public class PostCommentAPIServiceImpl implements PostCommentAPIService {
             PostCommentChildRegisterRequest postCommentChildRegisterRequest
     ) {
         PostComment postComment = postCommentRepository.findById(postCommentId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        PostCommentChild originalPostCommentChild = postCommentChildRepository
+                .findById(postCommentChildRegisterRequest.getOriginalPostCommentChildId())
+                .orElse(null);
         User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
-        PostCommentChild postCommentChild = postCommentService.registerCommentChild(postComment, user, postCommentChildRegisterRequest.getContent());
+
+        PostCommentChild postCommentChild = postCommentService.registerCommentChild(
+                postComment,
+                originalPostCommentChild,
+                user,
+                postCommentChildRegisterRequest.getContent()
+        );
         return postCommentChild.getId();
     }
 
