@@ -4,6 +4,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostLike;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.event.NewPostLikeEvent;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentChildLikeRepository;
@@ -15,6 +16,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +32,7 @@ public class PostServiceImpl implements PostService {
     private final PostCommentChildRepository postCommentChildRepository;
     private final PostCommentChildLikeRepository postCommentChildLikeRepository;
     private final PostImageService postImageService;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     @Transactional
@@ -96,6 +99,8 @@ public class PostServiceImpl implements PostService {
             //unique 제약조건 실패 = 이미 좋아요 존재 따라서 rollback
             throw new DuplicateLikeException();
         }
+        //게시글 좋아요 이벤트 발행
+        applicationEventPublisher.publishEvent(new NewPostLikeEvent(post.getId(), user.getId()));
     }
 
     @Override

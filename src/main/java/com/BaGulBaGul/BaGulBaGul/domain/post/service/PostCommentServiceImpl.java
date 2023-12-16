@@ -5,6 +5,10 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.PostComment;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentChild;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentChildLike;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentLike;
+import com.BaGulBaGul.BaGulBaGul.domain.post.event.NewPostCommentChildEvent;
+import com.BaGulBaGul.BaGulBaGul.domain.post.event.NewPostCommentChildLikeEvent;
+import com.BaGulBaGul.BaGulBaGul.domain.post.event.NewPostCommentEvent;
+import com.BaGulBaGul.BaGulBaGul.domain.post.event.NewPostCommentLikeEvent;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentChildLikeRepository;
@@ -14,6 +18,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +33,8 @@ public class PostCommentServiceImpl implements PostCommentService {
     private final PostCommentLikeRepository postCommentLikeRepository;
     private final PostCommentChildLikeRepository postCommentChildLikeRepository;
 
+    private final ApplicationEventPublisher applicationEventPublisher;
+
     @Override
     @Transactional
     public PostComment registerComment(Post post, User user, String content) {
@@ -41,6 +48,10 @@ public class PostCommentServiceImpl implements PostCommentService {
                 .build();
         //댓글 등록
         postCommentRepository.save(postComment);
+        //댓글 등록 이벤트 발행
+        applicationEventPublisher.publishEvent(
+                new NewPostCommentEvent(postComment.getId())
+        );
         return postComment;
     }
 
@@ -74,6 +85,13 @@ public class PostCommentServiceImpl implements PostCommentService {
                 .content(content)
                 .build();
         postCommentChildRepository.save(postCommentChild);
+        //대댓글 등록 이벤트 발행
+        applicationEventPublisher.publishEvent(
+                new NewPostCommentChildEvent(
+                        postCommentChild.getId(),
+                        originalPostCommentChild == null ? null : originalPostCommentChild.getId()
+                )
+        );
         return postCommentChild;
     }
 
@@ -99,6 +117,10 @@ public class PostCommentServiceImpl implements PostCommentService {
         } catch (DataIntegrityViolationException dataIntegrityViolationException) {
             throw new DuplicateLikeException();
         }
+        //댓글 좋아요 추가 이벤트 발행
+        applicationEventPublisher.publishEvent(
+                new NewPostCommentLikeEvent(postComment.getId(), user.getId())
+        );
     }
 
     @Override
@@ -121,6 +143,10 @@ public class PostCommentServiceImpl implements PostCommentService {
         } catch (DataIntegrityViolationException dataIntegrityViolationException) {
             throw new DuplicateLikeException();
         }
+        //대댓글 좋아요 추가 이벤트 발행
+        applicationEventPublisher.publishEvent(
+                new NewPostCommentChildLikeEvent(postCommentChild.getId(), user.getId())
+        );
     }
 
     @Override
