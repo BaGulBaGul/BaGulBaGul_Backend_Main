@@ -160,6 +160,7 @@ public class PostAlarmServiceImpl implements PostAlarmService {
         //검증
         //1. 새로 등록된 대댓글이 다른 대댓글에 대한 답장인지
         //2. 답장을 받을 대댓글이 같은 댓글 안에 존재하는지
+        //3. 답장을 받을 대댓글의 작성자가 부모 댓글의 작성자와 같지 않아야 한다.(부모 댓글의 작성자에게는 대댓글 등록 알람이 따로 가기 때문에 중복 방지)
         PostCommentChild newPostCommentChild = postCommentChildRepository
                 .findById(newPostCommentChildEvent.getPostCommentChildId())
                 .orElse(null);
@@ -167,6 +168,7 @@ public class PostAlarmServiceImpl implements PostAlarmService {
         if(newPostCommentChild == null || newPostCommentChildEvent.getOriginalPostCommentChildId() == null) {
             return;
         }
+
         PostCommentChild originalPostCommentChild = postCommentChildRepository
                 .findById(newPostCommentChildEvent.getOriginalPostCommentChildId())
                 .orElse(null);
@@ -174,11 +176,17 @@ public class PostAlarmServiceImpl implements PostAlarmService {
         if(originalPostCommentChild == null) {
             return;
         }
+
         //newPostCommentChild와 originalPostCommentChild가 같은 댓글에 속하지 않는다면 무시
         if(newPostCommentChild.getPostComment().getId() != originalPostCommentChild.getPostComment().getId()) {
             return;
         }
+
         PostComment postComment = originalPostCommentChild.getPostComment();
+        //알람을 받는 유저가 부모 댓글의 작성자와 같다면 무시
+        if(originalPostCommentChild.getUser().getId() == postComment.getUser().getId()) {
+            return;
+        }
 
         //알림 대상 = originalPostCommentChild의 작성자
         User targetUser = originalPostCommentChild.getUser();
