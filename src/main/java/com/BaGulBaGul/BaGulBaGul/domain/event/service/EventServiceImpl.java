@@ -121,9 +121,8 @@ public class EventServiceImpl implements EventService {
     @Transactional
     public void modifyEvent(Long eventId, Long userId, EventModifyRequest eventModifyRequest) {
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
-        User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
         //요청한 유저가 작성자가 아닐 경우 수정 권한 없음
-        if(event.getPost().getUser().getId() != userId) {
+        if(!userId.equals(event.getPost().getUser().getId())) {
             throw new GeneralException(ErrorCode.FORBIDDEN);
         }
         //patch 방식으로 eventModifyRequest에서 null이 아닌 모든 필드를 변경
@@ -164,9 +163,8 @@ public class EventServiceImpl implements EventService {
     @Transactional
     public void deleteEvent(Long eventId, Long userId) {
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
-        User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
         //요청한 유저가 작성자가 아닐 경우 수정 권한 없음
-        if(event.getPost().getUser().getId() != userId) {
+        if(!userId.equals(event.getPost().getUser().getId())) {
             throw new GeneralException(ErrorCode.FORBIDDEN);
         }
         postService.deletePost(event.getPost());
