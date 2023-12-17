@@ -85,11 +85,20 @@ public class PostCommentServiceImpl implements PostCommentService {
                 .content(content)
                 .build();
         postCommentChildRepository.save(postCommentChild);
+        //답장을 받을 대댓글이 같은 댓글 안에 존재하는지 검증.
+        //만약 같은 댓글 안에 존재하지 않는다면 null처리해서 무시
+        Long originalPostCommentChildId = null;
+        if(
+                originalPostCommentChild != null &&
+                postCommentChild.getPostComment().getId() == originalPostCommentChild.getPostComment().getId()
+        ) {
+            originalPostCommentChildId = originalPostCommentChild.getPostComment().getId();
+        }
         //대댓글 등록 이벤트 발행
         applicationEventPublisher.publishEvent(
                 new NewPostCommentChildEvent(
                         postCommentChild.getId(),
-                        originalPostCommentChild == null ? null : originalPostCommentChild.getId()
+                        originalPostCommentChildId
                 )
         );
         return postCommentChild;
