@@ -157,14 +157,16 @@ public class PostAlarmServiceImpl implements PostAlarmService {
     @Transactional
     @Async
     public void alarmToPostCommentChildWriter(NewPostCommentChildEvent newPostCommentChildEvent) {
-        //검증
-        //1. 새로 등록된 대댓글이 다른 대댓글에 대한 답장인지
-        //2. 답장을 받을 대댓글의 작성자가 부모 댓글의 작성자와 같지 않아야 한다.(부모 댓글의 작성자에게는 대댓글 등록 알람이 따로 가기 때문에 중복 방지)
+        //새로 등록된 대댓글이 답장이 아니라면 무시
+        if(newPostCommentChildEvent.getOriginalPostCommentChildId() == null) {
+            return;
+        }
+
         PostCommentChild newPostCommentChild = postCommentChildRepository
                 .findById(newPostCommentChildEvent.getPostCommentChildId())
                 .orElse(null);
         //등록된 대댓글이 지워졌거나 답글이 아닌 경우
-        if(newPostCommentChild == null || newPostCommentChildEvent.getOriginalPostCommentChildId() == null) {
+        if(newPostCommentChild == null) {
             return;
         }
 
