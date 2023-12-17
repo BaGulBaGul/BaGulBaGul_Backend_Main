@@ -12,6 +12,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,36 +20,41 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
-@Setter
 @Entity
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Alarm {
     @Id
     @GeneratedValue
     @Column(name = "alarm_id")
     Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @Setter
     @JoinColumn(name = "user_id")
+    @ManyToOne(fetch = FetchType.LAZY)
     User user;
 
+    @Setter
     @Column(name = "type")
     @Enumerated(value = EnumType.STRING)
     AlarmType type;
 
+    @Setter
     @Column(name = "title")
     String title;
 
-    @Column(name = "title")
+    @Setter
+    @Column(name = "message")
     String message;
 
+    @Setter
     @Column(name = "subject_id")
     String subjectId;
 
+    @Setter
     @Column(name = "checked")
     boolean checked;
 
+    @Setter
     @Column(name = "time")
     LocalDateTime time;
 
