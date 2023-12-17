@@ -92,7 +92,7 @@ public class PostCommentServiceImpl implements PostCommentService {
                 originalPostCommentChild != null &&
                 postCommentChild.getPostComment().getId() == originalPostCommentChild.getPostComment().getId()
         ) {
-            originalPostCommentChildId = originalPostCommentChild.getPostComment().getId();
+            originalPostCommentChildId = originalPostCommentChild.getId();
         }
         //대댓글 등록 이벤트 발행
         applicationEventPublisher.publishEvent(
