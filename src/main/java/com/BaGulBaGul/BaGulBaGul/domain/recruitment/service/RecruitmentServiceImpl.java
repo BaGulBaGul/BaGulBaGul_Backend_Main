@@ -104,10 +104,9 @@ public class RecruitmentServiceImpl implements RecruitmentService {
     @Override
     @Transactional
     public void modifyRecruitment(Long recruitmentId, Long userId, RecruitmentModifyRequest recruitmentModifyRequest) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
         Recruitment recruitment = recruitmentRepository.findById(recruitmentId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
         //요청한 유저가 작성자가 아닐 경우 수정 권한 없음
-        if (recruitment.getPost().getUser().getId() != userId) {
+        if (!userId.equals(recruitment.getPost().getUser().getId())) {
             throw new GeneralException(ErrorCode.FORBIDDEN);
         }
         //patch 방식으로 recruitmentModifyRequest에서 null이 아닌 모든 필드를 변경
@@ -131,9 +130,8 @@ public class RecruitmentServiceImpl implements RecruitmentService {
     @Override
     @Transactional
     public void deleteRecruitment(Long recruitmentId, Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
         Recruitment recruitment = recruitmentRepository.findById(recruitmentId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
-        if (recruitment.getPost().getUser().getId() != userId) {
+        if (!userId.equals(recruitment.getPost().getUser().getId())) {
             throw new GeneralException(ErrorCode.FORBIDDEN);
         }
         postService.deletePost(recruitment.getPost());

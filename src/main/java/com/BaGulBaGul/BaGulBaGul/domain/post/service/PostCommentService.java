@@ -10,7 +10,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 public interface PostCommentService {
     PostComment registerComment(Post post, User user, String content);
     void deleteComment(PostComment postComment);
-    PostCommentChild registerCommentChild(PostComment postComment, User user, String content);
+    PostCommentChild registerCommentChild(PostComment postComment, PostCommentChild originalPostCommentChild, User user, String content);
     void deleteCommentChild(PostCommentChild postCommentChild);
     void addLikeToComment(PostComment postComment, User user) throws DuplicateLikeException;
     void deleteLikeToComment(PostComment postComment, User user) throws LikeNotExistException;

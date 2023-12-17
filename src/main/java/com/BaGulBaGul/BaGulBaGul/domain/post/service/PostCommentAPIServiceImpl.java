@@ -82,8 +82,7 @@ public class PostCommentAPIServiceImpl implements PostCommentAPIService {
     public void modifyPostComment(Long postCommentId, Long userId, PostCommentModifyRequest postCommentModifyRequest) {
         //엔티티 로드 & 검증
         PostComment postComment = postCommentRepository.findById(postCommentId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
-        User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
-        if(postComment.getUser().getId() != user.getId()) {
+        if(!userId.equals(postComment.getUser().getId())) {
             throw new GeneralException(ErrorCode.FORBIDDEN);
         }
         // 수정
@@ -97,8 +96,7 @@ public class PostCommentAPIServiceImpl implements PostCommentAPIService {
     public void deletePostComment(Long postCommentId, Long userId) {
         //엔티티 로드 & 검증
         PostComment postComment = postCommentRepository.findById(postCommentId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
-        User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
-        if(postComment.getUser().getId() != user.getId()) {
+        if(!userId.equals(postComment.getUser().getId())) {
             throw new GeneralException(ErrorCode.FORBIDDEN);
         }
         //삭제
@@ -113,8 +111,21 @@ public class PostCommentAPIServiceImpl implements PostCommentAPIService {
             PostCommentChildRegisterRequest postCommentChildRegisterRequest
     ) {
         PostComment postComment = postCommentRepository.findById(postCommentId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        //답글이라면 originalPostCommentChild가 null이 아님.
+        PostCommentChild originalPostCommentChild = null;
+        if(postCommentChildRegisterRequest.getOriginalPostCommentChildId() != null) {
+            originalPostCommentChild = postCommentChildRepository
+                    .findById(postCommentChildRegisterRequest.getOriginalPostCommentChildId())
+                    .orElse(null);
+        }
         User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
-        PostCommentChild postCommentChild = postCommentService.registerCommentChild(postComment, user, postCommentChildRegisterRequest.getContent());
+
+        PostCommentChild postCommentChild = postCommentService.registerCommentChild(
+                postComment,
+                originalPostCommentChild,
+                user,
+                postCommentChildRegisterRequest.getContent()
+        );
         return postCommentChild.getId();
     }
 
@@ -127,8 +138,7 @@ public class PostCommentAPIServiceImpl implements PostCommentAPIService {
     ) {
         //엔티티 로드 & 검증
         PostCommentChild postCommentChild = postCommentChildRepository.findById(postCommentChildId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
-        User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
-        if(postCommentChild.getUser().getId() != user.getId()) {
+        if(!userId.equals(postCommentChild.getUser().getId())) {
             throw new GeneralException(ErrorCode.FORBIDDEN);
         }
         //수정
@@ -142,8 +152,7 @@ public class PostCommentAPIServiceImpl implements PostCommentAPIService {
     public void deletePostCommentChild(Long postCommentChildId, Long userId) {
         //엔티티 로드 & 검증
         PostCommentChild postCommentChild = postCommentChildRepository.findById(postCommentChildId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
-        User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
-        if(postCommentChild.getUser().getId() != user.getId()) {
+        if(!userId.equals(postCommentChild.getUser().getId())) {
             throw new GeneralException(ErrorCode.FORBIDDEN);
         }
         //삭제
