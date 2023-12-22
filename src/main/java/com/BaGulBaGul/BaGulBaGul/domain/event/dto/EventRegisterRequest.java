@@ -60,6 +60,7 @@ public class EventRegisterRequest {
     private List<String> tags;
 
     @ApiModelProperty(value = "등록할 카테고리의 이름들", example = "[\"스포츠/레저\",\"식품/음료\",\"문화/예술\"]")
+    @Size(max = 2)
     private List<String> categories;
 
     @ApiModelProperty(value = "등록한 이미지들의 resource id. 순서는 보존되며 첫번째 이미지가 대표이미지가 된다.")

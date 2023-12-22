@@ -144,7 +144,7 @@ public class InitDummyDB {
             List<String> tagStr = tagSet.stream().collect(Collectors.toList());
 
             //카테고리
-            int categoryCnt = rand.nextInt(5);
+            int categoryCnt = rand.nextInt(2);
             Set<Category> categorySet = new HashSet<>();
             for(int i=0;i<categoryCnt;i++) {
                 categorySet.add(categories.get(rand.nextInt(categories.size())));
