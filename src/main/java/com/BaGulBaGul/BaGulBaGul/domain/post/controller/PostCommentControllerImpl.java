@@ -10,7 +10,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentRegisterResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
-import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostCommentAPIService;
+import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostCommentService;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,7 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Api(tags = "게시글 댓글 + 대댓글")
 public class PostCommentControllerImpl implements PostCommentController {
 
-    private final PostCommentAPIService postCommentAPIService;
+    private final PostCommentService postCommentService;
 
     @Override
     @GetMapping("/{postId}/comment")
@@ -48,7 +48,7 @@ public class PostCommentControllerImpl implements PostCommentController {
             @AuthenticationPrincipal Long requestUserId,
             Pageable pageable
     ) {
-        return ApiResponse.of(postCommentAPIService.getPostCommentPage(postId, requestUserId, pageable));
+        return ApiResponse.of(postCommentService.getPostCommentPage(postId, requestUserId, pageable));
     }
 
     @Override
@@ -64,7 +64,7 @@ public class PostCommentControllerImpl implements PostCommentController {
             Pageable pageable
     ) {
         return ApiResponse.of(
-                postCommentAPIService.getPostCommentChildPage(
+                postCommentService.getPostCommentChildPage(
                         postCommentId, requestUserId, pageable
                 )
         );
@@ -81,7 +81,7 @@ public class PostCommentControllerImpl implements PostCommentController {
             @AuthenticationPrincipal Long userId,
             @RequestBody @Valid PostCommentRegisterRequest postCommentRegisterRequest
     ) {
-        Long postCommentId = postCommentAPIService.registerPostComment(postId, userId, postCommentRegisterRequest);
+        Long postCommentId = postCommentService.registerPostComment(postId, userId, postCommentRegisterRequest);
         return ApiResponse.of(
                 new PostCommentRegisterResponse(postCommentId)
         );
@@ -98,7 +98,7 @@ public class PostCommentControllerImpl implements PostCommentController {
             @AuthenticationPrincipal Long userId,
             @RequestBody PostCommentModifyRequest postCommentModifyRequest
     ) {
-        postCommentAPIService.modifyPostComment(postCommentId, userId, postCommentModifyRequest);
+        postCommentService.modifyPostComment(postCommentId, userId, postCommentModifyRequest);
         return ApiResponse.of(null);
     }
 
@@ -111,7 +111,7 @@ public class PostCommentControllerImpl implements PostCommentController {
             @PathVariable(name = "postCommentId") Long postCommentId,
             @AuthenticationPrincipal Long userId
     ) {
-        postCommentAPIService.deletePostComment(postCommentId, userId);
+        postCommentService.deletePostComment(postCommentId, userId);
         return ApiResponse.of(null);
     }
 
@@ -126,7 +126,7 @@ public class PostCommentControllerImpl implements PostCommentController {
             @AuthenticationPrincipal Long userId,
             @RequestBody @Valid PostCommentChildRegisterRequest postCommentChildRegisterRequest
     ) {
-        Long postCommentChildId = postCommentAPIService.registerPostCommentChild(postCommentId, userId, postCommentChildRegisterRequest);
+        Long postCommentChildId = postCommentService.registerPostCommentChild(postCommentId, userId, postCommentChildRegisterRequest);
         return ApiResponse.of(
                 new PostCommentChildRegisterResponse(postCommentChildId)
         );
@@ -143,7 +143,7 @@ public class PostCommentControllerImpl implements PostCommentController {
             @AuthenticationPrincipal Long userId,
             @RequestBody PostCommentChildModifyRequest postCommentChildModifyRequest
     ) {
-        postCommentAPIService.modifyPostCommentChild(postCommentChildId, userId, postCommentChildModifyRequest);
+        postCommentService.modifyPostCommentChild(postCommentChildId, userId, postCommentChildModifyRequest);
         return ApiResponse.of(null);
     }
 
@@ -156,7 +156,7 @@ public class PostCommentControllerImpl implements PostCommentController {
             @PathVariable(name = "postCommentChildId") Long postCommentChildId,
             @AuthenticationPrincipal Long userId
     ) {
-        postCommentAPIService.deletePostCommentChild(postCommentChildId, userId);
+        postCommentService.deletePostCommentChild(postCommentChildId, userId);
         return ApiResponse.of(null);
     }
 
@@ -172,7 +172,7 @@ public class PostCommentControllerImpl implements PostCommentController {
             @AuthenticationPrincipal Long userId
     ) {
         try {
-            postCommentAPIService.addLikeToComment(postCommentId, userId);
+            postCommentService.addLikeToComment(postCommentId, userId);
         }
         catch (DuplicateLikeException duplicateLikeException) {
         }
@@ -191,7 +191,7 @@ public class PostCommentControllerImpl implements PostCommentController {
             @AuthenticationPrincipal Long userId
     ) {
         try {
-            postCommentAPIService.deleteLikeToComment(postCommentId, userId);
+            postCommentService.deleteLikeToComment(postCommentId, userId);
         }
         catch (LikeNotExistException likeNotExistException) {
         }
@@ -210,7 +210,7 @@ public class PostCommentControllerImpl implements PostCommentController {
             @AuthenticationPrincipal Long userId
     ) {
         try {
-            postCommentAPIService.addLikeToCommentChild(postCommentChildId, userId);
+            postCommentService.addLikeToCommentChild(postCommentChildId, userId);
         }
         catch (DuplicateLikeException duplicateLikeException) {
         }
@@ -228,7 +228,7 @@ public class PostCommentControllerImpl implements PostCommentController {
             @AuthenticationPrincipal Long userId
     ) {
         try {
-            postCommentAPIService.deleteLikeToCommentChild(postCommentChildId, userId);
+            postCommentService.deleteLikeToCommentChild(postCommentChildId, userId);
         }
         catch (LikeNotExistException likeNotExistException) {
         }
