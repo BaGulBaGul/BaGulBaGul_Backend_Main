@@ -11,12 +11,16 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
+import com.BaGulBaGul.BaGulBaGul.domain.post.exception.PostCommentChildNotFoundException;
+import com.BaGulBaGul.BaGulBaGul.domain.post.exception.PostCommentNotFoundException;
+import com.BaGulBaGul.BaGulBaGul.domain.post.exception.PostNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentChildLikeRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentChildRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentLikeRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
+import com.BaGulBaGul.BaGulBaGul.domain.user.info.exception.UserNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.UserRepository;
 import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
 import com.BaGulBaGul.BaGulBaGul.global.response.ErrorCode;
@@ -71,8 +75,8 @@ public class PostCommentAPIServiceImpl implements PostCommentAPIService {
     @Override
     @Transactional
     public Long registerPostComment(Long postId, Long userId, PostCommentRegisterRequest postCommentRegisterRequest) {
-        Post post = postRepository.findById(postId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
-        User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        Post post = postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException());
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
         PostComment postComment = postCommentService.registerComment(post, user, postCommentRegisterRequest.getContent());
         return postComment.getId();
     }
@@ -81,7 +85,7 @@ public class PostCommentAPIServiceImpl implements PostCommentAPIService {
     @Transactional
     public void modifyPostComment(Long postCommentId, Long userId, PostCommentModifyRequest postCommentModifyRequest) {
         //엔티티 로드 & 검증
-        PostComment postComment = postCommentRepository.findById(postCommentId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        PostComment postComment = postCommentRepository.findById(postCommentId).orElseThrow(() -> new PostCommentNotFoundException());
         if(!userId.equals(postComment.getUser().getId())) {
             throw new GeneralException(ErrorCode.FORBIDDEN);
         }
@@ -95,7 +99,7 @@ public class PostCommentAPIServiceImpl implements PostCommentAPIService {
     @Transactional
     public void deletePostComment(Long postCommentId, Long userId) {
         //엔티티 로드 & 검증
-        PostComment postComment = postCommentRepository.findById(postCommentId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        PostComment postComment = postCommentRepository.findById(postCommentId).orElseThrow(() -> new PostCommentNotFoundException());
         if(!userId.equals(postComment.getUser().getId())) {
             throw new GeneralException(ErrorCode.FORBIDDEN);
         }
@@ -110,7 +114,8 @@ public class PostCommentAPIServiceImpl implements PostCommentAPIService {
             Long userId,
             PostCommentChildRegisterRequest postCommentChildRegisterRequest
     ) {
-        PostComment postComment = postCommentRepository.findById(postCommentId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        PostComment postComment = postCommentRepository.findById(postCommentId).orElseThrow(() -> new PostCommentNotFoundException());
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
         //답글이라면 originalPostCommentChild가 null이 아님.
         PostCommentChild originalPostCommentChild = null;
         if(postCommentChildRegisterRequest.getOriginalPostCommentChildId() != null) {
@@ -118,7 +123,6 @@ public class PostCommentAPIServiceImpl implements PostCommentAPIService {
                     .findById(postCommentChildRegisterRequest.getOriginalPostCommentChildId())
                     .orElse(null);
         }
-        User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
 
         PostCommentChild postCommentChild = postCommentService.registerCommentChild(
                 postComment,
@@ -137,7 +141,7 @@ public class PostCommentAPIServiceImpl implements PostCommentAPIService {
             PostCommentChildModifyRequest postCommentChildModifyRequest
     ) {
         //엔티티 로드 & 검증
-        PostCommentChild postCommentChild = postCommentChildRepository.findById(postCommentChildId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        PostCommentChild postCommentChild = postCommentChildRepository.findById(postCommentChildId).orElseThrow(() -> new PostCommentChildNotFoundException());
         if(!userId.equals(postCommentChild.getUser().getId())) {
             throw new GeneralException(ErrorCode.FORBIDDEN);
         }
@@ -151,7 +155,7 @@ public class PostCommentAPIServiceImpl implements PostCommentAPIService {
     @Transactional
     public void deletePostCommentChild(Long postCommentChildId, Long userId) {
         //엔티티 로드 & 검증
-        PostCommentChild postCommentChild = postCommentChildRepository.findById(postCommentChildId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        PostCommentChild postCommentChild = postCommentChildRepository.findById(postCommentChildId).orElseThrow(() -> new PostCommentChildNotFoundException());
         if(!userId.equals(postCommentChild.getUser().getId())) {
             throw new GeneralException(ErrorCode.FORBIDDEN);
         }
@@ -163,8 +167,8 @@ public class PostCommentAPIServiceImpl implements PostCommentAPIService {
     @Transactional(rollbackFor = DuplicateLikeException.class)
     public void addLikeToComment(Long postCommentId, Long userId) throws DuplicateLikeException {
         //엔티티 로드 & 검증
-        PostComment postComment = postCommentRepository.findById(postCommentId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
-        User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        PostComment postComment = postCommentRepository.findById(postCommentId).orElseThrow(() -> new PostCommentNotFoundException());
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
         //이미 존재하는지 검색
         if(postCommentLikeRepository.existsByPostCommentAndUser(postComment, user)) {
             throw new DuplicateLikeException();
@@ -177,8 +181,8 @@ public class PostCommentAPIServiceImpl implements PostCommentAPIService {
     @Transactional(rollbackFor = LikeNotExistException.class)
     public void deleteLikeToComment(Long postCommentId, Long userId) throws LikeNotExistException {
         //엔티티 로드 & 검증
-        PostComment postComment = postCommentRepository.findById(postCommentId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
-        User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        PostComment postComment = postCommentRepository.findById(postCommentId).orElseThrow(() -> new PostCommentNotFoundException());
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
         //존재하지 않는지 검색
         if(postCommentLikeRepository.existsByPostCommentAndUser(postComment, user) != true) {
             throw new LikeNotExistException();
@@ -190,8 +194,8 @@ public class PostCommentAPIServiceImpl implements PostCommentAPIService {
     @Override
     public void addLikeToCommentChild(Long postCommentChildId, Long userId) throws DuplicateLikeException {
         PostCommentChild postCommentChild = postCommentChildRepository.findById(postCommentChildId)
-                .orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
-        User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+                .orElseThrow(() -> new PostCommentChildNotFoundException());
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
         if(postCommentChildLikeRepository.existsByPostCommentChildAndUser(postCommentChild, user)) {
             throw new DuplicateLikeException();
         }
@@ -201,8 +205,8 @@ public class PostCommentAPIServiceImpl implements PostCommentAPIService {
     @Override
     public void deleteLikeToCommentChild(Long postCommentChildId, Long userId) throws LikeNotExistException {
         PostCommentChild postCommentChild = postCommentChildRepository.findById(postCommentChildId)
-                .orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
-        User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+                .orElseThrow(() -> new PostCommentChildNotFoundException());
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
         if(postCommentChildLikeRepository.existsByPostCommentChildAndUser(postCommentChild, user) != true) {
             throw new LikeNotExistException();
         }
