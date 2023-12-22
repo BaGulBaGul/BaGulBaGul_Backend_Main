@@ -6,6 +6,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.exception.PostNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.exception.RecruitmentNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.exception.UserNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
+import com.BaGulBaGul.BaGulBaGul.global.exception.NoPermissionException;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
 import com.BaGulBaGul.BaGulBaGul.global.response.ErrorCode;
 import com.BaGulBaGul.BaGulBaGul.global.upload.exception.NotImageException;
@@ -32,6 +33,11 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({Exception.class})
     public ResponseEntity<Object> internalServerError(Exception e, WebRequest request) {
         return handleExceptionInternal(e, ErrorCode.INTERNAL_SERVER_ERROR, request);
+    }
+    //권한이 없음
+    @ExceptionHandler(value = NoPermissionException.class)
+    public ResponseEntity<Object> noPermission(Exception e, WebRequest request) {
+        return handleExceptionInternal(e, ErrorCode.FORBIDDEN, request);
     }
 
     /************************

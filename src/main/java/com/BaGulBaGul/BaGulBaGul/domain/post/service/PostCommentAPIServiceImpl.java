@@ -23,6 +23,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.exception.UserNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.UserRepository;
 import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
+import com.BaGulBaGul.BaGulBaGul.global.exception.NoPermissionException;
 import com.BaGulBaGul.BaGulBaGul.global.response.ErrorCode;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -87,7 +88,7 @@ public class PostCommentAPIServiceImpl implements PostCommentAPIService {
         //엔티티 로드 & 검증
         PostComment postComment = postCommentRepository.findById(postCommentId).orElseThrow(() -> new PostCommentNotFoundException());
         if(!userId.equals(postComment.getUser().getId())) {
-            throw new GeneralException(ErrorCode.FORBIDDEN);
+            throw new NoPermissionException();
         }
         // 수정
         if(postCommentModifyRequest.getContent() != null) {
@@ -101,7 +102,7 @@ public class PostCommentAPIServiceImpl implements PostCommentAPIService {
         //엔티티 로드 & 검증
         PostComment postComment = postCommentRepository.findById(postCommentId).orElseThrow(() -> new PostCommentNotFoundException());
         if(!userId.equals(postComment.getUser().getId())) {
-            throw new GeneralException(ErrorCode.FORBIDDEN);
+            throw new NoPermissionException();
         }
         //삭제
         postCommentService.deleteComment(postComment);
@@ -143,7 +144,7 @@ public class PostCommentAPIServiceImpl implements PostCommentAPIService {
         //엔티티 로드 & 검증
         PostCommentChild postCommentChild = postCommentChildRepository.findById(postCommentChildId).orElseThrow(() -> new PostCommentChildNotFoundException());
         if(!userId.equals(postCommentChild.getUser().getId())) {
-            throw new GeneralException(ErrorCode.FORBIDDEN);
+            throw new NoPermissionException();
         }
         //수정
         if(postCommentChildModifyRequest.getContent() != null) {
@@ -157,7 +158,7 @@ public class PostCommentAPIServiceImpl implements PostCommentAPIService {
         //엔티티 로드 & 검증
         PostCommentChild postCommentChild = postCommentChildRepository.findById(postCommentChildId).orElseThrow(() -> new PostCommentChildNotFoundException());
         if(!userId.equals(postCommentChild.getUser().getId())) {
-            throw new GeneralException(ErrorCode.FORBIDDEN);
+            throw new NoPermissionException();
         }
         //삭제
         postCommentService.deleteCommentChild(postCommentChild);

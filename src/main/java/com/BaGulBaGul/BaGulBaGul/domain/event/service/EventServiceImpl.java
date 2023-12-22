@@ -26,6 +26,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.exception.UserNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.UserRepository;
 import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
+import com.BaGulBaGul.BaGulBaGul.global.exception.NoPermissionException;
 import com.BaGulBaGul.BaGulBaGul.global.response.ErrorCode;
 import com.BaGulBaGul.BaGulBaGul.global.upload.Resource;
 import com.BaGulBaGul.BaGulBaGul.global.upload.repository.ResourceRepository;
@@ -125,7 +126,7 @@ public class EventServiceImpl implements EventService {
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException());
         //요청한 유저가 작성자가 아닐 경우 수정 권한 없음
         if(!userId.equals(event.getPost().getUser().getId())) {
-            throw new GeneralException(ErrorCode.FORBIDDEN);
+            throw new NoPermissionException();
         }
         //patch 방식으로 eventModifyRequest에서 null이 아닌 모든 필드를 변경
         //post관련은 postService에 위임
@@ -167,7 +168,7 @@ public class EventServiceImpl implements EventService {
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException());
         //요청한 유저가 작성자가 아닐 경우 수정 권한 없음
         if(!userId.equals(event.getPost().getUser().getId())) {
-            throw new GeneralException(ErrorCode.FORBIDDEN);
+            throw new NoPermissionException();
         }
         postService.deletePost(event.getPost());
         eventCategoryRepository.deleteAllByEvent(event);
