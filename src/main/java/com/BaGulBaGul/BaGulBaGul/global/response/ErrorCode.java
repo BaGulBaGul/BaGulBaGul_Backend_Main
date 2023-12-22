@@ -18,6 +18,22 @@ public enum ErrorCode {
     NOT_FOUND("C10003", HttpStatus.NOT_FOUND, "PAGE NOT FOUND"),
     INTERNAL_SERVER_ERROR("C20000", HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_SERVER_ERROR"),
 
+    //EVENT
+    EVENT_NOT_FOUND("E00000", HttpStatus.OK, "이벤트가 존재하지 않습니다"),
+    EVENT_CATEGORY_NOT_EXIST("E00001", HttpStatus.OK, "존재하지 않는 카테고리입니다"),
+
+    //RECRUITMENT
+    RECRUITMENT_NOT_FOUND("R00000", HttpStatus.OK, "모집글이 존재하지 않습니다"),
+
+    //POST
+    POST_NOT_FOUND("P00000", HttpStatus.OK, "게시글이 존재하지 않습니다"),
+
+    //USER
+    USER_NOT_FOUND("U00000", HttpStatus.OK, "존재하지 않는 유저입니다"),
+
+    //ALARM
+    ALARM_NOT_FOUND("AL00000", HttpStatus.OK, "알람이 존재하지 않습니다"),
+
     //UserJoin
     UJ_WRONG_JOINTOKEN("UJ00000", HttpStatus.OK, "소셜 로그인 회원가입 인증 토큰이 만료되었거나 잘못되었습니다."),
 
