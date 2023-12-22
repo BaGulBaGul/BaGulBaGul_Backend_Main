@@ -4,6 +4,7 @@ package com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service;
 import com.BaGulBaGul.BaGulBaGul.domain.user.Alarm;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.dto.AlarmPageResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.exception.AlarmNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.repository.AlarmRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.UserRepository;
 import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
@@ -31,7 +32,7 @@ public class AlarmServiceImpl implements AlarmService {
     @Override
     @Transactional
     public void checkAlarm(Long userId, Long alarmId) {
-        Alarm alarm = alarmRepository.findById(alarmId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        Alarm alarm = alarmRepository.findById(alarmId).orElseThrow(() -> new AlarmNotFoundException());
         //알람을 체크할 권한이 있는지
         if(!userId.equals(alarm.getUser().getId())) {
             throw new GeneralException(ErrorCode.FORBIDDEN);
@@ -43,7 +44,7 @@ public class AlarmServiceImpl implements AlarmService {
     @Override
     @Transactional
     public void deleteAlarm(Long userId, Long alarmId) {
-        Alarm alarm = alarmRepository.findById(alarmId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        Alarm alarm = alarmRepository.findById(alarmId).orElseThrow(() -> new AlarmNotFoundException());
         //알람을 체크할 권한이 있는지
         if(!userId.equals(alarm.getUser().getId())) {
             throw new GeneralException(ErrorCode.FORBIDDEN);

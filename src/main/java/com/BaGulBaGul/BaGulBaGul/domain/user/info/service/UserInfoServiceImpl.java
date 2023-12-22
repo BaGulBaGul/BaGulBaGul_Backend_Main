@@ -3,6 +3,7 @@ package com.BaGulBaGul.BaGulBaGul.domain.user.info.service;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.dto.UserInfoResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.dto.UserModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.info.exception.UserNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.UserRepository;
 import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
 import com.BaGulBaGul.BaGulBaGul.global.response.ErrorCode;
@@ -20,7 +21,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Override
     public UserInfoResponse getUserInfo(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
         return UserInfoResponse.builder()
                 .id(userId)
                 .nickname(user.getNickname())
@@ -33,7 +34,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     @Override
     @Transactional
     public void modifyUserInfo(UserModifyRequest userModifyRequest, Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
         //null이 아니라면 해당 필드를 변경
         if(userModifyRequest.getEmail().isPresent()) {
             user.setEmail(userModifyRequest.getEmail().get());
