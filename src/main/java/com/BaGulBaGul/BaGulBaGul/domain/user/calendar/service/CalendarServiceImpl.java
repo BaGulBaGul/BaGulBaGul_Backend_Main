@@ -48,7 +48,7 @@ public class CalendarServiceImpl implements CalendarService {
     @Transactional
     public void registerEventCalendar(Long userId, EventCalendarRegisterRequest eventCalendarRegisterRequest) {
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
-        Event event = eventRepository.findById(eventCalendarRegisterRequest.getEventId()).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        Event event = eventRepository.findById(eventCalendarRegisterRequest.getEventId()).orElseThrow(() -> new EventNotFoundException());
         eventCalendarRepository.save(
                 new EventCalendar(user, event)
         );
