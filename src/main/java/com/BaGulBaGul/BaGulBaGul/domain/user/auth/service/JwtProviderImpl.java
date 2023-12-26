@@ -1,9 +1,6 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user.auth.service;
 
-import com.BaGulBaGul.BaGulBaGul.domain.user.auth.exception.JoinTokenDeserializeException;
-import com.BaGulBaGul.BaGulBaGul.domain.user.auth.exception.JoinTokenExpiredException;
-import com.BaGulBaGul.BaGulBaGul.domain.user.auth.exception.JoinTokenSerializeException;
-import com.BaGulBaGul.BaGulBaGul.domain.user.auth.exception.JoinTokenValidationException;
+import com.BaGulBaGul.BaGulBaGul.domain.user.auth.exception.*;
 import com.BaGulBaGul.BaGulBaGul.domain.user.auth.oauth2.dto.OAuth2JoinTokenSubject;
 import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
 import com.BaGulBaGul.BaGulBaGul.global.response.ErrorCode;
@@ -56,6 +53,32 @@ public class JwtProviderImpl implements JwtProvider {
             throw new JoinTokenSerializeException();
         }
         return createToken(subject, OAUTH_JOIN_TOKEN_EXPIRE_MINUTE);
+    }
+
+    @Override
+    public Long getUserIdFromAccessToken(String accessToken) {
+        if(accessToken == null) {
+            return null;
+        }
+        try {
+            return Long.parseLong(getSubject(accessToken));
+        }
+        catch (Exception ex) {
+            throw new AccessTokenException();
+        }
+    }
+
+    @Override
+    public Long getUserIdFromRefreshToken(String refreshToken) {
+        if(refreshToken == null) {
+            return null;
+        }
+        try {
+            return Long.parseLong(getSubject(refreshToken));
+        }
+        catch (Exception ex) {
+            throw new RefreshTokenException();
+        }
     }
 
     @Override

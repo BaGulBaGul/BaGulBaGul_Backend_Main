@@ -1,5 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user.auth.filter;
 
+import com.BaGulBaGul.BaGulBaGul.domain.user.auth.exception.AccessTokenException;
+import com.BaGulBaGul.BaGulBaGul.domain.user.auth.exception.RefreshTokenException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.auth.service.JwtProvider;
 import com.BaGulBaGul.BaGulBaGul.domain.user.auth.service.JwtCookieService;
 import java.io.IOException;
@@ -39,17 +41,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private void authenticate(HttpServletRequest request, HttpServletResponse response) {
         //AccessToken 추출
         String accessToken = jwtCookieService.getAccessToken(request);
+
         //AccessToken 검증 후 userId 추출 시도
-        Long userId = getUserId(accessToken);
+        Long userId;
+        try {
+            userId = jwtProvider.getUserIdFromAccessToken(accessToken);
+        }
         //userId가 없다면 RefreshToken 검증 후 AccessToken, RefreshToken 재발급 시도
-        if(userId == null) {
+        catch (AccessTokenException ae) {
             String refreshToken = jwtCookieService.getRefreshToken(request);
             //RefreshToken 검증 후 userId 추출 시도
-            userId = getUserId(refreshToken);
-            //인증 실패
-            if (userId == null) {
+            try {
+                userId = jwtProvider.getUserIdFromRefreshToken(refreshToken);
+            }
+            //RefreshToken도 없다면 인증 실패
+            catch (RefreshTokenException re) {
                 return;
             }
+
             //검증 성공, 토큰 재발급
             accessToken = jwtProvider.createAccessToken(userId);
             refreshToken = jwtProvider.createRefreshToken(userId);
@@ -67,21 +76,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
         securityContext.setAuthentication(authenticationToken);
         SecurityContextHolder.setContext(securityContext);
-    }
-
-    /*
-     * 토큰에서 userId 추출
-     * 토큰이 없거나 만료되거나 잘못된 경우 null 반환
-     */
-    private Long getUserId(String token){
-        if(token == null) {
-            return null;
-        }
-        try {
-            return Long.parseLong(jwtProvider.getSubject(token));
-        }
-        catch (Exception ex) {
-            return null;
-        }
     }
 }
