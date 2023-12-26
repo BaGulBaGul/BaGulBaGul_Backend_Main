@@ -5,6 +5,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.auth.service.JwtProvider;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.dto.SocialLoginUserJoinRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.dto.UserRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.info.exception.UserNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.SocialLoginUserRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.UserRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.auth.oauth2.dto.OAuth2JoinTokenSubject;
@@ -29,8 +30,7 @@ public class UserJoinServiceImpl implements UserJoinService {
     public void registerSocialLoginUser(SocialLoginUserJoinRequest socialLoginUserJoinRequest) {
         String joinToken = socialLoginUserJoinRequest.getJoinToken();
         //joinToken에서 OAuth2JoinTokenSubject 추출.
-        OAuth2JoinTokenSubject oAuth2JoinTokenSubject = Optional.of(jwtProvider.getOAuth2JoinTokenSubject(joinToken))
-                .orElseThrow(() -> new GeneralException(ErrorCode.UJ_WRONG_JOINTOKEN));
+        OAuth2JoinTokenSubject oAuth2JoinTokenSubject = jwtProvider.getOAuth2JoinTokenSubject(joinToken);
         //유저 생성
         User user = registerUser(socialLoginUserJoinRequest.toUserRegisterRequest());
         //소셜 유저 생성
@@ -56,7 +56,7 @@ public class UserJoinServiceImpl implements UserJoinService {
     @Override
     @Transactional
     public void deleteUser(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() ->new GeneralException(ErrorCode.BAD_REQUEST));
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
         //소셜로그인 정보의 경우 탈퇴 후에도 불필요한 정보. 재가입을 고려해 바로 삭제
         socialLoginUserRepository.deleteByUser(user);
         //유저 정보의 경우 게시글 유지를 위해 soft delete

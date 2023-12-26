@@ -1,14 +1,13 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user.auth.service;
 
+import com.BaGulBaGul.BaGulBaGul.domain.user.auth.exception.*;
 import com.BaGulBaGul.BaGulBaGul.domain.user.auth.oauth2.dto.OAuth2JoinTokenSubject;
 import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
 import com.BaGulBaGul.BaGulBaGul.global.response.ErrorCode;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
+
 import java.util.Calendar;
 import java.util.Date;
 import lombok.RequiredArgsConstructor;
@@ -51,9 +50,35 @@ public class JwtProviderImpl implements JwtProvider {
         try {
              subject = objectMapper.writeValueAsString(oAuth2JoinTokenSubject);
         } catch (JsonProcessingException e) {
-            throw new GeneralException(ErrorCode.INTERNAL_SERVER_ERROR);
+            throw new JoinTokenSerializeException();
         }
         return createToken(subject, OAUTH_JOIN_TOKEN_EXPIRE_MINUTE);
+    }
+
+    @Override
+    public Long getUserIdFromAccessToken(String accessToken) {
+        if(accessToken == null) {
+            return null;
+        }
+        try {
+            return Long.parseLong(getSubject(accessToken));
+        }
+        catch (Exception ex) {
+            throw new AccessTokenException();
+        }
+    }
+
+    @Override
+    public Long getUserIdFromRefreshToken(String refreshToken) {
+        if(refreshToken == null) {
+            return null;
+        }
+        try {
+            return Long.parseLong(getSubject(refreshToken));
+        }
+        catch (Exception ex) {
+            throw new RefreshTokenException();
+        }
     }
 
     @Override
@@ -61,8 +86,10 @@ public class JwtProviderImpl implements JwtProvider {
         String subject;
         try {
              subject = getSubject(joinToken);
+        } catch (ExpiredJwtException ex) {
+            throw new JoinTokenExpiredException();
         } catch (JwtException ex) {
-            throw new GeneralException(ErrorCode.UJ_WRONG_JOINTOKEN);
+            throw new JoinTokenValidationException();
         }
 
         OAuth2JoinTokenSubject oAuth2JoinTokenSubject;
@@ -70,7 +97,7 @@ public class JwtProviderImpl implements JwtProvider {
         try {
              oAuth2JoinTokenSubject = objectMapper.readValue(subject, OAuth2JoinTokenSubject.class);
         } catch (JsonProcessingException e) {
-            throw new GeneralException(ErrorCode.UJ_WRONG_JOINTOKEN);
+            throw new JoinTokenDeserializeException();
         }
         return oAuth2JoinTokenSubject;
     }

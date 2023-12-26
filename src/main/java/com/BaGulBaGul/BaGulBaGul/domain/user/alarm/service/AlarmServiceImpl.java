@@ -4,9 +4,11 @@ package com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service;
 import com.BaGulBaGul.BaGulBaGul.domain.user.Alarm;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.dto.AlarmPageResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.exception.AlarmNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.repository.AlarmRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.UserRepository;
 import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
+import com.BaGulBaGul.BaGulBaGul.global.exception.NoPermissionException;
 import com.BaGulBaGul.BaGulBaGul.global.response.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -31,10 +33,10 @@ public class AlarmServiceImpl implements AlarmService {
     @Override
     @Transactional
     public void checkAlarm(Long userId, Long alarmId) {
-        Alarm alarm = alarmRepository.findById(alarmId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        Alarm alarm = alarmRepository.findById(alarmId).orElseThrow(() -> new AlarmNotFoundException());
         //알람을 체크할 권한이 있는지
         if(!userId.equals(alarm.getUser().getId())) {
-            throw new GeneralException(ErrorCode.FORBIDDEN);
+            throw new NoPermissionException();
         }
         //알람 체크
         alarm.setChecked(true);
@@ -43,10 +45,10 @@ public class AlarmServiceImpl implements AlarmService {
     @Override
     @Transactional
     public void deleteAlarm(Long userId, Long alarmId) {
-        Alarm alarm = alarmRepository.findById(alarmId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        Alarm alarm = alarmRepository.findById(alarmId).orElseThrow(() -> new AlarmNotFoundException());
         //알람을 체크할 권한이 있는지
         if(!userId.equals(alarm.getUser().getId())) {
-            throw new GeneralException(ErrorCode.FORBIDDEN);
+            throw new NoPermissionException();
         }
         //알람 삭제
         alarmRepository.delete(alarm);

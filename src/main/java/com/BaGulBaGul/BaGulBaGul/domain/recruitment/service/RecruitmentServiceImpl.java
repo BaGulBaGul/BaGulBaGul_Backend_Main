@@ -1,6 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.domain.recruitment.service;
 
 import com.BaGulBaGul.BaGulBaGul.domain.event.Event;
+import com.BaGulBaGul.BaGulBaGul.domain.event.exception.EventNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.event.repository.EventRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostImage;
@@ -16,10 +17,13 @@ import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentDetailRespons
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentSimpleResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.exception.RecruitmentNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.repository.RecruitmentRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
+import com.BaGulBaGul.BaGulBaGul.domain.user.info.exception.UserNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.UserRepository;
 import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
+import com.BaGulBaGul.BaGulBaGul.global.exception.NoPermissionException;
 import com.BaGulBaGul.BaGulBaGul.global.response.ErrorCode;
 import com.BaGulBaGul.BaGulBaGul.global.upload.service.ResourceService;
 import java.util.List;
@@ -46,7 +50,7 @@ public class RecruitmentServiceImpl implements RecruitmentService {
     @Override
     @Transactional
     public RecruitmentDetailResponse getRecruitmentDetailById(Long recruitmentId) {
-        Recruitment recruitment = recruitmentRepository.findWithPostAndUserById(recruitmentId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        Recruitment recruitment = recruitmentRepository.findWithPostAndUserById(recruitmentId).orElseThrow(() -> new RecruitmentNotFoundException());
         //연결된 이미지의 resource id와 url을 조회
         List<PostImage> images = postImageService.getByOrder(recruitment.getPost());
         List<Long> resourceIds = images.stream().map(x -> x.getResource().getId()).collect(Collectors.toList());
@@ -85,8 +89,8 @@ public class RecruitmentServiceImpl implements RecruitmentService {
     @Override
     @Transactional
     public Long registerRecruitment(Long eventId, Long userId, RecruitmentRegisterRequest recruitmentRegisterRequest) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
-        Event event = eventRepository.findById(eventId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException());
         //게시글 생성
         Post post = postService.registerPost(user, recruitmentRegisterRequest.toPostRegisterRequest());
         Recruitment recruitment = Recruitment.builder()
@@ -104,10 +108,10 @@ public class RecruitmentServiceImpl implements RecruitmentService {
     @Override
     @Transactional
     public void modifyRecruitment(Long recruitmentId, Long userId, RecruitmentModifyRequest recruitmentModifyRequest) {
-        Recruitment recruitment = recruitmentRepository.findById(recruitmentId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        Recruitment recruitment = recruitmentRepository.findById(recruitmentId).orElseThrow(() -> new RecruitmentNotFoundException());
         //요청한 유저가 작성자가 아닐 경우 수정 권한 없음
         if (!userId.equals(recruitment.getPost().getUser().getId())) {
-            throw new GeneralException(ErrorCode.FORBIDDEN);
+            throw new NoPermissionException();
         }
         //patch 방식으로 recruitmentModifyRequest에서 null이 아닌 모든 필드를 변경
         //post관련은 postService에 위임
@@ -130,9 +134,9 @@ public class RecruitmentServiceImpl implements RecruitmentService {
     @Override
     @Transactional
     public void deleteRecruitment(Long recruitmentId, Long userId) {
-        Recruitment recruitment = recruitmentRepository.findById(recruitmentId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        Recruitment recruitment = recruitmentRepository.findById(recruitmentId).orElseThrow(() -> new RecruitmentNotFoundException());
         if (!userId.equals(recruitment.getPost().getUser().getId())) {
-            throw new GeneralException(ErrorCode.FORBIDDEN);
+            throw new NoPermissionException();
         }
         postService.deletePost(recruitment.getPost());
         recruitmentRepository.delete(recruitment);
@@ -141,24 +145,24 @@ public class RecruitmentServiceImpl implements RecruitmentService {
     @Override
     @Transactional
     public void addLike(Long recruitmentId, Long userId) throws DuplicateLikeException {
-        Recruitment recruitment = recruitmentRepository.findById(recruitmentId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
-        User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        Recruitment recruitment = recruitmentRepository.findById(recruitmentId).orElseThrow(() -> new RecruitmentNotFoundException());
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
         postService.addLike(recruitment.getPost(), user);
     }
 
     @Override
     @Transactional
     public void deleteLike(Long recruitmentId, Long userId) throws LikeNotExistException {
-        Recruitment recruitment = recruitmentRepository.findById(recruitmentId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
-        User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        Recruitment recruitment = recruitmentRepository.findById(recruitmentId).orElseThrow(() -> new RecruitmentNotFoundException());
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
         postService.deleteLike(recruitment.getPost(), user);
     }
 
     @Override
     @Transactional
     public boolean isMyLike(Long recruitmentId, Long userId) {
-        Recruitment recruitment = recruitmentRepository.findById(recruitmentId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
-        User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        Recruitment recruitment = recruitmentRepository.findById(recruitmentId).orElseThrow(() -> new RecruitmentNotFoundException());
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
         return postService.existsLike(recruitment.getPost(), user);
     }
 }

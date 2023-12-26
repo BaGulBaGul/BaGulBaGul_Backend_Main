@@ -11,6 +11,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventSimpleResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.GetLikeEventRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.GetLikeEventResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.exception.CategoryNotFoundException;
+import com.BaGulBaGul.BaGulBaGul.domain.event.exception.EventNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.event.repository.EventCategoryRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.event.repository.CategoryRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.event.repository.EventRepository;
@@ -22,8 +23,10 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostImageService;
 import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostService;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
+import com.BaGulBaGul.BaGulBaGul.domain.user.info.exception.UserNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.UserRepository;
 import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
+import com.BaGulBaGul.BaGulBaGul.global.exception.NoPermissionException;
 import com.BaGulBaGul.BaGulBaGul.global.response.ErrorCode;
 import com.BaGulBaGul.BaGulBaGul.global.upload.Resource;
 import com.BaGulBaGul.BaGulBaGul.global.upload.repository.ResourceRepository;
@@ -55,7 +58,7 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public EventDetailResponse getEventDetailById(Long eventId) {
-        Event event = eventRepository.findWithPostAndUserAndCategoryById(eventId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        Event event = eventRepository.findWithPostAndUserAndCategoryById(eventId).orElseThrow(() -> new EventNotFoundException());
         //연결된 이미지의 resource id와 url을 조회
         List<PostImage> images = postImageService.getByOrder(event.getPost());
         List<Long> resourceIds = images.stream().map(x -> x.getResource().getId()).collect(Collectors.toList());
@@ -96,7 +99,7 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public Long registerEvent(Long userId, EventRegisterRequest eventRegisterRequest) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
         //게시글 생성
         Post post = postService.registerPost(user, eventRegisterRequest.toPostRegisterRequest());
         //이벤트 생성
@@ -120,10 +123,10 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public void modifyEvent(Long eventId, Long userId, EventModifyRequest eventModifyRequest) {
-        Event event = eventRepository.findById(eventId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException());
         //요청한 유저가 작성자가 아닐 경우 수정 권한 없음
         if(!userId.equals(event.getPost().getUser().getId())) {
-            throw new GeneralException(ErrorCode.FORBIDDEN);
+            throw new NoPermissionException();
         }
         //patch 방식으로 eventModifyRequest에서 null이 아닌 모든 필드를 변경
         //post관련은 postService에 위임
@@ -162,10 +165,10 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public void deleteEvent(Long eventId, Long userId) {
-        Event event = eventRepository.findById(eventId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException());
         //요청한 유저가 작성자가 아닐 경우 수정 권한 없음
         if(!userId.equals(event.getPost().getUser().getId())) {
-            throw new GeneralException(ErrorCode.FORBIDDEN);
+            throw new NoPermissionException();
         }
         postService.deletePost(event.getPost());
         eventCategoryRepository.deleteAllByEvent(event);
@@ -175,24 +178,24 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional(rollbackFor = {DuplicateLikeException.class})
     public void addLike(Long eventId, Long userId) throws DuplicateLikeException {
-        Event event = eventRepository.findById(eventId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
-        User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException());
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
         postService.addLike(event.getPost(), user);
     }
 
     @Override
     @Transactional(rollbackFor = {LikeNotExistException.class})
     public void deleteLike(Long eventId, Long userId) throws LikeNotExistException {
-        Event event = eventRepository.findById(eventId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
-        User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException());
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
         postService.deleteLike(event.getPost(), user);
     }
 
     @Override
     @Transactional
     public boolean isMyLike(Long eventId, Long userId) {
-        Event event = eventRepository.findById(eventId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
-        User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorCode.BAD_REQUEST));
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException());
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
         return postService.existsLike(event.getPost(), user);
     }
 
