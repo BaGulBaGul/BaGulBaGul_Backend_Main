@@ -84,7 +84,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     //잘못된 조인 토큰
-    @ExceptionHandler(value = JoinTokenExpiredException.class)
+    @ExceptionHandler(value = JoinTokenValidationException.class)
     public ResponseEntity<Object> joinTokenWrong(JoinTokenValidationException e, WebRequest webRequest) {
         return handleExceptionInternal(e, ErrorCode.UJ_JOINTOKEN_WRONG, webRequest);
     }
