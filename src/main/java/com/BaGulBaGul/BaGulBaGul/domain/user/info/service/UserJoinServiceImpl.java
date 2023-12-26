@@ -30,8 +30,7 @@ public class UserJoinServiceImpl implements UserJoinService {
     public void registerSocialLoginUser(SocialLoginUserJoinRequest socialLoginUserJoinRequest) {
         String joinToken = socialLoginUserJoinRequest.getJoinToken();
         //joinToken에서 OAuth2JoinTokenSubject 추출.
-        OAuth2JoinTokenSubject oAuth2JoinTokenSubject = Optional.of(jwtProvider.getOAuth2JoinTokenSubject(joinToken))
-                .orElseThrow(() -> new GeneralException(ErrorCode.UJ_WRONG_JOINTOKEN));
+        OAuth2JoinTokenSubject oAuth2JoinTokenSubject = jwtProvider.getOAuth2JoinTokenSubject(joinToken);
         //유저 생성
         User user = registerUser(socialLoginUserJoinRequest.toUserRegisterRequest());
         //소셜 유저 생성
