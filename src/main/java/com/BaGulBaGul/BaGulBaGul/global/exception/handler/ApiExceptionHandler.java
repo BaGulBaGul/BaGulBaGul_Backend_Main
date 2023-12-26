@@ -4,6 +4,8 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.exception.CategoryNotFoundExceptio
 import com.BaGulBaGul.BaGulBaGul.domain.event.exception.EventNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.PostNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.exception.RecruitmentNotFoundException;
+import com.BaGulBaGul.BaGulBaGul.domain.user.auth.exception.JoinTokenExpiredException;
+import com.BaGulBaGul.BaGulBaGul.domain.user.auth.exception.JoinTokenValidationException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.exception.UserNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
 import com.BaGulBaGul.BaGulBaGul.global.exception.NoPermissionException;
@@ -79,6 +81,18 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = UserNotFoundException.class)
     public ResponseEntity<Object> userNotFound(UserNotFoundException e, WebRequest webRequest) {
         return handleExceptionInternal(e, ErrorCode.USER_NOT_FOUND, webRequest);
+    }
+
+    //잘못된 조인 토큰
+    @ExceptionHandler(value = JoinTokenExpiredException.class)
+    public ResponseEntity<Object> joinTokenWrong(JoinTokenValidationException e, WebRequest webRequest) {
+        return handleExceptionInternal(e, ErrorCode.UJ_JOINTOKEN_WRONG, webRequest);
+    }
+
+    //만료된 조인 토큰
+    @ExceptionHandler(value = JoinTokenExpiredException.class)
+    public ResponseEntity<Object> joinTokenExpired(JoinTokenExpiredException e, WebRequest webRequest) {
+        return handleExceptionInternal(e, ErrorCode.UJ_JOINTOKEN_EXPIRED, webRequest);
     }
 
     /************************
