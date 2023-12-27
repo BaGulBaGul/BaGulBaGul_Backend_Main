@@ -1,4 +1,4 @@
-package com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto;
+package com.BaGulBaGul.BaGulBaGul.domain.post.dto;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;

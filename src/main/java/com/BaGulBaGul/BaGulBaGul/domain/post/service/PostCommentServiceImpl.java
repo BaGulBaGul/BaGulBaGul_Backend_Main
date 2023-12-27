@@ -5,12 +5,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.PostComment;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentChild;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentChildLike;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentLike;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetPostCommentChildPageResponse;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetPostCommentPageResponse;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentChildModifyRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentChildRegisterRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentModifyRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.*;
 import com.BaGulBaGul.BaGulBaGul.domain.post.event.NewPostCommentChildEvent;
 import com.BaGulBaGul.BaGulBaGul.domain.post.event.NewPostCommentChildLikeEvent;
 import com.BaGulBaGul.BaGulBaGul.domain.post.event.NewPostCommentEvent;
@@ -50,6 +45,11 @@ public class PostCommentServiceImpl implements PostCommentService {
     private final PostCommentLikeRepository postCommentLikeRepository;
     private final PostCommentChildLikeRepository postCommentChildLikeRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
+
+    @Override
+    public PostCommentDetailResponse getPostCommentDetail(Long postCommentId) {
+        return postCommentRepository.getPostCommentDetail(postCommentId);
+    }
 
     @Override
     public Page<GetPostCommentPageResponse> getPostCommentPage(Long postId, Long requestUserId, Pageable pageable) {
@@ -262,6 +262,15 @@ public class PostCommentServiceImpl implements PostCommentService {
     }
 
     @Override
+    @Transactional
+    public boolean existsCommentLike(Long postCommentId, Long userId) {
+        PostComment postComment = postCommentRepository.findById(postCommentId).orElseThrow(() -> new PostCommentNotFoundException());
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
+        return postCommentLikeRepository.existsByPostCommentAndUser(postComment, user);
+    }
+
+    @Override
+    @Transactional
     public void addLikeToCommentChild(Long postCommentChildId, Long userId) throws DuplicateLikeException {
         PostCommentChild postCommentChild = postCommentChildRepository.findById(postCommentChildId)
                 .orElseThrow(() -> new PostCommentChildNotFoundException());
@@ -285,6 +294,7 @@ public class PostCommentServiceImpl implements PostCommentService {
     }
 
     @Override
+    @Transactional
     public void deleteLikeToCommentChild(Long postCommentChildId, Long userId) throws LikeNotExistException {
         PostCommentChild postCommentChild = postCommentChildRepository.findById(postCommentChildId)
                 .orElseThrow(() -> new PostCommentChildNotFoundException());
@@ -300,5 +310,14 @@ public class PostCommentServiceImpl implements PostCommentService {
         if(deletedCnt == 0) {
             throw new LikeNotExistException();
         }
+    }
+
+    @Override
+    @Transactional
+    public boolean existsCommentChildLike(Long postCommentChildId, Long userId) {
+        PostCommentChild postCommentChild = postCommentChildRepository.findById(postCommentChildId)
+                .orElseThrow(() -> new PostCommentChildNotFoundException());
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
+        return postCommentChildLikeRepository.existsByPostCommentChildAndUser(postCommentChild, user);
     }
 }

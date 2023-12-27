@@ -8,7 +8,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventRegisterResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventSimpleResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.GetLikeEventRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.GetLikeEventResponse;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.IsMyLikeResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.IsMyLikeResponse;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

@@ -1,13 +1,6 @@
 package com.BaGulBaGul.BaGulBaGul.domain.post.controller;
 
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetPostCommentChildPageResponse;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetPostCommentPageResponse;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentChildModifyRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentChildRegisterRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentChildRegisterResponse;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentModifyRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentRegisterRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentRegisterResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.*;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostCommentService;
@@ -35,6 +28,16 @@ import org.springframework.web.bind.annotation.RestController;
 public class PostCommentControllerImpl implements PostCommentController {
 
     private final PostCommentService postCommentService;
+
+    @Override
+    @GetMapping("/comment/{postCommentId}")
+    public ApiResponse<PostCommentDetailResponse> getPostCommentDetail(
+            @PathVariable(name = "postCommentId") Long postCommentId
+    ) {
+        return ApiResponse.of(
+                postCommentService.getPostCommentDetail(postCommentId)
+        );
+    }
 
     @Override
     @GetMapping("/{postId}/comment")
@@ -199,6 +202,22 @@ public class PostCommentControllerImpl implements PostCommentController {
     }
 
     @Override
+    @GetMapping("comment/{postCommentId}/ismylike")
+    @Operation(summary = "댓글에 유저가 좋아요를 눌렀는지 확인",
+            description = "로그인 필요"
+    )
+    public ApiResponse<IsMyLikeResponse> isMyLikeComment(
+            @PathVariable(name = "postCommentId") Long postCommentId,
+            @AuthenticationPrincipal Long userId
+    ) {
+        return ApiResponse.of(
+                new IsMyLikeResponse(
+                        postCommentService.existsCommentLike(postCommentId, userId)
+                )
+        );
+    }
+
+    @Override
     @PostMapping("comment/children/{postCommentChildId}/like")
     @Operation(summary = "대댓글 좋아요 등록",
             description = "로그인 필요\n"
@@ -233,5 +252,21 @@ public class PostCommentControllerImpl implements PostCommentController {
         catch (LikeNotExistException likeNotExistException) {
         }
         return ApiResponse.of(null);
+    }
+
+    @Override
+    @GetMapping("comment/children/{postCommentChildId}/ismylike")
+    @Operation(summary = "대댓글에 유저가 좋아요를 눌렀는지 확인",
+            description = "로그인 필요"
+    )
+    public ApiResponse<IsMyLikeResponse> isMyLikeCommentChild(
+            @PathVariable(name = "postCommentChildId") Long postCommentChildId,
+            @AuthenticationPrincipal Long userId
+    ) {
+        return ApiResponse.of(
+                new IsMyLikeResponse(
+                        postCommentService.existsCommentChildLike(postCommentChildId, userId)
+                )
+        );
     }
 }

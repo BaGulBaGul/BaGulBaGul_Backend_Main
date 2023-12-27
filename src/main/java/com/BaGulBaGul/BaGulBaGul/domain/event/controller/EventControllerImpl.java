@@ -9,7 +9,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventSimpleResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.GetLikeEventRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.GetLikeEventResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.service.EventService;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.IsMyLikeResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.IsMyLikeResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
