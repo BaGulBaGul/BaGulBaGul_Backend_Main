@@ -45,6 +45,7 @@ public class SecurityConfig {
 
                 //post 비로그인 허용 경로
                 .regexMatchers(HttpMethod.GET, "/api/post/\\d+/comment").permitAll()
+                .regexMatchers(HttpMethod.GET, "/api/post/comment/\\d+").permitAll()
                 .regexMatchers(HttpMethod.GET, "/api/post/comment/\\d+/children").permitAll()
 
                 //recruitment 비로그인 혀용 경로
