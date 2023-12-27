@@ -263,6 +263,14 @@ public class PostCommentServiceImpl implements PostCommentService {
 
     @Override
     @Transactional
+    public boolean existsCommentLike(Long postCommentId, Long userId) {
+        PostComment postComment = postCommentRepository.findById(postCommentId).orElseThrow(() -> new PostCommentNotFoundException());
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
+        return postCommentLikeRepository.existsByPostCommentAndUser(postComment, user);
+    }
+
+    @Override
+    @Transactional
     public void addLikeToCommentChild(Long postCommentChildId, Long userId) throws DuplicateLikeException {
         PostCommentChild postCommentChild = postCommentChildRepository.findById(postCommentChildId)
                 .orElseThrow(() -> new PostCommentChildNotFoundException());
@@ -302,5 +310,14 @@ public class PostCommentServiceImpl implements PostCommentService {
         if(deletedCnt == 0) {
             throw new LikeNotExistException();
         }
+    }
+
+    @Override
+    @Transactional
+    public boolean existsCommentChildLike(Long postCommentChildId, Long userId) {
+        PostCommentChild postCommentChild = postCommentChildRepository.findById(postCommentChildId)
+                .orElseThrow(() -> new PostCommentChildNotFoundException());
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
+        return postCommentChildLikeRepository.existsByPostCommentChildAndUser(postCommentChild, user);
     }
 }

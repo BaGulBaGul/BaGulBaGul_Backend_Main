@@ -202,6 +202,22 @@ public class PostCommentControllerImpl implements PostCommentController {
     }
 
     @Override
+    @GetMapping("comment/{postCommentId}/ismylike")
+    @Operation(summary = "댓글에 유저가 좋아요를 눌렀는지 확인",
+            description = "로그인 필요"
+    )
+    public ApiResponse<IsMyLikeResponse> isMyLikeComment(
+            @PathVariable(name = "postCommentId") Long postCommentId,
+            @AuthenticationPrincipal Long userId
+    ) {
+        return ApiResponse.of(
+                new IsMyLikeResponse(
+                        postCommentService.existsCommentLike(postCommentId, userId)
+                )
+        );
+    }
+
+    @Override
     @PostMapping("comment/children/{postCommentChildId}/like")
     @Operation(summary = "대댓글 좋아요 등록",
             description = "로그인 필요\n"
@@ -236,5 +252,21 @@ public class PostCommentControllerImpl implements PostCommentController {
         catch (LikeNotExistException likeNotExistException) {
         }
         return ApiResponse.of(null);
+    }
+
+    @Override
+    @GetMapping("comment/children/{postCommentChildId}/ismylike")
+    @Operation(summary = "대댓글에 유저가 좋아요를 눌렀는지 확인",
+            description = "로그인 필요"
+    )
+    public ApiResponse<IsMyLikeResponse> isMyLikeCommentChild(
+            @PathVariable(name = "postCommentChildId") Long postCommentChildId,
+            @AuthenticationPrincipal Long userId
+    ) {
+        return ApiResponse.of(
+                new IsMyLikeResponse(
+                        postCommentService.existsCommentChildLike(postCommentChildId, userId)
+                )
+        );
     }
 }
