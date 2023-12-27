@@ -1,13 +1,6 @@
 package com.BaGulBaGul.BaGulBaGul.domain.post.controller;
 
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetPostCommentChildPageResponse;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetPostCommentPageResponse;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentChildModifyRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentChildRegisterRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentChildRegisterResponse;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentModifyRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentRegisterRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentRegisterResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.*;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostCommentService;
@@ -35,6 +28,16 @@ import org.springframework.web.bind.annotation.RestController;
 public class PostCommentControllerImpl implements PostCommentController {
 
     private final PostCommentService postCommentService;
+
+    @Override
+    @GetMapping("/comment/{postCommentId}")
+    public ApiResponse<PostCommentDetailResponse> getPostCommentDetail(
+            @PathVariable(name = "postCommentId") Long postCommentId
+    ) {
+        return ApiResponse.of(
+                postCommentService.getPostCommentDetail(postCommentId)
+        );
+    }
 
     @Override
     @GetMapping("/{postId}/comment")

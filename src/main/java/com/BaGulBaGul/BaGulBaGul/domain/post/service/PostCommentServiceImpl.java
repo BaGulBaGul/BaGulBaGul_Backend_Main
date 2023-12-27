@@ -5,12 +5,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.PostComment;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentChild;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentChildLike;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentLike;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetPostCommentChildPageResponse;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetPostCommentPageResponse;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentChildModifyRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentChildRegisterRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentModifyRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.*;
 import com.BaGulBaGul.BaGulBaGul.domain.post.event.NewPostCommentChildEvent;
 import com.BaGulBaGul.BaGulBaGul.domain.post.event.NewPostCommentChildLikeEvent;
 import com.BaGulBaGul.BaGulBaGul.domain.post.event.NewPostCommentEvent;
@@ -50,6 +45,11 @@ public class PostCommentServiceImpl implements PostCommentService {
     private final PostCommentLikeRepository postCommentLikeRepository;
     private final PostCommentChildLikeRepository postCommentChildLikeRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
+
+    @Override
+    public PostCommentDetailResponse getPostCommentDetail(Long postCommentId) {
+        return postCommentRepository.getPostCommentDetail(postCommentId);
+    }
 
     @Override
     public Page<GetPostCommentPageResponse> getPostCommentPage(Long postId, Long requestUserId, Pageable pageable) {

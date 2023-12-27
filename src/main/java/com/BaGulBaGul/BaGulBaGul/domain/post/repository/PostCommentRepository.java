@@ -4,6 +4,8 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostComment;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetPostCommentPageResponse;
 import java.util.List;
+
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentDetailResponse;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -11,6 +13,22 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface PostCommentRepository extends JpaRepository<PostComment, Long> {
+    @Query(
+            value = "SELECT new com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentDetailResponse( "
+                        + "pc.id, "
+                        + "user.id, "
+                        + "user.nickname, "
+                        + "pc.content, "
+                        + "pc.commentChildCount, "
+                        + "pc.likeCount, "
+                        + "pc.createdAt"
+                    + ") "
+                    + "FROM PostComment pc "
+                        + "INNER JOIN pc.user user "
+                    + "WHERE pc.id = :postCommentId"
+    )
+    PostCommentDetailResponse getPostCommentDetail(@Param("postCommentId") Long postCommentId);
+
     @Modifying
     @Query(value = "DELETE FROM PostComment pc WHERE pc.post = :post")
     void deleteAllByPost(@Param("post") Post post);
