@@ -41,15 +41,15 @@ public class SecurityConfig {
                 .authorizeRequests()
                 //event 비로그인 허용 경로
                 .antMatchers(HttpMethod.GET, "/api/event").permitAll()
-                .antMatchers(HttpMethod.GET, "/api/event/{\\d+}").permitAll()
+                .regexMatchers(HttpMethod.GET, "/api/event/\\d+").permitAll()
 
                 //post 비로그인 허용 경로
-                .antMatchers(HttpMethod.GET, "/api/post/{\\d+}/comment").permitAll()
-                .antMatchers(HttpMethod.GET, "/api/post/comment/{\\d+}/children").permitAll()
+                .regexMatchers(HttpMethod.GET, "/api/post/\\d+/comment").permitAll()
+                .regexMatchers(HttpMethod.GET, "/api/post/comment/\\d+/children").permitAll()
 
                 //recruitment 비로그인 혀용 경로
-                .antMatchers(HttpMethod.GET, "/api/event/{\\d+}/recruitment").permitAll()
-                .antMatchers(HttpMethod.GET, "/api/event/recruitment/{\\d+}").permitAll()
+                .regexMatchers(HttpMethod.GET, "/api/event/\\d+/recruitment").permitAll()
+                .regexMatchers(HttpMethod.GET, "/api/event/recruitment/\\d+").permitAll()
 
                 //user 비로그인 허용 경로
                 .antMatchers(HttpMethod.POST, "/api/user/join/social").permitAll()
