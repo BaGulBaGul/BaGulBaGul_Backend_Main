@@ -69,6 +69,18 @@ public class S3ResourceService extends ResourceService {
     }
 
     @Override
+    public void deleteResources(List<Long> resourceIds) {
+        if(resourceIds == null)
+            return;
+        List<Resource> resources = resourceRepository.findAllById(resourceIds);
+        List<String> keys = resources.stream().map(Resource::getKey).collect(Collectors.toList());
+        resourceRepository.deleteAllByIdInBatch(resourceIds);
+        for(String key : keys) {
+            amazonS3.deleteObject(bucketName, key);
+        }
+    }
+
+    @Override
     @Async
     public void deleteResourceAsync(Long resourceId) {
         deleteResource(resourceId);
@@ -78,14 +90,7 @@ public class S3ResourceService extends ResourceService {
     @Override
     @Async
     public void deleteResourcesAsync(List<Long> resourceIds) {
-        if(resourceIds == null)
-            return;
-        List<Resource> resources = resourceRepository.findAllById(resourceIds);
-        List<String> keys = resources.stream().map(Resource::getKey).collect(Collectors.toList());
-        resourceRepository.deleteAllByIdInBatch(resourceIds);
-        for(String key : keys) {
-            amazonS3.deleteObject(bucketName, key);
-        }
+        deleteResources(resourceIds);
     }
 
     @Override
