@@ -7,6 +7,7 @@ import com.BaGulBaGul.BaGulBaGul.global.upload.Resource;
 import com.BaGulBaGul.BaGulBaGul.global.upload.exception.ResourceNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.global.upload.repository.ResourceRepository;
 import com.BaGulBaGul.BaGulBaGul.global.upload.service.ResourceService;
+import com.BaGulBaGul.BaGulBaGul.global.upload.service.TransactionResourceService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ public class UserImageServiceImpl implements UserImageService {
 
     private final UserImageRepository userImageRepository;
     private final ResourceService resourceService;
+    private final TransactionResourceService transactionResourceService;
 
 
     @Override
@@ -29,7 +31,7 @@ public class UserImageServiceImpl implements UserImageService {
         //이미 존재하면 삭제
         if(userImage != null) {
             userImageRepository.delete(userImage);
-            resourceService.deleteResource(resourceId);
+            transactionResourceService.deleteResourceAsyncAfterCommit(resourceId);
         }
         //resourceId가 존재하면 프로필 이미지 연결
         if(resourceId != null) {
