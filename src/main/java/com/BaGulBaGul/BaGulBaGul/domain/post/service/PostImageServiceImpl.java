@@ -7,6 +7,7 @@ import com.BaGulBaGul.BaGulBaGul.global.upload.Resource;
 import com.BaGulBaGul.BaGulBaGul.global.upload.exception.ResourceNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.global.upload.repository.ResourceRepository;
 import com.BaGulBaGul.BaGulBaGul.global.upload.service.ResourceService;
+import com.BaGulBaGul.BaGulBaGul.global.upload.service.TransactionResourceService;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -24,6 +25,7 @@ public class PostImageServiceImpl implements PostImageService {
 
     private final PostImageRepository postImageRepository;
     private final ResourceService resourceService;
+    private final TransactionResourceService transactionResourceService;
     private final ResourceRepository resourceRepository;
 
     /*
@@ -120,6 +122,6 @@ public class PostImageServiceImpl implements PostImageService {
         //리소스 삭제 요청을 보내기 전에 db요청을 전부 보내서 삭제 후에 db가 rollback되는 상황을 방지
         postImageRepository.flush();
         //삭제 대상 리소스를 비동기로 삭제
-        resourceService.deleteResourcesAsync(resourceIdsToDelete);
+        transactionResourceService.deleteResourcesAsyncAfterCommit(resourceIdsToDelete);
     }
 }

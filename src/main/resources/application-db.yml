@@ -14,6 +14,20 @@ spring:
   jpa:
     show-sql: true
     hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        use_sql_comments: true
+        format_sql: true
+---
+#test용 db 설정
+spring:
+  config:
+    activate:
+      on-profile: 'db-test'
+  jpa:
+    show-sql: true
+    hibernate:
       ddl-auto: create
     properties:
       hibernate:
@@ -31,7 +45,7 @@ spring:
     console:
       enabled: true
   datasource:
-    url: jdbc:h2:mem:BaGulBaGul;NON_KEYWORDS=USER
+    url: jdbc:h2:mem:BaGulBaGul;NON_KEYWORDS=USER;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     driverClassName: org.h2.Driver
 ---
 #mysql용 db 설정

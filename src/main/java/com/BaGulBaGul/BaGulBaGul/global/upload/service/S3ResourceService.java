@@ -70,6 +70,13 @@ public class S3ResourceService extends ResourceService {
 
     @Override
     @Async
+    public void deleteResourceAsync(Long resourceId) {
+        deleteResource(resourceId);
+    }
+
+
+    @Override
+    @Async
     public void deleteResourcesAsync(List<Long> resourceIds) {
         if(resourceIds == null)
             return;
