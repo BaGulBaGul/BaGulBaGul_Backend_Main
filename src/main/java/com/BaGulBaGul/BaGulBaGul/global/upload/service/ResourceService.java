@@ -11,6 +11,7 @@ public abstract class ResourceService {
 
     public abstract Long uploadResource(String path, MultipartFile multipartFile) throws IOException;
     public abstract void deleteResource(Long resourceId);
+    public abstract void deleteResources(List<Long> resourceIds);
     public abstract void deleteResourceAsync(Long resourceId);
     public abstract void deleteResourcesAsync(List<Long> resourceIds);
     public abstract String getResourceUrlFromId(Long resourceId);

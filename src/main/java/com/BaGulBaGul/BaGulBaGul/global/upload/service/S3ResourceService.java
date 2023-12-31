@@ -1,5 +1,6 @@
 package com.BaGulBaGul.BaGulBaGul.global.upload.service;
 
+import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.UserRepository;
 import com.BaGulBaGul.BaGulBaGul.global.upload.Resource;
 import com.BaGulBaGul.BaGulBaGul.global.upload.S3TempResource;
 import com.BaGulBaGul.BaGulBaGul.global.upload.constant.StorageVendor;
@@ -18,6 +19,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -61,11 +64,35 @@ public class S3ResourceService extends ResourceService {
     }
 
     @Override
+    @Transactional
     public void deleteResource(Long resourceId) {
         Resource resource = resourceRepository.findById(resourceId).orElseThrow(() -> new ResourceNotFoundException());
         String key = resource.getKey();
         resourceRepository.delete(resource);
-        amazonS3.deleteObject(bucketName, key);
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                amazonS3.deleteObject(bucketName, key);
+            }
+        });
+    }
+
+    @Override
+    @Transactional
+    public void deleteResources(List<Long> resourceIds) {
+        if(resourceIds == null)
+            return;
+        List<Resource> resources = resourceRepository.findAllById(resourceIds);
+        List<String> keys = resources.stream().map(Resource::getKey).collect(Collectors.toList());
+        resourceRepository.deleteAllByIdInBatch(resourceIds);
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                for(String key : keys) {
+                    amazonS3.deleteObject(bucketName, key);
+                }
+            }
+        });
     }
 
     @Override
@@ -78,14 +105,7 @@ public class S3ResourceService extends ResourceService {
     @Override
     @Async
     public void deleteResourcesAsync(List<Long> resourceIds) {
-        if(resourceIds == null)
-            return;
-        List<Resource> resources = resourceRepository.findAllById(resourceIds);
-        List<String> keys = resources.stream().map(Resource::getKey).collect(Collectors.toList());
-        resourceRepository.deleteAllByIdInBatch(resourceIds);
-        for(String key : keys) {
-            amazonS3.deleteObject(bucketName, key);
-        }
+        deleteResources(resourceIds);
     }
 
     @Override
