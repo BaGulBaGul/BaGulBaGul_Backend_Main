@@ -1,0 +1,17 @@
+FROM amazoncorretto:11-alpine as builder
+WORKDIR /app
+
+COPY ./build.gradle ./settings.gradle ./gradlew ./
+COPY ./gradle ./gradle
+RUN dos2unix gradlew
+RUN ./gradlew build -x test --parallel --continue > /dev/null 2>&1 || true
+
+COPY ./src ./src
+RUN ./gradlew build -x test --parallel
+
+FROM amazoncorretto:11
+COPY --from=builder /app/build/libs/BaGulBaGul-0.0.1-SNAPSHOT.jar ./
+COPY ./wait-for-it.sh ./wait-for-it.sh
+RUN chmod +x wait-for-it.sh
+
+ENTRYPOINT ["java", "-jar", "BaGulBaGul-0.0.1-SNAPSHOT.jar"]
