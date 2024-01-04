@@ -1,5 +1,6 @@
 package com.BaGulBaGul.BaGulBaGul.domain.event;
 
+import javax.persistence.GenerationType;
 import lombok.*;
 
 import javax.persistence.Column;
@@ -12,7 +13,7 @@ import javax.persistence.Id;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Category {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "category_id")
     Long id;
 

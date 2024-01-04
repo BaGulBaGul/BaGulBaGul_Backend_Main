@@ -1,6 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user;
 
 import com.BaGulBaGul.BaGulBaGul.domain.base.BaseTimeEntity;
+import javax.persistence.GenerationType;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,7 +19,7 @@ import lombok.Setter;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseTimeEntity {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     Long id;
 
