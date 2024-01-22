@@ -2,14 +2,15 @@ package com.BaGulBaGul.BaGulBaGul.domain.user.auth.service;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.auth.exception.*;
 import com.BaGulBaGul.BaGulBaGul.domain.user.auth.oauth2.dto.OAuth2JoinTokenSubject;
-import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
-import com.BaGulBaGul.BaGulBaGul.global.response.ErrorCode;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.*;
 
 import java.util.Calendar;
 import java.util.Date;
+import javax.annotation.PostConstruct;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -18,7 +19,9 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class JwtProviderImpl implements JwtProvider {
     @Value("${jwt.secret_key}")
-    private String SECRET_KEY;
+    private String SECRET_KEY_STRING;
+
+    private String SECRET_KEY_ALGORITHM = "HmacSHA512";
 
     @Value("${jwt.issuer}")
     private String ISSUER;
@@ -33,6 +36,14 @@ public class JwtProviderImpl implements JwtProvider {
     private int OAUTH_JOIN_TOKEN_EXPIRE_MINUTE;
 
 
+    private SecretKey secretKey;
+
+    @PostConstruct
+    private void init() {
+        byte[] decodedKey = SECRET_KEY_STRING.getBytes();
+        this.secretKey = new SecretKeySpec(decodedKey, 0, decodedKey.length, SECRET_KEY_ALGORITHM);
+    }
+    
     @Override
     public String createAccessToken(Long userId) {
         return createToken(userId.toString(), ACCESS_TOKEN_EXPIRE_MINUTE);
@@ -105,7 +116,7 @@ public class JwtProviderImpl implements JwtProvider {
     @Override
     public String getSubject(String token) throws JwtException {
         Claims claims = Jwts.parser()
-                    .setSigningKey(SECRET_KEY)
+                    .setSigningKey(secretKey)
                     .parseClaimsJws(token)
                     .getBody();
         return claims.getSubject();
@@ -119,7 +130,7 @@ public class JwtProviderImpl implements JwtProvider {
         Date expiredAt = calendar.getTime();
 
         return Jwts.builder()
-                .signWith(SignatureAlgorithm.HS512, SECRET_KEY)
+                .signWith(SignatureAlgorithm.HS512, secretKey)
                 .setSubject(subject)
                 .setIssuer(ISSUER)
                 .setIssuedAt(now)
