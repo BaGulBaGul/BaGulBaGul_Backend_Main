@@ -8,38 +8,37 @@ import io.jsonwebtoken.*;
 
 import java.util.Calendar;
 import java.util.Date;
-import javax.annotation.PostConstruct;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+import lombok.Builder;
 
-@Service
-@RequiredArgsConstructor
 public class JwtProviderImpl implements JwtProvider {
-    @Value("${jwt.secret_key}")
-    private String SECRET_KEY_STRING;
 
-    private String SECRET_KEY_ALGORITHM = "HmacSHA512";
+    private final String SECRET_KEY_STRING;
+    private final String SECRET_KEY_ALGORITHM;
 
-    @Value("${jwt.issuer}")
-    private String ISSUER;
-
-    @Value("${user.login.access_token_expire_minute}")
-    private int ACCESS_TOKEN_EXPIRE_MINUTE;
-
-    @Value("${user.login.refresh_token_expire_minute}")
-    private int REFRESH_TOKEN_EXPIRE_MINUTE;
-
-    @Value("${user.join.oauth_join_token_expire_minute}")
-    private int OAUTH_JOIN_TOKEN_EXPIRE_MINUTE;
-
+    private final String ISSUER;
+    private final int ACCESS_TOKEN_EXPIRE_MINUTE;
+    private final int REFRESH_TOKEN_EXPIRE_MINUTE;
+    private final int OAUTH_JOIN_TOKEN_EXPIRE_MINUTE;
 
     private SecretKey secretKey;
 
-    @PostConstruct
-    private void init() {
+    @Builder
+    private JwtProviderImpl(
+            String SECRET_KEY_STRING,
+            String SECRET_KEY_ALGORITHM,
+            String ISSUER,
+            int ACCESS_TOKEN_EXPIRE_MINUTE,
+            int REFRESH_TOKEN_EXPIRE_MINUTE,
+            int OAUTH_JOIN_TOKEN_EXPIRE_MINUTE
+    ) {
+        this.SECRET_KEY_STRING = SECRET_KEY_STRING;
+        this.SECRET_KEY_ALGORITHM = SECRET_KEY_ALGORITHM;
+        this.ISSUER = ISSUER;
+        this.ACCESS_TOKEN_EXPIRE_MINUTE = ACCESS_TOKEN_EXPIRE_MINUTE;
+        this.REFRESH_TOKEN_EXPIRE_MINUTE = REFRESH_TOKEN_EXPIRE_MINUTE;
+        this.OAUTH_JOIN_TOKEN_EXPIRE_MINUTE = OAUTH_JOIN_TOKEN_EXPIRE_MINUTE;
         byte[] decodedKey = SECRET_KEY_STRING.getBytes();
         this.secretKey = new SecretKeySpec(decodedKey, 0, decodedKey.length, SECRET_KEY_ALGORITHM);
     }
