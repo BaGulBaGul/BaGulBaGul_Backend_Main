@@ -17,12 +17,16 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.constant.AlarmType;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.repository.AlarmRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.UserRepository;
 import java.time.LocalDateTime;
+
+import com.BaGulBaGul.BaGulBaGul.global.alarm.realtime.RealtimeAlarmPublishService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +37,8 @@ public class PostAlarmServiceImpl implements PostAlarmService {
     private final PostRepository postRepository;
     private final PostCommentRepository postCommentRepository;
     private final PostCommentChildRepository postCommentChildRepository;
+
+    private final RealtimeAlarmPublishService realtimeAlarmPublishService;
 
     /*
         게시글에 댓글 추가 시 게시글 작성자에게 알람
@@ -237,6 +243,7 @@ public class PostAlarmServiceImpl implements PostAlarmService {
             String subjectId,
             LocalDateTime time
     ) {
+        //알림 등록
         alarmRepository.save(
                 Alarm.builder()
                         .user(targetUser)
@@ -247,6 +254,13 @@ public class PostAlarmServiceImpl implements PostAlarmService {
                         .time(time)
                         .build()
         );
+        //알림 등록 트랜젝션이 성공하면 실시간 알림을 보내도록 함
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                realtimeAlarmPublishService.publishAlarm(targetUser.getId(), title);
+            }
+        });
     }
     private String getNewCommentAlarmTitle(String postTitle) {
         return new StringBuilder().append(postTitle).append(" 글에 댓글이 달렸어요").toString();
