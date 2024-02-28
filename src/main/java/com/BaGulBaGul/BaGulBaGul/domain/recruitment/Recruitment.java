@@ -36,6 +36,10 @@ public class Recruitment extends BaseTimeEntity {
     Integer headCount;
 
     @Setter
+    @Column(name="head_count_max")
+    Integer headCountMax;
+
+    @Setter
     @Column(name = "startdate")
     LocalDateTime startDate;
 
@@ -48,15 +52,16 @@ public class Recruitment extends BaseTimeEntity {
             Event event,
             Post post,
             Integer headCount,
+            Integer headCountMax,
             LocalDateTime startDate,
             LocalDateTime endDate
     ){
         this.event = event;
         this.post = post;
         this.headCount = headCount;
+        this.headCountMax = headCountMax;
         this.startDate = startDate;
         this.endDate = endDate;
-
         this.state = RecruitmentState.PROCEEDING;
     }
 }
