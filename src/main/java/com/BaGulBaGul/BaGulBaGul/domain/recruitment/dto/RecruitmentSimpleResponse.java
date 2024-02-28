@@ -24,6 +24,12 @@ public class RecruitmentSimpleResponse {
     @ApiModelProperty(value = "모집 상태")
     private RecruitmentState state;
 
+    @ApiModelProperty(value = "참여 인원")
+    private Integer headCount;
+
+    @ApiModelProperty(value = "모집 인원")
+    private Integer headCountMax;
+
     @ApiModelProperty(value = "시작 시간")
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime startDate;
@@ -53,9 +59,11 @@ public class RecruitmentSimpleResponse {
     public static RecruitmentSimpleResponse of(Recruitment recruitment) {
         return RecruitmentSimpleResponse.builder()
                 .id(recruitment.getId())
+                .state(recruitment.getState())
+                .headCount(recruitment.getHeadCount())
+                .headCountMax(recruitment.getHeadCountMax())
                 .startDate(recruitment.getStartDate())
                 .endDate(recruitment.getEndDate())
-                .state(recruitment.getState())
                 .title(recruitment.getPost().getTitle())
                 .username(recruitment.getPost().getUser().getNickname())
                 .userImage(recruitment.getPost().getUser().getImageURI())
