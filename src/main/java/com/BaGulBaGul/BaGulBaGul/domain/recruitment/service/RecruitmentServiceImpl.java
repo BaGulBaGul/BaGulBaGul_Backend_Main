@@ -96,7 +96,8 @@ public class RecruitmentServiceImpl implements RecruitmentService {
         Recruitment recruitment = Recruitment.builder()
                 .event(event)
                 .post(post)
-                .headCount(recruitmentRegisterRequest.getHeadCount())
+                .headCount(0)
+                .headCountMax(recruitmentRegisterRequest.getHeadCountMax())
                 .startDate(recruitmentRegisterRequest.getStartDate())
                 .endDate(recruitmentRegisterRequest.getEndDate())
                 .build();
@@ -114,6 +115,7 @@ public class RecruitmentServiceImpl implements RecruitmentService {
             throw new NoPermissionException();
         }
         //patch 방식으로 recruitmentModifyRequest에서 null이 아닌 모든 필드를 변경
+        //jsonnullable의 경우 null값 가능. present를 확인하고 변경
         //post관련은 postService에 위임
         postService.modifyPost(recruitment.getPost(), recruitmentModifyRequest.toPostModifyRequest());
         //나머지 recruitment관련 속성 변경
@@ -122,6 +124,9 @@ public class RecruitmentServiceImpl implements RecruitmentService {
         }
         if(recruitmentModifyRequest.getHeadCount().isPresent()) {
             recruitment.setHeadCount(recruitmentModifyRequest.getHeadCount().get());
+        }
+        if(recruitmentModifyRequest.getHeadCountMax().isPresent()) {
+            recruitment.setHeadCountMax(recruitmentModifyRequest.getHeadCountMax().get());
         }
         if(recruitmentModifyRequest.getStartDate() != null) {
             recruitment.setStartDate(recruitmentModifyRequest.getStartDate());

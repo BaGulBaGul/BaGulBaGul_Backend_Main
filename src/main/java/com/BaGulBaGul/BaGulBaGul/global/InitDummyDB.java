@@ -222,7 +222,7 @@ public class InitDummyDB {
             User writer = users.get(rand.nextInt(users.size()));
 
             //기타
-            int headCount = rand.nextInt(100);
+            int headCountMax = rand.nextInt(100);
             String title = "테스트" + cnt;
             String content = "테스트게시글" + cnt;
             List<String> tagStr = tagSet.stream().collect(Collectors.toList());
@@ -231,7 +231,7 @@ public class InitDummyDB {
                     event.getId(),
                     writer.getId(),
                     RecruitmentRegisterRequest.builder()
-                            .headCount(headCount)
+                            .headCountMax(headCountMax)
                             .startDate(startDate)
                             .endDate(endDate)
                             .title(title)

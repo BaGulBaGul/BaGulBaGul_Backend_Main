@@ -23,8 +23,11 @@ public class RecruitmentDetailResponse {
     @ApiModelProperty(value = "모집 상태")
     private RecruitmentState state;
 
-    @ApiModelProperty(value = "인원")
+    @ApiModelProperty(value = "참여 인원")
     private Integer headCount;
+
+    @ApiModelProperty(value = "모집 인원")
+    private Integer headCountMax;
 
     @ApiModelProperty(value = "시작 시간")
     private LocalDateTime startDate;
@@ -79,6 +82,7 @@ public class RecruitmentDetailResponse {
                 .id(recruitment.getId())
                 .state(recruitment.getState())
                 .headCount(recruitment.getHeadCount())
+                .headCountMax(recruitment.getHeadCountMax())
                 .startDate(recruitment.getStartDate())
                 .endDate(recruitment.getEndDate())
                 .eventId(recruitment.getEvent().getId())
