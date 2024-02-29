@@ -82,6 +82,13 @@ public class FindEventByConditionApplierImpl implements FindEventByConditionAppl
                     exp1.or(exp2)
             );
         }
+        //모집 인원 조건 적용
+        if(eventConditionalRequest.getHeadCountMin() != null) {
+            query.where(event.headCountMax.goe(eventConditionalRequest.getHeadCountMin()));
+        }
+        if(eventConditionalRequest.getHeadCountMax() != null) {
+            query.where(event.headCountMax.loe(eventConditionalRequest.getHeadCountMax()));
+        }
         //post 관련 조건 적용
         QPost post = QPost.post;
         query.join(event.post, post);

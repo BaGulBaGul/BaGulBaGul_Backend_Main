@@ -46,6 +46,12 @@ public class EventConditionalRequest {
     @ApiModelProperty(value = "남은 인원 수")
     private Integer leftHeadCount;
 
+    @ApiModelProperty(value = "최소 모집 인원")
+    private Integer headCountMin;
+
+    @ApiModelProperty(value = "최대 모집 인원")
+    private Integer headCountMax;
+
     public PostConditionalRequest toPostConditionalRequest() {
         return PostConditionalRequest.builder()
                 .title(title)
