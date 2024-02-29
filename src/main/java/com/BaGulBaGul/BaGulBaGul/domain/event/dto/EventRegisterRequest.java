@@ -30,8 +30,8 @@ public class EventRegisterRequest {
     @NotBlank
     private String title;
 
-    @ApiModelProperty(value = "인원")
-    private int headCount;
+    @ApiModelProperty(value = "모집 인원")
+    private int headCountMax;
 
     @ApiModelProperty(value = "세부 주소", example = "서울시 영등포구 xxx로 xxx타워 x층")
     private String fullLocation;

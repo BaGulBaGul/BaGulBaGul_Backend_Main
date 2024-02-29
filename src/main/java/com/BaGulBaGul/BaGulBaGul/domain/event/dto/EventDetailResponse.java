@@ -37,8 +37,11 @@ public class EventDetailResponse {
     @ApiModelProperty(value = "게시글 내용")
     private String content;
 
-    @ApiModelProperty(value = "인원")
+    @ApiModelProperty(value = "참여 인원")
     private Integer headCount;
+
+    @ApiModelProperty(value = "모집 인원")
+    private Integer headCountMax;
 
     @ApiModelProperty(value = "세부 주소", example = "서울시 영등포구 xxx로 xxx타워 x층")
     private String fullLocation;
@@ -100,6 +103,7 @@ public class EventDetailResponse {
                 .title(event.getPost().getTitle())
                 .content(event.getPost().getContent())
                 .headCount(event.getHeadCount())
+                .headCountMax(event.getHeadCountMax())
                 .fullLocation(event.getFullLocation())
                 .abstractLocation(event.getAbstractLocation())
                 .latitudeLocation(event.getLatitudeLocation())

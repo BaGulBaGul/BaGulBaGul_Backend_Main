@@ -25,10 +25,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostService;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.exception.UserNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.UserRepository;
-import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
 import com.BaGulBaGul.BaGulBaGul.global.exception.NoPermissionException;
-import com.BaGulBaGul.BaGulBaGul.global.response.ErrorCode;
-import com.BaGulBaGul.BaGulBaGul.global.upload.Resource;
 import com.BaGulBaGul.BaGulBaGul.global.upload.repository.ResourceRepository;
 import com.BaGulBaGul.BaGulBaGul.global.upload.service.ResourceService;
 import java.util.List;
@@ -106,7 +103,8 @@ public class EventServiceImpl implements EventService {
         Event event = Event.builder()
                 .type(eventRegisterRequest.getType())
                 .post(post)
-                .headCount(eventRegisterRequest.getHeadCount())
+                .headCount(0)
+                .headCountMax(eventRegisterRequest.getHeadCountMax())
                 .fullLocation(eventRegisterRequest.getFullLocation())
                 .abstractLocation(eventRegisterRequest.getAbstractLocation())
                 .latitudeLocation(eventRegisterRequest.getLatitudeLocation())
@@ -137,6 +135,9 @@ public class EventServiceImpl implements EventService {
         }
         if(eventModifyRequest.getHeadCount().isPresent()) {
             event.setHeadCount(eventModifyRequest.getHeadCount().get());
+        }
+        if(eventModifyRequest.getHeadCountMax().isPresent()) {
+            event.setHeadCountMax(eventModifyRequest.getHeadCountMax().get());
         }
         if(eventModifyRequest.getFullLocation() != null) {
             event.setFullLocation(eventModifyRequest.getFullLocation());
