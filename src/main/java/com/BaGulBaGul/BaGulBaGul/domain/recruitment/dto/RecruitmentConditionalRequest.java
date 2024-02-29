@@ -1,7 +1,6 @@
 package com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto;
 
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostConditionalRequest;
-import io.swagger.annotations.ApiModelProperty;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,6 +20,8 @@ public class RecruitmentConditionalRequest {
     private List<String> tags;
 
     private String username;
+
+    private Integer leftHeadCount;
 
     private Long eventId;
 

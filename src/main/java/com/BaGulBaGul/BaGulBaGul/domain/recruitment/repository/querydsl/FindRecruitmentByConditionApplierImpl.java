@@ -43,9 +43,18 @@ public class FindRecruitmentByConditionApplierImpl implements FindRecruitmentByC
     ) {
         //recruitment 자체 조건 적용
         if(recruitmentConditionalRequest.getEventId() != null) {
+            //연결된 이벤트의 id 조건 적용
             QEvent event = QEvent.event;
             query.join(recruitment.event, event);
             query.where(event.id.eq(recruitmentConditionalRequest.getEventId()));
+        }
+        if(recruitmentConditionalRequest.getLeftHeadCount() != null) {
+            //모집 인원 - 참여 인원 = 수용 인원이 leftHeadCount(남은 자리 수) 이상일 때
+            query.where(
+                    recruitment.headCountMax
+                            .subtract(recruitment.headCount)
+                            .goe(recruitmentConditionalRequest.getLeftHeadCount())
+            );
         }
 
         //post 관련 조건 적용
