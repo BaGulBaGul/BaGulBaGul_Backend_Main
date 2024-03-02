@@ -25,10 +25,10 @@ public class RecruitmentModifyRequest {
     private RecruitmentState state;
 
     @ApiModelProperty(value = "참여 인원")
-    private JsonNullable<Integer> headCount = JsonNullable.undefined();
+    private JsonNullable<Integer> currentHeadCount = JsonNullable.undefined();
 
     @ApiModelProperty(value = "모집 인원")
-    private JsonNullable<Integer> headCountMax = JsonNullable.undefined();
+    private JsonNullable<Integer> totalHeadCount = JsonNullable.undefined();
 
     @ApiModelProperty(value = "시작 시간")
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")

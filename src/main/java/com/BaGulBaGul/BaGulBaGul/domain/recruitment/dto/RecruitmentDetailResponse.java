@@ -24,10 +24,10 @@ public class RecruitmentDetailResponse {
     private RecruitmentState state;
 
     @ApiModelProperty(value = "참여 인원")
-    private Integer headCount;
+    private Integer currentHeadCount;
 
     @ApiModelProperty(value = "모집 인원")
-    private Integer headCountMax;
+    private Integer totalHeadCount;
 
     @ApiModelProperty(value = "시작 시간")
     private LocalDateTime startDate;
@@ -81,8 +81,8 @@ public class RecruitmentDetailResponse {
         return RecruitmentDetailResponse.builder()
                 .id(recruitment.getId())
                 .state(recruitment.getState())
-                .headCount(recruitment.getHeadCount())
-                .headCountMax(recruitment.getHeadCountMax())
+                .currentHeadCount(recruitment.getCurrentHeadCount())
+                .totalHeadCount(recruitment.getTotalHeadCount())
                 .startDate(recruitment.getStartDate())
                 .endDate(recruitment.getEndDate())
                 .eventId(recruitment.getEvent().getId())

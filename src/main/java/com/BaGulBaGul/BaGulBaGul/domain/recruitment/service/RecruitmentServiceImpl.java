@@ -22,9 +22,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.recruitment.repository.RecruitmentReposi
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.exception.UserNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.UserRepository;
-import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
 import com.BaGulBaGul.BaGulBaGul.global.exception.NoPermissionException;
-import com.BaGulBaGul.BaGulBaGul.global.response.ErrorCode;
 import com.BaGulBaGul.BaGulBaGul.global.upload.service.ResourceService;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -96,8 +94,8 @@ public class RecruitmentServiceImpl implements RecruitmentService {
         Recruitment recruitment = Recruitment.builder()
                 .event(event)
                 .post(post)
-                .headCount(0)
-                .headCountMax(recruitmentRegisterRequest.getHeadCountMax())
+                .currentHeadCount(0)
+                .totalHeadCount(recruitmentRegisterRequest.getTotalHeadCount())
                 .startDate(recruitmentRegisterRequest.getStartDate())
                 .endDate(recruitmentRegisterRequest.getEndDate())
                 .build();
@@ -122,11 +120,11 @@ public class RecruitmentServiceImpl implements RecruitmentService {
         if(recruitmentModifyRequest.getState() != null) {
             recruitment.setState(recruitmentModifyRequest.getState());
         }
-        if(recruitmentModifyRequest.getHeadCount().isPresent()) {
-            recruitment.setHeadCount(recruitmentModifyRequest.getHeadCount().get());
+        if(recruitmentModifyRequest.getCurrentHeadCount().isPresent()) {
+            recruitment.setCurrentHeadCount(recruitmentModifyRequest.getCurrentHeadCount().get());
         }
-        if(recruitmentModifyRequest.getHeadCountMax().isPresent()) {
-            recruitment.setHeadCountMax(recruitmentModifyRequest.getHeadCountMax().get());
+        if(recruitmentModifyRequest.getTotalHeadCount().isPresent()) {
+            recruitment.setTotalHeadCount(recruitmentModifyRequest.getTotalHeadCount().get());
         }
         if(recruitmentModifyRequest.getStartDate() != null) {
             recruitment.setStartDate(recruitmentModifyRequest.getStartDate());
