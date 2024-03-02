@@ -37,10 +37,10 @@ public class EventSimpleResponse {
     private String abstractLocation;
 
     @ApiModelProperty(value = "참여 인원")
-    private Integer headCount;
+    private Integer currentHeadCount;
 
     @ApiModelProperty(value = "모집 인원")
-    private Integer headCountMax;
+    private Integer totalHeadCount;
 
     @ApiModelProperty(value = "시작 시간")
     private LocalDateTime startDate;
@@ -71,8 +71,8 @@ public class EventSimpleResponse {
                 .userImage(event.getPost().getUser().getImageURI())
                 .title(event.getPost().getTitle())
                 .abstractLocation(event.getAbstractLocation())
-                .headCount(event.getHeadCount())
-                .headCountMax(event.getHeadCountMax())
+                .currentHeadCount(event.getCurrentHeadCount())
+                .totalHeadCount(event.getTotalHeadCount())
                 .startDate(event.getStartDate())
                 .endDate(event.getEndDate())
                 .tags(Arrays.asList(event.getPost().getTags().split(" ")))

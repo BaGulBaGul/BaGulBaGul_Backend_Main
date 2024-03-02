@@ -103,8 +103,8 @@ public class EventServiceImpl implements EventService {
         Event event = Event.builder()
                 .type(eventRegisterRequest.getType())
                 .post(post)
-                .headCount(0)
-                .headCountMax(eventRegisterRequest.getHeadCountMax())
+                .currentHeadCount(0)
+                .totalHeadCount(eventRegisterRequest.getTotalHeadCount())
                 .fullLocation(eventRegisterRequest.getFullLocation())
                 .abstractLocation(eventRegisterRequest.getAbstractLocation())
                 .latitudeLocation(eventRegisterRequest.getLatitudeLocation())
@@ -133,11 +133,11 @@ public class EventServiceImpl implements EventService {
         if(eventModifyRequest.getType() != null) {
             event.setType(eventModifyRequest.getType());
         }
-        if(eventModifyRequest.getHeadCount().isPresent()) {
-            event.setHeadCount(eventModifyRequest.getHeadCount().get());
+        if(eventModifyRequest.getCurrentHeadCount().isPresent()) {
+            event.setCurrentHeadCount(eventModifyRequest.getCurrentHeadCount().get());
         }
-        if(eventModifyRequest.getHeadCountMax().isPresent()) {
-            event.setHeadCountMax(eventModifyRequest.getHeadCountMax().get());
+        if(eventModifyRequest.getTotalHeadCount().isPresent()) {
+            event.setTotalHeadCount(eventModifyRequest.getTotalHeadCount().get());
         }
         if(eventModifyRequest.getFullLocation() != null) {
             event.setFullLocation(eventModifyRequest.getFullLocation());

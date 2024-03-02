@@ -71,11 +71,11 @@ public class FindEventByConditionApplierImpl implements FindEventByConditionAppl
         //남은 자리 수 조건 적용
         if(eventConditionalRequest.getLeftHeadCount() != null) {
             //최대 인원이 null이라면 무시
-            BooleanExpression exp1 = event.headCountMax
+            BooleanExpression exp1 = event.totalHeadCount
                     .isNull();
             //모집 인원 - 참여 인원 = 수용 인원이 leftHeadCount(남은 자리 수) 이상일 때
-            BooleanExpression exp2 = event.headCountMax
-                    .subtract(event.headCount)
+            BooleanExpression exp2 = event.totalHeadCount
+                    .subtract(event.currentHeadCount)
                     .goe(eventConditionalRequest.getLeftHeadCount());
             //둘 중 하나라도 만족하면 true
             query.where(
@@ -83,11 +83,11 @@ public class FindEventByConditionApplierImpl implements FindEventByConditionAppl
             );
         }
         //모집 인원 조건 적용
-        if(eventConditionalRequest.getHeadCountMin() != null) {
-            query.where(event.headCountMax.goe(eventConditionalRequest.getHeadCountMin()));
+        if(eventConditionalRequest.getTotalHeadCountMin() != null) {
+            query.where(event.totalHeadCount.goe(eventConditionalRequest.getTotalHeadCountMin()));
         }
-        if(eventConditionalRequest.getHeadCountMax() != null) {
-            query.where(event.headCountMax.loe(eventConditionalRequest.getHeadCountMax()));
+        if(eventConditionalRequest.getTotalHeadCountMax() != null) {
+            query.where(event.totalHeadCount.loe(eventConditionalRequest.getTotalHeadCountMax()));
         }
         //post 관련 조건 적용
         QPost post = QPost.post;
