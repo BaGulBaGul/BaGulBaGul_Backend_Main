@@ -9,6 +9,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.recruitment.QRecruitment;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentConditionalRequest;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -42,10 +43,25 @@ public class FindRecruitmentByConditionApplierImpl implements FindRecruitmentByC
             QRecruitment recruitment
     ) {
         //recruitment 자체 조건 적용
+        //연결된 이벤트의 id 조건 적용
         if(recruitmentConditionalRequest.getEventId() != null) {
             QEvent event = QEvent.event;
             query.join(recruitment.event, event);
             query.where(event.id.eq(recruitmentConditionalRequest.getEventId()));
+        }
+        //남은 자리 수 조건 적용
+        if(recruitmentConditionalRequest.getLeftHeadCount() != null) {
+            //최대 인원이 null이라면 무시
+            BooleanExpression exp1 = recruitment.totalHeadCount
+                    .isNull();
+            //모집 인원 - 참여 인원 = 수용 인원이 leftHeadCount(남은 자리 수) 이상일 때
+            BooleanExpression exp2 = recruitment.totalHeadCount
+                    .subtract(recruitment.currentHeadCount)
+                    .goe(recruitmentConditionalRequest.getLeftHeadCount());
+            //둘 중 하나라도 만족하면 true
+            query.where(
+                    exp1.or(exp2)
+            );
         }
 
         //post 관련 조건 적용

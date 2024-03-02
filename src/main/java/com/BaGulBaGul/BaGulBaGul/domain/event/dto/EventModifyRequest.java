@@ -27,8 +27,11 @@ public class EventModifyRequest {
     @ApiModelProperty(value = "이벤트 제목. 공백 불허")
     private String title;
 
-    @ApiModelProperty(value = "인원")
-    private JsonNullable<Integer> headCount = JsonNullable.undefined();
+    @ApiModelProperty(value = "참여 인원")
+    private JsonNullable<Integer> currentHeadCount = JsonNullable.undefined();
+
+    @ApiModelProperty(value = "모집 인원")
+    private JsonNullable<Integer> totalHeadCount = JsonNullable.undefined();
 
     @ApiModelProperty(value = "세부 주소", example = "서울시 영등포구 xxx로 xxx타워 x층")
     private String fullLocation;

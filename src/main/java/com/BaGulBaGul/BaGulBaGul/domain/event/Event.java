@@ -42,10 +42,15 @@ public class Event {
     @OneToOne(fetch = FetchType.LAZY)
     Post post;
 
-    //인원수
+    //참여 인원수
     @Setter
-    @Column(name = "headcount")
-    Integer headCount;
+    @Column(name = "headcount_current")
+    Integer currentHeadCount;
+
+    //모집 인원수
+    @Setter
+    @Column(name="headcount_total")
+    Integer totalHeadCount;
 
     //세부 주소
     @Setter
@@ -85,7 +90,8 @@ public class Event {
     public Event(
             EventType type,
             Post post,
-            Integer headCount,
+            Integer currentHeadCount,
+            Integer totalHeadCount,
             String fullLocation,
             String abstractLocation,
             Float latitudeLocation,
@@ -95,7 +101,8 @@ public class Event {
     ) {
         this.type = type;
         this.post = post;
-        this.headCount = headCount;
+        this.currentHeadCount = currentHeadCount;
+        this.totalHeadCount = totalHeadCount;
         this.fullLocation = fullLocation;
         this.abstractLocation = abstractLocation;
         this.latitudeLocation = latitudeLocation;

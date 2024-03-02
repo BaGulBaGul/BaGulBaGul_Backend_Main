@@ -24,12 +24,16 @@ public class RecruitmentConditionalApiRequest {
     @ApiModelProperty(value = "등록자 닉네임")
     private String username;
 
+    @ApiModelProperty(value = "남은 인원 수")
+    private Integer leftHeadCount;
+
     public RecruitmentConditionalRequest toRecruitmentConditionalRequest(Long eventId) {
         return RecruitmentConditionalRequest.builder()
                 .eventId(eventId)
                 .title(title)
                 .tags(tags)
                 .username(username)
+                .leftHeadCount(leftHeadCount)
                 .build();
     }
 }

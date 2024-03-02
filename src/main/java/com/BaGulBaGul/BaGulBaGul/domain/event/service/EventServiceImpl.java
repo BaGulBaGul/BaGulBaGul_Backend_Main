@@ -25,10 +25,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostService;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.exception.UserNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.UserRepository;
-import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
 import com.BaGulBaGul.BaGulBaGul.global.exception.NoPermissionException;
-import com.BaGulBaGul.BaGulBaGul.global.response.ErrorCode;
-import com.BaGulBaGul.BaGulBaGul.global.upload.Resource;
 import com.BaGulBaGul.BaGulBaGul.global.upload.repository.ResourceRepository;
 import com.BaGulBaGul.BaGulBaGul.global.upload.service.ResourceService;
 import java.util.List;
@@ -106,7 +103,8 @@ public class EventServiceImpl implements EventService {
         Event event = Event.builder()
                 .type(eventRegisterRequest.getType())
                 .post(post)
-                .headCount(eventRegisterRequest.getHeadCount())
+                .currentHeadCount(0)
+                .totalHeadCount(eventRegisterRequest.getTotalHeadCount())
                 .fullLocation(eventRegisterRequest.getFullLocation())
                 .abstractLocation(eventRegisterRequest.getAbstractLocation())
                 .latitudeLocation(eventRegisterRequest.getLatitudeLocation())
@@ -135,8 +133,11 @@ public class EventServiceImpl implements EventService {
         if(eventModifyRequest.getType() != null) {
             event.setType(eventModifyRequest.getType());
         }
-        if(eventModifyRequest.getHeadCount().isPresent()) {
-            event.setHeadCount(eventModifyRequest.getHeadCount().get());
+        if(eventModifyRequest.getCurrentHeadCount().isPresent()) {
+            event.setCurrentHeadCount(eventModifyRequest.getCurrentHeadCount().get());
+        }
+        if(eventModifyRequest.getTotalHeadCount().isPresent()) {
+            event.setTotalHeadCount(eventModifyRequest.getTotalHeadCount().get());
         }
         if(eventModifyRequest.getFullLocation() != null) {
             event.setFullLocation(eventModifyRequest.getFullLocation());

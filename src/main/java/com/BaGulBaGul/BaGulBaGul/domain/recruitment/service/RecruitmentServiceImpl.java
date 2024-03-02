@@ -22,9 +22,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.recruitment.repository.RecruitmentReposi
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.exception.UserNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.UserRepository;
-import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
 import com.BaGulBaGul.BaGulBaGul.global.exception.NoPermissionException;
-import com.BaGulBaGul.BaGulBaGul.global.response.ErrorCode;
 import com.BaGulBaGul.BaGulBaGul.global.upload.service.ResourceService;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -96,7 +94,8 @@ public class RecruitmentServiceImpl implements RecruitmentService {
         Recruitment recruitment = Recruitment.builder()
                 .event(event)
                 .post(post)
-                .headCount(recruitmentRegisterRequest.getHeadCount())
+                .currentHeadCount(0)
+                .totalHeadCount(recruitmentRegisterRequest.getTotalHeadCount())
                 .startDate(recruitmentRegisterRequest.getStartDate())
                 .endDate(recruitmentRegisterRequest.getEndDate())
                 .build();
@@ -114,14 +113,18 @@ public class RecruitmentServiceImpl implements RecruitmentService {
             throw new NoPermissionException();
         }
         //patch 방식으로 recruitmentModifyRequest에서 null이 아닌 모든 필드를 변경
+        //jsonnullable의 경우 null값 가능. present를 확인하고 변경
         //post관련은 postService에 위임
         postService.modifyPost(recruitment.getPost(), recruitmentModifyRequest.toPostModifyRequest());
         //나머지 recruitment관련 속성 변경
         if(recruitmentModifyRequest.getState() != null) {
             recruitment.setState(recruitmentModifyRequest.getState());
         }
-        if(recruitmentModifyRequest.getHeadCount().isPresent()) {
-            recruitment.setHeadCount(recruitmentModifyRequest.getHeadCount().get());
+        if(recruitmentModifyRequest.getCurrentHeadCount().isPresent()) {
+            recruitment.setCurrentHeadCount(recruitmentModifyRequest.getCurrentHeadCount().get());
+        }
+        if(recruitmentModifyRequest.getTotalHeadCount().isPresent()) {
+            recruitment.setTotalHeadCount(recruitmentModifyRequest.getTotalHeadCount().get());
         }
         if(recruitmentModifyRequest.getStartDate() != null) {
             recruitment.setStartDate(recruitmentModifyRequest.getStartDate());

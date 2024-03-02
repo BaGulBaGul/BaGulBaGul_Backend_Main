@@ -36,6 +36,12 @@ public class EventSimpleResponse {
     @ApiModelProperty(value = "요약 주소", example = "서울시 영등포구")
     private String abstractLocation;
 
+    @ApiModelProperty(value = "참여 인원")
+    private Integer currentHeadCount;
+
+    @ApiModelProperty(value = "모집 인원")
+    private Integer totalHeadCount;
+
     @ApiModelProperty(value = "시작 시간")
     private LocalDateTime startDate;
 
@@ -65,6 +71,8 @@ public class EventSimpleResponse {
                 .userImage(event.getPost().getUser().getImageURI())
                 .title(event.getPost().getTitle())
                 .abstractLocation(event.getAbstractLocation())
+                .currentHeadCount(event.getCurrentHeadCount())
+                .totalHeadCount(event.getTotalHeadCount())
                 .startDate(event.getStartDate())
                 .endDate(event.getEndDate())
                 .tags(Arrays.asList(event.getPost().getTags().split(" ")))

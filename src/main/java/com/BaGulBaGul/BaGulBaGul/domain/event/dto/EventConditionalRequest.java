@@ -43,6 +43,15 @@ public class EventConditionalRequest {
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime endDate;
 
+    @ApiModelProperty(value = "남은 인원 수")
+    private Integer leftHeadCount;
+
+    @ApiModelProperty(value = "최소 모집 인원")
+    private Integer totalHeadCountMin;
+
+    @ApiModelProperty(value = "최대 모집 인원")
+    private Integer totalHeadCountMax;
+
     public PostConditionalRequest toPostConditionalRequest() {
         return PostConditionalRequest.builder()
                 .title(title)
