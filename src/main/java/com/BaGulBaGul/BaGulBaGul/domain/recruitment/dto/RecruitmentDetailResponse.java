@@ -38,11 +38,17 @@ public class RecruitmentDetailResponse {
     @ApiModelProperty(value = "이벤트 id")
     private Long eventId;
 
-    @ApiModelProperty(value = "게시글 id")
-    private Long postId;
+    @ApiModelProperty(value = "등록자 id")
+    private Long userId;
 
     @ApiModelProperty(value = "등록자 닉네임")
-    private String username;
+    private String userName;
+
+    @ApiModelProperty(value = "등록자 이미지 url")
+    private String userProfileImageUrl;
+
+    @ApiModelProperty(value = "게시글 id")
+    private Long postId;
 
     @ApiModelProperty(value = "게시글 제목")
     private String title;
@@ -86,8 +92,10 @@ public class RecruitmentDetailResponse {
                 .startDate(recruitment.getStartDate())
                 .endDate(recruitment.getEndDate())
                 .eventId(recruitment.getEvent().getId())
+                .userId(recruitment.getPost().getUser().getId())
+                .userName(recruitment.getPost().getUser().getNickname())
+                .userProfileImageUrl(recruitment.getPost().getUser().getImageURI())
                 .postId(recruitment.getPost().getId())
-                .username(recruitment.getPost().getUser().getNickname())
                 .title(recruitment.getPost().getTitle())
                 .content(recruitment.getPost().getContent())
                 .tags(Arrays.asList(recruitment.getPost().getTags().split(" ")))
