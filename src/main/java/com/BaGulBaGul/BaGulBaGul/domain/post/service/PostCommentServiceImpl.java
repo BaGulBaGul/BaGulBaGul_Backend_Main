@@ -147,21 +147,22 @@ public class PostCommentServiceImpl implements PostCommentService {
         PostComment postComment = postCommentRepository.findById(postCommentId).orElseThrow(() -> new PostCommentNotFoundException());
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
 
-        //답글이라면 originalPostCommentChildId와 originalPostCommentChildWriter가 null이 아님.
-        Long originalPostCommentChildId = null;
-        User originalPostCommentChildWriter = null;
-        if(postCommentChildRegisterRequest.getOriginalPostCommentChildId() != null) {
+        //정상적인 답글이 맞는지 검증한다
+        //답글이라면 validatedReplyTargetId, validatedReplyTargetUser 가 null 이 아님.
+        Long validatedReplyTargetId = null;
+        User validatedReplyTargetUser = null;
+        if(postCommentChildRegisterRequest.getReplyTargetPostCommentChildId() != null) {
             //답장을 받을 대댓글 검색
             PostCommentChild originalPostCommentChild = postCommentChildRepository
-                    .findById(postCommentChildRegisterRequest.getOriginalPostCommentChildId())
+                    .findById(postCommentChildRegisterRequest.getReplyTargetPostCommentChildId())
                     .orElse(null);
             //답장을 받을 대댓글이 같은 댓글 안에 존재한다면 답글로 인정
             if(
                     originalPostCommentChild != null &&
                     postComment.getId() == originalPostCommentChild.getPostComment().getId()
             ) {
-                originalPostCommentChildId = originalPostCommentChild.getId();
-                originalPostCommentChildWriter = originalPostCommentChild.getUser();
+                validatedReplyTargetId = originalPostCommentChild.getId();
+                validatedReplyTargetUser = originalPostCommentChild.getUser();
             }
         }
 
@@ -170,7 +171,7 @@ public class PostCommentServiceImpl implements PostCommentService {
         PostCommentChild postCommentChild = PostCommentChild.builder()
                 .postComment(postComment)
                 .user(user)
-                .replyTargetUser(originalPostCommentChildWriter)
+                .replyTargetUser(validatedReplyTargetUser)
                 .content(postCommentChildRegisterRequest.getContent())
                 .build();
         postCommentChildRepository.save(postCommentChild);
@@ -179,7 +180,7 @@ public class PostCommentServiceImpl implements PostCommentService {
         applicationEventPublisher.publishEvent(
                 new NewPostCommentChildEvent(
                         postCommentChild.getId(),
-                        originalPostCommentChildId
+                        validatedReplyTargetId
                 )
         );
         return postCommentChild.getId();
