@@ -34,6 +34,7 @@ public interface PostCommentChildRepository extends JpaRepository<PostCommentChi
                         + "pch.id, "
                         + "user.id, "
                         + "user.nickname, "
+                        + "rp_user.nickname, "
                         + "pch.content, "
                         + "pch.likeCount, "
                         + "CASE "
@@ -44,6 +45,7 @@ public interface PostCommentChildRepository extends JpaRepository<PostCommentChi
                     + ") "
                     + "FROM PostCommentChild pch "
                         + "INNER JOIN pch.user user "
+                        + "LEFT OUTER JOIN pch.replyTargetUser rp_user "
                         + "LEFT OUTER JOIN pch.likes pchl ON pchl.user.id = :requestUserId "
                     + "WHERE pch.postComment.id = :postCommentId"
     )
@@ -58,6 +60,7 @@ public interface PostCommentChildRepository extends JpaRepository<PostCommentChi
                     + "pch.id, "
                     + "user.id, "
                     + "user.nickname, "
+                    + "rp_user.nickname, "
                     + "pch.content, "
                     + "pch.likeCount, "
                     + "false, "
@@ -65,6 +68,7 @@ public interface PostCommentChildRepository extends JpaRepository<PostCommentChi
                     + ") "
                     + "FROM PostCommentChild pch "
                     + "INNER JOIN pch.user user "
+                    + "LEFT OUTER JOIN pch.replyTargetUser rp_user "
                     + "WHERE pch.postComment.id = :postCommentId"
     )
     List<GetPostCommentChildPageResponse> getPostCommentChildPage(

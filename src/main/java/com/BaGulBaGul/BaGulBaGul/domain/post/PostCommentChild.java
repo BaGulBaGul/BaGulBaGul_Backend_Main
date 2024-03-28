@@ -39,6 +39,11 @@ public class PostCommentChild extends BaseTimeEntity {
     User user;
 
     @Setter
+    @JoinColumn(name = "reply_target_user_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    User replyTargetUser;
+
+    @Setter
     @Column(name = "content")
     String content;
 
@@ -53,10 +58,12 @@ public class PostCommentChild extends BaseTimeEntity {
     public PostCommentChild(
             PostComment postComment,
             User user,
+            User replyTargetUser,
             String content
     ) {
         this.postComment = postComment;
         this.user = user;
+        this.replyTargetUser = replyTargetUser;
         this.content = content;
         this.likeCount = 0;
     }
