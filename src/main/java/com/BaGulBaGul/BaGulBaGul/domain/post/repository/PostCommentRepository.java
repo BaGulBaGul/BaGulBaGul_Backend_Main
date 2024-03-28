@@ -18,6 +18,7 @@ public interface PostCommentRepository extends JpaRepository<PostComment, Long> 
                         + "pc.id, "
                         + "user.id, "
                         + "user.nickname, "
+                        + "user.imageURI, "
                         + "pc.content, "
                         + "pc.commentChildCount, "
                         + "pc.likeCount, "

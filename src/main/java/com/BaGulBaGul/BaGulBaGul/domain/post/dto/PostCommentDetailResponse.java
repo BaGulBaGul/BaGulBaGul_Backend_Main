@@ -23,6 +23,9 @@ public class PostCommentDetailResponse {
     @ApiModelProperty(value = "작성자 닉네임")
     private String username;
 
+    @ApiModelProperty(value = "작성자 프로필 이미지 url")
+    private String userProfileImageUrl;
+
     @ApiModelProperty(value = "내용")
     private String content;
 
