@@ -24,11 +24,14 @@ public class EventSimpleResponse {
     @ApiModelProperty(value = "이벤트 타입 FESTIVAL, LOCAL_EVENT, PARTY 중 하나")
     private EventType type;
 
+    @ApiModelProperty(value = "등록자 id")
+    private Long userId;
+
     @ApiModelProperty(value = "등록자 닉네임")
     private String userName;
 
     @ApiModelProperty(value = "등록자 이미지 url")
-    private String userImage;
+    private String userProfileImageUrl;
 
     @ApiModelProperty(value = "게시글 제목")
     private String title;
@@ -67,8 +70,9 @@ public class EventSimpleResponse {
         return EventSimpleResponse.builder()
                 .id(event.getId())
                 .type(event.getType())
+                .userId(event.getPost().getUser().getId())
                 .userName(event.getPost().getUser().getNickname())
-                .userImage(event.getPost().getUser().getImageURI())
+                .userProfileImageUrl(event.getPost().getUser().getImageURI())
                 .title(event.getPost().getTitle())
                 .abstractLocation(event.getAbstractLocation())
                 .currentHeadCount(event.getCurrentHeadCount())

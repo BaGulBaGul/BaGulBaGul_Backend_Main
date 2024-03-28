@@ -25,11 +25,17 @@ public class EventDetailResponse {
     @ApiModelProperty(value = "이벤트 타입 FESTIVAL, LOCAL_EVENT, PARTY 중 하나")
     private EventType type;
 
-    @ApiModelProperty(value = "게시글 id")
-    private Long postId;
+    @ApiModelProperty(value = "등록자 id")
+    private Long userId;
 
     @ApiModelProperty(value = "등록자 닉네임")
     private String userName;
+
+    @ApiModelProperty(value = "등록자 프로필 이미지 url")
+    private String userProfileImageUrl;
+
+    @ApiModelProperty(value = "게시글 id")
+    private Long postId;
 
     @ApiModelProperty(value = "게시글 제목")
     private String title;
@@ -98,10 +104,21 @@ public class EventDetailResponse {
         return EventDetailResponse.builder()
                 .id(event.getId())
                 .type(event.getType())
-                .postId(event.getPost().getId())
+                //작성자
+                .userId(event.getPost().getUser().getId())
                 .userName(event.getPost().getUser().getNickname())
+                .userProfileImageUrl(event.getPost().getUser().getImageURI())
+                //게시글
+                .postId(event.getPost().getId())
                 .title(event.getPost().getTitle())
                 .content(event.getPost().getContent())
+                .headImageUrl(event.getPost().getImage_url())
+                .likeCount(event.getPost().getLikeCount())
+                .commentCount(event.getPost().getCommentCount())
+                .views(event.getPost().getViews())
+                .createdAt(event.getPost().getCreatedAt())
+                .lastModifiedAt(event.getPost().getLastModifiedAt())
+                //이벤트
                 .headCount(event.getCurrentHeadCount())
                 .headCountMax(event.getTotalHeadCount())
                 .fullLocation(event.getFullLocation())
@@ -117,14 +134,8 @@ public class EventDetailResponse {
                                 .map(eventCategory -> eventCategory.getCategory().getName())
                                 .collect(Collectors.toList())
                 )
-                .headImageUrl(event.getPost().getImage_url())
                 .imageIds(imageIds)
                 .imageUrls(imageUrls)
-                .likeCount(event.getPost().getLikeCount())
-                .commentCount(event.getPost().getCommentCount())
-                .views(event.getPost().getViews())
-                .createdAt(event.getPost().getCreatedAt())
-                .lastModifiedAt(event.getPost().getLastModifiedAt())
                 .build();
     }
 }
