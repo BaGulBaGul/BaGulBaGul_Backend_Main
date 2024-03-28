@@ -22,6 +22,9 @@ public class GetPostCommentChildPageResponse {
     @ApiModelProperty(value = "작성자 닉네임")
     private String userName;
 
+    @ApiModelProperty(value = "답장을 받는 유저 이름")
+    private String replyTargetUserName;
+
     @ApiModelProperty(value = "내용")
     private String content;
 
