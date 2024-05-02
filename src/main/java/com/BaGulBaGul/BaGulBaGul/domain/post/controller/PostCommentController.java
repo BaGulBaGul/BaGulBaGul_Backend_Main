@@ -16,10 +16,10 @@ public interface PostCommentController {
     ApiResponse<PostCommentChildRegisterResponse> registerPostCommentChild(Long postCommentId, Long userId, PostCommentChildRegisterRequest postCommentChildRegisterRequest);
     ApiResponse<Object> modifyPostCommentChild(Long postCommentChildId, Long userId, PostCommentChildModifyRequest postCommentChildModifyRequest);
     ApiResponse<Object> deletePostCommentChild(Long postCommentChildId, Long userId);
-    ApiResponse<Object> addLikeToComment(Long postCommentId, Long userId);
-    ApiResponse<Object> deleteLikeToComment(Long postCommentId, Long userId);
+    ApiResponse<LikeCountResponse> addLikeToComment(Long postCommentId, Long userId);
+    ApiResponse<LikeCountResponse> deleteLikeToComment(Long postCommentId, Long userId);
     ApiResponse<IsMyLikeResponse> isMyLikeComment(Long postCommentId, Long userId);
-    ApiResponse<Object> addLikeToCommentChild(Long postCommentChildId, Long userId);
-    ApiResponse<Object> deleteLikeToCommentChild(Long postCommentChildId, Long userId);
+    ApiResponse<LikeCountResponse> addLikeToCommentChild(Long postCommentChildId, Long userId);
+    ApiResponse<LikeCountResponse> deleteLikeToCommentChild(Long postCommentChildId, Long userId);
     ApiResponse<IsMyLikeResponse> isMyLikeCommentChild(Long postCommentChildId, Long userId);
 }

@@ -177,6 +177,13 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
+    public int getLikeCount(Long eventId) {
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException());
+        return event.getPost().getLikeCount();
+    }
+
+    @Override
     @Transactional(rollbackFor = {DuplicateLikeException.class})
     public void addLike(Long eventId, Long userId) throws DuplicateLikeException {
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException());

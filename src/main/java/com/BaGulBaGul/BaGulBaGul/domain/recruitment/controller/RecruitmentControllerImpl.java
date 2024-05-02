@@ -1,5 +1,6 @@
 package com.BaGulBaGul.BaGulBaGul.domain.recruitment.controller;
 
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.LikeCountResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.GetLikeRecruitmentResponse;
@@ -123,7 +124,7 @@ public class RecruitmentControllerImpl implements RecruitmentController {
                     + "유저당 한번만 좋아요 등록 가능\n"
                     + "이미 좋아요를 눌렀다면 무시됨"
     )
-    public ApiResponse<Object> addLike(
+    public ApiResponse<LikeCountResponse> addLike(
             @PathVariable(name="recruitmentId") Long recruitmentId,
             @AuthenticationPrincipal Long userId
     ) {
@@ -131,7 +132,11 @@ public class RecruitmentControllerImpl implements RecruitmentController {
             recruitmentService.addLike(recruitmentId, userId);
         } catch (DuplicateLikeException e) {
         }
-        return ApiResponse.of(null);
+        return ApiResponse.of(
+                new LikeCountResponse(
+                        recruitmentService.getLikeCount(recruitmentId)
+                )
+        );
     }
 
     @Override
@@ -140,7 +145,7 @@ public class RecruitmentControllerImpl implements RecruitmentController {
             description = "로그인 필요\n"
                     + "삭제할 좋아요가 없다면 무시됨"
     )
-    public ApiResponse<Object> deleteLike(
+    public ApiResponse<LikeCountResponse> deleteLike(
             @PathVariable(name="recruitmentId") Long recruitmentId,
             @AuthenticationPrincipal Long userId
     ) {
@@ -148,7 +153,11 @@ public class RecruitmentControllerImpl implements RecruitmentController {
             recruitmentService.deleteLike(recruitmentId, userId);
         } catch (LikeNotExistException e) {
         }
-        return ApiResponse.of(null);
+        return ApiResponse.of(
+                new LikeCountResponse(
+                        recruitmentService.getLikeCount(recruitmentId)
+                )
+        );
     }
 
     @Override

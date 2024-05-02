@@ -170,7 +170,7 @@ public class PostCommentControllerImpl implements PostCommentController {
                     + "유저당 한번만 좋아요 등록 가능\n"
                     + "이미 좋아요를 눌렀다면 무시됨"
     )
-    public ApiResponse<Object> addLikeToComment(
+    public ApiResponse<LikeCountResponse> addLikeToComment(
             @PathVariable(name = "postCommentId") Long postCommentId,
             @AuthenticationPrincipal Long userId
     ) {
@@ -179,7 +179,11 @@ public class PostCommentControllerImpl implements PostCommentController {
         }
         catch (DuplicateLikeException duplicateLikeException) {
         }
-        return ApiResponse.of(null);
+        return ApiResponse.of(
+                new LikeCountResponse(
+                        postCommentService.getLikeCountFromComment(postCommentId)
+                )
+        );
     }
 
 
@@ -189,7 +193,7 @@ public class PostCommentControllerImpl implements PostCommentController {
             description = "로그인 필요\n"
                     + "삭제할 좋아요가 없다면 무시됨"
     )
-    public ApiResponse<Object> deleteLikeToComment(
+    public ApiResponse<LikeCountResponse> deleteLikeToComment(
             @PathVariable(name = "postCommentId") Long postCommentId,
             @AuthenticationPrincipal Long userId
     ) {
@@ -198,7 +202,11 @@ public class PostCommentControllerImpl implements PostCommentController {
         }
         catch (LikeNotExistException likeNotExistException) {
         }
-        return ApiResponse.of(null);
+        return ApiResponse.of(
+                new LikeCountResponse(
+                        postCommentService.getLikeCountFromComment(postCommentId)
+                )
+        );
     }
 
     @Override
@@ -224,7 +232,7 @@ public class PostCommentControllerImpl implements PostCommentController {
                     + "유저당 한번만 좋아요 등록 가능\n"
                     + "이미 좋아요를 눌렀다면 무시됨"
     )
-    public ApiResponse<Object> addLikeToCommentChild(
+    public ApiResponse<LikeCountResponse> addLikeToCommentChild(
             @PathVariable(name = "postCommentChildId") Long postCommentChildId,
             @AuthenticationPrincipal Long userId
     ) {
@@ -233,7 +241,11 @@ public class PostCommentControllerImpl implements PostCommentController {
         }
         catch (DuplicateLikeException duplicateLikeException) {
         }
-        return ApiResponse.of(null);
+        return ApiResponse.of(
+                new LikeCountResponse(
+                        postCommentService.getLikeCountFromCommentChild(postCommentChildId)
+                )
+        );
     }
 
     @Override
@@ -242,7 +254,7 @@ public class PostCommentControllerImpl implements PostCommentController {
             description = "로그인 필요\n"
                     + "삭제할 좋아요가 없다면 무시됨"
     )
-    public ApiResponse<Object> deleteLikeToCommentChild(
+    public ApiResponse<LikeCountResponse> deleteLikeToCommentChild(
             @PathVariable(name = "postCommentChildId") Long postCommentChildId,
             @AuthenticationPrincipal Long userId
     ) {
@@ -251,7 +263,11 @@ public class PostCommentControllerImpl implements PostCommentController {
         }
         catch (LikeNotExistException likeNotExistException) {
         }
-        return ApiResponse.of(null);
+        return ApiResponse.of(
+                new LikeCountResponse(
+                        postCommentService.getLikeCountFromCommentChild(postCommentChildId)
+                )
+        );
     }
 
     @Override

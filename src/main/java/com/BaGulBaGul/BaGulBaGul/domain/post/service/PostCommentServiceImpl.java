@@ -223,6 +223,12 @@ public class PostCommentServiceImpl implements PostCommentService {
     }
 
     @Override
+    public int getLikeCountFromComment(Long postCommentId) {
+        PostComment postComment = postCommentRepository.findById(postCommentId).orElseThrow(() -> new PostCommentNotFoundException());
+        return postComment.getLikeCount();
+    }
+
+    @Override
     @Transactional(rollbackFor = DuplicateLikeException.class)
     public void addLikeToComment(Long postCommentId, Long userId) throws DuplicateLikeException {
         //엔티티 로드 & 검증
@@ -271,6 +277,13 @@ public class PostCommentServiceImpl implements PostCommentService {
         PostComment postComment = postCommentRepository.findById(postCommentId).orElseThrow(() -> new PostCommentNotFoundException());
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
         return postCommentLikeRepository.existsByPostCommentAndUser(postComment, user);
+    }
+
+    @Override
+    public int getLikeCountFromCommentChild(Long postCommentChildId) {
+        PostCommentChild postCommentChild = postCommentChildRepository.findById(postCommentChildId)
+                .orElseThrow(() -> new PostCommentChildNotFoundException());
+        return postCommentChild.getLikeCount();
     }
 
     @Override
