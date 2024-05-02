@@ -199,9 +199,15 @@ public class PostCommentServiceImpl implements PostCommentService {
         if(!userId.equals(postCommentChild.getUser().getId())) {
             throw new NoPermissionException();
         }
-        //수정
+        //내용 수정
         if(postCommentChildModifyRequest.getContent() != null) {
             postCommentChild.setContent(postCommentChildModifyRequest.getContent());
+        }
+        //맨션 해제
+        if(postCommentChildModifyRequest.getReplyTargetUserId().isPresent()) {
+            if(postCommentChildModifyRequest.getReplyTargetUserId().get() == null) {
+                postCommentChild.setReplyTargetUser(null);
+            }
         }
     }
 
