@@ -23,6 +23,7 @@ public interface EventService {
     void modifyEvent(Long eventId, Long userId, EventModifyRequest eventModifyRequest);
     void deleteEvent(Long eventId, Long userId);
 
+    int getLikeCount(Long eventId);
     void addLike(Long eventId, Long userId) throws DuplicateLikeException;
     void deleteLike(Long eventId, Long userId) throws LikeNotExistException;
     boolean isMyLike(Long eventId, Long userId);

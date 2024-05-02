@@ -10,6 +10,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.dto.GetLikeEventRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.GetLikeEventResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.service.EventService;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.IsMyLikeResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.LikeCountResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
@@ -114,7 +115,7 @@ public class EventControllerImpl implements EventController {
                     + "유저당 한번만 좋아요 등록 가능\n"
                     + "이미 좋아요를 눌렀다면 무시됨"
     )
-    public ApiResponse<Object> addLike(
+    public ApiResponse<LikeCountResponse> addLike(
             @PathVariable(name="eventId") Long eventId,
             @AuthenticationPrincipal Long userId
     ) {
@@ -122,7 +123,11 @@ public class EventControllerImpl implements EventController {
             eventService.addLike(eventId, userId);
         } catch (DuplicateLikeException duplicateLikeException) {
         }
-        return ApiResponse.of(null);
+        return ApiResponse.of(
+                new LikeCountResponse(
+                        eventService.getLikeCount(eventId)
+                )
+        );
     }
 
     @Override
@@ -131,7 +136,7 @@ public class EventControllerImpl implements EventController {
             description = "로그인 필요\n"
                     + "삭제할 좋아요가 없다면 무시됨"
     )
-    public ApiResponse<Object> deleteLike(
+    public ApiResponse<LikeCountResponse> deleteLike(
             @PathVariable(name="eventId") Long eventId,
             @AuthenticationPrincipal Long userId
     ) {
@@ -139,7 +144,11 @@ public class EventControllerImpl implements EventController {
             eventService.deleteLike(eventId, userId);
         } catch (LikeNotExistException likeNotExistException) {
         }
-        return ApiResponse.of(null);
+        return ApiResponse.of(
+                new LikeCountResponse(
+                        eventService.getLikeCount(eventId)
+                )
+        );
     }
 
     @Override
