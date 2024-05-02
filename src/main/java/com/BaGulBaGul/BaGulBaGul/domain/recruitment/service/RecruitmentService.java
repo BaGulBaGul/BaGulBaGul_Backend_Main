@@ -18,6 +18,8 @@ public interface RecruitmentService {
     Long registerRecruitment(Long eventId, Long userId, RecruitmentRegisterRequest recruitmentRegisterRequest);
     void modifyRecruitment(Long recruitmentId, Long userId, RecruitmentModifyRequest recruitmentModifyRequest);
     void deleteRecruitment(Long recruitmentId, Long userId);
+
+    int getLikeCount(Long recruitmentId);
     void addLike(Long recruitmentId, Long userId) throws DuplicateLikeException;
     void deleteLike(Long recruitmentId, Long userId) throws LikeNotExistException;
     boolean isMyLike(Long recruitmentId, Long userId);

@@ -1,5 +1,6 @@
 package com.BaGulBaGul.BaGulBaGul.domain.recruitment.controller;
 
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.LikeCountResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.GetLikeRecruitmentResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentConditionalApiRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentDetailResponse;
@@ -33,8 +34,8 @@ public interface RecruitmentController {
             RecruitmentModifyRequest recruitmentModifyRequest
     );
     ApiResponse<Object> deleteRecruitment(Long recruitmentId, Long userId);
-    ApiResponse<Object> addLike(Long recruitmentId, Long userId);
-    ApiResponse<Object> deleteLike(Long recruitmentId, Long userId);
+    ApiResponse<LikeCountResponse> addLike(Long recruitmentId, Long userId);
+    ApiResponse<LikeCountResponse> deleteLike(Long recruitmentId, Long userId);
     ApiResponse<IsMyLikeResponse> isMyLike(Long recruitmentId, Long userId);
     ApiResponse<Page<GetLikeRecruitmentResponse>> getMyLike(
             Long userId,

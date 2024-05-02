@@ -147,6 +147,13 @@ public class RecruitmentServiceImpl implements RecruitmentService {
 
     @Override
     @Transactional
+    public int getLikeCount(Long recruitmentId) {
+        Recruitment recruitment = recruitmentRepository.findById(recruitmentId).orElseThrow(() -> new RecruitmentNotFoundException());
+        return recruitment.getPost().getLikeCount();
+    }
+
+    @Override
+    @Transactional
     public void addLike(Long recruitmentId, Long userId) throws DuplicateLikeException {
         Recruitment recruitment = recruitmentRepository.findById(recruitmentId).orElseThrow(() -> new RecruitmentNotFoundException());
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
