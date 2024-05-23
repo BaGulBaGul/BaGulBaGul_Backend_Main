@@ -4,9 +4,12 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostLike;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostSimpleInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostWriterInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.post.event.NewPostLikeEvent;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
+import com.BaGulBaGul.BaGulBaGul.domain.post.exception.PostNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentChildLikeRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentChildRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentLikeRepository;
@@ -14,6 +17,9 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostLikeRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -33,6 +39,37 @@ public class PostServiceImpl implements PostService {
     private final PostCommentChildLikeRepository postCommentChildLikeRepository;
     private final PostImageService postImageService;
     private final ApplicationEventPublisher applicationEventPublisher;
+
+    @Override
+    @Transactional
+    public PostSimpleInfo getPostSimpleInfo(Long postId) {
+        //Post정보를 가져옴
+        Post post = postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException());
+
+        //작성자 정보를 생성
+        User writer = post.getUser();
+        PostWriterInfo writerInfo = PostWriterInfo.builder()
+                .userId(writer.getId())
+                .userName(writer.getNickname())
+                .userProfileImageUrl(writer.getImageURI())
+                .build();
+
+        //태그를 리스트로 변환
+        List<String> tags = post.getTags().equals("") ?
+                new ArrayList<>() :
+                Arrays.asList(post.getTags().split(" ")).stream().filter(s -> !s.isEmpty()).collect(Collectors.toList());
+
+        //최종 PostSimpleInfo를 생성 후 반환
+        return PostSimpleInfo.builder()
+                .postId(post.getId())
+                .writer(writerInfo)
+                .title(post.getTitle())
+                .headImageUrl(post.getImage_url())
+                .tags(tags)
+                .createdAt(post.getCreatedAt())
+                .lastModifiedAt(post.getLastModifiedAt())
+                .build();
+    }
 
     @Override
     @Transactional
