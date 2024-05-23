@@ -16,6 +16,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.exception.EventNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.event.repository.EventCategoryRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.event.repository.CategoryRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.event.repository.EventRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.event.repository.querydsl.FindEventByCondition.EventIdsWithTotalCountOfPageResult;
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostImage;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
@@ -33,6 +34,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -92,11 +94,25 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public Page<EventSimpleResponse> getEventPageByCondition(
             EventConditionalRequest eventConditionalRequest,
             Pageable pageable
     ) {
-        return eventRepository.getEventSimpleResponsePageByCondition(eventConditionalRequest, pageable);
+        //조건에 해당하는 event id를 페이지 검색함.
+        EventIdsWithTotalCountOfPageResult pageResult = eventRepository.getEventIdsWithFetchJoinByConditionAndPageable(eventConditionalRequest, pageable);
+        //필요한 정보를 fetch join
+        eventRepository.findWithPostAndUserAndCategoriesByIds(pageResult.getEventIds());
+        //페이지 조회한 ids를 순서대로 EventSimpleResponse로 변환
+        List<EventSimpleResponse> eventSimpleResponses = pageResult.getEventIds()
+                .stream()
+                .map(eventRepository::findById)
+                .map(event -> new EventSimpleResponse(
+                                getEventSimpleInfoById(event.get().getId()),
+                                postService.getPostSimpleInfo(event.get().getPost().getId())))
+                .collect(Collectors.toList());
+        //페이지 정보로 변환
+        return new PageImpl<>(eventSimpleResponses, pageable, pageResult.getTotalCount());
     }
 
     @Override

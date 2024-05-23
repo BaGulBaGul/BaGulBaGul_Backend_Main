@@ -5,19 +5,15 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.QCategory;
 import com.BaGulBaGul.BaGulBaGul.domain.event.QEvent;
 import com.BaGulBaGul.BaGulBaGul.domain.event.QEventCategory;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventConditionalRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventSimpleResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.QPost;
 import com.BaGulBaGul.BaGulBaGul.domain.user.QUser;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +26,7 @@ public class FindEventByConditionImpl implements FindEventByCondition {
 
     @Override
     @Transactional
-    public Page<EventSimpleResponse> getEventSimpleResponsePageByCondition(
+    public EventIdsWithTotalCountOfPageResult getEventIdsWithFetchJoinByConditionAndPageable(
             EventConditionalRequest eventConditionalRequest,
             Pageable pageable
     ) {
@@ -45,24 +41,13 @@ public class FindEventByConditionImpl implements FindEventByCondition {
         //id를 받아옴
         List<Long> ids = idQuery.fetch();
 
-        //fetch join으로 Event와 연관된 엔티티까지 한번에 받아옴
-        JPAQuery<Event> fetchQuery = queryFactory.select(event)
-                .from(event)
-                .where(event.id.in(ids));
-        applyFetchJoin(fetchQuery, event);
-        fetchQuery.fetch();
-
-        //응답 dto로 변환. 페이징이 적용된 ids의 순서대로 담아줌.
-        List<EventSimpleResponse> result = ids.stream()
-                .map(x -> em.find(Event.class, x))
-                .map(EventSimpleResponse::of)
-                .collect(Collectors.toList());
-
         //count를 따로 계산해줌
-        Long count = getCountQuery(eventConditionalRequest).fetchFirst();
+        Long totalCount = getCountQuery(eventConditionalRequest).fetchFirst();
 
-        //Page의 구현체로 조합해서 반환
-        return new PageImpl<>(result, pageable, count);
+        return EventIdsWithTotalCountOfPageResult.builder()
+                .eventIds(ids)
+                .TotalCount(totalCount)
+                .build();
     }
 
     private <T> JPAQuery<T> applyPageable(
@@ -77,22 +62,22 @@ public class FindEventByConditionImpl implements FindEventByCondition {
     }
 
     //    @Override
-    private <T> JPAQuery<T> applyFetchJoin(
-            JPAQuery<T> query,
-            QEvent event
-    ){
-        QEventCategory eventCategory = QEventCategory.eventCategory;
-        QCategory category = QCategory.category;
-        QPost post = QPost.post;
-        QUser user = QUser.user;
-
-        query.leftJoin(event.categories, eventCategory).fetchJoin();
-        query.leftJoin(eventCategory.category, category).fetchJoin();
-        query.join(event.post, post).fetchJoin();
-        query.join(post.user, user).fetchJoin();
-
-        return query;
-    }
+//    private <T> JPAQuery<T> applyFetchJoin(
+//            JPAQuery<T> query,
+//            QEvent event
+//    ){
+//        QEventCategory eventCategory = QEventCategory.eventCategory;
+//        QCategory category = QCategory.category;
+//        QPost post = QPost.post;
+//        QUser user = QUser.user;
+//
+//        query.leftJoin(event.categories, eventCategory).fetchJoin();
+//        query.leftJoin(eventCategory.category, category).fetchJoin();
+//        query.join(event.post, post).fetchJoin();
+//        query.join(post.user, user).fetchJoin();
+//
+//        return query;
+//    }
 
     /*
      * count query는 fetch join이나 페이징이 필요 없이 조건만 적용하면 됨
