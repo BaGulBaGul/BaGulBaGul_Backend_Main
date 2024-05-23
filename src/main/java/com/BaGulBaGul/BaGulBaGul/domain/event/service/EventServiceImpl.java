@@ -7,6 +7,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventConditionalRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventDetailResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventSimpleInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventSimpleResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.GetLikeEventRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.GetLikeEventResponse;
@@ -51,6 +52,27 @@ public class EventServiceImpl implements EventService {
     private final PostService postService;
     private final PostImageService postImageService;
     private final ResourceService resourceService;
+
+
+    @Override
+    @Transactional
+    public EventSimpleInfo getEventSimpleInfoById(Long eventId) {
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException());
+        return EventSimpleInfo.builder()
+                .id(event.getId())
+                .type(event.getType())
+                .abstractLocation(event.getAbstractLocation())
+                .currentHeadCount(event.getCurrentHeadCount())
+                .totalHeadCount(event.getTotalHeadCount())
+                .startDate(event.getStartDate())
+                .endDate(event.getEndDate())
+                .categories(
+                        event.getCategories().stream()
+                                .map(eventCategory -> eventCategory.getCategory().getName())
+                                .collect(Collectors.toList())
+                )
+                .build();
+    }
 
     @Override
     @Transactional
