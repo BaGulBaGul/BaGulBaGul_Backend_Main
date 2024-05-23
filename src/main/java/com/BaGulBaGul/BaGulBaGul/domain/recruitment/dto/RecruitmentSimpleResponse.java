@@ -25,10 +25,10 @@ public class RecruitmentSimpleResponse {
     private RecruitmentState state;
 
     @ApiModelProperty(value = "참여 인원")
-    private Integer headCount;
+    private Integer currentHeadCount;
 
     @ApiModelProperty(value = "모집 인원")
-    private Integer headCountMax;
+    private Integer totalHeadCount;
 
     @ApiModelProperty(value = "시작 시간")
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
@@ -63,8 +63,8 @@ public class RecruitmentSimpleResponse {
         return RecruitmentSimpleResponse.builder()
                 .id(recruitment.getId())
                 .state(recruitment.getState())
-                .headCount(recruitment.getCurrentHeadCount())
-                .headCountMax(recruitment.getTotalHeadCount())
+                .currentHeadCount(recruitment.getCurrentHeadCount())
+                .totalHeadCount(recruitment.getTotalHeadCount())
                 .startDate(recruitment.getStartDate())
                 .endDate(recruitment.getEndDate())
                 .title(recruitment.getPost().getTitle())
