@@ -1,5 +1,6 @@
 package com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto;
 
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostDetailInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.Recruitment;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.constant.RecruitmentState;
 import io.swagger.annotations.ApiModelProperty;
@@ -17,96 +18,10 @@ import lombok.Setter;
 @AllArgsConstructor
 public class RecruitmentDetailResponse {
 
-    @ApiModelProperty(value = "모잡글 id")
-    private Long id;
+    @ApiModelProperty(value = "모잡글 정보")
+    private RecruitmentDetailInfo recruitment;
 
-    @ApiModelProperty(value = "모집 상태")
-    private RecruitmentState state;
+    @ApiModelProperty(value = "게시글 정보")
+    private PostDetailInfo post;
 
-    @ApiModelProperty(value = "참여 인원")
-    private Integer currentHeadCount;
-
-    @ApiModelProperty(value = "모집 인원")
-    private Integer totalHeadCount;
-
-    @ApiModelProperty(value = "시작 시간")
-    private LocalDateTime startDate;
-
-    @ApiModelProperty(value = "종료 시간")
-    private LocalDateTime endDate;
-
-    @ApiModelProperty(value = "이벤트 id")
-    private Long eventId;
-
-    @ApiModelProperty(value = "등록자 id")
-    private Long userId;
-
-    @ApiModelProperty(value = "등록자 닉네임")
-    private String userName;
-
-    @ApiModelProperty(value = "등록자 이미지 url")
-    private String userProfileImageUrl;
-
-    @ApiModelProperty(value = "게시글 id")
-    private Long postId;
-
-    @ApiModelProperty(value = "게시글 제목")
-    private String title;
-
-    @ApiModelProperty(value = "게시글 내용")
-    private String content;
-
-    @ApiModelProperty(value = "태그들", example = "[\"물놀이\",\"바베큐\"]")
-    private List<String> tags;
-
-    @ApiModelProperty(value = "대표이미지 경로")
-    private String headImageUrl;
-
-    @ApiModelProperty(value = "이미지들의 resource id")
-    private List<Long> imageIds;
-
-    @ApiModelProperty(value = "이미지들의 url")
-    private List<String> imageUrls;
-
-    @ApiModelProperty(value = "종아요 수")
-    private int likeCount;
-
-    @ApiModelProperty(value = "댓글 수")
-    private int commentCount;
-
-    @ApiModelProperty(value = "조회 수")
-    private int views;
-
-    @ApiModelProperty(value = "생성일")
-    private LocalDateTime createdAt;
-
-    @ApiModelProperty(value = "마지막 수정일")
-    private LocalDateTime lastModifiedAt;
-
-    public static RecruitmentDetailResponse of(Recruitment recruitment, List<Long> imageIds, List<String> imageUrls) {
-        return RecruitmentDetailResponse.builder()
-                .id(recruitment.getId())
-                .state(recruitment.getState())
-                .currentHeadCount(recruitment.getCurrentHeadCount())
-                .totalHeadCount(recruitment.getTotalHeadCount())
-                .startDate(recruitment.getStartDate())
-                .endDate(recruitment.getEndDate())
-                .eventId(recruitment.getEvent().getId())
-                .userId(recruitment.getPost().getUser().getId())
-                .userName(recruitment.getPost().getUser().getNickname())
-                .userProfileImageUrl(recruitment.getPost().getUser().getImageURI())
-                .postId(recruitment.getPost().getId())
-                .title(recruitment.getPost().getTitle())
-                .content(recruitment.getPost().getContent())
-                .tags(Arrays.asList(recruitment.getPost().getTags().split(" ")))
-                .headImageUrl(recruitment.getPost().getImage_url())
-                .imageIds(imageIds)
-                .imageUrls(imageUrls)
-                .likeCount(recruitment.getPost().getLikeCount())
-                .commentCount(recruitment.getPost().getCommentCount())
-                .views(recruitment.getPost().getViews())
-                .createdAt(recruitment.getPost().getCreatedAt())
-                .lastModifiedAt(recruitment.getPost().getLastModifiedAt())
-                .build();
-    }
 }
