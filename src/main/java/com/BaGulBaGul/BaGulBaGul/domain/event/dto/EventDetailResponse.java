@@ -25,5 +25,5 @@ public class EventDetailResponse {
 
     @ApiModelProperty(value = "게시글 정보")
     private PostDetailInfo post;
- 
+
 }

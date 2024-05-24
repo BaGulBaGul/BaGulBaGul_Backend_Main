@@ -20,6 +20,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.repository.EventRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.event.repository.querydsl.FindEventByCondition.EventIdsWithTotalCountOfPageResult;
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostImage;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostDetailInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
@@ -103,16 +104,23 @@ public class EventServiceImpl implements EventService {
     @Transactional
     public EventDetailResponse getEventDetailById(Long eventId) {
         Event event = eventRepository.findWithPostAndUserAndCategoryById(eventId).orElseThrow(() -> new EventNotFoundException());
-        //연결된 이미지의 resource id와 url을 조회
-        List<PostImage> images = postImageService.getByOrder(event.getPost());
-        List<Long> resourceIds = images.stream().map(x -> x.getResource().getId()).collect(Collectors.toList());
-        List<String> imageUrls = resourceService.getResourceUrlsFromIds(resourceIds);
+
+        //필요한 정보 추출
+        EventDetailInfo eventDetailInfo = getEventDetailInfoById(eventId);
+        PostDetailInfo postDetailInfo = postService.getPostDetailInfo(event.getPost().getId());
+
+        //응답 dto 생성
+        EventDetailResponse eventDetailResponse = EventDetailResponse.builder()
+                .event(eventDetailInfo)
+                .post(postDetailInfo)
+                .build();
+
         //조회수 증가
         postRepository.increaseViewsById(event.getPost().getId());
-        //응답 dto 추출
-        EventDetailResponse eventDetailResponse = EventDetailResponse.of(event, resourceIds, imageUrls);
-        //방금 조회한 조회수를 반영해줌.
-        eventDetailResponse.setViews(eventDetailResponse.getViews() + 1);
+
+        //방금 증가시킨 조회수를 반영해줌.
+        postDetailInfo.setViews(postDetailInfo.getViews() + 1);
+
         return eventDetailResponse;
     }
 
