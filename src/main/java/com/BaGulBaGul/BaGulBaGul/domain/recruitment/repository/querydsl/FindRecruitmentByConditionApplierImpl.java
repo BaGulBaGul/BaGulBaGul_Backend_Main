@@ -52,10 +52,10 @@ public class FindRecruitmentByConditionApplierImpl implements FindRecruitmentByC
         //남은 자리 수 조건 적용
         if(recruitmentConditionalRequest.getLeftHeadCount() != null) {
             //최대 인원이 null이라면 무시
-            BooleanExpression exp1 = recruitment.totalHeadCount
+            BooleanExpression exp1 = recruitment.maxHeadCount
                     .isNull();
             //모집 인원 - 참여 인원 = 수용 인원이 leftHeadCount(남은 자리 수) 이상일 때
-            BooleanExpression exp2 = recruitment.totalHeadCount
+            BooleanExpression exp2 = recruitment.maxHeadCount
                     .subtract(recruitment.currentHeadCount)
                     .goe(recruitmentConditionalRequest.getLeftHeadCount());
             //둘 중 하나라도 만족하면 true

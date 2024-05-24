@@ -24,7 +24,7 @@ public class RecruitmentSimpleInfo {
     private Integer currentHeadCount;
 
     @ApiModelProperty(value = "모집 인원")
-    private Integer totalHeadCount;
+    private Integer maxHeadCount;
 
     @ApiModelProperty(value = "시작 시간")
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")

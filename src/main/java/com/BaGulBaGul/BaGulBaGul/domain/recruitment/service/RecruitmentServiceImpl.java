@@ -4,7 +4,6 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.Event;
 import com.BaGulBaGul.BaGulBaGul.domain.event.exception.EventNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.event.repository.EventRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
-import com.BaGulBaGul.BaGulBaGul.domain.post.PostImage;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostDetailInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
@@ -58,7 +57,7 @@ public class RecruitmentServiceImpl implements RecruitmentService {
                 .id(recruitment.getId())
                 .state(recruitment.getState())
                 .currentHeadCount(recruitment.getCurrentHeadCount())
-                .totalHeadCount(recruitment.getTotalHeadCount())
+                .maxHeadCount(recruitment.getMaxHeadCount())
                 .startDate(recruitment.getStartDate())
                 .endDate(recruitment.getEndDate())
                 .build();
@@ -73,7 +72,7 @@ public class RecruitmentServiceImpl implements RecruitmentService {
                 .eventId(recruitment.getEvent().getId())
                 .state(recruitment.getState())
                 .currentHeadCount(recruitment.getCurrentHeadCount())
-                .maxHeadCount(recruitment.getTotalHeadCount())
+                .maxHeadCount(recruitment.getMaxHeadCount())
                 .startDate(recruitment.getStartDate())
                 .endDate(recruitment.getEndDate())
                 .build();
@@ -154,7 +153,7 @@ public class RecruitmentServiceImpl implements RecruitmentService {
                 .event(event)
                 .post(post)
                 .currentHeadCount(0)
-                .totalHeadCount(recruitmentRegisterRequest.getTotalHeadCount())
+                .maxHeadCount(recruitmentRegisterRequest.getMaxHeadCount())
                 .startDate(recruitmentRegisterRequest.getStartDate())
                 .endDate(recruitmentRegisterRequest.getEndDate())
                 .build();
@@ -182,8 +181,8 @@ public class RecruitmentServiceImpl implements RecruitmentService {
         if(recruitmentModifyRequest.getCurrentHeadCount().isPresent()) {
             recruitment.setCurrentHeadCount(recruitmentModifyRequest.getCurrentHeadCount().get());
         }
-        if(recruitmentModifyRequest.getTotalHeadCount().isPresent()) {
-            recruitment.setTotalHeadCount(recruitmentModifyRequest.getTotalHeadCount().get());
+        if(recruitmentModifyRequest.getMaxHeadCount().isPresent()) {
+            recruitment.setMaxHeadCount(recruitmentModifyRequest.getMaxHeadCount().get());
         }
         if(recruitmentModifyRequest.getStartDate() != null) {
             recruitment.setStartDate(recruitmentModifyRequest.getStartDate());

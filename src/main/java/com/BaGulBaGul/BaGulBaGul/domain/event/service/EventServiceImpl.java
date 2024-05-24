@@ -19,7 +19,6 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.repository.CategoryRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.event.repository.EventRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.event.repository.querydsl.FindEventByCondition.EventIdsWithTotalCountOfPageResult;
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
-import com.BaGulBaGul.BaGulBaGul.domain.post.PostImage;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostDetailInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
@@ -67,7 +66,7 @@ public class EventServiceImpl implements EventService {
                 .type(event.getType())
                 .abstractLocation(event.getAbstractLocation())
                 .currentHeadCount(event.getCurrentHeadCount())
-                .totalHeadCount(event.getTotalHeadCount())
+                .maxHeadCount(event.getMaxHeadCount())
                 .startDate(event.getStartDate())
                 .endDate(event.getEndDate())
                 .categories(
@@ -85,7 +84,7 @@ public class EventServiceImpl implements EventService {
                 .id(event.getId())
                 .type(event.getType())
                 .currentHeadCount(event.getCurrentHeadCount())
-                .maxHeadCount(event.getTotalHeadCount())
+                .maxHeadCount(event.getMaxHeadCount())
                 .fullLocation(event.getFullLocation())
                 .abstractLocation(event.getAbstractLocation())
                 .latitudeLocation(event.getLatitudeLocation())
@@ -173,7 +172,7 @@ public class EventServiceImpl implements EventService {
                 .type(eventRegisterRequest.getType())
                 .post(post)
                 .currentHeadCount(0)
-                .totalHeadCount(eventRegisterRequest.getTotalHeadCount())
+                .maxHeadCount(eventRegisterRequest.getMaxHeadCount())
                 .fullLocation(eventRegisterRequest.getFullLocation())
                 .abstractLocation(eventRegisterRequest.getAbstractLocation())
                 .latitudeLocation(eventRegisterRequest.getLatitudeLocation())
@@ -205,8 +204,8 @@ public class EventServiceImpl implements EventService {
         if(eventModifyRequest.getCurrentHeadCount().isPresent()) {
             event.setCurrentHeadCount(eventModifyRequest.getCurrentHeadCount().get());
         }
-        if(eventModifyRequest.getTotalHeadCount().isPresent()) {
-            event.setTotalHeadCount(eventModifyRequest.getTotalHeadCount().get());
+        if(eventModifyRequest.getMaxHeadCount().isPresent()) {
+            event.setMaxHeadCount(eventModifyRequest.getMaxHeadCount().get());
         }
         if(eventModifyRequest.getFullLocation() != null) {
             event.setFullLocation(eventModifyRequest.getFullLocation());

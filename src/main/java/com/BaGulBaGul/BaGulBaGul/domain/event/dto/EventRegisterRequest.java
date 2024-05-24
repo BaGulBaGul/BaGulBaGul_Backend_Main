@@ -31,7 +31,7 @@ public class EventRegisterRequest {
     private String title;
 
     @ApiModelProperty(value = "모집 인원")
-    private int totalHeadCount;
+    private int maxHeadCount;
 
     @ApiModelProperty(value = "세부 주소", example = "서울시 영등포구 xxx로 xxx타워 x층")
     private String fullLocation;
