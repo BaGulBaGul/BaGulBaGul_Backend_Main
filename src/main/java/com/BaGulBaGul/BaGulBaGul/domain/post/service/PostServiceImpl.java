@@ -51,17 +51,10 @@ public class PostServiceImpl implements PostService {
         Post post = postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException());
 
         //작성자 정보를 생성
-        User writer = post.getUser();
-        PostWriterInfo writerInfo = PostWriterInfo.builder()
-                .userId(writer.getId())
-                .userName(writer.getNickname())
-                .userProfileImageUrl(writer.getImageURI())
-                .build();
+        PostWriterInfo writerInfo = getPostWriterInfo(post.getUser());
 
         //태그를 리스트로 변환
-        List<String> tags = post.getTags().equals("") ?
-                new ArrayList<>() :
-                Arrays.asList(post.getTags().split(" ")).stream().filter(s -> !s.isEmpty()).collect(Collectors.toList());
+        List<String> tags = splitTags(post.getTags());
 
         //최종 PostSimpleInfo를 생성 후 반환
         return PostSimpleInfo.builder()
@@ -75,26 +68,25 @@ public class PostServiceImpl implements PostService {
                 .build();
     }
 
+
+
     @Override
     @Transactional
     public PostDetailInfo getPostDetailInfo(Long postId) {
         //Post정보를 가져옴
         Post post = postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException());
+
         //작성자 정보를 생성
-        User writer = post.getUser();
-        PostWriterInfo writerInfo = PostWriterInfo.builder()
-                .userId(writer.getId())
-                .userName(writer.getNickname())
-                .userProfileImageUrl(writer.getImageURI())
-                .build();
+        PostWriterInfo writerInfo = getPostWriterInfo(post.getUser());
+
         //태그를 리스트로 변환
-        List<String> tags = post.getTags().equals("") ?
-                new ArrayList<>() :
-                Arrays.asList(post.getTags().split(" ")).stream().filter(s -> !s.isEmpty()).collect(Collectors.toList());
+        List<String> tags = splitTags(post.getTags());
+
         //연결된 이미지의 resource id와 url을 조회
         List<PostImage> images = postImageService.getByOrder(post);
         List<Long> resourceIds = images.stream().map(x -> x.getResource().getId()).collect(Collectors.toList());
         List<String> imageUrls = resourceService.getResourceUrlsFromIds(resourceIds);
+
         //PostDetailInfo를 생성해서 반환
         return PostDetailInfo.builder()
                 .postId(post.getId())
@@ -198,5 +190,22 @@ public class PostServiceImpl implements PostService {
     @Override
     public boolean existsLike(Post post, User user) {
         return postLikeRepository.existsByPostAndUser(post, user);
+    }
+
+
+    private PostWriterInfo getPostWriterInfo(User writer) {
+        PostWriterInfo writerInfo = PostWriterInfo.builder()
+                .userId(writer.getId())
+                .userName(writer.getNickname())
+                .userProfileImageUrl(writer.getImageURI())
+                .build();
+        return writerInfo;
+    }
+
+    private List<String> splitTags(String tags) {
+        List<String> splittedTags = tags.equals("") ?
+                new ArrayList<>() :
+                Arrays.asList(tags.split(" ")).stream().filter(s -> !s.isEmpty()).collect(Collectors.toList());
+        return splittedTags;
     }
 }
