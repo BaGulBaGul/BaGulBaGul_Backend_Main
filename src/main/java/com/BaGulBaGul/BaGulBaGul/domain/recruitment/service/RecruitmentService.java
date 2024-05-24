@@ -7,11 +7,14 @@ import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentConditionalRe
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentDetailResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentSimpleInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentSimpleResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface RecruitmentService {
+
+    RecruitmentSimpleInfo getRecruitmentSimpleInfoById(Long recruitmentId);
     RecruitmentDetailResponse getRecruitmentDetailById(Long recruitmentId);
     Page<RecruitmentSimpleResponse> getRecruitmentPageByCondition(RecruitmentConditionalRequest recruitmentConditionalRequest, Pageable pageable);
     Page<GetLikeRecruitmentResponse> getMyLikeRecruitment(Long userId, Pageable pageable);

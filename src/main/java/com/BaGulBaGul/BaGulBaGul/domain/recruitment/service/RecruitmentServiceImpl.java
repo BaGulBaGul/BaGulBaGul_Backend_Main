@@ -16,6 +16,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentConditionalRe
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentDetailResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentSimpleInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentSimpleResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.exception.RecruitmentNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.repository.RecruitmentRepository;
@@ -44,6 +45,20 @@ public class RecruitmentServiceImpl implements RecruitmentService {
     private final PostService postService;
     private final PostImageService postImageService;
     private final ResourceService resourceService;
+
+    @Override
+    @Transactional
+    public RecruitmentSimpleInfo getRecruitmentSimpleInfoById(Long recruitmentId) {
+        Recruitment recruitment = recruitmentRepository.findById(recruitmentId).orElseThrow(() -> new RecruitmentNotFoundException());
+        return RecruitmentSimpleInfo.builder()
+                .id(recruitment.getId())
+                .state(recruitment.getState())
+                .currentHeadCount(recruitment.getCurrentHeadCount())
+                .totalHeadCount(recruitment.getTotalHeadCount())
+                .startDate(recruitment.getStartDate())
+                .endDate(recruitment.getEndDate())
+                .build();
+    }
 
     @Override
     @Transactional
