@@ -28,7 +28,7 @@ public class RecruitmentModifyRequest {
     private JsonNullable<Integer> currentHeadCount = JsonNullable.undefined();
 
     @ApiModelProperty(value = "모집 인원")
-    private JsonNullable<Integer> totalHeadCount = JsonNullable.undefined();
+    private JsonNullable<Integer> maxHeadCount = JsonNullable.undefined();
 
     @ApiModelProperty(value = "시작 시간")
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")

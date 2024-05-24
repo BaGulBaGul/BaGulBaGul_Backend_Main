@@ -50,7 +50,7 @@ public class Event {
     //모집 인원수
     @Setter
     @Column(name="headcount_total")
-    Integer totalHeadCount;
+    Integer maxHeadCount;
 
     //세부 주소
     @Setter
@@ -91,7 +91,7 @@ public class Event {
             EventType type,
             Post post,
             Integer currentHeadCount,
-            Integer totalHeadCount,
+            Integer maxHeadCount,
             String fullLocation,
             String abstractLocation,
             Float latitudeLocation,
@@ -102,7 +102,7 @@ public class Event {
         this.type = type;
         this.post = post;
         this.currentHeadCount = currentHeadCount;
-        this.totalHeadCount = totalHeadCount;
+        this.maxHeadCount = maxHeadCount;
         this.fullLocation = fullLocation;
         this.abstractLocation = abstractLocation;
         this.latitudeLocation = latitudeLocation;

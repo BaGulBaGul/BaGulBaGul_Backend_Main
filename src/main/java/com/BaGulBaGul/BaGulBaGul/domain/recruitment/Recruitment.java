@@ -37,7 +37,7 @@ public class Recruitment extends BaseTimeEntity {
 
     @Setter
     @Column(name="headcount_total")
-    Integer totalHeadCount;
+    Integer maxHeadCount;
 
     @Setter
     @Column(name = "startdate")
@@ -52,14 +52,14 @@ public class Recruitment extends BaseTimeEntity {
             Event event,
             Post post,
             Integer currentHeadCount,
-            Integer totalHeadCount,
+            Integer maxHeadCount,
             LocalDateTime startDate,
             LocalDateTime endDate
     ){
         this.event = event;
         this.post = post;
         this.currentHeadCount = currentHeadCount;
-        this.totalHeadCount = totalHeadCount;
+        this.maxHeadCount = maxHeadCount;
         this.startDate = startDate;
         this.endDate = endDate;
         this.state = RecruitmentState.PROCEEDING;

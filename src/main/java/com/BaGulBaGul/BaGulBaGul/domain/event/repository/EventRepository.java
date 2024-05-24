@@ -16,6 +16,12 @@ public interface EventRepository extends JpaRepository<Event, Long>, FindEventBy
     @EntityGraph(attributePaths = {"post.user", "categories.category"})
     Optional<Event> findWithPostAndUserAndCategoryById(Long eventId);
 
+    //카테고리와 같은 1:N:1 관계는 반드시 left outer join 으로 fetch join 해 줘야 한다. 카테고리가 없는 엔티티도 fetch join하기 위해.
+    @Query(
+            value = "SELECT e FROM Event e LEFT JOIN FETCH e.categories ec LEFT JOIN FETCH ec.category INNER JOIN FETCH e.post p INNER JOIN FETCH p.user WHERE e.id in :eventIds"
+    )
+    List<Event> findWithPostAndUserAndCategoriesByIds(@Param("eventIds") List<Long> eventIds);
+
     @Query(
             value = "SELECT e FROM Event e INNER JOIN e.post p INNER JOIN p.likes pl WHERE e.type = :type and pl.user.id = :userId"
     )

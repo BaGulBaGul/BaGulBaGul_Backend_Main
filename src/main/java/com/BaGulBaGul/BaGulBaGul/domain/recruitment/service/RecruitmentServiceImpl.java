@@ -4,7 +4,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.Event;
 import com.BaGulBaGul.BaGulBaGul.domain.event.exception.EventNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.event.repository.EventRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
-import com.BaGulBaGul.BaGulBaGul.domain.post.PostImage;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostDetailInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
@@ -13,12 +13,15 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostService;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.Recruitment;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.GetLikeRecruitmentResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentConditionalRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentDetailInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentDetailResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentSimpleInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentSimpleResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.exception.RecruitmentNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.repository.RecruitmentRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.repository.querydsl.FindRecruitmentByCondition.RecruitmentIdsWithTotalCountOfPageResult;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.exception.UserNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.UserRepository;
@@ -28,6 +31,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,29 +51,83 @@ public class RecruitmentServiceImpl implements RecruitmentService {
 
     @Override
     @Transactional
-    public RecruitmentDetailResponse getRecruitmentDetailById(Long recruitmentId) {
-        Recruitment recruitment = recruitmentRepository.findWithPostAndUserById(recruitmentId).orElseThrow(() -> new RecruitmentNotFoundException());
-        //연결된 이미지의 resource id와 url을 조회
-        List<PostImage> images = postImageService.getByOrder(recruitment.getPost());
-        List<Long> resourceIds = images.stream().map(x -> x.getResource().getId()).collect(Collectors.toList());
-        List<String> imageUrls = resourceService.getResourceUrlsFromIds(resourceIds);
-        //조회수 증가
-        postRepository.increaseViewsById(recruitment.getPost().getId());
-        //응답 dto 추출
-        RecruitmentDetailResponse recruitmentDetailResponse = RecruitmentDetailResponse.of(recruitment, resourceIds, imageUrls);
-        //방금 조회한 조회수를 반영해줌.
-        recruitmentDetailResponse.setViews(recruitmentDetailResponse.getViews() + 1);
-        return recruitmentDetailResponse;
+    public RecruitmentSimpleInfo getRecruitmentSimpleInfoById(Long recruitmentId) {
+        Recruitment recruitment = recruitmentRepository.findById(recruitmentId).orElseThrow(() -> new RecruitmentNotFoundException());
+        return RecruitmentSimpleInfo.builder()
+                .recruitmentId(recruitment.getId())
+                .state(recruitment.getState())
+                .currentHeadCount(recruitment.getCurrentHeadCount())
+                .maxHeadCount(recruitment.getMaxHeadCount())
+                .startDate(recruitment.getStartDate())
+                .endDate(recruitment.getEndDate())
+                .build();
     }
 
     @Override
+    @Transactional
+    public RecruitmentDetailInfo getRecruitmentDetailInfoById(Long recruitmentId) {
+        Recruitment recruitment = recruitmentRepository.findById(recruitmentId).orElseThrow(() -> new RecruitmentNotFoundException());
+        return RecruitmentDetailInfo.builder()
+                .recruitmentId(recruitmentId)
+                .eventId(recruitment.getEvent().getId())
+                .state(recruitment.getState())
+                .currentHeadCount(recruitment.getCurrentHeadCount())
+                .maxHeadCount(recruitment.getMaxHeadCount())
+                .startDate(recruitment.getStartDate())
+                .endDate(recruitment.getEndDate())
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public RecruitmentDetailResponse getRecruitmentDetailById(Long recruitmentId) {
+        Recruitment recruitment = recruitmentRepository.findWithPostAndUserById(recruitmentId).orElseThrow(() -> new RecruitmentNotFoundException());
+
+        //필요한 정보 추출
+        RecruitmentDetailInfo recruitmentDetailInfo = getRecruitmentDetailInfoById(recruitmentId);
+        PostDetailInfo postDetailInfo = postService.getPostDetailInfo(recruitment.getPost().getId());
+
+        //응답 dto 생성
+        RecruitmentDetailResponse response = RecruitmentDetailResponse.builder()
+                .recruitment(recruitmentDetailInfo)
+                .post(postDetailInfo)
+                .build();
+
+        //조회수 증가
+        postRepository.increaseViewsById(recruitment.getPost().getId());
+
+        //방금 조회한 조회수를 반영해줌.
+        postDetailInfo.setViews(postDetailInfo.getViews() + 1);
+
+        return response;
+    }
+
+    @Override
+    @Transactional
     public Page<RecruitmentSimpleResponse> getRecruitmentPageByCondition(
             RecruitmentConditionalRequest recruitmentConditionalRequest, Pageable pageable
     ) {
-        return recruitmentRepository.getRecruitmentSimpleResponsePageByCondition(
+        //조건을 이용해 페이지조회를 하고 결과를 받아온다
+        RecruitmentIdsWithTotalCountOfPageResult pageResult = recruitmentRepository.getRecruitmentIdsByConditionAndPageable(
                 recruitmentConditionalRequest,
                 pageable
         );
+
+        //fetch join 수행
+        recruitmentRepository.findWithPostAndUserByIds(pageResult.getRecruitmentIds());
+
+        //응답 dto에 정보를 담는다
+        List<RecruitmentSimpleResponse> content = pageResult.getRecruitmentIds()
+                .stream()
+                .map(id -> recruitmentRepository.findById(id))
+                .map(recruitment -> RecruitmentSimpleResponse.builder()
+                        .recruitment(getRecruitmentSimpleInfoById(recruitment.get().getId()))
+                        .post(postService.getPostSimpleInfo(recruitment.get().getPost().getId()))
+                        .build()
+                ).collect(Collectors.toList());
+
+        //최종 페이지 객체를 만들고 반환
+        return new PageImpl<>(content, pageable, pageResult.getTotalCount());
     }
 
     @Override
@@ -95,7 +153,7 @@ public class RecruitmentServiceImpl implements RecruitmentService {
                 .event(event)
                 .post(post)
                 .currentHeadCount(0)
-                .totalHeadCount(recruitmentRegisterRequest.getTotalHeadCount())
+                .maxHeadCount(recruitmentRegisterRequest.getMaxHeadCount())
                 .startDate(recruitmentRegisterRequest.getStartDate())
                 .endDate(recruitmentRegisterRequest.getEndDate())
                 .build();
@@ -123,8 +181,8 @@ public class RecruitmentServiceImpl implements RecruitmentService {
         if(recruitmentModifyRequest.getCurrentHeadCount().isPresent()) {
             recruitment.setCurrentHeadCount(recruitmentModifyRequest.getCurrentHeadCount().get());
         }
-        if(recruitmentModifyRequest.getTotalHeadCount().isPresent()) {
-            recruitment.setTotalHeadCount(recruitmentModifyRequest.getTotalHeadCount().get());
+        if(recruitmentModifyRequest.getMaxHeadCount().isPresent()) {
+            recruitment.setMaxHeadCount(recruitmentModifyRequest.getMaxHeadCount().get());
         }
         if(recruitmentModifyRequest.getStartDate() != null) {
             recruitment.setStartDate(recruitmentModifyRequest.getStartDate());

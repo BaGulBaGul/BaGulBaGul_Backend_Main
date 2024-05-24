@@ -17,6 +17,11 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long>,
     Optional<Recruitment> findWithPostAndUserById(Long recruitmentId);
 
     @Query(
+            value = "SELECT r FROM Recruitment r INNER JOIN FETCH r.post p INNER JOIN FETCH p.user WHERE r.id in :recruitmentIds"
+    )
+    List<Recruitment> findWithPostAndUserByIds(@Param("recruitmentIds") List<Long> recruitmentIds);
+
+    @Query(
             value = "SELECT r FROM Recruitment r INNER JOIN r.post p INNER JOIN p.likes pl WHERE pl.user.id = :userId"
     )
     Page<Recruitment> getLikeRecruitmentByUser(
