@@ -62,7 +62,7 @@ public class EventServiceImpl implements EventService {
     public EventSimpleInfo getEventSimpleInfoById(Long eventId) {
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException());
         return EventSimpleInfo.builder()
-                .id(event.getId())
+                .eventId(event.getId())
                 .type(event.getType())
                 .abstractLocation(event.getAbstractLocation())
                 .currentHeadCount(event.getCurrentHeadCount())
@@ -81,7 +81,7 @@ public class EventServiceImpl implements EventService {
     public EventDetailInfo getEventDetailInfoById(Long eventId) {
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException());
         return EventDetailInfo.builder()
-                .id(event.getId())
+                .eventId(event.getId())
                 .type(event.getType())
                 .currentHeadCount(event.getCurrentHeadCount())
                 .maxHeadCount(event.getMaxHeadCount())

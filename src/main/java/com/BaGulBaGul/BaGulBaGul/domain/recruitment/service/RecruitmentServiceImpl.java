@@ -54,7 +54,7 @@ public class RecruitmentServiceImpl implements RecruitmentService {
     public RecruitmentSimpleInfo getRecruitmentSimpleInfoById(Long recruitmentId) {
         Recruitment recruitment = recruitmentRepository.findById(recruitmentId).orElseThrow(() -> new RecruitmentNotFoundException());
         return RecruitmentSimpleInfo.builder()
-                .id(recruitment.getId())
+                .recruitmentId(recruitment.getId())
                 .state(recruitment.getState())
                 .currentHeadCount(recruitment.getCurrentHeadCount())
                 .maxHeadCount(recruitment.getMaxHeadCount())
@@ -68,7 +68,7 @@ public class RecruitmentServiceImpl implements RecruitmentService {
     public RecruitmentDetailInfo getRecruitmentDetailInfoById(Long recruitmentId) {
         Recruitment recruitment = recruitmentRepository.findById(recruitmentId).orElseThrow(() -> new RecruitmentNotFoundException());
         return RecruitmentDetailInfo.builder()
-                .id(recruitmentId)
+                .recruitmentId(recruitmentId)
                 .eventId(recruitment.getEvent().getId())
                 .state(recruitment.getState())
                 .currentHeadCount(recruitment.getCurrentHeadCount())

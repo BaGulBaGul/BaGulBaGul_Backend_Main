@@ -15,7 +15,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 @AllArgsConstructor
 public class RecruitmentSimpleInfo {
     @ApiModelProperty(value = "모잡글 id")
-    private Long id;
+    private Long recruitmentId;
 
     @ApiModelProperty(value = "모집 상태")
     private RecruitmentState state;

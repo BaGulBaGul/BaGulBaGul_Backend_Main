@@ -15,7 +15,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class EventDetailInfo {
     @ApiModelProperty(value = "이벤트 id")
-    private Long id;
+    private Long eventId;
 
     @ApiModelProperty(value = "이벤트 타입 FESTIVAL, LOCAL_EVENT, PARTY 중 하나")
     private EventType type;

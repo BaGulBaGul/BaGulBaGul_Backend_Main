@@ -15,7 +15,7 @@ import lombok.Setter;
 public class RecruitmentDetailInfo {
 
     @ApiModelProperty(value = "모잡글 id")
-    private Long id;
+    private Long recruitmentId;
 
     @ApiModelProperty(value = "이벤트 id")
     private Long eventId;
