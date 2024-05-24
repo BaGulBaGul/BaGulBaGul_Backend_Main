@@ -100,7 +100,7 @@ public class EventServiceImpl implements EventService {
             Pageable pageable
     ) {
         //조건에 해당하는 event id를 페이지 검색함.
-        EventIdsWithTotalCountOfPageResult pageResult = eventRepository.getEventIdsWithFetchJoinByConditionAndPageable(eventConditionalRequest, pageable);
+        EventIdsWithTotalCountOfPageResult pageResult = eventRepository.getEventIdsByConditionAndPageable(eventConditionalRequest, pageable);
         //필요한 정보를 fetch join
         eventRepository.findWithPostAndUserAndCategoriesByIds(pageResult.getEventIds());
         //페이지 조회한 ids를 순서대로 EventSimpleResponse로 변환

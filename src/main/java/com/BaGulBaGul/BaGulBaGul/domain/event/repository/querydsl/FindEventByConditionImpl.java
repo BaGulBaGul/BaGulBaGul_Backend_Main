@@ -26,7 +26,7 @@ public class FindEventByConditionImpl implements FindEventByCondition {
 
     @Override
     @Transactional
-    public EventIdsWithTotalCountOfPageResult getEventIdsWithFetchJoinByConditionAndPageable(
+    public EventIdsWithTotalCountOfPageResult getEventIdsByConditionAndPageable(
             EventConditionalRequest eventConditionalRequest,
             Pageable pageable
     ) {
