@@ -83,17 +83,24 @@ public class RecruitmentServiceImpl implements RecruitmentService {
     @Transactional
     public RecruitmentDetailResponse getRecruitmentDetailById(Long recruitmentId) {
         Recruitment recruitment = recruitmentRepository.findWithPostAndUserById(recruitmentId).orElseThrow(() -> new RecruitmentNotFoundException());
-        //연결된 이미지의 resource id와 url을 조회
-        List<PostImage> images = postImageService.getByOrder(recruitment.getPost());
-        List<Long> resourceIds = images.stream().map(x -> x.getResource().getId()).collect(Collectors.toList());
-        List<String> imageUrls = resourceService.getResourceUrlsFromIds(resourceIds);
+
+        //필요한 정보 추출
+        RecruitmentDetailInfo recruitmentDetailInfo = getRecruitmentDetailInfoById(recruitmentId);
+        PostDetailInfo postDetailInfo = postService.getPostDetailInfo(recruitment.getPost().getId());
+
+        //응답 dto 생성
+        RecruitmentDetailResponse response = RecruitmentDetailResponse.builder()
+                .recruitment(recruitmentDetailInfo)
+                .post(postDetailInfo)
+                .build();
+
         //조회수 증가
         postRepository.increaseViewsById(recruitment.getPost().getId());
-        //응답 dto 추출
-        RecruitmentDetailResponse recruitmentDetailResponse = RecruitmentDetailResponse.of(recruitment, resourceIds, imageUrls);
+
         //방금 조회한 조회수를 반영해줌.
-        recruitmentDetailResponse.setViews(recruitmentDetailResponse.getViews() + 1);
-        return recruitmentDetailResponse;
+        postDetailInfo.setViews(postDetailInfo.getViews() + 1);
+
+        return response;
     }
 
     @Override
