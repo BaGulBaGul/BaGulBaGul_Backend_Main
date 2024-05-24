@@ -1,7 +1,9 @@
 package com.BaGulBaGul.BaGulBaGul.domain.post.service;
 
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
+import com.BaGulBaGul.BaGulBaGul.domain.post.PostImage;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostLike;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostDetailInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostSimpleInfo;
@@ -17,6 +19,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostLikeRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
+import com.BaGulBaGul.BaGulBaGul.global.upload.service.ResourceService;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -38,6 +41,7 @@ public class PostServiceImpl implements PostService {
     private final PostCommentChildRepository postCommentChildRepository;
     private final PostCommentChildLikeRepository postCommentChildLikeRepository;
     private final PostImageService postImageService;
+    private final ResourceService resourceService;
     private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
@@ -66,6 +70,44 @@ public class PostServiceImpl implements PostService {
                 .title(post.getTitle())
                 .headImageUrl(post.getImage_url())
                 .tags(tags)
+                .createdAt(post.getCreatedAt())
+                .lastModifiedAt(post.getLastModifiedAt())
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public PostDetailInfo getPostDetailInfo(Long postId) {
+        //Post정보를 가져옴
+        Post post = postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException());
+        //작성자 정보를 생성
+        User writer = post.getUser();
+        PostWriterInfo writerInfo = PostWriterInfo.builder()
+                .userId(writer.getId())
+                .userName(writer.getNickname())
+                .userProfileImageUrl(writer.getImageURI())
+                .build();
+        //태그를 리스트로 변환
+        List<String> tags = post.getTags().equals("") ?
+                new ArrayList<>() :
+                Arrays.asList(post.getTags().split(" ")).stream().filter(s -> !s.isEmpty()).collect(Collectors.toList());
+        //연결된 이미지의 resource id와 url을 조회
+        List<PostImage> images = postImageService.getByOrder(post);
+        List<Long> resourceIds = images.stream().map(x -> x.getResource().getId()).collect(Collectors.toList());
+        List<String> imageUrls = resourceService.getResourceUrlsFromIds(resourceIds);
+        //PostDetailInfo를 생성해서 반환
+        return PostDetailInfo.builder()
+                .postId(post.getId())
+                .writer(writerInfo)
+                .title(post.getTitle())
+                .headImageUrl(post.getImage_url())
+                .content(post.getContent())
+                .tags(tags)
+                .imageIds(resourceIds)
+                .imageUrls(imageUrls)
+                .likeCount(post.getLikeCount())
+                .commentCount(post.getCommentCount())
+                .views(post.getViews())
                 .createdAt(post.getCreatedAt())
                 .lastModifiedAt(post.getLastModifiedAt())
                 .build();
