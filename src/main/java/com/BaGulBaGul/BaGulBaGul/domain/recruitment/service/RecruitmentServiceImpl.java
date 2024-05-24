@@ -5,6 +5,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.exception.EventNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.event.repository.EventRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostImage;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostDetailInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
@@ -13,6 +14,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostService;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.Recruitment;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.GetLikeRecruitmentResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentConditionalRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentDetailInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentDetailResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentRegisterRequest;
@@ -57,6 +59,21 @@ public class RecruitmentServiceImpl implements RecruitmentService {
                 .state(recruitment.getState())
                 .currentHeadCount(recruitment.getCurrentHeadCount())
                 .totalHeadCount(recruitment.getTotalHeadCount())
+                .startDate(recruitment.getStartDate())
+                .endDate(recruitment.getEndDate())
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public RecruitmentDetailInfo getRecruitmentDetailInfoById(Long recruitmentId) {
+        Recruitment recruitment = recruitmentRepository.findById(recruitmentId).orElseThrow(() -> new RecruitmentNotFoundException());
+        return RecruitmentDetailInfo.builder()
+                .id(recruitmentId)
+                .eventId(recruitment.getEvent().getId())
+                .state(recruitment.getState())
+                .currentHeadCount(recruitment.getCurrentHeadCount())
+                .maxHeadCount(recruitment.getTotalHeadCount())
                 .startDate(recruitment.getStartDate())
                 .endDate(recruitment.getEndDate())
                 .build();
