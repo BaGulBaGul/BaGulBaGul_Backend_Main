@@ -2,6 +2,7 @@ package com.BaGulBaGul.BaGulBaGul.domain.event.service;
 
 import com.BaGulBaGul.BaGulBaGul.domain.event.Category;
 import com.BaGulBaGul.BaGulBaGul.domain.event.Event;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventDetailInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventDetailResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventSimpleInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.GetLikeEventRequest;
@@ -19,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 public interface EventService {
 
     EventSimpleInfo getEventSimpleInfoById(Long eventId);
+    EventDetailInfo getEventDetailInfoById(Long eventId);
     EventDetailResponse getEventDetailById(Long eventId);
     Page<EventSimpleResponse> getEventPageByCondition(EventConditionalRequest eventConditionalRequest, Pageable pageable);
     Page<GetLikeEventResponse> getMyLikeEvent(GetLikeEventRequest getLikeEventRequest, Long userId, Pageable pageable);

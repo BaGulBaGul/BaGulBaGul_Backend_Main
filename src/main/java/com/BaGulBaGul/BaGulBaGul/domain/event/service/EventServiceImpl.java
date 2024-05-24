@@ -4,6 +4,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.Category;
 import com.BaGulBaGul.BaGulBaGul.domain.event.Event;
 import com.BaGulBaGul.BaGulBaGul.domain.event.EventCategory;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventConditionalRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventDetailInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventDetailResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventRegisterRequest;
@@ -66,6 +67,28 @@ public class EventServiceImpl implements EventService {
                 .abstractLocation(event.getAbstractLocation())
                 .currentHeadCount(event.getCurrentHeadCount())
                 .totalHeadCount(event.getTotalHeadCount())
+                .startDate(event.getStartDate())
+                .endDate(event.getEndDate())
+                .categories(
+                        event.getCategories().stream()
+                                .map(eventCategory -> eventCategory.getCategory().getName())
+                                .collect(Collectors.toList())
+                )
+                .build();
+    }
+
+    @Override
+    public EventDetailInfo getEventDetailInfoById(Long eventId) {
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException());
+        return EventDetailInfo.builder()
+                .id(event.getId())
+                .type(event.getType())
+                .currentHeadCount(event.getCurrentHeadCount())
+                .maxHeadCount(event.getTotalHeadCount())
+                .fullLocation(event.getFullLocation())
+                .abstractLocation(event.getAbstractLocation())
+                .latitudeLocation(event.getLatitudeLocation())
+                .longitudeLocation(event.getLongitudeLocation())
                 .startDate(event.getStartDate())
                 .endDate(event.getEndDate())
                 .categories(
