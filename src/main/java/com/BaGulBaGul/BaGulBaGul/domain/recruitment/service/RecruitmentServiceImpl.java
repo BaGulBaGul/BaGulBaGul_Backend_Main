@@ -20,6 +20,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentSimpleInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentSimpleResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.exception.RecruitmentNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.repository.RecruitmentRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.repository.querydsl.FindRecruitmentByCondition.RecruitmentIdsWithTotalCountOfPageResult;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.exception.UserNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.UserRepository;
@@ -29,6 +30,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -78,13 +80,31 @@ public class RecruitmentServiceImpl implements RecruitmentService {
     }
 
     @Override
+    @Transactional
     public Page<RecruitmentSimpleResponse> getRecruitmentPageByCondition(
             RecruitmentConditionalRequest recruitmentConditionalRequest, Pageable pageable
     ) {
-        return recruitmentRepository.getRecruitmentSimpleResponsePageByCondition(
+        //조건을 이용해 페이지조회를 하고 결과를 받아온다
+        RecruitmentIdsWithTotalCountOfPageResult pageResult = recruitmentRepository.getRecruitmentIdsByConditionAndPageable(
                 recruitmentConditionalRequest,
                 pageable
         );
+
+        //fetch join 수행
+        recruitmentRepository.findWithPostAndUserByIds(pageResult.getRecruitmentIds());
+
+        //응답 dto에 정보를 담는다
+        List<RecruitmentSimpleResponse> content = pageResult.getRecruitmentIds()
+                .stream()
+                .map(id -> recruitmentRepository.findById(id))
+                .map(recruitment -> RecruitmentSimpleResponse.builder()
+                        .recruitment(getRecruitmentSimpleInfoById(recruitment.get().getId()))
+                        .post(postService.getPostSimpleInfo(recruitment.get().getPost().getId()))
+                        .build()
+                ).collect(Collectors.toList());
+
+        //최종 페이지 객체를 만들고 반환
+        return new PageImpl<>(content, pageable, pageResult.getTotalCount());
     }
 
     @Override
