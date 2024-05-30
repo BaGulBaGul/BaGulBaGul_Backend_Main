@@ -15,7 +15,7 @@ import lombok.Setter;
 public class GetLikeRecruitmentResponse {
 
     @ApiModelProperty(value = "모집글 id")
-    private Long id;
+    private Long recruitmentId;
 
     @ApiModelProperty(value = "시작 시간")
     private LocalDateTime startDate;
@@ -28,7 +28,7 @@ public class GetLikeRecruitmentResponse {
 
     public static GetLikeRecruitmentResponse of(Recruitment recruitment) {
         return GetLikeRecruitmentResponse.builder()
-                .id(recruitment.getId())
+                .recruitmentId(recruitment.getId())
                 .startDate(recruitment.getStartDate())
                 .endDate(recruitment.getEndDate())
                 .title(recruitment.getPost().getTitle())
