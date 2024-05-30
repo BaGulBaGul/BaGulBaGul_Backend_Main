@@ -15,7 +15,7 @@ import lombok.Setter;
 public class GetLikeEventResponse {
 
     @ApiModelProperty(value = "이벤트 id")
-    private Long id;
+    private Long eventId;
 
     @ApiModelProperty(value = "게시글 제목")
     private String title;
@@ -31,7 +31,7 @@ public class GetLikeEventResponse {
 
     public static GetLikeEventResponse of(Event event) {
         return GetLikeEventResponse.builder()
-                .id(event.getId())
+                .eventId(event.getId())
                 .title(event.getPost().getTitle())
                 .abstractLocation(event.getAbstractLocation())
                 .startDate(event.getStartDate())
