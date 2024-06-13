@@ -1,6 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user.calendar.controller;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.calendar.dto.EventCalendarDeleteRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.calendar.dto.EventCalendarExistsResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.user.calendar.dto.EventCalendarRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.calendar.dto.EventCalendarSearchRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.calendar.dto.EventCalendarSearchResponse;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,6 +38,22 @@ public class CalendarControllerImpl implements CalendarController {
     ) {
         return ApiResponse.of(
                 calendarService.findEventCalendarByCondition(userId, eventCalendarSearchRequest)
+        );
+    }
+
+    @Override
+    @GetMapping("/event/{eventId}/exists")
+    @Operation(summary = "캘린더에 특정 이벤트가 존재하는지 확인",
+            description = "로그인 필요"
+    )
+    public ApiResponse<EventCalendarExistsResponse> existsEventCalendar(
+            @AuthenticationPrincipal Long userId,
+            @PathVariable("eventId") Long eventId
+    ) {
+        return ApiResponse.of(
+                EventCalendarExistsResponse.builder()
+                        .exists(calendarService.existsEventCalendar(userId, eventId))
+                        .build()
         );
     }
 

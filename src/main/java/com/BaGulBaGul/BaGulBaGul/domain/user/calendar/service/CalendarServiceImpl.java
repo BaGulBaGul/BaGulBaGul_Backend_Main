@@ -45,6 +45,14 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
+    public boolean existsEventCalendar(Long userId, Long eventId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
+        return eventCalendarRepository.existsById(
+                new EventCalendarId(user.getId(), eventId)
+        );
+    }
+
+    @Override
     @Transactional
     public void registerEventCalendar(Long userId, EventCalendarRegisterRequest eventCalendarRegisterRequest) {
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());

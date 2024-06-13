@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface CalendarService {
     List<EventCalendarSearchResponse> findEventCalendarByCondition(Long userId, EventCalendarSearchRequest eventCalendarSearchRequest);
+    boolean existsEventCalendar(Long userId, Long eventId);
     void registerEventCalendar(Long userId, EventCalendarRegisterRequest eventCalendarRegisterRequest);
     void deleteEventCalendar(Long userId, EventCalendarDeleteRequest eventCalendarDeleteRequest);
 }
