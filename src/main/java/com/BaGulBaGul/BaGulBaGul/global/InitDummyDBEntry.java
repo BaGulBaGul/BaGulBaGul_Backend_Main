@@ -14,12 +14,12 @@ public class InitDummyDBEntry {
     @Autowired
     InitDummyDB initDummyDB;
 
-    @Value("${spring.jpa.hibernate.ddl-auto}")
-    String DDL_AUTO;
+    @Value("${FLAG_INIT_DUMMY_DATA}")
+    boolean FLAG_INIT_DUMMY_DB;
 
     @PostConstruct
     public void init() {
-        if(DDL_AUTO.startsWith("create")) {
+        if(FLAG_INIT_DUMMY_DB) {
             initDummyDB.init();
         }
     }
