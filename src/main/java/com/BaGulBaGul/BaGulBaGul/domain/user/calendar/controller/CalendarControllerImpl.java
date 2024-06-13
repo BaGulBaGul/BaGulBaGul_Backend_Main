@@ -43,6 +43,9 @@ public class CalendarControllerImpl implements CalendarController {
 
     @Override
     @GetMapping("/event/{eventId}/exists")
+    @Operation(summary = "캘린더에 특정 이벤트가 존재하는지 확인",
+            description = "로그인 필요"
+    )
     public ApiResponse<EventCalendarExistsResponse> existsEventCalendar(
             @AuthenticationPrincipal Long userId,
             @PathVariable("eventId") Long eventId
