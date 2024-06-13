@@ -1,10 +1,12 @@
 #기본 db설정
 spring:
   jpa:
-    defer-datasource-initialization: true
     properties:
       default_batch_fetch_size: 100
     open-in-view: false
+  flyway:
+    locations: classpath:db/migration
+    enabled: true
 ---
 #dev용 db 설정
 spring:
