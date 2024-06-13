@@ -54,18 +54,18 @@ public class CalendarServiceImpl implements CalendarService {
 
     @Override
     @Transactional
-    public void registerEventCalendar(Long userId, EventCalendarRegisterRequest eventCalendarRegisterRequest) {
+    public void registerEventCalendar(Long userId, Long eventId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
-        Event event = eventRepository.findById(eventCalendarRegisterRequest.getEventId()).orElseThrow(() -> new EventNotFoundException());
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException());
         eventCalendarRepository.save(
                 new EventCalendar(user, event)
         );
     }
 
     @Override
-    public void deleteEventCalendar(Long userId, EventCalendarDeleteRequest eventCalendarDeleteRequest) {
+    public void deleteEventCalendar(Long userId, Long eventId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
-        Event event = eventRepository.findById(eventCalendarDeleteRequest.getEventId()).orElseThrow(() -> new EventNotFoundException());
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException());
         eventCalendarRepository.deleteById(new EventCalendarId(user.getId(), event.getId()));
     }
 }

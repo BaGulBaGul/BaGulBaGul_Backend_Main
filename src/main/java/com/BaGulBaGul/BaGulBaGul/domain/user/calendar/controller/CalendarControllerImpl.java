@@ -58,28 +58,28 @@ public class CalendarControllerImpl implements CalendarController {
     }
 
     @Override
-    @PostMapping("/event")
+    @PostMapping("/event/{eventId}")
     @Operation(summary = "캘린더에 이벤트를 등록",
             description = "이벤트 id를 받아서 등록. 로그인 필요"
     )
     public ApiResponse<Object> registerEventCalendar(
             @AuthenticationPrincipal Long userId,
-            EventCalendarRegisterRequest eventCalendarRegisterRequest
+            @PathVariable("eventId") Long eventId
     ) {
-        calendarService.registerEventCalendar(userId, eventCalendarRegisterRequest);
+        calendarService.registerEventCalendar(userId, eventId);
         return ApiResponse.of(null);
     }
 
     @Override
-    @DeleteMapping("/event")
+    @DeleteMapping("/event/{eventId}")
     @Operation(summary = "캘린더에서 이벤트를 삭제",
             description = "이벤트 id를 받아서 삭제. 로그인 필요"
     )
     public ApiResponse<Object> deleteEventCalendar(
             @AuthenticationPrincipal Long userId,
-            EventCalendarDeleteRequest eventCalendarDeleteRequest
+            @PathVariable("eventId") Long eventId
     ) {
-        calendarService.deleteEventCalendar(userId, eventCalendarDeleteRequest);
+        calendarService.deleteEventCalendar(userId, eventId);
         return ApiResponse.of(null);
     }
 }

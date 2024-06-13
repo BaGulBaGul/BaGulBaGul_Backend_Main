@@ -11,6 +11,6 @@ import java.util.List;
 public interface CalendarController {
     ApiResponse<List<EventCalendarSearchResponse>> searchEventByCondition(Long userId, EventCalendarSearchRequest eventCalendarSearchRequest);
     ApiResponse<EventCalendarExistsResponse> existsEventCalendar(Long userId, Long eventId);
-    ApiResponse<Object> registerEventCalendar(Long userId, EventCalendarRegisterRequest eventCalendarRegisterRequest);
-    ApiResponse<Object> deleteEventCalendar(Long userId, EventCalendarDeleteRequest eventCalendarDeleteRequest);
+    ApiResponse<Object> registerEventCalendar(Long userId, Long eventId);
+    ApiResponse<Object> deleteEventCalendar(Long userId, Long eventId);
 }
