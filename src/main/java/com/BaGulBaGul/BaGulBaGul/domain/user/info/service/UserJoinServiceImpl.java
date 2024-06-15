@@ -64,4 +64,9 @@ public class UserJoinServiceImpl implements UserJoinService {
         //다른 유저가 사용 가능하도록 닉네임을 null로 변경
         user.setNickname(null);
     }
+
+    @Override
+    public boolean checkDuplicateUsername(String username) {
+        return userRepository.existsByNicknameIgnoreCase(username);
+    }
 }

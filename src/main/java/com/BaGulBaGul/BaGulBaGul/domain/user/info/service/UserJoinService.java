@@ -8,4 +8,5 @@ public interface UserJoinService {
     void registerSocialLoginUser(SocialLoginUserJoinRequest socialLoginUserJoinRequest);
     User registerUser(UserRegisterRequest userJoinRequest);
     void deleteUser(Long userId);
+    boolean checkDuplicateUsername(String username);
 }
