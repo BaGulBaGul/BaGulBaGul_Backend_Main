@@ -7,7 +7,6 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.info.dto.UserRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.service.UserJoinService;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -22,7 +21,7 @@ import org.springframework.test.context.ActiveProfiles;
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
 @ActiveProfiles("test")
-public class UserJoinServiceIntegrationTest {
+public class UserJoinService_IntegrationTest {
 
     @Autowired
     UserJoinService userJoinService;
