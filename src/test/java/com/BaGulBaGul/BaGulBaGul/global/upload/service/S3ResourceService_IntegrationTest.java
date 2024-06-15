@@ -33,7 +33,7 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
 @ActiveProfiles("test")
-class S3ResourceServiceTest {
+class S3ResourceService_IntegrationTest {
     //기존 aws의 @Configuration을 덮어 써야 함. 단순 @MockBean은 작동 안함.
     //@DirtiesContext를 사용하거나 reset를 이용해 테스트 간 독립성 보장 필요
     @TestConfiguration

@@ -1,6 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user.info.controller;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.auth.service.JwtCookieService;
+import com.BaGulBaGul.BaGulBaGul.domain.user.info.dto.CheckDuplicateUsernameResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.dto.SocialLoginUserJoinRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.service.UserJoinService;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
@@ -11,6 +12,7 @@ import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -52,5 +54,18 @@ public class UserJoinControllerImpl implements UserJoinController {
         jwtCookieService.deleteAccessToken(response);
         jwtCookieService.deleteRefreshToken(response);
         return ApiResponse.of(null);
+    }
+
+    @Override
+    @GetMapping("/check-duplicate-username")
+    @Operation(summary = "유저명 중복 체크 api")
+    public ApiResponse<CheckDuplicateUsernameResponse> checkDuplicateUsername(
+            String username
+    ) {
+        return ApiResponse.of(
+                CheckDuplicateUsernameResponse.builder()
+                        .duplicate(userJoinService.checkDuplicateUsername(username))
+                        .build()
+        );
     }
 }
