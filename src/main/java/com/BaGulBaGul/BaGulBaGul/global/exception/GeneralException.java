@@ -1,18 +1,18 @@
 package com.BaGulBaGul.BaGulBaGul.global.exception;
 
-import com.BaGulBaGul.BaGulBaGul.global.response.ResponseCode;
+import com.BaGulBaGul.BaGulBaGul.global.response.ResponseCode.CodeType;
 import lombok.Getter;
 
 @Getter
 public class GeneralException extends RuntimeException {
 
-    private final ResponseCode responseCode;
+    private final CodeType code;
 
-    public GeneralException(ResponseCode responseCode, String message) {
+    public GeneralException(CodeType code, String message) {
         super(message);
-        this.responseCode = responseCode;
+        this.code = code;
     }
-    public GeneralException(ResponseCode responseCode) {
-        this(responseCode, responseCode.getMessage());
+    public GeneralException(CodeType code) {
+        this(code, code.getMessage());
     }
 }

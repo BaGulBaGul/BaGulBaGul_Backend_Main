@@ -1,7 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.global.error;
 
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
-import com.BaGulBaGul.BaGulBaGul.global.response.ResponseCode;
+import com.BaGulBaGul.BaGulBaGul.global.response.ResponseCode.CodeType;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.HttpStatus;
@@ -16,10 +16,10 @@ public class BaseErrorController implements ErrorController {
     @RequestMapping("/error")
     public ResponseEntity<ApiResponse> error(HttpServletResponse response) {
         HttpStatus httpStatus = HttpStatus.valueOf(response.getStatus());
-        ResponseCode responseCode = ResponseCode.valueOf(httpStatus);
+        CodeType codeType = CodeType.valueOf(httpStatus);
 
         return ResponseEntity
                 .status(httpStatus)
-                .body(ApiResponse.of(null, responseCode));
+                .body(ApiResponse.of(null, codeType));
     }
 }

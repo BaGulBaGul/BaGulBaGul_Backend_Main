@@ -3,7 +3,7 @@ package com.BaGulBaGul.BaGulBaGul.domain.user.auth.oauth2;
 import com.BaGulBaGul.BaGulBaGul.domain.user.auth.oauth2.constant.OAuth2Provider;
 import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.auth.oauth2.dto.KakaoOAuth2User;
-import com.BaGulBaGul.BaGulBaGul.global.response.ResponseCode;
+import com.BaGulBaGul.BaGulBaGul.global.response.ResponseCode.CodeType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -21,6 +21,6 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
         if(provider.equals(OAuth2Provider.kakao.name())) {
             return new KakaoOAuth2User(oAuth2User.getAttributes());
         }
-        throw new GeneralException(ResponseCode.BAD_REQUEST);
+        throw new GeneralException(CodeType.BAD_REQUEST);
     }
 }

@@ -1,5 +1,6 @@
 package com.BaGulBaGul.BaGulBaGul.global.response;
 
+import com.BaGulBaGul.BaGulBaGul.global.response.ResponseCode.CodeType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,10 +14,10 @@ public class ApiResponse<T> {
     private final T data;
 
     public static <T> ApiResponse<T> of(T data) {
-        return new ApiResponse<>(ResponseCode.SUCCESS.getCode(), ResponseCode.SUCCESS.getMessage(), data);
+        return new ApiResponse<>(CodeType.SUCCESS.getCode(), CodeType.SUCCESS.getMessage(), data);
     }
 
-    public static <T> ApiResponse<T> of(T data, ResponseCode responseCode) {
-        return new ApiResponse<>(responseCode.getCode(), responseCode.getMessage(), data);
+    public static <T> ApiResponse<T> of(T data, CodeType code) {
+        return new ApiResponse<>(code.getCode(), code.getMessage(), data);
     }
 }
