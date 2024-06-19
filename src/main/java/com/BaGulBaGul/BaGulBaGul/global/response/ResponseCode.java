@@ -26,7 +26,6 @@ public class ResponseCode {
     public static final ResponseCode UJ_JOINTOKEN_EXPIRED = new ResponseCode(CodeType.UJ_JOINTOKEN_EXPIRED);
     public static final ResponseCode UPLOAD_NOT_IMAGE = new ResponseCode(CodeType.UPLOAD_NOT_IMAGE);
 
-    @Getter
     @AllArgsConstructor
     public enum CodeType {
 
@@ -86,6 +85,19 @@ public class ResponseCode {
                         else { return CodeType.SUCCESS; }
                     });
         }
+
+        public String getCode() {
+            return this.code;
+        }
+        public HttpStatus getHttpStatus() {
+            return this.getHttpStatus();
+        }
+        public String getMessage(Object[] messageParams) {
+            if(messageParams == null)
+                return this.message;
+            else
+                return this.messageFormat.format(messageParams);
+        }
     }
     private CodeType codeType;
     private Object[] messageParams;
@@ -105,6 +117,6 @@ public class ResponseCode {
         return this.codeType.getHttpStatus();
     }
     public String getMessage() {
-        return codeType.getMessage();
+        return codeType.getMessage(this.messageParams);
     }
 }
