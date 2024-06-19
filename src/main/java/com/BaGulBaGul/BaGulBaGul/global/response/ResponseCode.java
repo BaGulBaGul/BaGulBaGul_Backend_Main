@@ -84,6 +84,9 @@ public class ResponseCode {
     public String getCode() {
         return this.codeType.getCode();
     }
+    public HttpStatus getHttpStatus() {
+        return this.codeType.getHttpStatus();
+    }
     public String getMessage() {
         return codeType.getMessage();
     }
