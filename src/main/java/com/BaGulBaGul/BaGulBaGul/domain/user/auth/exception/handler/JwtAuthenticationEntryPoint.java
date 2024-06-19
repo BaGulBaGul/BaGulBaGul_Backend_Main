@@ -1,6 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user.auth.exception.handler;
 
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
+import com.BaGulBaGul.BaGulBaGul.global.response.ResponseCode;
 import com.BaGulBaGul.BaGulBaGul.global.response.ResponseCode.CodeType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
@@ -26,7 +27,9 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.getWriter().write(
-                objectMapper.writeValueAsString(ApiResponse.of(null, CodeType.UNAUTHORIZED))
+                objectMapper.writeValueAsString(
+                        ApiResponse.of(null, new ResponseCode(CodeType.UNAUTHORIZED))
+                )
         );
     }
 }

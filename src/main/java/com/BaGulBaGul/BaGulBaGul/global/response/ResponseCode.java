@@ -10,6 +10,22 @@ import org.springframework.http.HttpStatus;
 
 public class ResponseCode {
 
+    //파라메터 바인딩이 필요 없어 메세지가 변하지 않는 static한 코드들 정의
+    public static final ResponseCode SUCCESS = new ResponseCode(CodeType.SUCCESS);
+    public static final ResponseCode BAD_REQUEST = new ResponseCode(CodeType.BAD_REQUEST);
+    public static final ResponseCode UNAUTHORIZED = new ResponseCode(CodeType.UNAUTHORIZED);
+    public static final ResponseCode FORBIDDEN = new ResponseCode(CodeType.FORBIDDEN);
+    public static final ResponseCode NOT_FOUND = new ResponseCode(CodeType.NOT_FOUND);
+    public static final ResponseCode INTERNAL_SERVER_ERROR = new ResponseCode(CodeType.INTERNAL_SERVER_ERROR);
+    public static final ResponseCode EVENT_NOT_FOUND = new ResponseCode(CodeType.EVENT_NOT_FOUND);
+    public static final ResponseCode EVENT_CATEGORY_NOT_EXIST = new ResponseCode(CodeType.EVENT_CATEGORY_NOT_EXIST);
+    public static final ResponseCode RECRUITMENT_NOT_FOUND = new ResponseCode(CodeType.RECRUITMENT_NOT_FOUND);
+    public static final ResponseCode POST_NOT_FOUND = new ResponseCode(CodeType.POST_NOT_FOUND);
+    public static final ResponseCode USER_NOT_FOUND = new ResponseCode(CodeType.USER_NOT_FOUND);
+    public static final ResponseCode UJ_JOINTOKEN_WRONG = new ResponseCode(CodeType.UJ_JOINTOKEN_WRONG);
+    public static final ResponseCode UJ_JOINTOKEN_EXPIRED = new ResponseCode(CodeType.UJ_JOINTOKEN_EXPIRED);
+    public static final ResponseCode UPLOAD_NOT_IMAGE = new ResponseCode(CodeType.UPLOAD_NOT_IMAGE);
+
     @Getter
     @AllArgsConstructor
     public enum CodeType {
@@ -57,8 +73,9 @@ public class ResponseCode {
             this.messageFormat = new MessageFormat(message);
         }
 
+        //spring mvc의 기본 예외 헨들러를 이용하기 위해 정의되지 않은 예외는 http status로부터 일반적인 CodeType을 추출하도록 함
         public static CodeType valueOf(HttpStatus httpStatus) {
-            if (httpStatus == null) { throw new GeneralException(INTERNAL_SERVER_ERROR); }
+            if (httpStatus == null) { throw new GeneralException(ResponseCode.INTERNAL_SERVER_ERROR); }
 
             return Arrays.stream(values())
                     .filter(errorCode -> errorCode.getHttpStatus() == httpStatus)

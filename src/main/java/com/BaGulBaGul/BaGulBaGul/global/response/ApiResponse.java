@@ -14,10 +14,10 @@ public class ApiResponse<T> {
     private final T data;
 
     public static <T> ApiResponse<T> of(T data) {
-        return new ApiResponse<>(CodeType.SUCCESS.getCode(), CodeType.SUCCESS.getMessage(), data);
+        return new ApiResponse<>(ResponseCode.SUCCESS.getCode(), ResponseCode.SUCCESS.getMessage(), data);
     }
 
-    public static <T> ApiResponse<T> of(T data, CodeType code) {
+    public static <T> ApiResponse<T> of(T data, ResponseCode code) {
         return new ApiResponse<>(code.getCode(), code.getMessage(), data);
     }
 }
