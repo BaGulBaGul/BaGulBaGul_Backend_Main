@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor
-public enum ErrorCode {
+public enum ResponseCode {
 
     //COMMON
     SUCCESS("C00000", HttpStatus.OK,"SUCCESS"),
@@ -45,16 +45,16 @@ public enum ErrorCode {
     private final HttpStatus httpStatus;
     private final String message;
 
-    public static ErrorCode valueOf(HttpStatus httpStatus) {
+    public static ResponseCode valueOf(HttpStatus httpStatus) {
         if (httpStatus == null) { throw new GeneralException(INTERNAL_SERVER_ERROR); }
 
         return Arrays.stream(values())
                 .filter(errorCode -> errorCode.getHttpStatus() == httpStatus)
                 .findFirst()
                 .orElseGet(() -> {
-                    if (httpStatus.is4xxClientError()) { return ErrorCode.BAD_REQUEST; }
-                    else if (httpStatus.is5xxServerError()) { return ErrorCode.INTERNAL_SERVER_ERROR; }
-                    else { return ErrorCode.SUCCESS; }
+                    if (httpStatus.is4xxClientError()) { return ResponseCode.BAD_REQUEST; }
+                    else if (httpStatus.is5xxServerError()) { return ResponseCode.INTERNAL_SERVER_ERROR; }
+                    else { return ResponseCode.SUCCESS; }
                 });
     }
 }

@@ -2,10 +2,9 @@ package com.BaGulBaGul.BaGulBaGul.global.upload.controller;
 
 import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
-import com.BaGulBaGul.BaGulBaGul.global.response.ErrorCode;
+import com.BaGulBaGul.BaGulBaGul.global.response.ResponseCode;
 import com.BaGulBaGul.BaGulBaGul.global.upload.dto.UploadResponse;
 import com.BaGulBaGul.BaGulBaGul.global.upload.service.ImageUploadService;
-import com.BaGulBaGul.BaGulBaGul.global.upload.service.ImageUploadServiceImpl;
 import com.BaGulBaGul.BaGulBaGul.global.upload.service.ResourceService;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,7 +33,7 @@ public class UploadControllerImpl implements UploadController {
         try {
             resourceId = imageUploadService.uploadImage(imageFile);
         } catch (IOException e) {
-            throw new GeneralException(ErrorCode.INTERNAL_SERVER_ERROR);
+            throw new GeneralException(ResponseCode.INTERNAL_SERVER_ERROR);
         }
         return ApiResponse.of(
                 new UploadResponse(
