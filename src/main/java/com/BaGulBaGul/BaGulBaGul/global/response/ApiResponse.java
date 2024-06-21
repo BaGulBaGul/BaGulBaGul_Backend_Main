@@ -13,10 +13,10 @@ public class ApiResponse<T> {
     private final T data;
 
     public static <T> ApiResponse<T> of(T data) {
-        return new ApiResponse<>(ErrorCode.SUCCESS.getCode(), ErrorCode.SUCCESS.getMessage(), data);
+        return new ApiResponse<>(ResponseCode.SUCCESS.getCode(), ResponseCode.SUCCESS.getMessage(), data);
     }
 
-    public static <T> ApiResponse<T> of(T data, ErrorCode errorCode) {
-        return new ApiResponse<>(errorCode.getCode(), errorCode.getMessage(), data);
+    public static <T> ApiResponse<T> of(T data, ResponseCode responseCode) {
+        return new ApiResponse<>(responseCode.getCode(), responseCode.getMessage(), data);
     }
 }
