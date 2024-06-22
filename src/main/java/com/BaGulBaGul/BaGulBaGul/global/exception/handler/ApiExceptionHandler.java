@@ -12,9 +12,12 @@ import com.BaGulBaGul.BaGulBaGul.global.exception.NoPermissionException;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
 import com.BaGulBaGul.BaGulBaGul.global.response.ResponseCode;
 import com.BaGulBaGul.BaGulBaGul.global.upload.exception.NotImageException;
+import java.text.MessageFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
@@ -22,6 +25,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 @RestControllerAdvice
 public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
+
     /************************
      *   일반
      ************************/
@@ -41,6 +45,23 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(e, ResponseCode.FORBIDDEN, request);
     }
 
+    //검증 예외에서 메세지를 추출하도록 재정의
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(
+            MethodArgumentNotValidException ex,
+            HttpHeaders headers, HttpStatus status,
+            WebRequest request
+    ) {
+        FieldError fieldError = ex.getBindingResult().getFieldError();
+        Object[] arguments = fieldError.getArguments();
+        String errorMessage = MessageFormat.format(fieldError.getDefaultMessage(), arguments);
+        ResponseCode responseCode = ResponseCode.builder()
+                .code(ResponseCode.BAD_REQUEST.getCode())
+                .httpStatus(ResponseCode.BAD_REQUEST.getHttpStatus())
+                .message(errorMessage)
+                .build();
+        return handleExceptionInternal(ex, responseCode, request);
+    }
     /************************
      *   이벤트
      ************************/

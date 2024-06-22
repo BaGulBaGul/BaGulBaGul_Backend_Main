@@ -2,10 +2,13 @@ package com.BaGulBaGul.BaGulBaGul.global.response;
 
 import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 
 @Getter
+@Builder
 @AllArgsConstructor
 public class ResponseCode {
 
