@@ -5,8 +5,6 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.info.dto.UserInfoResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.dto.UserModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.exception.UserNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.UserRepository;
-import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
-import com.BaGulBaGul.BaGulBaGul.global.response.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

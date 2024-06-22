@@ -9,13 +9,9 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.info.exception.UserNotFoundExceptio
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.SocialLoginUserRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.UserRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.auth.oauth2.dto.OAuth2JoinTokenSubject;
-import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
-import com.BaGulBaGul.BaGulBaGul.global.response.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
