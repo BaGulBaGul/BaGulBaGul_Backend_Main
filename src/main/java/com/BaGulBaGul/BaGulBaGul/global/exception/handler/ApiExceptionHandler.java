@@ -12,6 +12,7 @@ import com.BaGulBaGul.BaGulBaGul.global.exception.NoPermissionException;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
 import com.BaGulBaGul.BaGulBaGul.global.response.ResponseCode;
 import com.BaGulBaGul.BaGulBaGul.global.upload.exception.NotImageException;
+import com.BaGulBaGul.BaGulBaGul.global.upload.exception.ResourceNotFoundException;
 import java.text.MessageFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -125,8 +126,20 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> notImage(RuntimeException e, WebRequest webRequest) {
         return handleExceptionInternal(e, ResponseCode.UPLOAD_NOT_IMAGE, webRequest);
     }
-
-
+    
+    @ExceptionHandler(
+            ResourceNotFoundException.class
+    )
+    public ResponseEntity<Object> resourceNotFound(ResourceNotFoundException e, WebRequest webRequest) {
+        ResponseCode responseCode = ResponseCode.builder()
+                .code(ResponseCode.UPLOAD_RESOURCE_NOT_FOUND.getCode())
+                .httpStatus(ResponseCode.UPLOAD_RESOURCE_NOT_FOUND.getHttpStatus())
+                .message(
+                        MessageFormat.format(ResponseCode.UPLOAD_RESOURCE_NOT_FOUND.getMessage(), e.getResourceId())
+                )
+                .build();
+        return handleExceptionInternal(e, responseCode, webRequest);
+    }
     /************************
      *   스프링 내부 예외처리와 연결
      ************************/
