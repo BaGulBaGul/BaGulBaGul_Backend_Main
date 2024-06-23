@@ -92,7 +92,7 @@ public class PostImageServiceImpl implements PostImageService {
                 //새로운 이미지
                 newResourceIds.add(id);
                 //리소스를 찾아옴. 만약 존재하지 않는다면 ResourceNotFoundException
-                Resource resource = resourceRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException());
+                Resource resource = resourceRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
                 //PostS3Image를 저장
                 postImageRepository.save(
                         PostImage.builder()
