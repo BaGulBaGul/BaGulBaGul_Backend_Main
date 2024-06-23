@@ -25,6 +25,7 @@ public class EventModifyRequest {
     private EventType type;
 
     @ApiModelProperty(value = "이벤트 제목. 공백 불허")
+    @Size(min=1, message = "제목은 공백이 아니여야 합니다.")
     private String title;
 
     @ApiModelProperty(value = "참여 인원")
@@ -60,11 +61,11 @@ public class EventModifyRequest {
     private List<String> tags;
 
     @ApiModelProperty(value = "등록할 카테고리의 이름들", example = "[\"스포츠/레저\",\"식품/음료\",\"문화/예술\"]")
-    @Size(max = 2)
+    @Size(max = 2, message = "카테고리 개수는 {2}개 이상, {1}개 이하여야 합니다.")
     private List<String> categories;
 
     @ApiModelProperty(value = "등록한 이미지들의 resource id. 순서는 보존되며 첫번째 이미지가 대표이미지가 된다.")
-    @Size(max = 10)
+    @Size(max = 10, message = "이미지 개수는 {2}개 이상, {1}개 이하여야 합니다.")
     private List<Long> imageIds;
 
     public PostModifyRequest toPostModifyRequest() {
