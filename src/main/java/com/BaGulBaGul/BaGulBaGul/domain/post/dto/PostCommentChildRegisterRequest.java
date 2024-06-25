@@ -15,7 +15,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class PostCommentChildRegisterRequest {
     @ApiModelProperty(value = "내용 | 필수, 공백 불허")
-    @NotBlank
+    @NotBlank(message = "내용은 null이거나 공백이여서는 안됩니다.")
     private String content;
 
     @ApiModelProperty(value = "작성 대댓글이 답글이 아닐 경우 null, 답글일 경우 답장을 받을 대댓글의 id.\n"
