@@ -1,0 +1,36 @@
+package com.BaGulBaGul.BaGulBaGul.domain.event.repository;
+
+import com.BaGulBaGul.BaGulBaGul.domain.event.Event;
+import com.BaGulBaGul.BaGulBaGul.domain.event.constant.EventType;
+import com.BaGulBaGul.BaGulBaGul.domain.event.repository.querydsl.FindEventByCondition;
+import java.util.List;
+import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+public interface EventRepository extends JpaRepository<Event, Long>, FindEventByCondition {
+    @EntityGraph(attributePaths = {"post.user", "categories.category"})
+    Optional<Event> findWithPostAndUserAndCategoryById(Long eventId);
+
+    //카테고리와 같은 1:N:1 관계는 반드시 left outer join 으로 fetch join 해 줘야 한다. 카테고리가 없는 엔티티도 fetch join하기 위해.
+    @Query(
+            value = "SELECT e FROM Event e LEFT JOIN FETCH e.categories ec LEFT JOIN FETCH ec.category INNER JOIN FETCH e.post p INNER JOIN FETCH p.user WHERE e.id in :eventIds"
+    )
+    List<Event> findWithPostAndUserAndCategoriesByIds(@Param("eventIds") List<Long> eventIds);
+
+    @Query(
+            value = "SELECT e FROM Event e INNER JOIN e.post p INNER JOIN p.likes pl WHERE e.type = :type and pl.user.id = :userId"
+    )
+    Page<Event> getLikeEventByUserAndType(
+            @Param("userId") Long userId, @Param("type")EventType type, Pageable pageable
+    );
+
+    @Query(
+            value = "SELECT e FROM Event e INNER JOIN FETCH e.post where e.id in :ids"
+    )
+    List<Event> findWithPostByIds(@Param("ids") List<Long> ids);
+}

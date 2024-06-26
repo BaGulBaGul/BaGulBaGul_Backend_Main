@@ -1,13 +1,27 @@
 spring:
-  jpa:
-    database: h2
-    defer-datasource-initializtion: true
-    show-sql: true
-    hibernate:
-      ddl-auto: create-drop
-  h2:
-    console:
-      enabled: true
-  datasource:
-    url: jdbc:h2:mem:BaGulBaGul
-    driverClassName: org.h2.Driver
+  profiles:
+    active:
+      - dev2
+    group:
+      dev:
+        - db-dev
+        - db-h2
+        - upload-aws
+      dev2:
+        - db-dev
+        - db-mysql
+        - upload-aws
+      test:
+        - db-test
+        - db-h2
+        - upload-aws
+    include:
+      - db
+      - auth
+      - upload
+      - redis
+  #spring boot 2.6이후에 기본값이 ant_path_matcher에서 path_pattern_parser로 변경되면서 swagger에서 업데이트가 되지 않아 오류
+  #그래서 기본값을 바꿔준다.
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher

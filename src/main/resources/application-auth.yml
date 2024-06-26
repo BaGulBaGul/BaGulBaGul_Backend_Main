@@ -1,0 +1,36 @@
+#로그인, 회원가입 설정
+user:
+  login:
+    access_token_expire_minute: 30
+    refresh_token_expire_minute: 20160
+    access_token_cookie_name: Access_Token
+    refresh_token_cookie_name: Refresh_Token
+  join:
+    oauth_join_token_expire_minute: 120
+---
+#JWT 설정
+jwt:
+  secret_key: ${JWT_SECRET_KEY}
+  issuer: BaGulBaGul
+---
+#OAuth2 설정
+spring:
+  security:
+    oauth2:
+      client:
+        front_join_redirect_url: ${OAUTH_FRONT_JOIN_REDIRECT_URL}
+        registration:
+          kakao:
+            client-id: ${KAKAO_CLIENT_ID}
+            client-secret: ${KAKAO_CLIENT_SECRET}
+#            scope: profile_nickname, account_email
+            client-name: kakao-login
+            authorization-grant-type: authorization_code
+            redirect-uri: ${OAUTH_BACK_LOGIN_REDIRECT_URL}
+            client-authentication-method: POST
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
