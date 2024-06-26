@@ -97,6 +97,7 @@ public class S3ResourceService extends ResourceService {
 
     @Override
     @Async
+    @Transactional
     public void deleteResourceAsync(Long resourceId) {
         deleteResource(resourceId);
     }
@@ -104,6 +105,7 @@ public class S3ResourceService extends ResourceService {
 
     @Override
     @Async
+    @Transactional
     public void deleteResourcesAsync(List<Long> resourceIds) {
         deleteResources(resourceIds);
     }
