@@ -60,6 +60,21 @@ public class RecruitmentModifyRequest {
         return startDate == null || endDate == null || startDate.isBefore(endDate);
     }
 
+    @AssertTrue(message = "참여 인원은 0명 이상이여야 합니다")
+    public boolean isCurrentHeadCountNonNegative() {
+        //값이 존재하지 않거나(json 필드에 명시하지 않음 = patch에 반영하지 않음)
+        //값이 존재한다면 0명 이상이여야 함
+        return !currentHeadCount.isPresent() || currentHeadCount.get() >= 0;
+    }
+
+    @AssertTrue(message = "모집 인원은 1명 이상이여야 합니다")
+    public boolean isMaxHeadCountPositive() {
+        //값이 존재하지 않거나(json 필드에 명시하지 않음 = patch에 반영하지 않음)
+        //값이 존재한다면 1명 이상이여야 함
+        return !maxHeadCount.isPresent() || maxHeadCount.get() >= 1;
+    }
+
+
     public PostModifyRequest toPostModifyRequest() {
         return PostModifyRequest.builder()
                 .title(title)

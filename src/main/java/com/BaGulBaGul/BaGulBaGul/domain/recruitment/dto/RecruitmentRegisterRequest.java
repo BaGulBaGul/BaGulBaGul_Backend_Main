@@ -23,7 +23,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 public class RecruitmentRegisterRequest {
 
     @ApiModelProperty(value = "모집 인원")
-    private int maxHeadCount;
+    @Min(value = 1, message = "모집 인원은 {1}명 이상이여야 합니다")
+    private Integer maxHeadCount;
 
     @ApiModelProperty(value = "시작 시간")
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
