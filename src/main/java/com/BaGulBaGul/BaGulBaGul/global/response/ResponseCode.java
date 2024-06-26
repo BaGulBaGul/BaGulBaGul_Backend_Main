@@ -2,10 +2,13 @@ package com.BaGulBaGul.BaGulBaGul.global.response;
 
 import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 
 @Getter
+@Builder
 @AllArgsConstructor
 public class ResponseCode {
 
@@ -32,6 +35,7 @@ public class ResponseCode {
     public static final ResponseCode UJ_JOINTOKEN_EXPIRED = new ResponseCode("UJ00001", HttpStatus.OK, "소셜 로그인 회원가입 인증 토큰이 만료되었습니다. 다시 인증해 주세요.");
     //Upload
     public static final ResponseCode UPLOAD_NOT_IMAGE = new ResponseCode("UPLOAD00000", HttpStatus.OK, "이미지 파일이 아닙니다");
+    public static final ResponseCode UPLOAD_RESOURCE_NOT_FOUND = new ResponseCode("UPLOAD00001", HttpStatus.OK, "등록하려는 자원을 찾을 수 없습니다. resourceId={0}");
 
     public static final ResponseCode[] types = {SUCCESS, BAD_REQUEST};
 

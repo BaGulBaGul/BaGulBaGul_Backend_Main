@@ -66,7 +66,7 @@ public class S3ResourceService extends ResourceService {
     @Override
     @Transactional
     public void deleteResource(Long resourceId) {
-        Resource resource = resourceRepository.findById(resourceId).orElseThrow(() -> new ResourceNotFoundException());
+        Resource resource = resourceRepository.findById(resourceId).orElseThrow(() -> new ResourceNotFoundException(resourceId));
         String key = resource.getKey();
         resourceRepository.delete(resource);
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
@@ -110,7 +110,7 @@ public class S3ResourceService extends ResourceService {
 
     @Override
     public String getResourceUrlFromId(Long resourceId) {
-        Resource resource = resourceRepository.findById(resourceId).orElseThrow(() -> new ResourceNotFoundException());
+        Resource resource = resourceRepository.findById(resourceId).orElseThrow(() -> new ResourceNotFoundException(resourceId));
         String key = resource.getKey();
         return getUrlFromKey(key);
     }

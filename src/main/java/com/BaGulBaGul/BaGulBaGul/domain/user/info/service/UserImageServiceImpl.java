@@ -37,7 +37,7 @@ public class UserImageServiceImpl implements UserImageService {
         if(resourceId != null) {
             //리소스 검색, 없으면 예외
             Resource resource = resourceRepository.findById(resourceId)
-                    .orElseThrow(() -> new ResourceNotFoundException());
+                    .orElseThrow(() -> new ResourceNotFoundException(resourceId));
             //리소스를 유저에 연결
             userImageRepository.save(
                     UserImage.builder()
