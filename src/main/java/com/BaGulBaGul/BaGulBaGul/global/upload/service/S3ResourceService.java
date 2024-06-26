@@ -46,6 +46,7 @@ public class S3ResourceService extends ResourceService {
                         .uploadTime(LocalDateTime.now())
                         .build()
         );
+        //임시자원 테이블에 추가.
         s3TempResourceRepository.save(
                 S3TempResource.builder()
                         .resource(resource)
@@ -69,6 +70,7 @@ public class S3ResourceService extends ResourceService {
         Resource resource = resourceRepository.findById(resourceId).orElseThrow(() -> new ResourceNotFoundException(resourceId));
         String key = resource.getKey();
         resourceRepository.delete(resource);
+        //혹시 S3에 자원 삭제 이후 rollback될 수도 있으므로 트랜젝션이 커밋된 이후에 S3에 삭제 요청을 보내도록 보장.
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override
             public void afterCommit() {
@@ -85,6 +87,7 @@ public class S3ResourceService extends ResourceService {
         List<Resource> resources = resourceRepository.findAllById(resourceIds);
         List<String> keys = resources.stream().map(Resource::getKey).collect(Collectors.toList());
         resourceRepository.deleteAllByIdInBatch(resourceIds);
+        //혹시 S3에 자원 삭제 이후 rollback될 수도 있으므로 트랜젝션이 커밋된 이후에 S3에 삭제 요청을 보내도록 보장.
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override
             public void afterCommit() {
@@ -97,6 +100,7 @@ public class S3ResourceService extends ResourceService {
 
     @Override
     @Async
+    @Transactional
     public void deleteResourceAsync(Long resourceId) {
         deleteResource(resourceId);
     }
@@ -104,6 +108,7 @@ public class S3ResourceService extends ResourceService {
 
     @Override
     @Async
+    @Transactional
     public void deleteResourcesAsync(List<Long> resourceIds) {
         deleteResources(resourceIds);
     }
