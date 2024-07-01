@@ -1,6 +1,8 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user.info.controller;
 
+import com.BaGulBaGul.BaGulBaGul.domain.user.SocialLoginUser;
 import com.BaGulBaGul.BaGulBaGul.domain.user.auth.service.JwtCookieService;
+import com.BaGulBaGul.BaGulBaGul.domain.user.auth.service.JwtProvider;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.dto.CheckDuplicateUsernameResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.dto.SocialLoginUserJoinRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.service.UserJoinService;
@@ -27,17 +29,22 @@ public class UserJoinControllerImpl implements UserJoinController {
 
     private final UserJoinService userJoinService;
     private final JwtCookieService jwtCookieService;
+    private final JwtProvider jwtProvider;
 
     @Override
     @PostMapping("/social")
     @Operation(summary = "소셜 로그인 유저 회원가입 요청",
             description = "redirect시에 프론트에 넘긴 joinToken은 필수\n"
                     + "닉네임도 필수. 이메일은 선택사항"
+                    + "회원가입 성공 시 즉시 로그인 됨(인증 토큰을 쿠키에 저장)"
     )
     public ApiResponse<Object> joinSocialLoginUser(
-            @RequestBody @Valid SocialLoginUserJoinRequest socialLoginUserJoinRequest
+            @RequestBody @Valid SocialLoginUserJoinRequest socialLoginUserJoinRequest,
+            HttpServletResponse response
     ) {
-        userJoinService.registerSocialLoginUser(socialLoginUserJoinRequest);
+        SocialLoginUser user = userJoinService.registerSocialLoginUser(socialLoginUserJoinRequest);
+        jwtCookieService.setAccessToken(response, jwtProvider.createAccessToken(user.getUser().getId()));
+        jwtCookieService.setRefreshToken(response, jwtProvider.createRefreshToken(user.getUser().getId()));
         return ApiResponse.of(null);
     }
 

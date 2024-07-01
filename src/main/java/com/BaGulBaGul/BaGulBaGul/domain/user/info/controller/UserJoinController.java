@@ -6,7 +6,7 @@ import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
 import javax.servlet.http.HttpServletResponse;
 
 public interface UserJoinController {
-    ApiResponse<Object> joinSocialLoginUser(SocialLoginUserJoinRequest socialLoginUserJoinRequest);
+    ApiResponse<Object> joinSocialLoginUser(SocialLoginUserJoinRequest socialLoginUserJoinRequest, HttpServletResponse response);
     ApiResponse<Object> deleteUser(Long userId, HttpServletResponse response);
     ApiResponse<CheckDuplicateUsernameResponse> checkDuplicateUsername(String username);
 }
