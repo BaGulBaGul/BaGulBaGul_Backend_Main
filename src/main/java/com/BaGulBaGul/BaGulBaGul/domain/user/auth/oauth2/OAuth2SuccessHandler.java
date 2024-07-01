@@ -27,6 +27,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     @Value("${spring.security.oauth2.client.front_join_redirect_url}")
     private String FRONT_JOIN_REDIRECT_URL;
 
+    @Value("${spring.security.oauth2.client.front_join_redirect_url}")
+    private String FRONT_LOGIN_REDIRECT_URL;
+
     private final String JOIN_TOKEN_PARAM_NAME = "join_token";
 
 
@@ -52,7 +55,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                     composeQueryParam(FRONT_JOIN_REDIRECT_URL, JOIN_TOKEN_PARAM_NAME, oauth2JoinToken)
             );
         }
-        //이미 가입된 유저라면 access, refresh 토큰 발급, 쿠키에 저장
+        //이미 가입된 유저라면 access, refresh 토큰을 쿠키에 저장하고 프론트의 로그인 성공 페이지로 리다이렉트
         else{
             Long userId = socialLoginUser.getUser().getId();
             //토큰 발급
@@ -61,6 +64,10 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             //쿠키 저장
             jwtCookieService.setAccessToken(response, accessToken);
             jwtCookieService.setRefreshToken(response, refreshToken);
+            //로그인 성공 처리 페이지로 리다이렉트
+            response.sendRedirect(
+                    FRONT_LOGIN_REDIRECT_URL
+            );
         }
     }
 

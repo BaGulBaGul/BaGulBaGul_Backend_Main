@@ -19,6 +19,7 @@ spring:
     oauth2:
       client:
         front_join_redirect_url: ${OAUTH_FRONT_JOIN_REDIRECT_URL}
+        front_login_redirect_url: ${OAUTH_FRONT_LOGIN_REDIRECT_URL}
         registration:
           kakao:
             client-id: ${KAKAO_CLIENT_ID}
