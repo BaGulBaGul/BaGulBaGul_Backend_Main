@@ -23,7 +23,7 @@ public class UserJoinServiceImpl implements UserJoinService {
 
     @Override
     @Transactional
-    public void registerSocialLoginUser(SocialLoginUserJoinRequest socialLoginUserJoinRequest) {
+    public SocialLoginUser registerSocialLoginUser(SocialLoginUserJoinRequest socialLoginUserJoinRequest) {
         String joinToken = socialLoginUserJoinRequest.getJoinToken();
         //joinToken에서 OAuth2JoinTokenSubject 추출.
         OAuth2JoinTokenSubject oAuth2JoinTokenSubject = jwtProvider.getOAuth2JoinTokenSubject(joinToken);
@@ -36,6 +36,7 @@ public class UserJoinServiceImpl implements UserJoinService {
                 .user(user)
                 .build();
         socialLoginUserRepository.save(socialLoginUser);
+        return socialLoginUser;
     }
 
     @Override
