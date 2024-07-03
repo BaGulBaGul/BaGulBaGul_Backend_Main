@@ -51,7 +51,7 @@ public class PostServiceImpl implements PostService {
         Post post = postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException());
 
         //작성자 정보를 생성
-        PostWriterInfo writerInfo = getPostWriterInfo(post.getUser());
+        PostWriterInfo writerInfo = PostWriterInfo.of(post.getUser());
 
         //태그를 리스트로 변환
         List<String> tags = splitTags(post.getTags());
@@ -77,7 +77,7 @@ public class PostServiceImpl implements PostService {
         Post post = postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException());
 
         //작성자 정보를 생성
-        PostWriterInfo writerInfo = getPostWriterInfo(post.getUser());
+        PostWriterInfo writerInfo = PostWriterInfo.of(post.getUser());
 
         //태그를 리스트로 변환
         List<String> tags = splitTags(post.getTags());
@@ -190,16 +190,6 @@ public class PostServiceImpl implements PostService {
     @Override
     public boolean existsLike(Post post, User user) {
         return postLikeRepository.existsByPostAndUser(post, user);
-    }
-
-
-    private PostWriterInfo getPostWriterInfo(User writer) {
-        PostWriterInfo writerInfo = PostWriterInfo.builder()
-                .userId(writer.getId())
-                .userName(writer.getNickname())
-                .userProfileImageUrl(writer.getImageURI())
-                .build();
-        return writerInfo;
     }
 
     private List<String> splitTags(String tags) {
