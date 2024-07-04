@@ -39,10 +39,6 @@ public class User extends BaseTimeEntity {
     @Column(name="image_uri")
     String imageURI;
 
-    @Setter
-    @Column(name="deleted")
-    boolean deleted;
-
     @Builder
     public User(
             String email,
@@ -54,6 +50,5 @@ public class User extends BaseTimeEntity {
         this.nickname = nickName;
         this.profileMessage = profileMessage;
         this.imageURI = imageURI;
-        this.deleted = false;
     }
 }

@@ -53,13 +53,10 @@ public class UserJoinServiceImpl implements UserJoinService {
     @Override
     @Transactional
     public void deleteUser(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
-        //소셜로그인 정보의 경우 탈퇴 후에도 불필요한 정보. 재가입을 고려해 바로 삭제
-        socialLoginUserRepository.deleteByUser(user);
-        //유저 정보의 경우 게시글 유지를 위해 soft delete
-        user.setDeleted(true);
-        //다른 유저가 사용 가능하도록 닉네임을 null로 변경
-        user.setNickname(null);
+        //소셜로그인 정보 삭제
+        socialLoginUserRepository.deleteByUserId(userId);
+        //유저 정보 삭제
+        userRepository.deleteById(userId);
     }
 
     @Override

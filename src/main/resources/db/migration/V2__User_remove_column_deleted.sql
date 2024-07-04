@@ -1,0 +1,1 @@
+ALTER TABLE `bagulbagul`.`user` DROP COLUMN `deleted`;
