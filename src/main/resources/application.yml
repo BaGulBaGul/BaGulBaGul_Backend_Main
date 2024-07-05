@@ -15,6 +15,10 @@ spring:
         - db-test
         - db-h2
         - upload-aws
+      test2:
+        - db-dev
+        - db-test-mysql
+        - upload-aws
     include:
       - db
       - auth
