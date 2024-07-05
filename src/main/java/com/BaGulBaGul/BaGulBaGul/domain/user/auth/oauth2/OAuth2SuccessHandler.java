@@ -27,7 +27,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     @Value("${spring.security.oauth2.client.front_join_redirect_url}")
     private String FRONT_JOIN_REDIRECT_URL;
 
-    @Value("${spring.security.oauth2.client.front_join_redirect_url}")
+    @Value("${spring.security.oauth2.client.front_login_redirect_url}")
     private String FRONT_LOGIN_REDIRECT_URL;
 
     private final String JOIN_TOKEN_PARAM_NAME = "join_token";
