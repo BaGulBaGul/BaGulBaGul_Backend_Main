@@ -30,8 +30,10 @@ public class UserImageServiceImpl implements UserImageService {
         UserImage userImage = userImageRepository.findByUser(user).orElse(null);
         //이미 존재하면 삭제
         if(userImage != null) {
+            //트랜젝션 커밋 이후에 비동기로 이미지 파일 삭제
+            transactionResourceService.deleteResourceAsyncAfterCommit(userImage.getResourceId());
+            //이미지 정보 db에서 삭제
             userImageRepository.delete(userImage);
-            transactionResourceService.deleteResourceAsyncAfterCommit(resourceId);
         }
         //resourceId가 존재하면 프로필 이미지 연결
         if(resourceId != null) {
