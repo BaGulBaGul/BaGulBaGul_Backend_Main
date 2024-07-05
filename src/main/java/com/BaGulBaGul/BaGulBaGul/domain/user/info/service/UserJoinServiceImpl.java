@@ -21,6 +21,8 @@ public class UserJoinServiceImpl implements UserJoinService {
     private final SocialLoginUserRepository socialLoginUserRepository;
     private final UserRepository userRepository;
 
+    private final UserImageService userImageService;
+
     @Override
     @Transactional
     public SocialLoginUser registerSocialLoginUser(SocialLoginUserJoinRequest socialLoginUserJoinRequest) {
@@ -53,6 +55,9 @@ public class UserJoinServiceImpl implements UserJoinService {
     @Override
     @Transactional
     public void deleteUser(Long userId) {
+        //유저 이미지 삭제
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
+        userImageService.setImage(user, null);
         //소셜로그인 정보 삭제
         socialLoginUserRepository.deleteByUserId(userId);
         //유저 정보 삭제
