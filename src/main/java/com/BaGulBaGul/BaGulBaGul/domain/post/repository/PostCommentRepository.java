@@ -25,7 +25,7 @@ public interface PostCommentRepository extends JpaRepository<PostComment, Long> 
                         + "pc.createdAt"
                     + ") "
                     + "FROM PostComment pc "
-                        + "INNER JOIN pc.user user "
+                        + "LEFT OUTER JOIN pc.user user "
                     + "WHERE pc.id = :postCommentId"
     )
     PostCommentDetailResponse getPostCommentDetail(@Param("postCommentId") Long postCommentId);
@@ -50,7 +50,7 @@ public interface PostCommentRepository extends JpaRepository<PostComment, Long> 
                     + "pc.createdAt"
                     + ") "
             + "FROM PostComment pc "
-                + "INNER JOIN pc.user user "
+                + "LEFT OUTER JOIN pc.user user "
                 + "LEFT OUTER JOIN pc.likes pcl ON pcl.user.id = :requestUserId "
             + "WHERE pc.post.id = :postId"
     )
@@ -73,7 +73,7 @@ public interface PostCommentRepository extends JpaRepository<PostComment, Long> 
                     + "pc.createdAt"
                     + ") "
                     + "FROM PostComment pc "
-                    + "INNER JOIN pc.user user "
+                    + "LEFT OUTER JOIN pc.user user "
                     + "WHERE pc.post.id = :postId"
     )
     List<GetPostCommentPageResponse> getPostCommentPage(
