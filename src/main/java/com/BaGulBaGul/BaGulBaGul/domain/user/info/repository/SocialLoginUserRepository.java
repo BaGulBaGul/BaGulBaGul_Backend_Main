@@ -11,5 +11,5 @@ public interface SocialLoginUserRepository extends JpaRepository<SocialLoginUser
     @EntityGraph(attributePaths = {"user"})
     Optional<SocialLoginUser> findWithUserById(String id);
 
-    void deleteByUser(User user);
+    void deleteByUserId(Long userId);
 }

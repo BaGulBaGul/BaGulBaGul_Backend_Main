@@ -1,5 +1,6 @@
 package com.BaGulBaGul.BaGulBaGul.domain.post.dto;
 
+import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,4 +20,21 @@ public class PostWriterInfo {
 
     @ApiModelProperty(value = "등록자 이미지 url")
     private String userProfileImageUrl;
+
+    public static PostWriterInfo of(User writer) {
+        if(writer == null) {
+            return PostWriterInfo.builder()
+                    .userId(null)
+                    .userName(null)
+                    .userProfileImageUrl(null)
+                    .build();
+        }
+        else {
+            return PostWriterInfo.builder()
+                    .userId(writer.getId())
+                    .userName(writer.getNickname())
+                    .userProfileImageUrl(writer.getImageURI())
+                    .build();
+        }
+    }
 }

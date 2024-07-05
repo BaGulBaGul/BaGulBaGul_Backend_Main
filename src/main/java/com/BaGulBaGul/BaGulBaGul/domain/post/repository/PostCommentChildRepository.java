@@ -45,7 +45,7 @@ public interface PostCommentChildRepository extends JpaRepository<PostCommentChi
                         + "pch.createdAt"
                     + ") "
                     + "FROM PostCommentChild pch "
-                        + "INNER JOIN pch.user user "
+                        + "LEFT OUTER JOIN pch.user user "
                         + "LEFT OUTER JOIN pch.replyTargetUser rp_user "
                         + "LEFT OUTER JOIN pch.likes pchl ON pchl.user.id = :requestUserId "
                     + "WHERE pch.postComment.id = :postCommentId"
@@ -69,7 +69,7 @@ public interface PostCommentChildRepository extends JpaRepository<PostCommentChi
                     + "pch.createdAt"
                     + ") "
                     + "FROM PostCommentChild pch "
-                    + "INNER JOIN pch.user user "
+                    + "LEFT OUTER JOIN pch.user user "
                     + "LEFT OUTER JOIN pch.replyTargetUser rp_user "
                     + "WHERE pch.postComment.id = :postCommentId"
     )
