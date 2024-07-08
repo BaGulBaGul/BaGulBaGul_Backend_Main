@@ -239,9 +239,7 @@ public class EventServiceImpl implements EventService {
         if(!userId.equals(event.getPost().getUser().getId())) {
             throw new NoPermissionException();
         }
-        postService.deletePost(event.getPost());
-        eventCategoryRepository.deleteAllByEvent(event);
-        eventRepository.delete(event);
+        event.setDeleted(true);
     }
 
     @Override
