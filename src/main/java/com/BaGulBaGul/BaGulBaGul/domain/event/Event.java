@@ -33,6 +33,10 @@ public class Event {
     Long id;
 
     @Setter
+    @Column(name = "deleted")
+    Boolean deleted;
+
+    @Setter
     @Column(name = "type")
     @Enumerated(value = EnumType.STRING)
     EventType type;

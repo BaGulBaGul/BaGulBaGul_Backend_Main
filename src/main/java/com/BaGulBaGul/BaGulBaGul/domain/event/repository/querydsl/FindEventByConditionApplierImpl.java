@@ -42,6 +42,8 @@ public class FindEventByConditionApplierImpl implements FindEventByConditionAppl
             QEvent event
     ) {
         //이벤트 조건 적용
+        //삭제된 이벤트는 제외
+        query.where(event.deleted.eq(false));
         //이벤트 타입
         if(eventConditionalRequest.getType() != null) {
             query.where(event.type.eq(eventConditionalRequest.getType()));

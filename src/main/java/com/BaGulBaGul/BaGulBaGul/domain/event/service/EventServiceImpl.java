@@ -104,6 +104,11 @@ public class EventServiceImpl implements EventService {
     public EventDetailResponse getEventDetailById(Long eventId) {
         Event event = eventRepository.findWithPostAndUserAndCategoryById(eventId).orElseThrow(() -> new EventNotFoundException());
 
+        //삭제된 이벤트
+        if(event.getDeleted()) {
+            throw new EventNotFoundException();
+        }
+
         //필요한 정보 추출
         EventDetailInfo eventDetailInfo = getEventDetailInfoById(eventId);
         PostDetailInfo postDetailInfo = postService.getPostDetailInfo(event.getPost().getId());
@@ -190,6 +195,12 @@ public class EventServiceImpl implements EventService {
     @Transactional
     public void modifyEvent(Long eventId, Long userId, EventModifyRequest eventModifyRequest) {
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException());
+
+        //삭제된 이벤트
+        if(event.getDeleted()) {
+            throw new EventNotFoundException();
+        }
+
         //요청한 유저가 작성자가 아닐 경우 수정 권한 없음
         if(!userId.equals(event.getPost().getUser().getId())) {
             throw new NoPermissionException();
@@ -235,13 +246,17 @@ public class EventServiceImpl implements EventService {
     @Transactional
     public void deleteEvent(Long eventId, Long userId) {
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException());
+
+        //삭제된 이벤트
+        if(event.getDeleted()) {
+            throw new EventNotFoundException();
+        }
+
         //요청한 유저가 작성자가 아닐 경우 수정 권한 없음
         if(!userId.equals(event.getPost().getUser().getId())) {
             throw new NoPermissionException();
         }
-        postService.deletePost(event.getPost());
-        eventCategoryRepository.deleteAllByEvent(event);
-        eventRepository.delete(event);
+        event.setDeleted(true);
     }
 
     @Override
@@ -255,6 +270,11 @@ public class EventServiceImpl implements EventService {
     @Transactional(rollbackFor = {DuplicateLikeException.class})
     public void addLike(Long eventId, Long userId) throws DuplicateLikeException {
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException());
+        //삭제된 이벤트
+        if(event.getDeleted()) {
+            throw new EventNotFoundException();
+        }
+
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
         postService.addLike(event.getPost(), user);
     }

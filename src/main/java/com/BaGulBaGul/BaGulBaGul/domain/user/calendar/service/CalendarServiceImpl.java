@@ -53,6 +53,9 @@ public class CalendarServiceImpl implements CalendarService {
     public void registerEventCalendar(Long userId, Long eventId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException());
+        if(event.getDeleted()) {
+            throw new EventNotFoundException();
+        }
         eventCalendarRepository.save(
                 new EventCalendar(user, event)
         );
