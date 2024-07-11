@@ -31,4 +31,9 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long>,
             value = "SELECT r FROM Recruitment r INNER JOIN FETCH r.post where r.id in :ids"
     )
     List<Recruitment> findWithPostByIds(@Param("ids") List<Long> ids);
+
+    @Query(
+            value = "SELECT r FROM Recruitment r INNER JOIN FETCH r.post INNER JOIN FETCH r.event e INNER JOIN FETCH e.post where r.id in :ids"
+    )
+    List<Recruitment> findWithPostAndEventAndEventPostByIds(@Param("ids") List<Long> ids);
 }

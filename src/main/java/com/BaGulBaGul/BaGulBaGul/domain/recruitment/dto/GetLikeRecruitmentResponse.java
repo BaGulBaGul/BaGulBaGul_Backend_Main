@@ -26,12 +26,20 @@ public class GetLikeRecruitmentResponse {
     @ApiModelProperty(value = "게시글 제목")
     private String title;
 
+    @ApiModelProperty(value = "이벤트 id")
+    private Long eventId;
+
+    @ApiModelProperty(value = "이벤트 제목")
+    private String eventTitle;
+
     public static GetLikeRecruitmentResponse of(Recruitment recruitment) {
         return GetLikeRecruitmentResponse.builder()
                 .recruitmentId(recruitment.getId())
                 .startDate(recruitment.getStartDate())
                 .endDate(recruitment.getEndDate())
                 .title(recruitment.getPost().getTitle())
+                .eventId(recruitment.getEvent().getId())
+                .eventTitle(recruitment.getEvent().getPost().getTitle())
                 .build();
     }
 }
