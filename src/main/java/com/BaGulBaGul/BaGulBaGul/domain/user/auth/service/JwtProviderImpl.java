@@ -68,7 +68,7 @@ public class JwtProviderImpl implements JwtProvider {
     @Override
     public Long getUserIdFromAccessToken(String accessToken) {
         if(accessToken == null) {
-            return null;
+            throw new AccessTokenException();
         }
         try {
             return Long.parseLong(getSubject(accessToken));
@@ -81,7 +81,7 @@ public class JwtProviderImpl implements JwtProvider {
     @Override
     public Long getUserIdFromRefreshToken(String refreshToken) {
         if(refreshToken == null) {
-            return null;
+            throw new RefreshTokenException();
         }
         try {
             return Long.parseLong(getSubject(refreshToken));
