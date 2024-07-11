@@ -137,7 +137,7 @@ public class RecruitmentServiceImpl implements RecruitmentService {
         //post와 fetch join
         if(recruitments.getNumberOfElements() > 0) {
             List<Long> ids = recruitments.stream().map(Recruitment::getId).collect(Collectors.toList());
-            recruitmentRepository.findWithPostByIds(ids);
+            recruitmentRepository.findWithPostAndEventAndEventPostByIds(ids);
         }
         return recruitments.map(GetLikeRecruitmentResponse::of);
     }
