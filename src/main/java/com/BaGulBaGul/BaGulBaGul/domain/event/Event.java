@@ -103,6 +103,7 @@ public class Event {
             LocalDateTime startDate,
             LocalDateTime endDate
     ) {
+        this.deleted = false;
         this.type = type;
         this.post = post;
         this.currentHeadCount = currentHeadCount;
