@@ -3,10 +3,10 @@ package com.BaGulBaGul.BaGulBaGul.domain.post.service;
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostComment;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentChild;
-import com.BaGulBaGul.BaGulBaGul.domain.post.event.NewPostCommentChildEvent;
-import com.BaGulBaGul.BaGulBaGul.domain.post.event.NewPostCommentChildLikeEvent;
-import com.BaGulBaGul.BaGulBaGul.domain.post.event.NewPostCommentEvent;
-import com.BaGulBaGul.BaGulBaGul.domain.post.event.NewPostCommentLikeEvent;
+import com.BaGulBaGul.BaGulBaGul.domain.post.applicationevent.NewPostCommentChildApplicationEvent;
+import com.BaGulBaGul.BaGulBaGul.domain.post.applicationevent.NewPostCommentChildLikeApplicationEvent;
+import com.BaGulBaGul.BaGulBaGul.domain.post.applicationevent.NewPostCommentApplicationEvent;
+import com.BaGulBaGul.BaGulBaGul.domain.post.applicationevent.NewPostCommentLikeApplicationEvent;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentChildRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
@@ -35,9 +35,9 @@ public class PostAlarmServiceImpl implements PostAlarmService {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional
     @Async
-    public void alarmToPostWriter(NewPostCommentEvent newPostCommentEvent) {
+    public void alarmToPostWriter(NewPostCommentApplicationEvent newPostCommentApplicationEvent) {
         PostComment postComment = postCommentRepository
-                .findById(newPostCommentEvent.getPostCommentId())
+                .findById(newPostCommentApplicationEvent.getPostCommentId())
                 .orElse(null);
         if(postComment == null){
              return;
@@ -55,7 +55,7 @@ public class PostAlarmServiceImpl implements PostAlarmService {
         //참조 대상 = 게시글 id
         String subjectId = post.getId().toString();
         //알람 등록
-        alarmService.registerAlarm(targetUser, type, title, message, subjectId, newPostCommentEvent.getTime());
+        alarmService.registerAlarm(targetUser, type, title, message, subjectId, newPostCommentApplicationEvent.getTime());
     }
 
     /*
@@ -65,9 +65,9 @@ public class PostAlarmServiceImpl implements PostAlarmService {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional
     @Async
-    public void alarmToPostCommentWriter(NewPostCommentChildEvent newPostCommentChildEvent) {
+    public void alarmToPostCommentWriter(NewPostCommentChildApplicationEvent newPostCommentChildApplicationEvent) {
         PostCommentChild newPostCommentChild = postCommentChildRepository
-                .findById(newPostCommentChildEvent.getPostCommentChildId())
+                .findById(newPostCommentChildApplicationEvent.getPostCommentChildId())
                 .orElse(null);
         if(newPostCommentChild == null) {
             return;
@@ -85,7 +85,7 @@ public class PostAlarmServiceImpl implements PostAlarmService {
         //참조 대상 = 부모 댓글 id
         String subjectId = postComment.getId().toString();
         //알람 등록
-        alarmService.registerAlarm(targetUser, type, title, message, subjectId, newPostCommentChildEvent.getTime());
+        alarmService.registerAlarm(targetUser, type, title, message, subjectId, newPostCommentChildApplicationEvent.getTime());
     }
 
     /*
@@ -95,7 +95,7 @@ public class PostAlarmServiceImpl implements PostAlarmService {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional
     @Async
-    public void alarmToPostCommentWriter(NewPostCommentLikeEvent newPostCommentLikeEvent) {
+    public void alarmToPostCommentWriter(NewPostCommentLikeApplicationEvent newPostCommentLikeEvent) {
         PostComment postComment = postCommentRepository
                 .findById(newPostCommentLikeEvent.getPostCommentId())
                 .orElse(null);
@@ -124,14 +124,14 @@ public class PostAlarmServiceImpl implements PostAlarmService {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional
     @Async
-    public void alarmToPostCommentChildWriter(NewPostCommentChildEvent newPostCommentChildEvent) {
+    public void alarmToPostCommentChildWriter(NewPostCommentChildApplicationEvent newPostCommentChildApplicationEvent) {
         //새로 등록된 대댓글이 답장이 아니라면 무시
-        if(newPostCommentChildEvent.getOriginalPostCommentChildId() == null) {
+        if(newPostCommentChildApplicationEvent.getOriginalPostCommentChildId() == null) {
             return;
         }
 
         PostCommentChild newPostCommentChild = postCommentChildRepository
-                .findById(newPostCommentChildEvent.getPostCommentChildId())
+                .findById(newPostCommentChildApplicationEvent.getPostCommentChildId())
                 .orElse(null);
         //등록된 대댓글이 지워졌거나 답글이 아닌 경우
         if(newPostCommentChild == null) {
@@ -139,7 +139,7 @@ public class PostAlarmServiceImpl implements PostAlarmService {
         }
 
         PostCommentChild originalPostCommentChild = postCommentChildRepository
-                .findById(newPostCommentChildEvent.getOriginalPostCommentChildId())
+                .findById(newPostCommentChildApplicationEvent.getOriginalPostCommentChildId())
                 .orElse(null);
         //답글을 받을 대댓글이 지워진 경우
         if(originalPostCommentChild == null) {
@@ -163,7 +163,7 @@ public class PostAlarmServiceImpl implements PostAlarmService {
         //참조 대상 = 부모 댓글 id
         String subjectId = postComment.getId().toString();
         //알람 등록
-        alarmService.registerAlarm(targetUser, type, title, message, subjectId, newPostCommentChildEvent.getTime());
+        alarmService.registerAlarm(targetUser, type, title, message, subjectId, newPostCommentChildApplicationEvent.getTime());
     }
 
     /*
@@ -173,9 +173,10 @@ public class PostAlarmServiceImpl implements PostAlarmService {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional
     @Async
-    public void alarmToPostCommentChildWriter(NewPostCommentChildLikeEvent newPostCommentChildLikeEvent) {
+    public void alarmToPostCommentChildWriter(
+            NewPostCommentChildLikeApplicationEvent newPostCommentChildLikeApplicationEvent) {
         PostCommentChild postCommentChild = postCommentChildRepository
-                .findById(newPostCommentChildLikeEvent.getPostCommentChildId())
+                .findById(newPostCommentChildLikeApplicationEvent.getPostCommentChildId())
                 .orElse(null);
         if(postCommentChild == null) {
             return;
@@ -193,7 +194,7 @@ public class PostAlarmServiceImpl implements PostAlarmService {
         //참조 대상 = 부모 댓글 id
         String subjectId = postComment.getId().toString();
         //알람 등록
-        alarmService.registerAlarm(targetUser, type, title, message, subjectId, newPostCommentChildLikeEvent.getTime());
+        alarmService.registerAlarm(targetUser, type, title, message, subjectId, newPostCommentChildLikeApplicationEvent.getTime());
     }
 
     private String getNewCommentAlarmTitle(String postTitle) {
