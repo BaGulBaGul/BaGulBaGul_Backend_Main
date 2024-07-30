@@ -9,33 +9,24 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.event.NewPostCommentEvent;
 import com.BaGulBaGul.BaGulBaGul.domain.post.event.NewPostCommentLikeEvent;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentChildRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentRepository;
-import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
-import com.BaGulBaGul.BaGulBaGul.domain.user.Alarm;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.constant.AlarmType;
-import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.repository.AlarmRepository;
-import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.UserRepository;
-import java.time.LocalDateTime;
 
-import com.BaGulBaGul.BaGulBaGul.global.alarm.realtime.RealtimeAlarmPublishService;
+import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.AlarmService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @Service
 @RequiredArgsConstructor
 public class PostAlarmServiceImpl implements PostAlarmService {
 
-    private final AlarmRepository alarmRepository;
     private final PostCommentRepository postCommentRepository;
     private final PostCommentChildRepository postCommentChildRepository;
-
-    private final RealtimeAlarmPublishService realtimeAlarmPublishService;
+    private final AlarmService alarmService;
 
     /*
         게시글에 댓글 추가 시 게시글 작성자에게 알람
@@ -64,7 +55,7 @@ public class PostAlarmServiceImpl implements PostAlarmService {
         //참조 대상 = 게시글 id
         String subjectId = post.getId().toString();
         //알람 등록
-        registerAlarm(targetUser, type, title, message, subjectId, newPostCommentEvent.getTime());
+        alarmService.registerAlarm(targetUser, type, title, message, subjectId, newPostCommentEvent.getTime());
     }
 
     /*
@@ -94,7 +85,7 @@ public class PostAlarmServiceImpl implements PostAlarmService {
         //참조 대상 = 부모 댓글 id
         String subjectId = postComment.getId().toString();
         //알람 등록
-        registerAlarm(targetUser, type, title, message, subjectId, newPostCommentChildEvent.getTime());
+        alarmService.registerAlarm(targetUser, type, title, message, subjectId, newPostCommentChildEvent.getTime());
     }
 
     /*
@@ -123,7 +114,7 @@ public class PostAlarmServiceImpl implements PostAlarmService {
         //참조 대상 = 댓글 id
         String subjectId = postComment.getId().toString();
         //알람 등록
-        registerAlarm(targetUser, type, title, message, subjectId, newPostCommentLikeEvent.getTime());
+        alarmService.registerAlarm(targetUser, type, title, message, subjectId, newPostCommentLikeEvent.getTime());
     }
 
     /*
@@ -172,7 +163,7 @@ public class PostAlarmServiceImpl implements PostAlarmService {
         //참조 대상 = 부모 댓글 id
         String subjectId = postComment.getId().toString();
         //알람 등록
-        registerAlarm(targetUser, type, title, message, subjectId, newPostCommentChildEvent.getTime());
+        alarmService.registerAlarm(targetUser, type, title, message, subjectId, newPostCommentChildEvent.getTime());
     }
 
     /*
@@ -202,37 +193,9 @@ public class PostAlarmServiceImpl implements PostAlarmService {
         //참조 대상 = 부모 댓글 id
         String subjectId = postComment.getId().toString();
         //알람 등록
-        registerAlarm(targetUser, type, title, message, subjectId, newPostCommentChildLikeEvent.getTime());
+        alarmService.registerAlarm(targetUser, type, title, message, subjectId, newPostCommentChildLikeEvent.getTime());
     }
 
-
-    private void registerAlarm(
-            User targetUser,
-            AlarmType alarmType,
-            String title,
-            String message,
-            String subjectId,
-            LocalDateTime time
-    ) {
-        //알림 등록
-        alarmRepository.save(
-                Alarm.builder()
-                        .user(targetUser)
-                        .type(alarmType)
-                        .title(title)
-                        .message(message)
-                        .subjectId(subjectId)
-                        .time(time)
-                        .build()
-        );
-        //알림 등록 트랜젝션이 성공하면 실시간 알림을 보내도록 함
-        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-            @Override
-            public void afterCommit() {
-                realtimeAlarmPublishService.publishAlarm(targetUser.getId(), title);
-            }
-        });
-    }
     private String getNewCommentAlarmTitle(String postTitle) {
         return new StringBuilder().append(postTitle).append(" 글에 댓글이 달렸어요").toString();
     }
