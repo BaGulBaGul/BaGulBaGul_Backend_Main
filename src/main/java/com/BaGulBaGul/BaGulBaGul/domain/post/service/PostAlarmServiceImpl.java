@@ -7,7 +7,6 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.event.NewPostCommentChildEvent;
 import com.BaGulBaGul.BaGulBaGul.domain.post.event.NewPostCommentChildLikeEvent;
 import com.BaGulBaGul.BaGulBaGul.domain.post.event.NewPostCommentEvent;
 import com.BaGulBaGul.BaGulBaGul.domain.post.event.NewPostCommentLikeEvent;
-import com.BaGulBaGul.BaGulBaGul.domain.post.event.NewPostLikeEvent;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentChildRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
@@ -33,8 +32,6 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 public class PostAlarmServiceImpl implements PostAlarmService {
 
     private final AlarmRepository alarmRepository;
-    private final UserRepository userRepository;
-    private final PostRepository postRepository;
     private final PostCommentRepository postCommentRepository;
     private final PostCommentChildRepository postCommentChildRepository;
 
@@ -68,32 +65,6 @@ public class PostAlarmServiceImpl implements PostAlarmService {
         String subjectId = post.getId().toString();
         //알람 등록
         registerAlarm(targetUser, type, title, message, subjectId, newPostCommentEvent.getTime());
-    }
-
-    /*
-        게시글에 좋아요 추가 시 게시글 작성자에게 알람
-    */
-    @Override
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    @Transactional
-    @Async
-    public void alarmToPostWriter(NewPostLikeEvent newPostLikeEvent) {
-        Post post = postRepository.findById(newPostLikeEvent.getPostId()).orElse(null);
-        //알람 대상 = 게시글 작성자
-        User targetUser = userRepository.findById(newPostLikeEvent.getUserId()).orElse(null);
-        if(post == null || targetUser == null) {
-            return;
-        }
-
-        //타입
-        AlarmType type = AlarmType.NEW_POST_LIKE;
-        //메세지 = null
-        //제목
-        String title = getNewPostLikeAlarmTitle(post.getTitle(), post.getLikeCount());
-        //참조 대상 = 게시글 id
-        String subjectId = post.getId().toString();
-        //알람 등록
-        registerAlarm(targetUser, type, title, null, subjectId, newPostLikeEvent.getTime());
     }
 
     /*
@@ -267,9 +238,6 @@ public class PostAlarmServiceImpl implements PostAlarmService {
     }
     private String getNewCommentChildAlarmTitle() {
         return "작성하신 댓글에 답글이 달렸어요";
-    }
-    private String getNewPostLikeAlarmTitle(String postTitle, int likeCount) {
-        return new StringBuilder().append(postTitle).append(" 글에 좋아요 ").append(likeCount).append("개가 눌렸어요").toString();
     }
     private String getNewPostCommentLikeAlarmTitle(int likeCount) {
         return new StringBuilder().append("작성하신 댓글에 좋아요 ").append(likeCount).append("개가 눌렸어요").toString();
