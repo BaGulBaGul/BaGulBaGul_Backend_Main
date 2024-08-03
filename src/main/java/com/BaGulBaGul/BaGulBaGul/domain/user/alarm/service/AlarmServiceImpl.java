@@ -56,8 +56,7 @@ public class AlarmServiceImpl implements AlarmService {
 
     @Override
     public Page<AlarmPageResponse> getAlarmPageByTime(Long userId, Pageable pageable) {
-        User user = userRepository.getReferenceById(userId);
-        Page<Alarm> alarms = alarmRepository.findAlarmPageOrderByTime(user, pageable);
+        Page<Alarm> alarms = alarmRepository.findAlarmPageOrderByTime(userId, pageable);
         return alarms.map(AlarmPageResponse::of);
     }
 
