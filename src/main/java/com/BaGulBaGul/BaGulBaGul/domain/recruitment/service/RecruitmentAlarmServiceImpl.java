@@ -7,6 +7,9 @@ import com.BaGulBaGul.BaGulBaGul.domain.recruitment.repository.RecruitmentReposi
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.constant.AlarmType;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.AlarmService;
+import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.AlarmCreator;
+import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.NewEventLikeAlarmCreator;
+import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.NewRecruitmentLikeAlarmCreator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -31,20 +34,13 @@ public class RecruitmentAlarmServiceImpl implements RecruitmentAlarmService {
             return;
         }
         Post post = recruitment.getPost();
-        //타입
-        AlarmType type = AlarmType.NEW_RECRUITMENT_LIKE;
-        //알람 대상 = 모집글 작성자
-        User targetUser = post.getUser();
-        //제목
-        String title = getNewRecruitmentLikeAlarmTitle(post.getTitle(), post.getLikeCount());
-        //메세지
-        String message = null;
-        //참조 대상 = 모집글 id
-        String subjectId = recruitment.getId().toString();
-        alarmService.registerAlarm(targetUser, type, title, message, subjectId, newRecruitmentLikeApplicationEvent.getTime());
-    }
-
-    private String getNewRecruitmentLikeAlarmTitle(String postTitle, int likeCount) {
-        return new StringBuilder().append(postTitle).append(" 글에 좋아요 ").append(likeCount).append("개가 눌렸어요").toString();
+        AlarmCreator alarmCreator = NewRecruitmentLikeAlarmCreator.builder()
+                .targetUserId(post.getUser().getId())
+                .time(newRecruitmentLikeApplicationEvent.getTime())
+                .recruitmentId(newRecruitmentLikeApplicationEvent.getRecruitmentId())
+                .postTitle(post.getTitle())
+                .likeCount(post.getLikeCount())
+                .build();
+        alarmService.registerAlarm(alarmCreator);
     }
 }

@@ -2,9 +2,11 @@ package com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.constant.AlarmType;
 import java.time.LocalDateTime;
+import lombok.Builder;
 
 public class NewCommentChildAlarmCreator extends AlarmCreator {
 
+    @Builder
     public NewCommentChildAlarmCreator(
             Long targetUserId,
             LocalDateTime time,
