@@ -213,7 +213,7 @@ public class RecruitmentServiceImpl implements RecruitmentService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = {DuplicateLikeException.class})
     public void addLike(Long recruitmentId, Long userId) throws DuplicateLikeException {
         Recruitment recruitment = recruitmentRepository.findById(recruitmentId).orElseThrow(() -> new RecruitmentNotFoundException());
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
