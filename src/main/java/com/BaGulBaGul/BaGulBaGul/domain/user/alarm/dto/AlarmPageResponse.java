@@ -17,7 +17,7 @@ public class AlarmPageResponse {
     private AlarmType type;
     private String title;
     private String message;
-    private String subjectId;
+    private String subject;
     private boolean checked;
     private LocalDateTime time;
 
@@ -27,7 +27,7 @@ public class AlarmPageResponse {
                 .type(alarm.getType())
                 .title(alarm.getTitle())
                 .message(alarm.getMessage())
-                .subjectId(alarm.getSubjectId())
+                .subject(alarm.getSubject())
                 .checked(alarm.isChecked())
                 .time(alarm.getTime())
                 .build();

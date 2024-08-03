@@ -1,4 +1,4 @@
-package com.BaGulBaGul.BaGulBaGul.global.event;
+package com.BaGulBaGul.BaGulBaGul.global.applicationevent;
 
 import java.time.LocalDateTime;
 import lombok.Getter;
@@ -6,12 +6,12 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class BasicTimeEvent {
+public class BasicTimeApplicationEvent {
     private LocalDateTime time;
-    public BasicTimeEvent() {
+    public BasicTimeApplicationEvent() {
         this.time = LocalDateTime.now();
     }
-    public BasicTimeEvent(LocalDateTime time) {
+    public BasicTimeApplicationEvent(LocalDateTime time) {
         this.time = time;
     }
 }

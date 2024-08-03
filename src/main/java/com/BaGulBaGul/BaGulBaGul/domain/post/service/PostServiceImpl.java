@@ -8,7 +8,6 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostSimpleInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostWriterInfo;
-import com.BaGulBaGul.BaGulBaGul.domain.post.event.NewPostLikeEvent;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.PostNotFoundException;
@@ -170,8 +169,6 @@ public class PostServiceImpl implements PostService {
             //unique 제약조건 실패 = 이미 좋아요 존재 따라서 rollback
             throw new DuplicateLikeException();
         }
-        //게시글 좋아요 이벤트 발행
-        applicationEventPublisher.publishEvent(new NewPostLikeEvent(post.getId(), user.getId()));
     }
 
     @Override

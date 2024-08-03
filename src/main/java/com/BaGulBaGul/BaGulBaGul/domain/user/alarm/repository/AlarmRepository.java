@@ -12,10 +12,10 @@ import org.springframework.data.repository.query.Param;
 public interface AlarmRepository extends JpaRepository<Alarm, Long> {
 
     @Query(
-            value = "SELECT al FROM Alarm al WHERE al.user = :user ORDER BY al.time DESC",
-            countQuery = "SELECT al FROM Alarm al WHERE al.user = :user"
+            value = "SELECT al FROM Alarm al WHERE al.user.id = :userId ORDER BY al.time DESC",
+            countQuery = "SELECT count(*) FROM Alarm al WHERE al.user.id = :userId"
     )
-    Page<Alarm> findAlarmPageOrderByTime(@Param("user") User user, Pageable pageable);
+    Page<Alarm> findAlarmPageOrderByTime(@Param("userId") Long userId, Pageable pageable);
 
     @Modifying
     @Query(

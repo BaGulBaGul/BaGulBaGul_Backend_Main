@@ -6,10 +6,10 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentChild;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentChildLike;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentLike;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.*;
-import com.BaGulBaGul.BaGulBaGul.domain.post.event.NewPostCommentChildEvent;
-import com.BaGulBaGul.BaGulBaGul.domain.post.event.NewPostCommentChildLikeEvent;
-import com.BaGulBaGul.BaGulBaGul.domain.post.event.NewPostCommentEvent;
-import com.BaGulBaGul.BaGulBaGul.domain.post.event.NewPostCommentLikeEvent;
+import com.BaGulBaGul.BaGulBaGul.domain.post.applicationevent.NewPostCommentChildApplicationEvent;
+import com.BaGulBaGul.BaGulBaGul.domain.post.applicationevent.NewPostCommentChildLikeApplicationEvent;
+import com.BaGulBaGul.BaGulBaGul.domain.post.applicationevent.NewPostCommentApplicationEvent;
+import com.BaGulBaGul.BaGulBaGul.domain.post.applicationevent.NewPostCommentLikeApplicationEvent;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.PostCommentChildNotFoundException;
@@ -96,7 +96,7 @@ public class PostCommentServiceImpl implements PostCommentService {
         postCommentRepository.save(postComment);
         //댓글 등록 이벤트 발행
         applicationEventPublisher.publishEvent(
-                new NewPostCommentEvent(postComment.getId())
+                new NewPostCommentApplicationEvent(postComment.getId())
         );
         return postComment.getId();
     }
@@ -178,7 +178,7 @@ public class PostCommentServiceImpl implements PostCommentService {
 
         //대댓글 등록 이벤트 발행
         applicationEventPublisher.publishEvent(
-                new NewPostCommentChildEvent(
+                new NewPostCommentChildApplicationEvent(
                         postCommentChild.getId(),
                         validatedReplyTargetId
                 )
@@ -254,7 +254,7 @@ public class PostCommentServiceImpl implements PostCommentService {
         }
         //댓글 좋아요 추가 이벤트 발행
         applicationEventPublisher.publishEvent(
-                new NewPostCommentLikeEvent(postComment.getId(), user.getId())
+                new NewPostCommentLikeApplicationEvent(postComment.getId(), user.getId())
         );
     }
 
@@ -312,7 +312,7 @@ public class PostCommentServiceImpl implements PostCommentService {
         }
         //대댓글 좋아요 추가 이벤트 발행
         applicationEventPublisher.publishEvent(
-                new NewPostCommentChildLikeEvent(postCommentChild.getId(), user.getId())
+                new NewPostCommentChildLikeApplicationEvent(postCommentChild.getId(), user.getId())
         );
     }
 

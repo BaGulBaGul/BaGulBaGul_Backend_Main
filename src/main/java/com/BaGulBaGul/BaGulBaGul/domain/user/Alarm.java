@@ -12,9 +12,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -48,8 +46,8 @@ public class Alarm {
     String message;
 
     @Setter
-    @Column(name = "subject_id")
-    String subjectId;
+    @Column(name = "subject")
+    String subject;
 
     @Setter
     @Column(name = "checked")
@@ -60,12 +58,12 @@ public class Alarm {
     LocalDateTime time;
 
     @Builder
-    public Alarm(User user, AlarmType type, String title, String message, String subjectId, boolean checked, LocalDateTime time) {
+    public Alarm(User user, AlarmType type, String title, String message, String subject, boolean checked, LocalDateTime time) {
         this.user = user;
         this.type = type;
         this.title = title;
         this.message = message;
-        this.subjectId = subjectId;
+        this.subject = subject;
         this.checked = checked;
         this.time = time;
     }

@@ -3,6 +3,7 @@ package com.BaGulBaGul.BaGulBaGul.domain.event.service;
 import com.BaGulBaGul.BaGulBaGul.domain.event.Category;
 import com.BaGulBaGul.BaGulBaGul.domain.event.Event;
 import com.BaGulBaGul.BaGulBaGul.domain.event.EventCategory;
+import com.BaGulBaGul.BaGulBaGul.domain.event.applicationevent.NewEventLikeApplicationEvent;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventConditionalRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventDetailInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventDetailResponse;
@@ -34,6 +35,7 @@ import com.BaGulBaGul.BaGulBaGul.global.upload.service.ResourceService;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -49,13 +51,10 @@ public class EventServiceImpl implements EventService {
     private final UserRepository userRepository;
     private final EventCategoryRepository eventCategoryRepository;
     private final CategoryRepository categoryRepository;
-    private final ResourceRepository resourceRepository;
 
-//    private final PostAPIService postService;
     private final PostService postService;
-    private final PostImageService postImageService;
-    private final ResourceService resourceService;
 
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     @Transactional
@@ -277,6 +276,7 @@ public class EventServiceImpl implements EventService {
 
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
         postService.addLike(event.getPost(), user);
+        applicationEventPublisher.publishEvent(new NewEventLikeApplicationEvent(eventId, userId));
     }
 
     @Override
