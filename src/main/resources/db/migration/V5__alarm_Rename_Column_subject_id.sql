@@ -1,0 +1,1 @@
+ALTER TABLE `alarm` CHANGE subject_id subject VARCHAR(255);

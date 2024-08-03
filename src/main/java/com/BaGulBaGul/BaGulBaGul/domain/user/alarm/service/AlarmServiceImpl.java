@@ -41,7 +41,7 @@ public class AlarmServiceImpl implements AlarmService {
                         .type(alarmCreator.getType())
                         .title(alarmCreator.getTitle())
                         .message(alarmCreator.getMessage())
-                        .subjectId(alarmCreator.getSubject())
+                        .subject(alarmCreator.getSubject())
                         .time(alarmCreator.getTime())
                         .build()
         );
