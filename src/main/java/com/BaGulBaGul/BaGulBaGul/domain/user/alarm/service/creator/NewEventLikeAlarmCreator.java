@@ -1,8 +1,12 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.constant.AlarmType;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
 public class NewEventLikeAlarmCreator extends AlarmCreator {
 
@@ -21,9 +25,29 @@ public class NewEventLikeAlarmCreator extends AlarmCreator {
         this.targetUserId = targetUserId;
         this.title = makeAlarmTitle(postTitle, likeCount);
         this.message = null;
-        this.subject = eventId.toString();
+        try {
+            this.subject = makeSubjectJSON(eventId);
+        }
+        catch (JsonProcessingException e) {
+            throw new RuntimeException("AlarmCreator subject json 변환 실패");
+        }
     }
     private String makeAlarmTitle(String postTitle, int likeCount) {
         return String.format(titleFormat, postTitle, likeCount);
+    }
+
+    private String makeSubjectJSON(Long eventId) throws JsonProcessingException {
+        Subject subject = Subject.builder()
+                .eventId(eventId)
+                .build();
+        return super.objectMapper.writeValueAsString(subject);
+    }
+
+    @Getter
+    @Setter
+    @Builder
+    @AllArgsConstructor
+    private static class Subject {
+        Long eventId;
     }
 }
