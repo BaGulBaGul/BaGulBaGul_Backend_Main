@@ -6,7 +6,7 @@ import lombok.Builder;
 
 public class NewCommentLikeAlarmCreator extends AlarmCreator {
 
-    private static final String titleFormat = "작성하신 댓글에 좋아요 {0}개가 눌렸어요";
+    private static final String titleFormat = "작성하신 댓글에 좋아요 %d개가 눌렸어요";
 
     @Builder
     public NewCommentLikeAlarmCreator(
@@ -25,6 +25,6 @@ public class NewCommentLikeAlarmCreator extends AlarmCreator {
     }
 
     private String makeAlarmTitle(int likeCount) {
-        return String.format(titleFormat, new Object[]{likeCount});
+        return String.format(titleFormat, likeCount);
     }
 }

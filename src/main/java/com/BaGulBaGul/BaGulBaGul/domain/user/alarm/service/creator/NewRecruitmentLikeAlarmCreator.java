@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import lombok.Builder;
 
 public class NewRecruitmentLikeAlarmCreator extends AlarmCreator {
-    private static final String titleFormat = "{0} 글에 좋아요 {1}개가 눌렸어요";
+    private static final String titleFormat = "%s 글에 좋아요 %d개가 눌렸어요";
 
     @Builder
     public NewRecruitmentLikeAlarmCreator(
@@ -23,6 +23,6 @@ public class NewRecruitmentLikeAlarmCreator extends AlarmCreator {
         this.subject = recruitmentId.toString();
     }
     private String makeAlarmTitle(String postTitle, int likeCount) {
-        return String.format(titleFormat, new Object[]{postTitle, likeCount});
+        return String.format(titleFormat, postTitle, likeCount);
     }
 }
