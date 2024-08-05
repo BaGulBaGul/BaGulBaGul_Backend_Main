@@ -1,6 +1,9 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user.info.service;
 
+import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostLikeRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
+import com.BaGulBaGul.BaGulBaGul.domain.user.calendar.repository.EventCalendarRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.dto.UserInfoResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.dto.UserModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.exception.UserNotFoundException;
@@ -16,16 +19,25 @@ public class UserInfoServiceImpl implements UserInfoService {
     private final UserRepository userRepository;
 
     private final UserImageService userImageService;
+    private final PostRepository postRepository;
+    private final PostLikeRepository postLikeRepository;
+    private final EventCalendarRepository eventCalendarRepository;
 
     @Override
     public UserInfoResponse getUserInfo(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
+        long writingCount = postRepository.countByUserId(userId);
+        long postLikeCount = postLikeRepository.countByUserId(userId);
+        long calendarCount = eventCalendarRepository.countByUserId(userId);
         return UserInfoResponse.builder()
                 .id(userId)
                 .nickname(user.getNickname())
                 .email(user.getEmail())
                 .profileMessage(user.getProfileMessage())
                 .imageURI(user.getImageURI())
+                .writingCount(writingCount)
+                .postLikeCount(postLikeCount)
+                .calendarCount(calendarCount)
                 .build();
     }
 

@@ -9,6 +9,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface EventCalendarRepository extends JpaRepository<EventCalendar, EventCalendar.EventCalendarId> {
+
+    @Query("SELECT count(*) FROM EventCalendar ec WHERE ec.user.id = :userId")
+    long countByUserId(@Param("userId") Long userId);
+
     @Query("SELECT ec FROM EventCalendar ec INNER JOIN FETCH ec.event e INNER JOIN FETCH e.post p "
             + "WHERE ec.user = :user AND "
             + "e.startDate <= :etime AND "
