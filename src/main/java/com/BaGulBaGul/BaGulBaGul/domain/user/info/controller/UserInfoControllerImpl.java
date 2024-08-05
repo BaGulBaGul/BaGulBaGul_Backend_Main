@@ -23,8 +23,8 @@ public class UserInfoControllerImpl implements UserInfoController {
     private final UserInfoService userInfoService;
 
     @Override
-    @GetMapping("/info")
-    @Operation(summary = "유저 정보 조회",
+    @GetMapping("/info/my")
+    @Operation(summary = "자기 유저 정보 조회",
             description = "로그인 필수. 인증 토큰을 기반으로 유저 정보를 반환."
     )
     public ApiResponse<UserInfoResponse> getUserInfo(
@@ -34,8 +34,8 @@ public class UserInfoControllerImpl implements UserInfoController {
     }
 
     @Override
-    @PatchMapping("/info")
-    @Operation(summary = "유저 정보 수정 요청",
+    @PatchMapping("/info/my")
+    @Operation(summary = "자기 유저 정보 수정 요청",
             description = "로그인 필수. 유저 정보 수정"
     )
     public ApiResponse<Object> modifyUserInfo(
