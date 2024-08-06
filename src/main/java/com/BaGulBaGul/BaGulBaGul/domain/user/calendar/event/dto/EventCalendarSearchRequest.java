@@ -1,4 +1,4 @@
-package com.BaGulBaGul.BaGulBaGul.domain.user.calendar.dto;
+package com.BaGulBaGul.BaGulBaGul.domain.user.calendar.event.dto;
 
 import io.swagger.annotations.ApiModelProperty;
 import java.time.LocalDateTime;

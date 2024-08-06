@@ -1,4 +1,4 @@
-package com.BaGulBaGul.BaGulBaGul.domain.user.calendar.repository;
+package com.BaGulBaGul.BaGulBaGul.domain.user.calendar.event.repository;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.EventCalendar;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;

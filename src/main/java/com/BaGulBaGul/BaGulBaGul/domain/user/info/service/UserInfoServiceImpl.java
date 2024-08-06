@@ -3,7 +3,7 @@ package com.BaGulBaGul.BaGulBaGul.domain.user.info.service;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostLikeRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
-import com.BaGulBaGul.BaGulBaGul.domain.user.calendar.repository.EventCalendarRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.user.calendar.event.repository.EventCalendarRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.dto.MyUserInfoResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.dto.OtherUserInfoResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.dto.UserModifyRequest;
