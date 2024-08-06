@@ -5,6 +5,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.calendar.repository.EventCalendarRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.dto.MyUserInfoResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.user.info.dto.OtherUserInfoResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.dto.UserModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.exception.UserNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.UserRepository;
@@ -42,8 +43,22 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
+    public OtherUserInfoResponse getOtherUserInfo(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
+        long writingCount = postRepository.countByUserId(userId);
+        return OtherUserInfoResponse.builder()
+                .id(userId)
+                .nickname(user.getNickname())
+                .email(user.getEmail())
+                .profileMessage(user.getProfileMessage())
+                .imageURI(user.getImageURI())
+                .writingCount(writingCount)
+                .build();
+    }
+
+    @Override
     @Transactional
-    public void modifyMyUserInfo(UserModifyRequest userModifyRequest, Long userId) {
+    public void modifyUserInfo(UserModifyRequest userModifyRequest, Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
         //null이 아니라면 해당 필드를 변경
         if(userModifyRequest.getEmail().isPresent()) {
