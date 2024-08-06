@@ -11,7 +11,7 @@ import lombok.Setter;
 @Getter
 @Builder
 @AllArgsConstructor
-public class UserInfoResponse {
+public class MyUserInfoResponse {
     @ApiModelProperty(value = "유저 id")
     Long id;
     @ApiModelProperty(value = "닉네임")

@@ -1,6 +1,6 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user.info.controller;
 
-import com.BaGulBaGul.BaGulBaGul.domain.user.info.dto.UserInfoResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.user.info.dto.MyUserInfoResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.dto.UserModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.service.UserInfoService;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
@@ -27,10 +27,10 @@ public class UserInfoControllerImpl implements UserInfoController {
     @Operation(summary = "자기 유저 정보 조회",
             description = "로그인 필수. 인증 토큰을 기반으로 유저 정보를 반환."
     )
-    public ApiResponse<UserInfoResponse> getUserInfo(
+    public ApiResponse<MyUserInfoResponse> getMyUserInfo(
             @AuthenticationPrincipal Long userId
     ) {
-        return ApiResponse.of(userInfoService.getUserInfo(userId));
+        return ApiResponse.of(userInfoService.getMyUserInfo(userId));
     }
 
     @Override
@@ -38,11 +38,11 @@ public class UserInfoControllerImpl implements UserInfoController {
     @Operation(summary = "자기 유저 정보 수정 요청",
             description = "로그인 필수. 유저 정보 수정"
     )
-    public ApiResponse<Object> modifyUserInfo(
+    public ApiResponse<Object> modifyMyUserInfo(
             @AuthenticationPrincipal Long userId,
             @RequestBody UserModifyRequest userModifyRequest
     ) {
-        userInfoService.modifyUserInfo(userModifyRequest, userId);
+        userInfoService.modifyMyUserInfo(userModifyRequest, userId);
         return ApiResponse.of(null);
     }
 }
