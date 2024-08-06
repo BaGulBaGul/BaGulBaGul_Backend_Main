@@ -53,6 +53,7 @@ public class SecurityConfig {
                 .regexMatchers(HttpMethod.GET, "/api/event/recruitment/\\d+").permitAll()
 
                 //user 비로그인 허용 경로
+                .regexMatchers(HttpMethod.GET, "/api/user/info/\\d+").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/user/join/social").permitAll()
 
                 //나머지 로그인 필요
