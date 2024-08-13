@@ -215,8 +215,7 @@ public class RecruitmentServiceImpl implements RecruitmentService {
         if (!userId.equals(recruitment.getPost().getUser().getId())) {
             throw new NoPermissionException();
         }
-        postService.deletePost(recruitment.getPost());
-        recruitmentRepository.delete(recruitment);
+        recruitment.setDeleted(true);
     }
 
     @Override
