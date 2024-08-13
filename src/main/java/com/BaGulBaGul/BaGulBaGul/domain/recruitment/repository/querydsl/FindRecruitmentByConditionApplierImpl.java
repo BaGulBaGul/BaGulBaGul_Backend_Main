@@ -43,6 +43,8 @@ public class FindRecruitmentByConditionApplierImpl implements FindRecruitmentByC
             QRecruitment recruitment
     ) {
         //recruitment 자체 조건 적용
+        //삭제되지 않은 모집글이여야 함
+        query.where(recruitment.deleted.eq(false));
         //연결된 이벤트의 id 조건 적용
         if(recruitmentConditionalRequest.getEventId() != null) {
             QEvent event = QEvent.event;
