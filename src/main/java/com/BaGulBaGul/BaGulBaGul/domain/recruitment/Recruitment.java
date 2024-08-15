@@ -18,6 +18,10 @@ public class Recruitment extends BaseTimeEntity {
     Long id;
 
     @Setter
+    @Column(name = "deleted")
+    Boolean deleted;
+
+    @Setter
     @Column(name = "state")
     RecruitmentState state;
 
@@ -56,6 +60,7 @@ public class Recruitment extends BaseTimeEntity {
             LocalDateTime startDate,
             LocalDateTime endDate
     ){
+        this.deleted = false;
         this.event = event;
         this.post = post;
         this.currentHeadCount = currentHeadCount;

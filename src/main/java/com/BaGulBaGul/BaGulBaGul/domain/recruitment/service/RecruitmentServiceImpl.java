@@ -85,6 +85,11 @@ public class RecruitmentServiceImpl implements RecruitmentService {
     public RecruitmentDetailResponse getRecruitmentDetailById(Long recruitmentId) {
         Recruitment recruitment = recruitmentRepository.findWithPostAndUserById(recruitmentId).orElseThrow(() -> new RecruitmentNotFoundException());
 
+        //삭제된 모집글은 제외
+        if(recruitment.getDeleted()) {
+            throw new RecruitmentNotFoundException();
+        }
+
         //필요한 정보 추출
         RecruitmentDetailInfo recruitmentDetailInfo = getRecruitmentDetailInfoById(recruitmentId);
         PostDetailInfo postDetailInfo = postService.getPostDetailInfo(recruitment.getPost().getId());
@@ -168,6 +173,10 @@ public class RecruitmentServiceImpl implements RecruitmentService {
     @Transactional
     public void modifyRecruitment(Long recruitmentId, Long userId, RecruitmentModifyRequest recruitmentModifyRequest) {
         Recruitment recruitment = recruitmentRepository.findById(recruitmentId).orElseThrow(() -> new RecruitmentNotFoundException());
+        //삭제된 모집글은 제외
+        if(recruitment.getDeleted()) {
+            throw new RecruitmentNotFoundException();
+        }
         //요청한 유저가 작성자가 아닐 경우 수정 권한 없음
         if (!userId.equals(recruitment.getPost().getUser().getId())) {
             throw new NoPermissionException();
@@ -198,11 +207,19 @@ public class RecruitmentServiceImpl implements RecruitmentService {
     @Transactional
     public void deleteRecruitment(Long recruitmentId, Long userId) {
         Recruitment recruitment = recruitmentRepository.findById(recruitmentId).orElseThrow(() -> new RecruitmentNotFoundException());
+        //삭제된 모집글은 제외
+        if(recruitment.getDeleted()) {
+            throw new RecruitmentNotFoundException();
+        }
+        //작성자가 아닐 경우 권한 없음
         if (!userId.equals(recruitment.getPost().getUser().getId())) {
             throw new NoPermissionException();
         }
-        postService.deletePost(recruitment.getPost());
-        recruitmentRepository.delete(recruitment);
+        int updatedCount = recruitmentRepository.setDeletedTrueAndGetCountIfNotDeleted(recruitmentId);
+        //중복요청 등의 이유로 이미 삭제된 경우
+        if(updatedCount == 0) {
+            throw new RecruitmentNotFoundException();
+        }
     }
 
     @Override
@@ -216,6 +233,11 @@ public class RecruitmentServiceImpl implements RecruitmentService {
     @Transactional(rollbackFor = {DuplicateLikeException.class})
     public void addLike(Long recruitmentId, Long userId) throws DuplicateLikeException {
         Recruitment recruitment = recruitmentRepository.findById(recruitmentId).orElseThrow(() -> new RecruitmentNotFoundException());
+        //삭제된 모집글은 제외
+        if(recruitment.getDeleted()) {
+            throw new RecruitmentNotFoundException();
+        }
+
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
         postService.addLike(recruitment.getPost(), user);
         //모집글 좋아요 추가 이벤트 발행
