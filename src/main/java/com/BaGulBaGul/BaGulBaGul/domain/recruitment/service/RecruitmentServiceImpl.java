@@ -215,7 +215,11 @@ public class RecruitmentServiceImpl implements RecruitmentService {
         if (!userId.equals(recruitment.getPost().getUser().getId())) {
             throw new NoPermissionException();
         }
-        recruitment.setDeleted(true);
+        int updatedCount = recruitmentRepository.setDeletedTrueAndGetCountIfNotDeleted(recruitmentId);
+        //중복요청 등의 이유로 이미 삭제된 경우
+        if(updatedCount == 0) {
+            throw new RecruitmentNotFoundException();
+        }
     }
 
     @Override
