@@ -1,4 +1,4 @@
-package com.BaGulBaGul.BaGulBaGul.domain.user.calendar.dto;
+package com.BaGulBaGul.BaGulBaGul.domain.user.calendar.event.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,5 +1,6 @@
-package com.BaGulBaGul.BaGulBaGul.domain.user.calendar.dto;
+package com.BaGulBaGul.BaGulBaGul.domain.user.calendar.event.dto;
 
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,6 +12,7 @@ import lombok.Setter;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class EventCalendarExistsResponse {
-    boolean exists;
+public class EventCalendarRegisterRequest {
+    @NotNull
+    private Long eventId;
 }

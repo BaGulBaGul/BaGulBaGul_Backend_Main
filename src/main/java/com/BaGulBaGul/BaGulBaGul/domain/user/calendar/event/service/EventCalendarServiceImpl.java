@@ -1,4 +1,4 @@
-package com.BaGulBaGul.BaGulBaGul.domain.user.calendar.service;
+package com.BaGulBaGul.BaGulBaGul.domain.user.calendar.event.service;
 
 import com.BaGulBaGul.BaGulBaGul.domain.event.Event;
 import com.BaGulBaGul.BaGulBaGul.domain.event.exception.EventNotFoundException;
@@ -6,9 +6,9 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.repository.EventRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.EventCalendar;
 import com.BaGulBaGul.BaGulBaGul.domain.user.EventCalendar.EventCalendarId;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
-import com.BaGulBaGul.BaGulBaGul.domain.user.calendar.dto.EventCalendarSearchRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.user.calendar.dto.EventCalendarSearchResponse;
-import com.BaGulBaGul.BaGulBaGul.domain.user.calendar.repository.EventCalendarRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.user.calendar.event.dto.EventCalendarSearchRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.calendar.event.dto.EventCalendarSearchResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.user.calendar.event.repository.EventCalendarRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.exception.UserNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.UserRepository;
 import java.util.List;
@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class CalendarServiceImpl implements CalendarService {
+public class EventCalendarServiceImpl implements EventCalendarService {
 
     private final EventCalendarRepository eventCalendarRepository;
     private final UserRepository userRepository;

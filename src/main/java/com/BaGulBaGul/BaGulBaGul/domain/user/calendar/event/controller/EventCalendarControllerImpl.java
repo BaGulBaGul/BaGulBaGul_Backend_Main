@@ -1,11 +1,9 @@
-package com.BaGulBaGul.BaGulBaGul.domain.user.calendar.controller;
+package com.BaGulBaGul.BaGulBaGul.domain.user.calendar.event.controller;
 
-import com.BaGulBaGul.BaGulBaGul.domain.user.calendar.dto.EventCalendarDeleteRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.user.calendar.dto.EventCalendarExistsResponse;
-import com.BaGulBaGul.BaGulBaGul.domain.user.calendar.dto.EventCalendarRegisterRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.user.calendar.dto.EventCalendarSearchRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.user.calendar.dto.EventCalendarSearchResponse;
-import com.BaGulBaGul.BaGulBaGul.domain.user.calendar.service.CalendarService;
+import com.BaGulBaGul.BaGulBaGul.domain.user.calendar.event.dto.EventCalendarExistsResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.user.calendar.event.dto.EventCalendarSearchRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.calendar.event.dto.EventCalendarSearchResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.user.calendar.event.service.EventCalendarService;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,9 +21,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/user/calendar")
 @RequiredArgsConstructor
 @Api(tags = "캘린더")
-public class CalendarControllerImpl implements CalendarController {
+public class EventCalendarControllerImpl implements EventCalendarController {
 
-    private final CalendarService calendarService;
+    private final EventCalendarService calendarService;
 
     @Override
     @GetMapping("/event")
