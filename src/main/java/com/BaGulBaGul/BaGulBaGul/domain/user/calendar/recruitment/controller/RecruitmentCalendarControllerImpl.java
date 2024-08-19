@@ -1,10 +1,13 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user.calendar.recruitment.controller;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.calendar.recruitment.dto.RecruitmentCalendarExistsResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.user.calendar.recruitment.dto.RecruitmentCalendarSearchRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.calendar.recruitment.dto.RecruitmentCalendarSearchResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.user.calendar.recruitment.service.RecruitmentCalendarService;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,6 +24,23 @@ import org.springframework.web.bind.annotation.RestController;
 public class RecruitmentCalendarControllerImpl implements RecruitmentCalendarController {
 
     private final RecruitmentCalendarService recruitmentCalendarService;
+
+    @Override
+    @GetMapping("")
+    @Operation(summary = "캘린더에 등록된 모집글 중 검색 시작 시간과 검색 종료 시간 사이에 있는 모집글 정보를 검색",
+            description = "로그인 필요"
+    )
+    public ApiResponse<List<RecruitmentCalendarSearchResponse>> searchRecruitmentByCondition(
+            @AuthenticationPrincipal Long userId,
+            RecruitmentCalendarSearchRequest recruitmentCalendarSearchRequest)
+    {
+        return ApiResponse.of(
+                recruitmentCalendarService.findRecruitmentCalendarByCondition(
+                    userId,
+                    recruitmentCalendarSearchRequest
+                )
+        );
+    }
 
     @Override
     @GetMapping("/{recruitmentId}/exists")
