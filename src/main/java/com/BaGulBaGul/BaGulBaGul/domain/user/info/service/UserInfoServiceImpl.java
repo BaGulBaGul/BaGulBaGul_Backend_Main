@@ -4,6 +4,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostLikeRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.calendar.event.repository.EventCalendarRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.user.calendar.recruitment.repository.RecruitmentCalendarRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.dto.MyUserInfoResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.dto.OtherUserInfoResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.dto.UserModifyRequest;
@@ -23,13 +24,14 @@ public class UserInfoServiceImpl implements UserInfoService {
     private final PostRepository postRepository;
     private final PostLikeRepository postLikeRepository;
     private final EventCalendarRepository eventCalendarRepository;
+    private final RecruitmentCalendarRepository recruitmentCalendarRepository;
 
     @Override
     public MyUserInfoResponse getMyUserInfo(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
         long writingCount = postRepository.countByUserId(userId);
         long postLikeCount = postLikeRepository.countByUserId(userId);
-        long calendarCount = eventCalendarRepository.countByUserId(userId);
+        long calendarCount = eventCalendarRepository.countByUserId(userId) + recruitmentCalendarRepository.countByUserId(userId);
         return MyUserInfoResponse.builder()
                 .id(userId)
                 .nickname(user.getNickname())

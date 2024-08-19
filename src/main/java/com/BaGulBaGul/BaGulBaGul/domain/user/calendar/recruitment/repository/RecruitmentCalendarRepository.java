@@ -9,6 +9,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface RecruitmentCalendarRepository extends JpaRepository<RecruitmentCalendar, RecruitmentCalendar.RecruitmentCalendarId> {
+
+    @Query("SELECT count(*) FROM RecruitmentCalendar rc WHERE rc.user.id = :userId")
+    long countByUserId(@Param("userId") Long userId);
+
     @Query("SELECT rc FROM RecruitmentCalendar rc INNER JOIN FETCH rc.recruitment r INNER JOIN FETCH r.post p "
             + "WHERE rc.user = :user AND "
             + "r.startDate <= :etime AND "
