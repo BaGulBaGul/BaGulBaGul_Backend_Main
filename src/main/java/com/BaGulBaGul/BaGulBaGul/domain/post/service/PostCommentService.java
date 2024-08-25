@@ -1,6 +1,12 @@
 package com.BaGulBaGul.BaGulBaGul.domain.post.service;
 
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.*;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentChildModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentChildRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.GetPostCommentChildPageResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.GetPostCommentPageResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.PostCommentDetailResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
 import org.springframework.data.domain.Page;

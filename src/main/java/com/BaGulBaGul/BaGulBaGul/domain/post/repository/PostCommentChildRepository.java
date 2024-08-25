@@ -3,7 +3,7 @@ package com.BaGulBaGul.BaGulBaGul.domain.post.repository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostComment;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentChild;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetPostCommentChildPageResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.GetPostCommentChildPageResponse;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -30,7 +30,7 @@ public interface PostCommentChildRepository extends JpaRepository<PostCommentChi
     void deleteAllByPostComment(@Param("postComment") PostComment postComment);
 
     @Query(
-            value = "SELECT new com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetPostCommentChildPageResponse( "
+            value = "SELECT new com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.GetPostCommentChildPageResponse( "
                         + "pch.id, "
                         + "user.id, "
                         + "user.nickname, "
@@ -57,7 +57,7 @@ public interface PostCommentChildRepository extends JpaRepository<PostCommentChi
     );
 
     @Query(
-            value = "SELECT new com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetPostCommentChildPageResponse( "
+            value = "SELECT new com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.GetPostCommentChildPageResponse( "
                     + "pch.id, "
                     + "user.id, "
                     + "user.nickname, "

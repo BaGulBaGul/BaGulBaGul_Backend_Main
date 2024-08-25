@@ -1,6 +1,6 @@
 package com.BaGulBaGul.BaGulBaGul.domain.post.repository.queryDSL;
 import com.BaGulBaGul.BaGulBaGul.domain.post.QPost;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostConditionalRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostConditionalRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.QUser;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;

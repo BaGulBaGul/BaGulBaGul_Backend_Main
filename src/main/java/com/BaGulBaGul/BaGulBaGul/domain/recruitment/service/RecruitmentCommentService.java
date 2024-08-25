@@ -1,12 +1,12 @@
 package com.BaGulBaGul.BaGulBaGul.domain.recruitment.service;
 
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetPostCommentChildPageResponse;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetPostCommentPageResponse;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentChildModifyRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentChildRegisterRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentDetailResponse;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentModifyRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.GetPostCommentChildPageResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.GetPostCommentPageResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentChildModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentChildRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.PostCommentDetailResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentRegisterRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
