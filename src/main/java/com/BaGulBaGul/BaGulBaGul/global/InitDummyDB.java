@@ -7,6 +7,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.service.EventService;
 import com.BaGulBaGul.BaGulBaGul.domain.event.constant.EventType;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentChildRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.result.RegisterPostCommentChildResult;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostCommentService;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.Recruitment;
@@ -316,7 +317,8 @@ public class InitDummyDB implements ApplicationListener<ApplicationReadyEvent> {
         Random rand = new Random();
         for(int cnt=0;cnt<commentChildCount;cnt++) {
             User writer = users.get(rand.nextInt(users.size()));
-            Long postCommentChildId = postCommentService.registerPostCommentChild(
+            //대댓글 등록
+            RegisterPostCommentChildResult registerPostCommentChildResult = postCommentService.registerPostCommentChild(
                     postCommentId,
                     writer.getId(),
                     PostCommentChildRegisterRequest.builder()
@@ -324,6 +326,7 @@ public class InitDummyDB implements ApplicationListener<ApplicationReadyEvent> {
                             .replyTargetPostCommentChildId(null)
                             .build()
             );
+            Long postCommentChildId = registerPostCommentChildResult.getPostCommentChildId();
             //대댓글 좋아요 추가
             int likeCount = rand.nextInt(users.size());
             for(int i=0;i<likeCount;i++) {

@@ -16,6 +16,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentRegister
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.GetPostCommentChildPageResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.GetPostCommentPageResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.PostCommentDetailResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.result.RegisterPostCommentChildResult;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.PostCommentChildNotFoundException;
@@ -145,7 +146,7 @@ public class PostCommentServiceImpl implements PostCommentService {
 
     @Override
     @Transactional
-    public Long registerPostCommentChild(
+    public RegisterPostCommentChildResult registerPostCommentChild(
             Long postCommentId,
             Long userId,
             PostCommentChildRegisterRequest postCommentChildRegisterRequest
@@ -189,7 +190,10 @@ public class PostCommentServiceImpl implements PostCommentService {
                         validatedReplyTargetId
                 )
         );
-        return postCommentChild.getId();
+        return RegisterPostCommentChildResult.builder()
+                .postCommentChildId(postCommentChild.getId())
+                .validatedReplyTargetId(validatedReplyTargetId)
+                .build();
     }
 
     @Override

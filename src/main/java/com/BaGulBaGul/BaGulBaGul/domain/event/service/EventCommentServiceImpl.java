@@ -11,6 +11,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentChildReg
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.PostCommentDetailResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.result.RegisterPostCommentChildResult;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostCommentService;
@@ -90,7 +91,8 @@ public class EventCommentServiceImpl implements EventCommentService {
             Long userId,
             PostCommentChildRegisterRequest postCommentChildRegisterRequest
     ) {
-        return postCommentService.registerPostCommentChild(commentId, userId, postCommentChildRegisterRequest);
+        RegisterPostCommentChildResult result = postCommentService.registerPostCommentChild(commentId, userId, postCommentChildRegisterRequest);
+        return result.getPostCommentChildId();
     }
 
     @Override
