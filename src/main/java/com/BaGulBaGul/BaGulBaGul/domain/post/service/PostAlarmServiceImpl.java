@@ -12,10 +12,10 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentRepository;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.AlarmService;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.AlarmCreator;
-import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.NewCommentAlarmCreator;
-import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.NewCommentChildAlarmCreator;
-import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.NewCommentChildLikeAlarmCreator;
-import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.NewCommentLikeAlarmCreator;
+import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentAlarmCreator;
+import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentChildAlarmCreator;
+import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentChildLikeAlarmCreator;
+import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentLikeAlarmCreator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;

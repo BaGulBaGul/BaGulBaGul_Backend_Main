@@ -1,6 +1,7 @@
-package com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator;
+package com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.constant.AlarmType;
+import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.AlarmCreator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
