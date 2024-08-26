@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+@Getter
 public class NewCommentChildAlarmCreator extends AlarmCreator {
 
     private Subject subjectObject;
@@ -40,7 +41,7 @@ public class NewCommentChildAlarmCreator extends AlarmCreator {
     @Setter
     @Builder
     @AllArgsConstructor
-    private static class Subject {
+    public static class Subject {
         Long commentId;
     }
 }

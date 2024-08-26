@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+@Getter
 public class NewCommentAlarmCreator extends AlarmCreator {
 
     private static final String titleFormat = "%s 글에 댓글이 달렸어요";
@@ -47,7 +48,7 @@ public class NewCommentAlarmCreator extends AlarmCreator {
     @Setter
     @Builder
     @AllArgsConstructor
-    private static class Subject {
+    public static class Subject {
         Long postId;
     }
 }

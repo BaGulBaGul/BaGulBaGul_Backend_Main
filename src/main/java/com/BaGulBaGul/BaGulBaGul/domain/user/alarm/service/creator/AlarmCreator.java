@@ -4,9 +4,15 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.constant.AlarmType;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Getter
+@SuperBuilder
+@NoArgsConstructor
 public abstract class AlarmCreator {
     //생성 비용이 크지만 thread safe하므로 미리 생성해 둔다.
     protected static final ObjectMapper objectMapper = new ObjectMapper();
@@ -18,7 +24,7 @@ public abstract class AlarmCreator {
     protected String subject;
     protected LocalDateTime time;
 
-    protected String makeSubjectJSON(Object subjectObject) throws JsonProcessingException {
+    protected static String makeSubjectJSON(Object subjectObject) throws JsonProcessingException {
         return objectMapper.writeValueAsString(subjectObject);
     }
 }

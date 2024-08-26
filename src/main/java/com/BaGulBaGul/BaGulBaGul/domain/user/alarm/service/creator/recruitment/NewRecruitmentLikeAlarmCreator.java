@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+@Getter
 public class NewRecruitmentLikeAlarmCreator extends AlarmCreator {
     private static final String titleFormat = "%s 글에 좋아요 %d개가 눌렸어요";
 
@@ -45,7 +46,7 @@ public class NewRecruitmentLikeAlarmCreator extends AlarmCreator {
     @Setter
     @Builder
     @AllArgsConstructor
-    private static class Subject {
+    public static class Subject {
         Long recruitmentId;
     }
 }

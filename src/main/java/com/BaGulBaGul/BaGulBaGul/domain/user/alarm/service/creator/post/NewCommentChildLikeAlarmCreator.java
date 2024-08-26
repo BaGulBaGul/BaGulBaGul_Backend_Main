@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+@Getter
 public class NewCommentChildLikeAlarmCreator extends AlarmCreator {
     private static final String titleFormat = "작성하신 댓글에 좋아요 %d개가 눌렸어요";
 
@@ -46,7 +47,7 @@ public class NewCommentChildLikeAlarmCreator extends AlarmCreator {
     @Setter
     @Builder
     @AllArgsConstructor
-    private static class Subject {
+    public static class Subject {
         Long commentId;
     }
 }
