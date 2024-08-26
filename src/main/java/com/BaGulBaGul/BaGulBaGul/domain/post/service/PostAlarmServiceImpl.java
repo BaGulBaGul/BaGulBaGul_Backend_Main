@@ -3,25 +3,19 @@ package com.BaGulBaGul.BaGulBaGul.domain.post.service;
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostComment;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentChild;
-import com.BaGulBaGul.BaGulBaGul.domain.post.applicationevent.NewPostCommentChildApplicationEvent;
-import com.BaGulBaGul.BaGulBaGul.domain.post.applicationevent.NewPostCommentChildLikeApplicationEvent;
-import com.BaGulBaGul.BaGulBaGul.domain.post.applicationevent.NewPostCommentApplicationEvent;
-import com.BaGulBaGul.BaGulBaGul.domain.post.applicationevent.NewPostCommentLikeApplicationEvent;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentChildRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentRepository;
 
+import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.AlarmService;
-import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.AlarmCreator;
-import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentAlarmCreator;
-import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentChildAlarmCreator;
-import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentChildLikeAlarmCreator;
-import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentLikeAlarmCreator;
+import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentAlarmInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentChildAlarmInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentChildLikeAlarmInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentLikeAlarmInfo;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
 
 @Service
 @RequiredArgsConstructor
@@ -29,165 +23,178 @@ public class PostAlarmServiceImpl implements PostAlarmService {
 
     private final PostCommentRepository postCommentRepository;
     private final PostCommentChildRepository postCommentChildRepository;
-    private final AlarmService alarmService;
 
     /*
         게시글에 댓글 추가 시 게시글 작성자에게 알람
      */
     @Override
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional
-    @Async
-    public void alarmToPostWriter(
-            NewPostCommentApplicationEvent newPostCommentApplicationEvent
+    public NewCommentAlarmInfo getNewCommentAlarmInfo(
+            LocalDateTime time,
+            Long newCommentId
     ) {
-        PostComment postComment = postCommentRepository
-                .findById(newPostCommentApplicationEvent.getPostCommentId())
+        //새로 등록된 댓글을 조회
+        PostComment newComment = postCommentRepository
+                .findById(newCommentId)
                 .orElse(null);
-        if(postComment == null){
-             return;
+        //새로 등록된 댓글이 없을 경우
+        if(newComment == null){
+             return null;
         }
-        Post post = postComment.getPost();
-        AlarmCreator alarmCreator = NewCommentAlarmCreator.builder()
-                .targetUserId(post.getUser().getId())
-                .time(newPostCommentApplicationEvent.getTime())
-                .postId(post.getId())
+        //새로 등록된 댓글이 등록된 게시글
+        Post post = newComment.getPost();
+        //게시글의 작성자
+        User postWriter = post.getUser();
+
+        return NewCommentAlarmInfo.builder()
+                .targetUserId(postWriter.getId())
+                .time(time)
                 .postTitle(post.getTitle())
-                .commentContent(postComment.getContent())
+                .commentContent(newComment.getContent())
                 .build();
-        //알람 등록
-        alarmService.registerAlarm(alarmCreator);
     }
 
     /*
         댓글에 대댓글 추가 시 댓글 작성자에게 알람
     */
     @Override
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional
-    @Async
-    public void alarmToPostCommentWriter(
-            NewPostCommentChildApplicationEvent newPostCommentChildApplicationEvent
+    public NewCommentChildAlarmInfo getNewCommentChildAlarmInfo(
+            LocalDateTime time,
+            Long newCommentChildId
     ) {
-        PostCommentChild newPostCommentChild = postCommentChildRepository
-                .findById(newPostCommentChildApplicationEvent.getPostCommentChildId())
+        //새로 등록된 대댓글을 조회
+        PostCommentChild newCommentChild = postCommentChildRepository
+                .findById(newCommentChildId)
                 .orElse(null);
-        if(newPostCommentChild == null) {
-            return;
+        //새로 등록된 대댓글이 없을 경우
+        if(newCommentChild == null) {
+            return null;
         }
-        PostComment postComment = newPostCommentChild.getPostComment();
+        //새로 등록된 대댓글의 부모 댓글
+        PostComment parentComment = newCommentChild.getPostComment();
+        //부모 댓글의 작성자
+        User parentCommentWriter = parentComment.getUser();
 
-        AlarmCreator alarmCreator = NewCommentChildAlarmCreator.builder()
-                .targetUserId(postComment.getUser().getId())
-                .time(newPostCommentChildApplicationEvent.getTime())
-                .commentId(postComment.getId())
-                .commentChildContent(newPostCommentChild.getContent())
+        return NewCommentChildAlarmInfo.builder()
+                .targetUserId(parentCommentWriter.getId())
+                .time(time)
+                .commentId(parentComment.getId())
+                .commentChildContent(newCommentChild.getContent())
                 .build();
-        //알람 등록
-        alarmService.registerAlarm(alarmCreator);
     }
 
     /*
         댓글에 좋아요 추가 시 댓글 작성자에게 알람
     */
     @Override
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional
-    @Async
-    public void alarmToPostCommentWriter(
-            NewPostCommentLikeApplicationEvent newPostCommentLikeEvent
+    public NewCommentLikeAlarmInfo getNewCommentLikeAlarmInfo(
+            LocalDateTime time,
+            Long likedCommentId,
+            Long likeUserId
     ) {
-        PostComment postComment = postCommentRepository
-                .findById(newPostCommentLikeEvent.getPostCommentId())
+        //좋아요를 받은 댓글을 조회
+        PostComment likedComment = postCommentRepository
+                .findById(likedCommentId)
                 .orElse(null);
-        if(postComment == null) {
-            return;
+        //댓글이 없을 경우
+        if(likedComment == null) {
+            return null;
         }
+        //좋아요를 받은 댓글의 작성자
+        User likedCommentWriter = likedComment.getUser();
 
-        AlarmCreator alarmCreator = NewCommentLikeAlarmCreator.builder()
-                .targetUserId(postComment.getUser().getId())
-                .time(newPostCommentLikeEvent.getTime())
-                .commentId(postComment.getId())
-                .commentContent(postComment.getContent())
-                .commentLikeCount(postComment.getLikeCount())
+        return NewCommentLikeAlarmInfo.builder()
+                .targetUserId(likedCommentWriter.getId())
+                .time(time)
+                .commentId(likedComment.getId())
+                .commentContent(likedComment.getContent())
+                .commentLikeCount(likedComment.getLikeCount())
                 .build();
-        //알람 등록
-        alarmService.registerAlarm(alarmCreator);
     }
 
     /*
         대댓글에 답장 시 대댓글 작성자에게 알람
     */
     @Override
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional
-    @Async
-    public void alarmToPostCommentChildWriter(
-            NewPostCommentChildApplicationEvent newPostCommentChildApplicationEvent
+    public NewCommentChildAlarmInfo getNewCommentChildAlarmInfoIfReply(
+            LocalDateTime time,
+            Long newCommentChildId,
+            Long replyTargetCommentChildId
     ) {
         //새로 등록된 대댓글이 답장이 아니라면 무시
-        if(newPostCommentChildApplicationEvent.getOriginalPostCommentChildId() == null) {
-            return;
+        if(replyTargetCommentChildId == null) {
+            return null;
         }
-
-        PostCommentChild newPostCommentChild = postCommentChildRepository
-                .findById(newPostCommentChildApplicationEvent.getPostCommentChildId())
+        //새로 등록한 대댓글 엔티티를 조회
+        PostCommentChild newCommentChild = postCommentChildRepository
+                .findById(newCommentChildId)
                 .orElse(null);
-        //등록된 대댓글이 지워졌거나 답글이 아닌 경우
-        if(newPostCommentChild == null) {
-            return;
+        //새로 등록한 대댓글이 지워진 경우
+        if(newCommentChild == null) {
+            return null;
         }
 
-        PostCommentChild originalPostCommentChild = postCommentChildRepository
-                .findById(newPostCommentChildApplicationEvent.getOriginalPostCommentChildId())
+        //답장을 받을 대댓글 엔티티를 조회
+        PostCommentChild replyTargetCommentChild = postCommentChildRepository
+                .findById(replyTargetCommentChildId)
                 .orElse(null);
         //답글을 받을 대댓글이 지워진 경우
-        if(originalPostCommentChild == null) {
-            return;
+        if(replyTargetCommentChild == null) {
+            return null;
+        }
+        //답장을 받을 대댓글의 작성자 엔티티
+        User replyTargetCommentChildWriter = replyTargetCommentChild.getUser();
+
+        //부모 댓글 엔티티
+        PostComment parentComment = replyTargetCommentChild.getPostComment();
+        //부모 댓글의 작성자
+        User parentCommentWriter = parentComment.getUser();
+        //알람을 받는 유저(답장을 받을 대댓글의 작성자)가 부모 댓글의 작성자와 같다면 무시
+        //부모 댓글의 작성자에게는 대댓글 작성 알람이 가기 때문에 중복 알람을 막기 위함
+        if(replyTargetCommentChildWriter.getId() == parentCommentWriter.getId()) {
+            return null;
         }
 
-        PostComment postComment = originalPostCommentChild.getPostComment();
-        //알람을 받는 유저가 부모 댓글의 작성자와 같다면 무시
-        if(originalPostCommentChild.getUser().getId() == postComment.getUser().getId()) {
-            return;
-        }
-
-        AlarmCreator alarmCreator = NewCommentChildAlarmCreator.builder()
-                .targetUserId(originalPostCommentChild.getUser().getId())
-                .time(newPostCommentChildApplicationEvent.getTime())
-                .commentId(postComment.getId())
-                .commentChildContent(newPostCommentChild.getContent())
+        return NewCommentChildAlarmInfo.builder()
+                .targetUserId(replyTargetCommentChildWriter.getId())
+                .time(time)
+                .commentId(parentComment.getId())
+                .commentChildContent(newCommentChild.getContent())
                 .build();
-        //알람 등록
-        alarmService.registerAlarm(alarmCreator);
     }
 
     /*
         대댓글에 좋아요 추가 시 대댓글 작성자에게 알람
     */
     @Override
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional
-    @Async
-    public void alarmToPostCommentChildWriter(
-            NewPostCommentChildLikeApplicationEvent newPostCommentChildLikeApplicationEvent
+    public NewCommentChildLikeAlarmInfo getNewCommentChildLikeAlarmInfo(
+            LocalDateTime time,
+            Long likedCommentChildId,
+            Long likeUserId
     ) {
-        PostCommentChild postCommentChild = postCommentChildRepository
-                .findById(newPostCommentChildLikeApplicationEvent.getPostCommentChildId())
+        //좋아요를 받은 대댓글을 조회
+        PostCommentChild likedCommentChild = postCommentChildRepository
+                .findById(likedCommentChildId)
                 .orElse(null);
-        if(postCommentChild == null) {
-            return;
+        //좋아요를 받은 대댓글이 없는 경우
+        if(likedCommentChild == null) {
+            return null;
         }
-        PostComment postComment = postCommentChild.getPostComment();
+        //좋아요를 받은 대댓글의 작성자
+        User likedCommentChildWriter = likedCommentChild.getUser();
+        //좋아요를 받은 대댓글의 부모 댓글
+        PostComment parentComment = likedCommentChild.getPostComment();
 
-        AlarmCreator alarmCreator = NewCommentChildLikeAlarmCreator.builder()
-                .targetUserId(postCommentChild.getUser().getId())
-                .time(newPostCommentChildLikeApplicationEvent.getTime())
-                .commentId(postComment.getId())
-                .commentChildContent(postCommentChild.getContent())
-                .commentChildLikeCount(postCommentChild.getLikeCount())
+        return NewCommentChildLikeAlarmInfo.builder()
+                .targetUserId(likedCommentChildWriter.getId())
+                .time(time)
+                .commentId(parentComment.getId())
+                .commentChildContent(likedCommentChild.getContent())
+                .commentChildLikeCount(likedCommentChild.getLikeCount())
                 .build();
-        //알람 등록
-        alarmService.registerAlarm(alarmCreator);
     }
 }

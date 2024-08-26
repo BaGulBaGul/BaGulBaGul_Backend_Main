@@ -1,29 +1,30 @@
 package com.BaGulBaGul.BaGulBaGul.domain.post.service;
 
-import com.BaGulBaGul.BaGulBaGul.domain.post.applicationevent.NewPostCommentChildApplicationEvent;
-import com.BaGulBaGul.BaGulBaGul.domain.post.applicationevent.NewPostCommentChildLikeApplicationEvent;
-import com.BaGulBaGul.BaGulBaGul.domain.post.applicationevent.NewPostCommentApplicationEvent;
-import com.BaGulBaGul.BaGulBaGul.domain.post.applicationevent.NewPostCommentLikeApplicationEvent;
+import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentAlarmInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentChildAlarmInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentChildLikeAlarmInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentLikeAlarmInfo;
+import java.time.LocalDateTime;
 
 public interface PostAlarmService {
     /*
         게시글에 댓글 추가 시 게시글 작성자에게 알람
      */
-    void alarmToPostWriter(NewPostCommentApplicationEvent newPostCommentApplicationEvent);
+    NewCommentAlarmInfo getNewCommentAlarmInfo(LocalDateTime time, Long newCommentId);
     /*
         댓글에 대댓글 추가 시 댓글 작성자에게 알람
     */
-    void alarmToPostCommentWriter(NewPostCommentChildApplicationEvent newPostCommentChildApplicationEvent);
+    NewCommentChildAlarmInfo getNewCommentChildAlarmInfo(LocalDateTime time, Long newCommentChildId);
     /*
         댓글에 좋아요 추가 시 댓글 작성자에게 알람
     */
-    void alarmToPostCommentWriter(NewPostCommentLikeApplicationEvent newPostCommentLikeEvent);
+    NewCommentLikeAlarmInfo getNewCommentLikeAlarmInfo(LocalDateTime time, Long likedCommentId, Long likeUserId);
     /*
         대댓글에 답장 시 대댓글 작성자에게 알람
     */
-    void alarmToPostCommentChildWriter(NewPostCommentChildApplicationEvent newPostCommentChildApplicationEvent);
+    NewCommentChildAlarmInfo getNewCommentChildAlarmInfoIfReply(LocalDateTime time, Long newCommentChildId, Long replyTargetCommentChildId);
     /*
         대댓글에 좋아요 추가 시 대댓글 작성자에게 알람
     */
-    void alarmToPostCommentChildWriter(NewPostCommentChildLikeApplicationEvent newPostCommentChildLikeApplicationEvent);
+    NewCommentChildLikeAlarmInfo getNewCommentChildLikeAlarmInfo(LocalDateTime time, Long likedCommentChildId, Long likeUserId);
 }

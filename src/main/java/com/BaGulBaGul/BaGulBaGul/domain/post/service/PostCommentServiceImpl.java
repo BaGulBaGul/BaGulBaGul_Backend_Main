@@ -5,10 +5,6 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.PostComment;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentChild;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentChildLike;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentLike;
-import com.BaGulBaGul.BaGulBaGul.domain.post.applicationevent.NewPostCommentChildApplicationEvent;
-import com.BaGulBaGul.BaGulBaGul.domain.post.applicationevent.NewPostCommentChildLikeApplicationEvent;
-import com.BaGulBaGul.BaGulBaGul.domain.post.applicationevent.NewPostCommentApplicationEvent;
-import com.BaGulBaGul.BaGulBaGul.domain.post.applicationevent.NewPostCommentLikeApplicationEvent;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentChildModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentChildRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentModifyRequest;
@@ -51,7 +47,6 @@ public class PostCommentServiceImpl implements PostCommentService {
     private final UserRepository userRepository;
     private final PostCommentLikeRepository postCommentLikeRepository;
     private final PostCommentChildLikeRepository postCommentChildLikeRepository;
-    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     public PostCommentDetailResponse getPostCommentDetail(Long postCommentId) {
@@ -101,10 +96,7 @@ public class PostCommentServiceImpl implements PostCommentService {
                 .build();
         //댓글 등록
         postCommentRepository.save(postComment);
-        //댓글 등록 이벤트 발행
-        applicationEventPublisher.publishEvent(
-                new NewPostCommentApplicationEvent(postComment.getId())
-        );
+
         return postComment.getId();
     }
 
@@ -183,13 +175,6 @@ public class PostCommentServiceImpl implements PostCommentService {
                 .build();
         postCommentChildRepository.save(postCommentChild);
 
-        //대댓글 등록 이벤트 발행
-        applicationEventPublisher.publishEvent(
-                new NewPostCommentChildApplicationEvent(
-                        postCommentChild.getId(),
-                        validatedReplyTargetId
-                )
-        );
         return RegisterPostCommentChildResult.builder()
                 .postCommentChildId(postCommentChild.getId())
                 .validatedReplyTargetId(validatedReplyTargetId)
@@ -262,10 +247,6 @@ public class PostCommentServiceImpl implements PostCommentService {
         } catch (DataIntegrityViolationException dataIntegrityViolationException) {
             throw new DuplicateLikeException();
         }
-        //댓글 좋아요 추가 이벤트 발행
-        applicationEventPublisher.publishEvent(
-                new NewPostCommentLikeApplicationEvent(postComment.getId(), user.getId())
-        );
     }
 
     @Override
@@ -320,10 +301,6 @@ public class PostCommentServiceImpl implements PostCommentService {
         } catch (DataIntegrityViolationException dataIntegrityViolationException) {
             throw new DuplicateLikeException();
         }
-        //대댓글 좋아요 추가 이벤트 발행
-        applicationEventPublisher.publishEvent(
-                new NewPostCommentChildLikeApplicationEvent(postCommentChild.getId(), user.getId())
-        );
     }
 
     @Override
