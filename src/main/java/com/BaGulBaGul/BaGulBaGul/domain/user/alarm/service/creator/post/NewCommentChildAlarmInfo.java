@@ -12,7 +12,7 @@ import lombok.Setter;
 @Getter
 public class NewCommentChildAlarmInfo extends AlarmInfo {
 
-    private Subject subjectObject;
+    private Long commentId;
 
     @Builder
     public NewCommentChildAlarmInfo(
@@ -21,27 +21,11 @@ public class NewCommentChildAlarmInfo extends AlarmInfo {
             Long commentId,
             String commentChildContent
     ) {
-        this.type = AlarmType.NEW_COMMENT_CHILD;
         this.time = time;
         this.targetUserId = targetUserId;
         this.title = "작성하신 댓글에 답글이 달렸어요";
         this.message = commentChildContent;
-        this.subjectObject = Subject.builder()
-                .commentId(commentId)
-                .build();
-        try {
-            this.subject = makeSubjectJSON(subjectObject);
-        }
-        catch (JsonProcessingException e) {
-            throw new RuntimeException("AlarmCreator subject json 변환 실패");
-        }
-    }
 
-    @Getter
-    @Setter
-    @Builder
-    @AllArgsConstructor
-    public static class Subject {
-        Long commentId;
+        this.commentId = commentId;
     }
 }

@@ -14,7 +14,7 @@ public class NewCommentLikeAlarmInfo extends AlarmInfo {
 
     private static final String titleFormat = "작성하신 댓글에 좋아요 %d개가 눌렸어요";
 
-    private Subject subjectObject;
+    private Long commentId;
 
     @Builder
     public NewCommentLikeAlarmInfo(
@@ -24,31 +24,15 @@ public class NewCommentLikeAlarmInfo extends AlarmInfo {
             String commentContent,
             int commentLikeCount
     ) {
-        this.type = AlarmType.NEW_COMMENT_LIKE;
         this.time = time;
         this.targetUserId = targetUserId;
         this.title = makeAlarmTitle(commentLikeCount);
         this.message = commentContent;
-        this.subjectObject = Subject.builder()
-                .commentId(commentId)
-                .build();
-        try {
-            this.subject = makeSubjectJSON(subjectObject);
-        }
-        catch (JsonProcessingException e) {
-            throw new RuntimeException("AlarmCreator subject json 변환 실패");
-        }
+
+        this.commentId = commentId;
     }
 
     private String makeAlarmTitle(int likeCount) {
         return String.format(titleFormat, likeCount);
-    }
-
-    @Getter
-    @Setter
-    @Builder
-    @AllArgsConstructor
-    public static class Subject {
-        Long commentId;
     }
 }

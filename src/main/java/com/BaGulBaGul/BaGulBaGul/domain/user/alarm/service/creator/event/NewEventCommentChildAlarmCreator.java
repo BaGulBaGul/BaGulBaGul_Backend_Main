@@ -22,7 +22,7 @@ public class NewEventCommentChildAlarmCreator extends AlarmCreator {
         this.time = newCommentChildAlarmInfo.getTime();
 
         Subject subjectObject = Subject.builder()
-                .targetSubject(newCommentChildAlarmInfo.getSubjectObject())
+                .commentId(newCommentChildAlarmInfo.getCommentId())
                 .build();
         try {
             this.subject = makeSubjectJSON(subjectObject);
@@ -33,12 +33,9 @@ public class NewEventCommentChildAlarmCreator extends AlarmCreator {
 
     @Getter
     @Setter
+    @Builder
     @AllArgsConstructor
     public static class Subject {
         Long commentId;
-        @Builder
-        public Subject(NewCommentChildAlarmInfo.Subject targetSubject) {
-            this.commentId = targetSubject.getCommentId();
-        }
     }
 }
