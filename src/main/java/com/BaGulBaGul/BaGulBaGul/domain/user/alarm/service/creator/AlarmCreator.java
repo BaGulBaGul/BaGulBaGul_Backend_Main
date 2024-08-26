@@ -1,6 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.constant.AlarmType;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
 import lombok.Getter;
@@ -16,4 +17,8 @@ public abstract class AlarmCreator {
     protected String message;
     protected String subject;
     protected LocalDateTime time;
+
+    protected String makeSubjectJSON(Object subjectObject) throws JsonProcessingException {
+        return objectMapper.writeValueAsString(subjectObject);
+    }
 }

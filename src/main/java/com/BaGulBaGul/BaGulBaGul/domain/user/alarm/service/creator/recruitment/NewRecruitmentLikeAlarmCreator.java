@@ -12,6 +12,8 @@ import lombok.Setter;
 public class NewRecruitmentLikeAlarmCreator extends AlarmCreator {
     private static final String titleFormat = "%s 글에 좋아요 %d개가 눌렸어요";
 
+    private Subject subjectObject;
+
     @Builder
     public NewRecruitmentLikeAlarmCreator(
             Long targetUserId,
@@ -25,8 +27,11 @@ public class NewRecruitmentLikeAlarmCreator extends AlarmCreator {
         this.targetUserId = targetUserId;
         this.title = makeAlarmTitle(postTitle, likeCount);
         this.message = null;
+        this.subjectObject = Subject.builder()
+                .recruitmentId(recruitmentId)
+                .build();
         try {
-            this.subject = makeSubjectJSON(recruitmentId);
+            this.subject = makeSubjectJSON(subjectObject);
         }
         catch (JsonProcessingException e) {
             throw new RuntimeException("AlarmCreator subject json 변환 실패");
@@ -34,13 +39,6 @@ public class NewRecruitmentLikeAlarmCreator extends AlarmCreator {
     }
     private String makeAlarmTitle(String postTitle, int likeCount) {
         return String.format(titleFormat, postTitle, likeCount);
-    }
-
-    private String makeSubjectJSON(Long recruitmentId) throws JsonProcessingException {
-        Subject subject = Subject.builder()
-                .recruitmentId(recruitmentId)
-                .build();
-        return super.objectMapper.writeValueAsString(subject);
     }
 
     @Getter

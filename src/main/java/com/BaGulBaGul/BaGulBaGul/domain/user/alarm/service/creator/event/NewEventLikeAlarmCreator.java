@@ -13,6 +13,8 @@ public class NewEventLikeAlarmCreator extends AlarmCreator {
 
     private static final String titleFormat = "%s 글에 좋아요 %d개가 눌렸어요";
 
+    private Subject subjectObject;
+
     @Builder
     public NewEventLikeAlarmCreator(
             Long targetUserId,
@@ -26,8 +28,11 @@ public class NewEventLikeAlarmCreator extends AlarmCreator {
         this.targetUserId = targetUserId;
         this.title = makeAlarmTitle(postTitle, likeCount);
         this.message = null;
+        this.subjectObject = Subject.builder()
+                .eventId(eventId)
+                .build();
         try {
-            this.subject = makeSubjectJSON(eventId);
+            this.subject = makeSubjectJSON(subjectObject);
         }
         catch (JsonProcessingException e) {
             throw new RuntimeException("AlarmCreator subject json 변환 실패");
@@ -37,12 +42,6 @@ public class NewEventLikeAlarmCreator extends AlarmCreator {
         return String.format(titleFormat, postTitle, likeCount);
     }
 
-    private String makeSubjectJSON(Long eventId) throws JsonProcessingException {
-        Subject subject = Subject.builder()
-                .eventId(eventId)
-                .build();
-        return super.objectMapper.writeValueAsString(subject);
-    }
 
     @Getter
     @Setter

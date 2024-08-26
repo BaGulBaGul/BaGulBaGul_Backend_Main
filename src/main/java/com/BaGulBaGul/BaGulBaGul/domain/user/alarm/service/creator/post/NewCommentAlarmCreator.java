@@ -13,6 +13,8 @@ public class NewCommentAlarmCreator extends AlarmCreator {
 
     private static final String titleFormat = "%s 글에 댓글이 달렸어요";
 
+    private Subject subjectObject;
+
     @Builder
     public NewCommentAlarmCreator(
             Long targetUserId,
@@ -26,8 +28,11 @@ public class NewCommentAlarmCreator extends AlarmCreator {
         this.targetUserId = targetUserId;
         this.title = makeAlarmTitle(postTitle);
         this.message = commentContent;
+        this.subjectObject = Subject.builder()
+                .postId(postId)
+                .build();
         try {
-            this.subject = makeSubjectJSON(postId);
+            this.subject = makeSubjectJSON(subjectObject);
         }
         catch (JsonProcessingException e) {
             throw new RuntimeException("AlarmCreator subject json 변환 실패");
@@ -36,12 +41,6 @@ public class NewCommentAlarmCreator extends AlarmCreator {
 
     private String makeAlarmTitle(String postTitle) {
         return String.format(titleFormat, postTitle);
-    }
-    private String makeSubjectJSON(Long postId) throws JsonProcessingException {
-        Subject subject = Subject.builder()
-                .postId(postId)
-                .build();
-        return super.objectMapper.writeValueAsString(subject);
     }
 
     @Getter

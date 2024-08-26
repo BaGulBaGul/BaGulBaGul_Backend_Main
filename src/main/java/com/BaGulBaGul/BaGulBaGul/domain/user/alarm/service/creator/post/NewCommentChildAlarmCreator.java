@@ -11,6 +11,8 @@ import lombok.Setter;
 
 public class NewCommentChildAlarmCreator extends AlarmCreator {
 
+    private Subject subjectObject;
+
     @Builder
     public NewCommentChildAlarmCreator(
             Long targetUserId,
@@ -23,19 +25,15 @@ public class NewCommentChildAlarmCreator extends AlarmCreator {
         this.targetUserId = targetUserId;
         this.title = "작성하신 댓글에 답글이 달렸어요";
         this.message = commentChildContent;
+        this.subjectObject = Subject.builder()
+                .commentId(commentId)
+                .build();
         try {
-            this.subject = makeSubjectJSON(commentId);
+            this.subject = makeSubjectJSON(subjectObject);
         }
         catch (JsonProcessingException e) {
             throw new RuntimeException("AlarmCreator subject json 변환 실패");
         }
-    }
-
-    private String makeSubjectJSON(Long commentId) throws JsonProcessingException {
-        Subject subject = Subject.builder()
-                .commentId(commentId)
-                .build();
-        return super.objectMapper.writeValueAsString(subject);
     }
 
     @Getter
