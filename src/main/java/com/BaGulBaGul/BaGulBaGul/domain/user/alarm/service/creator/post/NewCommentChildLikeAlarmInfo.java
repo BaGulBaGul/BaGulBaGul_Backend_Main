@@ -1,7 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.constant.AlarmType;
-import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.AlarmCreator;
+import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.AlarmInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
@@ -10,25 +10,24 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter
-public class NewCommentLikeAlarmCreator extends AlarmCreator {
-
+public class NewCommentChildLikeAlarmInfo extends AlarmInfo {
     private static final String titleFormat = "작성하신 댓글에 좋아요 %d개가 눌렸어요";
 
     private Subject subjectObject;
 
     @Builder
-    public NewCommentLikeAlarmCreator(
+    public NewCommentChildLikeAlarmInfo(
             Long targetUserId,
             LocalDateTime time,
             Long commentId,
-            String commentContent,
-            int commentLikeCount
+            String commentChildContent,
+            int commentChildLikeCount
     ) {
-        this.type = AlarmType.NEW_COMMENT_LIKE;
+        this.type = AlarmType.NEW_COMMENT_CHILD_LIKE;
         this.time = time;
         this.targetUserId = targetUserId;
-        this.title = makeAlarmTitle(commentLikeCount);
-        this.message = commentContent;
+        this.title = makeAlarmTitle(commentChildLikeCount);
+        this.message = commentChildContent;
         this.subjectObject = Subject.builder()
                 .commentId(commentId)
                 .build();

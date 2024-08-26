@@ -2,7 +2,7 @@ package com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.event;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.constant.AlarmType;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.AlarmCreator;
-import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentAlarmCreator;
+import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentAlarmInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,13 +14,13 @@ public class NewEventCommentAlarmCreator extends AlarmCreator {
     @Builder
     public NewEventCommentAlarmCreator(
             Long eventId,
-            NewCommentAlarmCreator newCommentAlarmCreator
+            NewCommentAlarmInfo newCommentAlarmInfo
     ) {
         this.type = AlarmType.NEW_EVENT_COMMENT;
-        this.targetUserId = newCommentAlarmCreator.getTargetUserId();
-        this.title = newCommentAlarmCreator.getTitle();
-        this.message = newCommentAlarmCreator.getMessage();
-        this.time = newCommentAlarmCreator.getTime();
+        this.targetUserId = newCommentAlarmInfo.getTargetUserId();
+        this.title = newCommentAlarmInfo.getTitle();
+        this.message = newCommentAlarmInfo.getMessage();
+        this.time = newCommentAlarmInfo.getTime();
 
         Subject subjectObject = Subject.builder()
                 .eventId(eventId)

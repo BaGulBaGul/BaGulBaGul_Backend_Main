@@ -1,7 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.constant.AlarmType;
-import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.AlarmCreator;
+import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.AlarmInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
@@ -10,14 +10,14 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter
-public class NewCommentAlarmCreator extends AlarmCreator {
+public class NewCommentAlarmInfo extends AlarmInfo {
 
     private static final String titleFormat = "%s 글에 댓글이 달렸어요";
 
     private Subject subjectObject;
 
     @Builder
-    public NewCommentAlarmCreator(
+    public NewCommentAlarmInfo(
             Long targetUserId,
             LocalDateTime time,
             Long postId,

@@ -2,7 +2,7 @@ package com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.recruitment;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.constant.AlarmType;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.AlarmCreator;
-import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentLikeAlarmCreator;
+import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentLikeAlarmInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,16 +13,16 @@ public class NewRecruitmentCommentLikeAlarmCreator extends AlarmCreator {
 
     @Builder
     public NewRecruitmentCommentLikeAlarmCreator(
-            NewCommentLikeAlarmCreator newCommentLikeAlarmCreator
+            NewCommentLikeAlarmInfo newCommentLikeAlarmInfo
     ) {
         this.type = AlarmType.NEW_RECRUITMENT_COMMENT_LIKE;
-        this.targetUserId = newCommentLikeAlarmCreator.getTargetUserId();
-        this.title = newCommentLikeAlarmCreator.getTitle();
-        this.message = newCommentLikeAlarmCreator.getMessage();
-        this.time = newCommentLikeAlarmCreator.getTime();
+        this.targetUserId = newCommentLikeAlarmInfo.getTargetUserId();
+        this.title = newCommentLikeAlarmInfo.getTitle();
+        this.message = newCommentLikeAlarmInfo.getMessage();
+        this.time = newCommentLikeAlarmInfo.getTime();
 
         Subject subjectObject = Subject.builder()
-                .targetSubject(newCommentLikeAlarmCreator.getSubjectObject())
+                .targetSubject(newCommentLikeAlarmInfo.getSubjectObject())
                 .build();
         try {
             this.subject = makeSubjectJSON(subjectObject);
@@ -37,7 +37,7 @@ public class NewRecruitmentCommentLikeAlarmCreator extends AlarmCreator {
     public static class Subject {
         Long commentId;
         @Builder
-        public Subject(NewCommentLikeAlarmCreator.Subject targetSubject) {
+        public Subject(NewCommentLikeAlarmInfo.Subject targetSubject) {
             this.commentId = targetSubject.getCommentId();
         }
     }
