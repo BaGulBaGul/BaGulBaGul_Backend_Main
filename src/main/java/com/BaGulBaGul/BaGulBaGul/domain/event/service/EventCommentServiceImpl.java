@@ -1,6 +1,11 @@
 package com.BaGulBaGul.BaGulBaGul.domain.event.service;
 
 import com.BaGulBaGul.BaGulBaGul.domain.event.Event;
+import com.BaGulBaGul.BaGulBaGul.domain.event.applicationevent.NewEventCommentApplicationEvent;
+import com.BaGulBaGul.BaGulBaGul.domain.event.applicationevent.NewEventCommentChildApplicationEvent;
+import com.BaGulBaGul.BaGulBaGul.domain.event.applicationevent.NewEventCommentChildLikeApplicationEvent;
+import com.BaGulBaGul.BaGulBaGul.domain.event.applicationevent.NewEventCommentLikeApplicationEvent;
+import com.BaGulBaGul.BaGulBaGul.domain.event.applicationevent.NewEventLikeApplicationEvent;
 import com.BaGulBaGul.BaGulBaGul.domain.event.exception.EventNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.event.repository.EventRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
@@ -16,6 +21,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostCommentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -28,6 +34,8 @@ public class EventCommentServiceImpl implements EventCommentService {
     private final EventRepository eventRepository;
 
     private final PostCommentService postCommentService;
+
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     public PostCommentDetailResponse getPostCommentDetail(
@@ -65,7 +73,16 @@ public class EventCommentServiceImpl implements EventCommentService {
     ) {
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException());
         Post post = event.getPost();
-        return postCommentService.registerPostComment(post.getId(), userId, postCommentRegisterRequest);
+        //댓글 추가 후 id를 받아옴
+        Long newCommentId = postCommentService.registerPostComment(post.getId(), userId, postCommentRegisterRequest);
+        //댓글 추가 어플리케이션 이벤트 발행
+        applicationEventPublisher.publishEvent(
+                NewEventCommentApplicationEvent.builder()
+                        .eventId(eventId)
+                        .newCommentId(newCommentId)
+                        .build()
+        );
+        return newCommentId;
     }
 
     @Override
@@ -91,7 +108,15 @@ public class EventCommentServiceImpl implements EventCommentService {
             Long userId,
             PostCommentChildRegisterRequest postCommentChildRegisterRequest
     ) {
+        //대댓글 추가 후 결과를 받아옴
         RegisterPostCommentChildResult result = postCommentService.registerPostCommentChild(commentId, userId, postCommentChildRegisterRequest);
+        //대댓글 추가 어플리케이션 이벤트 발행
+        applicationEventPublisher.publishEvent(
+                NewEventCommentChildApplicationEvent.builder()
+                        .newCommentChildId(result.getPostCommentChildId())
+                        .replyTargetCommentChildId(result.getValidatedReplyTargetId())
+                        .build()
+        );
         return result.getPostCommentChildId();
     }
 
@@ -117,11 +142,18 @@ public class EventCommentServiceImpl implements EventCommentService {
             Long commentId,
             Long userId
     ) {
+        //댓글 좋아요 추가 시도
         try {
             postCommentService.addLikeToComment(commentId, userId);
         }
         catch (DuplicateLikeException e) {
         }
+        //댓글 좋아요 추가 어플리케이션 이벤트 발행
+        applicationEventPublisher.publishEvent(
+                NewEventCommentLikeApplicationEvent.builder()
+                        .likedCommentId(commentId)
+                        .build()
+        );
     }
 
     @Override
@@ -149,11 +181,18 @@ public class EventCommentServiceImpl implements EventCommentService {
             Long commentChildId,
             Long userId
     ) {
+        //대댓글 좋아요 추가 시도
         try {
             postCommentService.addLikeToCommentChild(commentChildId, userId);
         }
         catch (DuplicateLikeException e) {
         }
+        //대댓글 좋아요 추가 어플리케이션 이벤트 발행
+        applicationEventPublisher.publishEvent(
+                NewEventCommentChildLikeApplicationEvent.builder()
+                        .likedCommentChildId(commentChildId)
+                        .build()
+        );
     }
 
     @Override

@@ -1,5 +1,9 @@
 package com.BaGulBaGul.BaGulBaGul.domain.recruitment.service;
 
+import com.BaGulBaGul.BaGulBaGul.domain.event.applicationevent.NewEventCommentApplicationEvent;
+import com.BaGulBaGul.BaGulBaGul.domain.event.applicationevent.NewEventCommentChildApplicationEvent;
+import com.BaGulBaGul.BaGulBaGul.domain.event.applicationevent.NewEventCommentChildLikeApplicationEvent;
+import com.BaGulBaGul.BaGulBaGul.domain.event.applicationevent.NewEventCommentLikeApplicationEvent;
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.GetPostCommentChildPageResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.GetPostCommentPageResponse;
@@ -13,9 +17,14 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostCommentService;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.Recruitment;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.applicationevent.NewRecruitmentCommentApplicationEvent;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.applicationevent.NewRecruitmentCommentChildApplicationEvent;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.applicationevent.NewRecruitmentCommentChildLikeApplicationEvent;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.applicationevent.NewRecruitmentCommentLikeApplicationEvent;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.exception.RecruitmentNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.repository.RecruitmentRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -28,6 +37,8 @@ public class RecruitmentCommentServiceImpl implements RecruitmentCommentService 
     private final RecruitmentRepository recruitmentRepository;
 
     private final PostCommentService postCommentService;
+
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     public PostCommentDetailResponse getPostCommentDetail(
@@ -65,7 +76,16 @@ public class RecruitmentCommentServiceImpl implements RecruitmentCommentService 
     ) {
         Recruitment recruitment = recruitmentRepository.findById(recruitmentId).orElseThrow(RecruitmentNotFoundException::new);
         Post post = recruitment.getPost();
-        return postCommentService.registerPostComment(post.getId(), userId, postCommentRegisterRequest);
+        //댓글 추가 후 id를 받아옴
+        Long newCommentId = postCommentService.registerPostComment(post.getId(), userId, postCommentRegisterRequest);
+        //댓글 추가 어플리케이션 이벤트 발행
+        applicationEventPublisher.publishEvent(
+                NewRecruitmentCommentApplicationEvent.builder()
+                        .recruitmentId(recruitmentId)
+                        .newCommentId(newCommentId)
+                        .build()
+        );
+        return newCommentId;
     }
 
     @Override
@@ -91,7 +111,15 @@ public class RecruitmentCommentServiceImpl implements RecruitmentCommentService 
             Long userId,
             PostCommentChildRegisterRequest postCommentChildRegisterRequest
     ) {
+        //대댓글 추가 후 결과를 받아옴
         RegisterPostCommentChildResult result = postCommentService.registerPostCommentChild(commentId, userId, postCommentChildRegisterRequest);
+        //대댓글 추가 어플리케이션 이벤트 발행
+        applicationEventPublisher.publishEvent(
+                NewRecruitmentCommentChildApplicationEvent.builder()
+                        .newCommentChildId(result.getPostCommentChildId())
+                        .replyTargetCommentChildId(result.getValidatedReplyTargetId())
+                        .build()
+        );
         return result.getPostCommentChildId();
     }
 
@@ -117,11 +145,18 @@ public class RecruitmentCommentServiceImpl implements RecruitmentCommentService 
             Long commentId,
             Long userId
     ) {
+        //댓글 좋아요 추가 시도
         try {
             postCommentService.addLikeToComment(commentId, userId);
         }
         catch (DuplicateLikeException e) {
         }
+        //댓글 좋아요 추가 어플리케이션 이벤트 발행
+        applicationEventPublisher.publishEvent(
+                NewRecruitmentCommentLikeApplicationEvent.builder()
+                        .likedCommentId(commentId)
+                        .build()
+        );
     }
 
     @Override
@@ -149,11 +184,18 @@ public class RecruitmentCommentServiceImpl implements RecruitmentCommentService 
             Long commentChildId,
             Long userId
     ) {
+        //대댓글 좋아요 추가 시도
         try {
             postCommentService.addLikeToCommentChild(commentChildId, userId);
         }
         catch (DuplicateLikeException e) {
         }
+        //대댓글 좋아요 추가 어플리케이션 이벤트 발행
+        applicationEventPublisher.publishEvent(
+                NewRecruitmentCommentChildLikeApplicationEvent.builder()
+                        .likedCommentChildId(commentChildId)
+                        .build()
+        );
     }
 
     @Override
