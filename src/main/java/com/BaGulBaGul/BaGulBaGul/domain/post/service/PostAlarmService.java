@@ -18,7 +18,7 @@ public interface PostAlarmService {
     /*
         댓글에 좋아요 추가 시 댓글 작성자에게 알람
     */
-    NewCommentLikeAlarmInfo getNewCommentLikeAlarmInfo(LocalDateTime time, Long likedCommentId, Long likeUserId);
+    NewCommentLikeAlarmInfo getNewCommentLikeAlarmInfo(LocalDateTime time, Long likedCommentId);
     /*
         대댓글에 답장 시 대댓글 작성자에게 알람
     */
@@ -26,5 +26,5 @@ public interface PostAlarmService {
     /*
         대댓글에 좋아요 추가 시 대댓글 작성자에게 알람
     */
-    NewCommentChildLikeAlarmInfo getNewCommentChildLikeAlarmInfo(LocalDateTime time, Long likedCommentChildId, Long likeUserId);
+    NewCommentChildLikeAlarmInfo getNewCommentChildLikeAlarmInfo(LocalDateTime time, Long likedCommentChildId);
 }

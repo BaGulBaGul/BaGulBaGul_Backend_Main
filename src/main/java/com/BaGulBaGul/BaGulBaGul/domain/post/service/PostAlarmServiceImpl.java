@@ -7,7 +7,6 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentChildReposito
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentRepository;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
-import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.AlarmService;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentAlarmInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentChildAlarmInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentChildLikeAlarmInfo;
@@ -91,8 +90,7 @@ public class PostAlarmServiceImpl implements PostAlarmService {
     @Transactional
     public NewCommentLikeAlarmInfo getNewCommentLikeAlarmInfo(
             LocalDateTime time,
-            Long likedCommentId,
-            Long likeUserId
+            Long likedCommentId
     ) {
         //좋아요를 받은 댓글을 조회
         PostComment likedComment = postCommentRepository
@@ -173,8 +171,7 @@ public class PostAlarmServiceImpl implements PostAlarmService {
     @Transactional
     public NewCommentChildLikeAlarmInfo getNewCommentChildLikeAlarmInfo(
             LocalDateTime time,
-            Long likedCommentChildId,
-            Long likeUserId
+            Long likedCommentChildId
     ) {
         //좋아요를 받은 대댓글을 조회
         PostCommentChild likedCommentChild = postCommentChildRepository
