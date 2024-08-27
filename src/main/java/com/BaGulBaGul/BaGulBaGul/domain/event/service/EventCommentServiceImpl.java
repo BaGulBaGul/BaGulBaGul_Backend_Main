@@ -65,6 +65,7 @@ public class EventCommentServiceImpl implements EventCommentService {
     }
 
     @Override
+    @Transactional
     public Long registerComment(
             Long eventId,
             Long userId,
@@ -102,6 +103,7 @@ public class EventCommentServiceImpl implements EventCommentService {
     }
 
     @Override
+    @Transactional
     public Long registerCommentChild(
             Long commentId,
             Long userId,
@@ -137,6 +139,7 @@ public class EventCommentServiceImpl implements EventCommentService {
     }
 
     @Override
+    @Transactional
     public void addLikeToComment(
             Long commentId,
             Long userId
@@ -168,6 +171,7 @@ public class EventCommentServiceImpl implements EventCommentService {
     }
 
     @Override
+    @Transactional
     public void addLikeToCommentChild(
             Long commentChildId,
             Long userId
