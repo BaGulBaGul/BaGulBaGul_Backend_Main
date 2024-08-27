@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/recruitment")
+@RequestMapping("/api/event/recruitment")
 @RequiredArgsConstructor
 @Api(tags = "게시글 댓글 + 대댓글")
 public class RecruitmentCommentControllerImpl implements RecruitmentCommentController {
@@ -101,7 +101,7 @@ public class RecruitmentCommentControllerImpl implements RecruitmentCommentContr
     }
 
     @Override
-    @PatchMapping("comment/{commentId}")
+    @PatchMapping("/comment/{commentId}")
     @Operation(summary = "댓글 수정",
             description = "로그인 필요\n"
                     + "PATCH방식. 변경하기 싫은 필드는 보내지 않거나 null로 보내면 됨"
@@ -116,7 +116,7 @@ public class RecruitmentCommentControllerImpl implements RecruitmentCommentContr
     }
 
     @Override
-    @DeleteMapping("comment/{commentId}")
+    @DeleteMapping("/comment/{commentId}")
     @Operation(summary = "댓글 삭제",
             description = "로그인 필요"
     )
@@ -174,7 +174,7 @@ public class RecruitmentCommentControllerImpl implements RecruitmentCommentContr
     }
 
     @Override
-    @PostMapping("comment/{commentId}/like")
+    @PostMapping("/comment/{commentId}/like")
     @Operation(summary = "댓글 좋아요 등록",
             description = "로그인 필요\n"
                     + "유저당 한번만 좋아요 등록 가능\n"
@@ -194,7 +194,7 @@ public class RecruitmentCommentControllerImpl implements RecruitmentCommentContr
 
 
     @Override
-    @DeleteMapping("comment/{commentId}/like")
+    @DeleteMapping("/comment/{commentId}/like")
     @Operation(summary = "댓글 좋아요 삭제",
             description = "로그인 필요\n"
                     + "삭제할 좋아요가 없다면 무시됨"
@@ -212,7 +212,7 @@ public class RecruitmentCommentControllerImpl implements RecruitmentCommentContr
     }
 
     @Override
-    @GetMapping("comment/{commentId}/ismylike")
+    @GetMapping("/comment/{commentId}/ismylike")
     @Operation(summary = "댓글에 유저가 좋아요를 눌렀는지 확인",
             description = "로그인 필요"
     )
@@ -228,7 +228,7 @@ public class RecruitmentCommentControllerImpl implements RecruitmentCommentContr
     }
 
     @Override
-    @PostMapping("comment/children/{commentChildId}/like")
+    @PostMapping("/comment/children/{commentChildId}/like")
     @Operation(summary = "대댓글 좋아요 등록",
             description = "로그인 필요\n"
                     + "유저당 한번만 좋아요 등록 가능\n"
@@ -247,7 +247,7 @@ public class RecruitmentCommentControllerImpl implements RecruitmentCommentContr
     }
 
     @Override
-    @DeleteMapping("comment/children/{commentChildId}/like")
+    @DeleteMapping("/comment/children/{commentChildId}/like")
     @Operation(summary = "대댓글 좋아요 삭제",
             description = "로그인 필요\n"
                     + "삭제할 좋아요가 없다면 무시됨"
@@ -265,7 +265,7 @@ public class RecruitmentCommentControllerImpl implements RecruitmentCommentContr
     }
 
     @Override
-    @GetMapping("comment/children/{commentChildId}/ismylike")
+    @GetMapping("/comment/children/{commentChildId}/ismylike")
     @Operation(summary = "대댓글에 유저가 좋아요를 눌렀는지 확인",
             description = "로그인 필요"
     )
