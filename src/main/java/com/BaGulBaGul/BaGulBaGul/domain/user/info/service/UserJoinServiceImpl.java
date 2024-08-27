@@ -21,9 +21,11 @@ public class UserJoinServiceImpl implements UserJoinService {
     private final SocialLoginUserRepository socialLoginUserRepository;
     private final UserRepository userRepository;
 
+    private final UserImageService userImageService;
+
     @Override
     @Transactional
-    public void registerSocialLoginUser(SocialLoginUserJoinRequest socialLoginUserJoinRequest) {
+    public SocialLoginUser registerSocialLoginUser(SocialLoginUserJoinRequest socialLoginUserJoinRequest) {
         String joinToken = socialLoginUserJoinRequest.getJoinToken();
         //joinToken에서 OAuth2JoinTokenSubject 추출.
         OAuth2JoinTokenSubject oAuth2JoinTokenSubject = jwtProvider.getOAuth2JoinTokenSubject(joinToken);
@@ -36,6 +38,7 @@ public class UserJoinServiceImpl implements UserJoinService {
                 .user(user)
                 .build();
         socialLoginUserRepository.save(socialLoginUser);
+        return socialLoginUser;
     }
 
     @Override
@@ -52,13 +55,13 @@ public class UserJoinServiceImpl implements UserJoinService {
     @Override
     @Transactional
     public void deleteUser(Long userId) {
+        //유저 이미지 삭제
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
-        //소셜로그인 정보의 경우 탈퇴 후에도 불필요한 정보. 재가입을 고려해 바로 삭제
-        socialLoginUserRepository.deleteByUser(user);
-        //유저 정보의 경우 게시글 유지를 위해 soft delete
-        user.setDeleted(true);
-        //다른 유저가 사용 가능하도록 닉네임을 null로 변경
-        user.setNickname(null);
+        userImageService.setImage(user, null);
+        //소셜로그인 정보 삭제
+        socialLoginUserRepository.deleteByUserId(userId);
+        //유저 정보 삭제
+        userRepository.deleteById(userId);
     }
 
     @Override

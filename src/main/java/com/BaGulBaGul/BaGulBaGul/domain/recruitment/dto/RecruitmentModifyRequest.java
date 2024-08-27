@@ -1,12 +1,11 @@
 package com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto;
 
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.constant.RecruitmentState;
 import io.swagger.annotations.ApiModelProperty;
 import java.time.LocalDateTime;
 import java.util.List;
 import javax.validation.constraints.AssertTrue;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

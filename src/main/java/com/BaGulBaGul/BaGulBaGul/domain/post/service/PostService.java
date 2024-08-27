@@ -2,8 +2,8 @@ package com.BaGulBaGul.BaGulBaGul.domain.post.service;
 
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostDetailInfo;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostModifyRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostSimpleInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;

@@ -42,6 +42,8 @@ public class FindEventByConditionApplierImpl implements FindEventByConditionAppl
             QEvent event
     ) {
         //이벤트 조건 적용
+        //삭제된 이벤트는 제외
+        query.where(event.deleted.eq(false));
         //이벤트 타입
         if(eventConditionalRequest.getType() != null) {
             query.where(event.type.eq(eventConditionalRequest.getType()));
@@ -51,11 +53,7 @@ public class FindEventByConditionApplierImpl implements FindEventByConditionAppl
             query.where(event.fullLocation.contains(eventConditionalRequest.getLocation()));
         }
         //검색기간 적용
-        if(eventConditionalRequest.getStartDate() != null && eventConditionalRequest.getEndDate() != null) {
-            query.where(
-                getDateSearchExpression(event, eventConditionalRequest.getStartDate(), eventConditionalRequest.getEndDate())
-            );
-        }
+        query.where(getDateSearchExpression(event, eventConditionalRequest.getStartDate(), eventConditionalRequest.getEndDate()));
         //카테고리
         if(eventConditionalRequest.getCategories() != null) {
             QEventCategory postCategory = QEventCategory.eventCategory;
@@ -100,15 +98,22 @@ public class FindEventByConditionApplierImpl implements FindEventByConditionAppl
         /*
          * 검색기간 사이에 진행되는 모든 이벤트를 검색
          * ss = 검색시작시간 se = 검색종료시간 es = 이벤트시작시간 ee = 이벤트종료시간
+         * ss 또는 se가 null이면 관련 조건 무시
          * (ss<=es and es<=se) or (es<=ss and se<=ee) or (ss<=ee and ee<=se) or (ss<=es and ee<=se)
          * = not(se<es or ee<ss)
          * = (se>=es and ee>=ss)
          */
+        BooleanExpression result = null;
         //se>=es
-        BooleanExpression condition1 = event.startDate.loe(searchEndDate);
+        if(searchEndDate != null) {
+             result = event.startDate.loe(searchEndDate);
+        }
         //ee>=ss
-        BooleanExpression condition2 = event.endDate.goe(searchStartDate);
-        return condition1.and(condition2);
+        if(searchStartDate != null) {
+            BooleanExpression condition2 = event.endDate.goe(searchStartDate);
+            result = result == null ? condition2 : result.and(condition2);
+        }
+        return result;
     }
 
     public List<OrderSpecifier> getOrderSpecifiers(

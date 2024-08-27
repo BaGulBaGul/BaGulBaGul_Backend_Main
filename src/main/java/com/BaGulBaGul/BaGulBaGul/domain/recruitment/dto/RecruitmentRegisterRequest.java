@@ -1,6 +1,6 @@
 package com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto;
 
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostRegisterRequest;
 import io.swagger.annotations.ApiModelProperty;
 import java.time.LocalDateTime;
 import java.util.List;

@@ -3,7 +3,7 @@ package com.BaGulBaGul.BaGulBaGul.domain.post.repository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostComment;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentChild;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetPostCommentChildPageResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.GetPostCommentChildPageResponse;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -30,7 +30,7 @@ public interface PostCommentChildRepository extends JpaRepository<PostCommentChi
     void deleteAllByPostComment(@Param("postComment") PostComment postComment);
 
     @Query(
-            value = "SELECT new com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetPostCommentChildPageResponse( "
+            value = "SELECT new com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.GetPostCommentChildPageResponse( "
                         + "pch.id, "
                         + "user.id, "
                         + "user.nickname, "
@@ -45,7 +45,7 @@ public interface PostCommentChildRepository extends JpaRepository<PostCommentChi
                         + "pch.createdAt"
                     + ") "
                     + "FROM PostCommentChild pch "
-                        + "INNER JOIN pch.user user "
+                        + "LEFT OUTER JOIN pch.user user "
                         + "LEFT OUTER JOIN pch.replyTargetUser rp_user "
                         + "LEFT OUTER JOIN pch.likes pchl ON pchl.user.id = :requestUserId "
                     + "WHERE pch.postComment.id = :postCommentId"
@@ -57,7 +57,7 @@ public interface PostCommentChildRepository extends JpaRepository<PostCommentChi
     );
 
     @Query(
-            value = "SELECT new com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetPostCommentChildPageResponse( "
+            value = "SELECT new com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.GetPostCommentChildPageResponse( "
                     + "pch.id, "
                     + "user.id, "
                     + "user.nickname, "
@@ -69,7 +69,7 @@ public interface PostCommentChildRepository extends JpaRepository<PostCommentChi
                     + "pch.createdAt"
                     + ") "
                     + "FROM PostCommentChild pch "
-                    + "INNER JOIN pch.user user "
+                    + "LEFT OUTER JOIN pch.user user "
                     + "LEFT OUTER JOIN pch.replyTargetUser rp_user "
                     + "WHERE pch.postComment.id = :postCommentId"
     )

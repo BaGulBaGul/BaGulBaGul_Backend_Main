@@ -2,10 +2,10 @@ package com.BaGulBaGul.BaGulBaGul.domain.post.repository;
 
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostComment;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetPostCommentPageResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.GetPostCommentPageResponse;
 import java.util.List;
 
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentDetailResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.PostCommentDetailResponse;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -14,7 +14,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface PostCommentRepository extends JpaRepository<PostComment, Long> {
     @Query(
-            value = "SELECT new com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostCommentDetailResponse( "
+            value = "SELECT new com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.PostCommentDetailResponse( "
                         + "pc.id, "
                         + "user.id, "
                         + "user.nickname, "
@@ -25,7 +25,7 @@ public interface PostCommentRepository extends JpaRepository<PostComment, Long> 
                         + "pc.createdAt"
                     + ") "
                     + "FROM PostComment pc "
-                        + "INNER JOIN pc.user user "
+                        + "LEFT OUTER JOIN pc.user user "
                     + "WHERE pc.id = :postCommentId"
     )
     PostCommentDetailResponse getPostCommentDetail(@Param("postCommentId") Long postCommentId);
@@ -35,7 +35,7 @@ public interface PostCommentRepository extends JpaRepository<PostComment, Long> 
     void deleteAllByPost(@Param("post") Post post);
 
     @Query(
-            value = "SELECT new com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetPostCommentPageResponse( "
+            value = "SELECT new com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.GetPostCommentPageResponse( "
                     + "pc.id, "
                     + "user.id, "
                     + "user.nickname, "
@@ -50,7 +50,7 @@ public interface PostCommentRepository extends JpaRepository<PostComment, Long> 
                     + "pc.createdAt"
                     + ") "
             + "FROM PostComment pc "
-                + "INNER JOIN pc.user user "
+                + "LEFT OUTER JOIN pc.user user "
                 + "LEFT OUTER JOIN pc.likes pcl ON pcl.user.id = :requestUserId "
             + "WHERE pc.post.id = :postId"
     )
@@ -61,7 +61,7 @@ public interface PostCommentRepository extends JpaRepository<PostComment, Long> 
     );
 
     @Query(
-            value = "SELECT new com.BaGulBaGul.BaGulBaGul.domain.post.dto.GetPostCommentPageResponse( "
+            value = "SELECT new com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.GetPostCommentPageResponse( "
                     + "pc.id, "
                     + "user.id, "
                     + "user.nickname, "
@@ -73,7 +73,7 @@ public interface PostCommentRepository extends JpaRepository<PostComment, Long> 
                     + "pc.createdAt"
                     + ") "
                     + "FROM PostComment pc "
-                    + "INNER JOIN pc.user user "
+                    + "LEFT OUTER JOIN pc.user user "
                     + "WHERE pc.post.id = :postId"
     )
     List<GetPostCommentPageResponse> getPostCommentPage(

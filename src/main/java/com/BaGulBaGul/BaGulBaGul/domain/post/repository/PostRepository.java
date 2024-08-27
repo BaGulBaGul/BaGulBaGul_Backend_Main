@@ -10,6 +10,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
+
+    @Query("SELECT count(*) FROM Post p WHERE p.user.id = :userId")
+    long countByUserId(@Param("userId") Long userId);
+
     @EntityGraph(attributePaths = {"user", "categories.category"})
     Optional<Post> findWithUserAndCategoriesById(Long id);
 

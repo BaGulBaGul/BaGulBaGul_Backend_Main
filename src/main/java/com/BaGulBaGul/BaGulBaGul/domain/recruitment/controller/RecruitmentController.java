@@ -1,6 +1,6 @@
 package com.BaGulBaGul.BaGulBaGul.domain.recruitment.controller;
 
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.LikeCountResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.LikeCountResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.GetLikeRecruitmentResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentConditionalApiRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentDetailResponse;
@@ -8,7 +8,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentModifyRequest
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentRegisterResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentSimpleResponse;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.IsMyLikeResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.IsMyLikeResponse;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

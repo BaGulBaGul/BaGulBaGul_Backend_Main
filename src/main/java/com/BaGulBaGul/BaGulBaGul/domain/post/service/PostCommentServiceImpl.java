@@ -5,11 +5,14 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.PostComment;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentChild;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentChildLike;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentLike;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.*;
-import com.BaGulBaGul.BaGulBaGul.domain.post.event.NewPostCommentChildEvent;
-import com.BaGulBaGul.BaGulBaGul.domain.post.event.NewPostCommentChildLikeEvent;
-import com.BaGulBaGul.BaGulBaGul.domain.post.event.NewPostCommentEvent;
-import com.BaGulBaGul.BaGulBaGul.domain.post.event.NewPostCommentLikeEvent;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentChildModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentChildRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.GetPostCommentChildPageResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.GetPostCommentPageResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.PostCommentDetailResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.result.RegisterPostCommentChildResult;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.PostCommentChildNotFoundException;
@@ -44,7 +47,6 @@ public class PostCommentServiceImpl implements PostCommentService {
     private final UserRepository userRepository;
     private final PostCommentLikeRepository postCommentLikeRepository;
     private final PostCommentChildLikeRepository postCommentChildLikeRepository;
-    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     public PostCommentDetailResponse getPostCommentDetail(Long postCommentId) {
@@ -94,10 +96,7 @@ public class PostCommentServiceImpl implements PostCommentService {
                 .build();
         //댓글 등록
         postCommentRepository.save(postComment);
-        //댓글 등록 이벤트 발행
-        applicationEventPublisher.publishEvent(
-                new NewPostCommentEvent(postComment.getId())
-        );
+
         return postComment.getId();
     }
 
@@ -139,7 +138,7 @@ public class PostCommentServiceImpl implements PostCommentService {
 
     @Override
     @Transactional
-    public Long registerPostCommentChild(
+    public RegisterPostCommentChildResult registerPostCommentChild(
             Long postCommentId,
             Long userId,
             PostCommentChildRegisterRequest postCommentChildRegisterRequest
@@ -176,14 +175,10 @@ public class PostCommentServiceImpl implements PostCommentService {
                 .build();
         postCommentChildRepository.save(postCommentChild);
 
-        //대댓글 등록 이벤트 발행
-        applicationEventPublisher.publishEvent(
-                new NewPostCommentChildEvent(
-                        postCommentChild.getId(),
-                        validatedReplyTargetId
-                )
-        );
-        return postCommentChild.getId();
+        return RegisterPostCommentChildResult.builder()
+                .postCommentChildId(postCommentChild.getId())
+                .validatedReplyTargetId(validatedReplyTargetId)
+                .build();
     }
 
     @Override
@@ -235,7 +230,7 @@ public class PostCommentServiceImpl implements PostCommentService {
     }
 
     @Override
-    @Transactional(rollbackFor = DuplicateLikeException.class)
+    @Transactional
     public void addLikeToComment(Long postCommentId, Long userId) throws DuplicateLikeException {
         //엔티티 로드 & 검증
         PostComment postComment = postCommentRepository.findById(postCommentId).orElseThrow(() -> new PostCommentNotFoundException());
@@ -252,14 +247,10 @@ public class PostCommentServiceImpl implements PostCommentService {
         } catch (DataIntegrityViolationException dataIntegrityViolationException) {
             throw new DuplicateLikeException();
         }
-        //댓글 좋아요 추가 이벤트 발행
-        applicationEventPublisher.publishEvent(
-                new NewPostCommentLikeEvent(postComment.getId(), user.getId())
-        );
     }
 
     @Override
-    @Transactional(rollbackFor = LikeNotExistException.class)
+    @Transactional
     public void deleteLikeToComment(Long postCommentId, Long userId) throws LikeNotExistException {
         //엔티티 로드 & 검증
         PostComment postComment = postCommentRepository.findById(postCommentId).orElseThrow(() -> new PostCommentNotFoundException());
@@ -310,10 +301,6 @@ public class PostCommentServiceImpl implements PostCommentService {
         } catch (DataIntegrityViolationException dataIntegrityViolationException) {
             throw new DuplicateLikeException();
         }
-        //대댓글 좋아요 추가 이벤트 발행
-        applicationEventPublisher.publishEvent(
-                new NewPostCommentChildLikeEvent(postCommentChild.getId(), user.getId())
-        );
     }
 
     @Override

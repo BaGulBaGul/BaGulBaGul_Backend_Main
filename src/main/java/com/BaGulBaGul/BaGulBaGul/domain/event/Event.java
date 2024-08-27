@@ -33,6 +33,10 @@ public class Event {
     Long id;
 
     @Setter
+    @Column(name = "deleted")
+    Boolean deleted;
+
+    @Setter
     @Column(name = "type")
     @Enumerated(value = EnumType.STRING)
     EventType type;
@@ -99,6 +103,7 @@ public class Event {
             LocalDateTime startDate,
             LocalDateTime endDate
     ) {
+        this.deleted = false;
         this.type = type;
         this.post = post;
         this.currentHeadCount = currentHeadCount;
