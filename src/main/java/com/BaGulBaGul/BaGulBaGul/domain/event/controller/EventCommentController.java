@@ -1,6 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.domain.event.controller;
 
 
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventIdResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.GetPostCommentChildPageResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.GetPostCommentPageResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.IsMyLikeResponse;
@@ -32,4 +33,5 @@ public interface EventCommentController {
     ApiResponse<LikeCountResponse> addLikeToCommentChild(Long commentChildId, Long userId);
     ApiResponse<LikeCountResponse> deleteLikeToCommentChild(Long commentChildId, Long userId);
     ApiResponse<IsMyLikeResponse> isMyLikeCommentChild(Long commentChildId, Long userId);
+    ApiResponse<EventIdResponse> getEventIdFromCommentId(Long commentId);
 }

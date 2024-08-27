@@ -1,6 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.domain.recruitment.service;
 
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
+import com.BaGulBaGul.BaGulBaGul.domain.post.PostComment;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.GetPostCommentChildPageResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.GetPostCommentPageResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentChildModifyRequest;
@@ -11,6 +12,8 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentRegister
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.result.RegisterPostCommentChildResult;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
+import com.BaGulBaGul.BaGulBaGul.domain.post.exception.PostCommentNotFoundException;
+import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostCommentService;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.Recruitment;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.applicationevent.NewRecruitmentCommentApplicationEvent;
@@ -31,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class RecruitmentCommentServiceImpl implements RecruitmentCommentService {
 
     private final RecruitmentRepository recruitmentRepository;
+    private final PostCommentRepository postCommentRepository;
 
     private final PostCommentService postCommentService;
 
@@ -200,5 +204,16 @@ public class RecruitmentCommentServiceImpl implements RecruitmentCommentService 
             Long userId
     ) {
         return postCommentService.existsCommentChildLike(commentChildId, userId);
+    }
+
+    @Override
+    @Transactional
+    public Long getRecruitmentIdFromCommentId(Long commentId) {
+        PostComment postComment = postCommentRepository.findById(commentId).orElseThrow(PostCommentNotFoundException::new);
+        Recruitment recruitment = recruitmentRepository.findByPost(postComment.getPost());
+        if(recruitment == null) {
+            throw new RecruitmentNotFoundException();
+        }
+        return recruitment.getId();
     }
 }

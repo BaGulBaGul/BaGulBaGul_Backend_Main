@@ -8,6 +8,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.applicationevent.NewEventCommentLi
 import com.BaGulBaGul.BaGulBaGul.domain.event.exception.EventNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.event.repository.EventRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
+import com.BaGulBaGul.BaGulBaGul.domain.post.PostComment;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.GetPostCommentChildPageResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.GetPostCommentPageResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentChildModifyRequest;
@@ -18,6 +19,8 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentRegister
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.result.RegisterPostCommentChildResult;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
+import com.BaGulBaGul.BaGulBaGul.domain.post.exception.PostCommentNotFoundException;
+import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostCommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -31,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class EventCommentServiceImpl implements EventCommentService {
 
     private final EventRepository eventRepository;
+    private final PostCommentRepository postCommentRepository;
 
     private final PostCommentService postCommentService;
 
@@ -200,5 +204,16 @@ public class EventCommentServiceImpl implements EventCommentService {
             Long userId
     ) {
         return postCommentService.existsCommentChildLike(commentChildId, userId);
+    }
+
+    @Override
+    @Transactional
+    public Long getEventIdFromCommentId(Long commentId) {
+        PostComment postComment = postCommentRepository.findById(commentId).orElseThrow(PostCommentNotFoundException::new);
+        Event event = eventRepository.findByPost(postComment.getPost());
+        if(event == null) {
+            throw new EventNotFoundException();
+        }
+        return event.getId();
     }
 }

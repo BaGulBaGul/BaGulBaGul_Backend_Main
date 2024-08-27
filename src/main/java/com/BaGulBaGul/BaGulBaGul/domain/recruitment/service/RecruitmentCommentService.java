@@ -34,4 +34,6 @@ public interface RecruitmentCommentService {
     void addLikeToCommentChild(Long commentChildId, Long userId) throws DuplicateLikeException;
     void deleteLikeToCommentChild(Long commentChildId, Long userId) throws LikeNotExistException;
     boolean existsCommentChildLike(Long commentChildId, Long userId);
+
+    Long getRecruitmentIdFromCommentId(Long commentId);
 }
