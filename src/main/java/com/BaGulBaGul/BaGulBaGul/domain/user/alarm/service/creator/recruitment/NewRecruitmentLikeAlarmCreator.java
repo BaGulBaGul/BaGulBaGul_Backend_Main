@@ -2,6 +2,9 @@ package com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.recruitment;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.constant.AlarmType;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.AlarmCreator;
+import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.event.NewEventLikeAlarmCreator;
+import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.event.NewEventLikeAlarmCreator.Subject;
+import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewPostLikeAlarmInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
@@ -11,24 +14,19 @@ import lombok.Setter;
 
 @Getter
 public class NewRecruitmentLikeAlarmCreator extends AlarmCreator {
-    private static final String titleFormat = "%s 글에 좋아요 %d개가 눌렸어요";
-
-    private Subject subjectObject;
 
     @Builder
     public NewRecruitmentLikeAlarmCreator(
-            Long targetUserId,
-            LocalDateTime time,
             Long recruitmentId,
-            String postTitle,
-            int likeCount
+            NewPostLikeAlarmInfo newPostLikeAlarmInfo
     ) {
         this.type = AlarmType.NEW_RECRUITMENT_LIKE;
-        this.time = time;
-        this.targetUserId = targetUserId;
-        this.title = makeAlarmTitle(postTitle, likeCount);
-        this.message = null;
-        this.subjectObject = Subject.builder()
+        this.targetUserId = newPostLikeAlarmInfo.getTargetUserId();
+        this.title = newPostLikeAlarmInfo.getTitle();
+        this.message = newPostLikeAlarmInfo.getMessage();
+        this.time = newPostLikeAlarmInfo.getTime();
+
+        Subject subjectObject = Subject.builder()
                 .recruitmentId(recruitmentId)
                 .build();
         try {
@@ -38,9 +36,7 @@ public class NewRecruitmentLikeAlarmCreator extends AlarmCreator {
             throw new RuntimeException("AlarmCreator subject json 변환 실패");
         }
     }
-    private String makeAlarmTitle(String postTitle, int likeCount) {
-        return String.format(titleFormat, postTitle, likeCount);
-    }
+
 
     @Getter
     @Setter

@@ -4,9 +4,14 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewComme
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentChildAlarmInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentChildLikeAlarmInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentLikeAlarmInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewPostLikeAlarmInfo;
 import java.time.LocalDateTime;
 
 public interface PostAlarmService {
+    /*
+        게시글에 좋아요 추가 시 게시글 작성자에게 알람
+     */
+    NewPostLikeAlarmInfo getNewPostLikeAlarmInfo(LocalDateTime time, Long postId);
     /*
         게시글에 댓글 추가 시 게시글 작성자에게 알람
      */

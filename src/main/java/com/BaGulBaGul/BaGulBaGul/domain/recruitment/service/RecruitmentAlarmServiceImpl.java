@@ -20,10 +20,12 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.event.NewEven
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.event.NewEventCommentChildAlarmCreator;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.event.NewEventCommentChildLikeAlarmCreator;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.event.NewEventCommentLikeAlarmCreator;
+import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.event.NewEventLikeAlarmCreator;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentAlarmInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentChildAlarmInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentChildLikeAlarmInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentLikeAlarmInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewPostLikeAlarmInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.recruitment.NewRecruitmentCommentAlarmCreator;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.recruitment.NewRecruitmentCommentChildAlarmCreator;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.recruitment.NewRecruitmentCommentChildLikeAlarmCreator;
@@ -60,16 +62,17 @@ public class RecruitmentAlarmServiceImpl implements RecruitmentAlarmService {
         }
         //모집글의 게시글
         Post post = likedRecruitment.getPost();
-        //모집글의 작성자
-        User likedRecruitmentWriter = post.getUser();
 
-        //알람을 등록
+        NewPostLikeAlarmInfo alarmInfo = postAlarmService.getNewPostLikeAlarmInfo(
+                newRecruitmentLikeApplicationEvent.getTime(),
+                post.getId()
+        );
+        if(alarmInfo == null) {
+            return;
+        }
         AlarmCreator alarmCreator = NewRecruitmentLikeAlarmCreator.builder()
-                .targetUserId(likedRecruitmentWriter.getId())
-                .time(newRecruitmentLikeApplicationEvent.getTime())
                 .recruitmentId(newRecruitmentLikeApplicationEvent.getRecruitmentId())
-                .postTitle(post.getTitle())
-                .likeCount(post.getLikeCount())
+                .newPostLikeAlarmInfo(alarmInfo)
                 .build();
         alarmService.registerAlarm(alarmCreator);
     }

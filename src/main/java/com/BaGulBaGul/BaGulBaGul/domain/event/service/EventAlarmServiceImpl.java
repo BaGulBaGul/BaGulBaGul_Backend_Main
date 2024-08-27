@@ -23,6 +23,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewComme
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentChildAlarmInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentChildLikeAlarmInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentLikeAlarmInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewPostLikeAlarmInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -57,16 +58,17 @@ public class EventAlarmServiceImpl implements EventAlarmService {
         }
         //이벤트의 게시글
         Post post = likedEvent.getPost();
-        //이벤트의 작성자
-        User likedEventWriter = post.getUser();
 
-        //알람을 등록
+        NewPostLikeAlarmInfo alarmInfo = postAlarmService.getNewPostLikeAlarmInfo(
+                newEventLikeApplicationEvent.getTime(),
+                post.getId()
+        );
+        if(alarmInfo == null) {
+            return;
+        }
         AlarmCreator alarmCreator = NewEventLikeAlarmCreator.builder()
-                .targetUserId(likedEventWriter.getId())
-                .time(newEventLikeApplicationEvent.getTime())
                 .eventId(newEventLikeApplicationEvent.getEventId())
-                .postTitle(post.getTitle())
-                .likeCount(post.getLikeCount())
+                .newPostLikeAlarmInfo(alarmInfo)
                 .build();
         alarmService.registerAlarm(alarmCreator);
     }

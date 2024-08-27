@@ -6,11 +6,13 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentChild;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentChildRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentRepository;
 
+import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentAlarmInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentChildAlarmInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentChildLikeAlarmInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentLikeAlarmInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewPostLikeAlarmInfo;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,12 +22,36 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class PostAlarmServiceImpl implements PostAlarmService {
 
+    private final PostRepository postRepository;
     private final PostCommentRepository postCommentRepository;
     private final PostCommentChildRepository postCommentChildRepository;
 
     /*
+        게시글에 좋아요 추가 시 게시글 작성자에게 알람
+    */
+    @Override
+    @Transactional
+    public NewPostLikeAlarmInfo getNewPostLikeAlarmInfo(LocalDateTime time, Long likedPostId) {
+        //좋아요를 받은 게시글 조회
+        Post likedPost = postRepository.findById(likedPostId).orElse(null);
+        //게시글이 없을 경우
+        if(likedPost == null) {
+            return null;
+        }
+        //게시글의 작성자
+        User likedPostWriter = likedPost.getUser();
+
+        return NewPostLikeAlarmInfo.builder()
+                .targetUserId(likedPostWriter.getId())
+                .time(time)
+                .postTitle(likedPost.getTitle())
+                .likeCount(likedPost.getLikeCount())
+                .build();
+    }
+
+    /*
         게시글에 댓글 추가 시 게시글 작성자에게 알람
-     */
+    */
     @Override
     @Transactional
     public NewCommentAlarmInfo getNewCommentAlarmInfo(
