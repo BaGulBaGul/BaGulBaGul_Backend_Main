@@ -20,5 +20,5 @@ public class PostCommentChildModifyRequest {
     private String content;
 
     @ApiModelProperty(value = "맨션 대상 유저 id. 삭제만 가능하다. null로 보낼 시 삭제. 이 외에는 무시.")
-    private JsonNullable<Long> replyTargetUserId;
+    private JsonNullable<Long> replyTargetUserId = JsonNullable.undefined();
 }
