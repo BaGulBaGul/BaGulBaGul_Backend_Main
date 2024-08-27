@@ -1,6 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.domain.recruitment.repository;
 
 import com.BaGulBaGul.BaGulBaGul.domain.event.Event;
+import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.Recruitment;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.repository.querydsl.FindRecruitmentByCondition;
 import java.util.List;
@@ -41,4 +42,6 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long>,
     @Modifying
     @Query(value = "UPDATE Recruitment r SET r.deleted = true WHERE r.id = :id and r.deleted = false")
     int setDeletedTrueAndGetCountIfNotDeleted(@Param("id") Long id);
+
+    Recruitment findByPost(Post post);
 }

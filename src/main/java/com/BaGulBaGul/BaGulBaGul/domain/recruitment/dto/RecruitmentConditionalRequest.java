@@ -1,6 +1,6 @@
 package com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto;
 
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostConditionalRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostConditionalRequest;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

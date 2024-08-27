@@ -1,4 +1,4 @@
 package com.BaGulBaGul.BaGulBaGul.domain.post.exception;
 
-public class DuplicateLikeException extends Exception {
+public class DuplicateLikeException extends RuntimeException {
 }

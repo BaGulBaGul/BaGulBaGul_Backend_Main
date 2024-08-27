@@ -1,6 +1,6 @@
 package com.BaGulBaGul.BaGulBaGul.domain.recruitment.controller;
 
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.LikeCountResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.LikeCountResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.GetLikeRecruitmentResponse;
@@ -11,7 +11,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentRegisterReque
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentRegisterResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentSimpleResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.service.RecruitmentService;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.IsMyLikeResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.IsMyLikeResponse;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;

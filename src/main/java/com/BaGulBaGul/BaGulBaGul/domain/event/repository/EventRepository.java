@@ -3,6 +3,7 @@ package com.BaGulBaGul.BaGulBaGul.domain.event.repository;
 import com.BaGulBaGul.BaGulBaGul.domain.event.Event;
 import com.BaGulBaGul.BaGulBaGul.domain.event.constant.EventType;
 import com.BaGulBaGul.BaGulBaGul.domain.event.repository.querydsl.FindEventByCondition;
+import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -33,4 +34,6 @@ public interface EventRepository extends JpaRepository<Event, Long>, FindEventBy
             value = "SELECT e FROM Event e INNER JOIN FETCH e.post where e.id in :ids"
     )
     List<Event> findWithPostByIds(@Param("ids") List<Long> ids);
+
+    Event findByPost(Post post);
 }

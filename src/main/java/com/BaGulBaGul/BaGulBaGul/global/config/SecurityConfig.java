@@ -39,18 +39,15 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션x
                 .authorizeRequests()
-                //event 비로그인 허용 경로
+                //recruitment 로그인 필요
+                .antMatchers(HttpMethod.GET, "/api/event/recruitment/*/ismylike").authenticated()
+                .antMatchers(HttpMethod.GET, "/api/event/recruitment/mylike").authenticated()
+                //event 로그인 필요
+                .antMatchers(HttpMethod.GET, "/api/event/*/ismylike").authenticated()
+                .antMatchers(HttpMethod.GET, "/api/event/mylike").authenticated()
+                //event 비로그인 허용
                 .antMatchers(HttpMethod.GET, "/api/event").permitAll()
-                .regexMatchers(HttpMethod.GET, "/api/event/\\d+").permitAll()
-
-                //post 비로그인 허용 경로
-                .regexMatchers(HttpMethod.GET, "/api/post/\\d+/comment").permitAll()
-                .regexMatchers(HttpMethod.GET, "/api/post/comment/\\d+").permitAll()
-                .regexMatchers(HttpMethod.GET, "/api/post/comment/\\d+/children").permitAll()
-
-                //recruitment 비로그인 혀용 경로
-                .regexMatchers(HttpMethod.GET, "/api/event/\\d+/recruitment").permitAll()
-                .regexMatchers(HttpMethod.GET, "/api/event/recruitment/\\d+").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/event/**").permitAll()
 
                 //user 비로그인 허용 경로
                 .regexMatchers(HttpMethod.GET, "/api/user/info/\\d+").permitAll()
@@ -65,7 +62,6 @@ public class SecurityConfig {
                 http.exceptionHandling().authenticationEntryPoint(authenticationEntryPoint);
                 // OAuth2 서비스, 헨들러 등록
                 http.oauth2Login().userInfoEndpoint().userService(oAuth2UserService).and().successHandler(oAuthSuccessHandler);
-
         return http.build();
     }
 

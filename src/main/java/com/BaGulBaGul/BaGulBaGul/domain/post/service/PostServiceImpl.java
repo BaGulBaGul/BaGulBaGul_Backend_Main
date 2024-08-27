@@ -4,8 +4,8 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostImage;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostLike;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostDetailInfo;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostModifyRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostSimpleInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostWriterInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
@@ -155,7 +155,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    @Transactional(rollbackFor = {DuplicateLikeException.class})
+    @Transactional
     public void addLike(Post post, User user) throws DuplicateLikeException {
         //PostLike에 insert하는 것은 FK가 참조하는 Post에 share lock을 거는데 likeCount의 update는 Post에 write lock을 거므로
         //먼저 likeCount를 증가시키지 않으면 deadlock이 일어날 수 있음.
@@ -172,7 +172,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    @Transactional(rollbackFor = {LikeNotExistException.class})
+    @Transactional
     public void deleteLike(Post post, User user) throws LikeNotExistException {
         //add와 마찬가지 이유로 먼저 write lock을 획득
         postRepository.decreaseLikeCount(post);
