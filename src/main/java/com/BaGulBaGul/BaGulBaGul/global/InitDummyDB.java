@@ -3,16 +3,17 @@ package com.BaGulBaGul.BaGulBaGul.global;
 import com.BaGulBaGul.BaGulBaGul.domain.event.Event;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.repository.EventRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.event.service.EventCommentService;
 import com.BaGulBaGul.BaGulBaGul.domain.event.service.EventService;
 import com.BaGulBaGul.BaGulBaGul.domain.event.constant.EventType;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentChildRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentRegisterRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.result.RegisterPostCommentChildResult;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostCommentService;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.Recruitment;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.repository.RecruitmentRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.service.RecruitmentCommentService;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.service.RecruitmentService;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.UserRepository;
@@ -38,6 +39,8 @@ public class InitDummyDB implements ApplicationListener<ApplicationReadyEvent> {
     private final EventService eventService;
     private final RecruitmentService recruitmentService;
     private final PostCommentService postCommentService;
+    private final EventCommentService eventCommentService;
+    private final RecruitmentCommentService recruitmentCommentService;
 
     private List<User> users;
     private List<String> categoryNames = Arrays.asList("문화/예술","공연전시/행사","식품/음료","교육/체험","스포츠/레저");
@@ -175,7 +178,7 @@ public class InitDummyDB implements ApplicationListener<ApplicationReadyEvent> {
             Event event = eventRepository.findById(eventId).get();
             //댓글, 대댓글
             int commentCount = rand.nextInt(COMMENT_MAX_COUNT);
-            createComment(event.getPost().getId(), commentCount);
+            createEventComment(eventId, commentCount);
 
             //좋아요
             int likeCount = rand.nextInt(users.size());
@@ -184,7 +187,6 @@ public class InitDummyDB implements ApplicationListener<ApplicationReadyEvent> {
                 User user = users.get(rand.nextInt(users.size()));
                 if(user != writer) {
                     try {
-                        System.out.println("### " + eventId + " $ " + user.getId());
                         eventService.addLike(eventId, user.getId());
                     } catch (DuplicateLikeException e) {
                     }
@@ -262,7 +264,7 @@ public class InitDummyDB implements ApplicationListener<ApplicationReadyEvent> {
 
             //댓글, 대댓글
             int commentCount = rand.nextInt(COMMENT_MAX_COUNT);
-            createComment(recruitment.getPost().getId(), commentCount);
+            createRecruitmentComment(recruitmentId, commentCount);
 
             //좋아요
             int likeCount = rand.nextInt(users.size());
@@ -271,7 +273,6 @@ public class InitDummyDB implements ApplicationListener<ApplicationReadyEvent> {
                 User user = users.get(rand.nextInt(users.size()));
                 if(user != writer) {
                     try {
-                        System.out.println("### " + recruitmentId + " $ " + user.getId());
                         recruitmentService.addLike(recruitmentId, user.getId());
                     } catch (DuplicateLikeException e) {
                     }
@@ -281,14 +282,14 @@ public class InitDummyDB implements ApplicationListener<ApplicationReadyEvent> {
         return result;
     }
 
-    public void createComment(Long postId, int commentCount) {
+    public void createEventComment(Long eventId, int commentCount) {
         Random rand = new Random();
         //댓글
         for (int cnt = 0; cnt < commentCount; cnt++) {
             User writer = users.get(rand.nextInt(users.size()));
             //댓글 생성
-            Long postCommentId = postCommentService.registerPostComment(
-                    postId,
+            Long postCommentId = eventCommentService.registerComment(
+                    eventId,
                     writer.getId(),
                     PostCommentRegisterRequest.builder()
                             .content("테스트댓글" + cnt)
@@ -297,7 +298,7 @@ public class InitDummyDB implements ApplicationListener<ApplicationReadyEvent> {
 
             //대댓글 생성
             int commentChildCount = rand.nextInt(COMMENTCHILD_MAX_COUNT);
-            createCommentChild(postCommentId, commentChildCount);
+            createEventCommentChild(postCommentId, commentChildCount);
 
             //댓글 좋아요 추가
             int likeCount = rand.nextInt(users.size());
@@ -306,19 +307,52 @@ public class InitDummyDB implements ApplicationListener<ApplicationReadyEvent> {
                 User user = users.get(rand.nextInt(users.size()));
                 if(user != writer) {
                     try {
-                        postCommentService.addLikeToComment(postCommentId, user.getId());
+                        eventCommentService.addLikeToComment(postCommentId, user.getId());
                     } catch (DuplicateLikeException e) {
                     }
                 }
             }
         }
     }
-    public void createCommentChild(Long postCommentId, int commentChildCount) {
+
+    public void createRecruitmentComment(Long recruitmentId, int commentCount) {
+        Random rand = new Random();
+        //댓글
+        for (int cnt = 0; cnt < commentCount; cnt++) {
+            User writer = users.get(rand.nextInt(users.size()));
+            //댓글 생성
+            Long postCommentId = recruitmentCommentService.registerComment(
+                    recruitmentId,
+                    writer.getId(),
+                    PostCommentRegisterRequest.builder()
+                            .content("테스트댓글" + cnt)
+                            .build()
+            );
+
+            //대댓글 생성
+            int commentChildCount = rand.nextInt(COMMENTCHILD_MAX_COUNT);
+            createRecruitmentCommentChild(postCommentId, commentChildCount);
+
+            //댓글 좋아요 추가
+            int likeCount = rand.nextInt(users.size());
+            for(int i=0;i<likeCount;i++) {
+                //자기가 쓴 글이 아니라면 추가
+                User user = users.get(rand.nextInt(users.size()));
+                if(user != writer) {
+                    try {
+                        recruitmentCommentService.addLikeToComment(postCommentId, user.getId());
+                    } catch (DuplicateLikeException e) {
+                    }
+                }
+            }
+        }
+    }
+    public void createEventCommentChild(Long postCommentId, int commentChildCount) {
         Random rand = new Random();
         for(int cnt=0;cnt<commentChildCount;cnt++) {
             User writer = users.get(rand.nextInt(users.size()));
             //대댓글 등록
-            RegisterPostCommentChildResult registerPostCommentChildResult = postCommentService.registerPostCommentChild(
+            Long postCommentChildId = eventCommentService.registerCommentChild(
                     postCommentId,
                     writer.getId(),
                     PostCommentChildRegisterRequest.builder()
@@ -326,7 +360,6 @@ public class InitDummyDB implements ApplicationListener<ApplicationReadyEvent> {
                             .replyTargetPostCommentChildId(null)
                             .build()
             );
-            Long postCommentChildId = registerPostCommentChildResult.getPostCommentChildId();
             //대댓글 좋아요 추가
             int likeCount = rand.nextInt(users.size());
             for(int i=0;i<likeCount;i++) {
@@ -334,7 +367,34 @@ public class InitDummyDB implements ApplicationListener<ApplicationReadyEvent> {
                 User user = users.get(rand.nextInt(users.size()));
                 if(user != writer) {
                     try {
-                        postCommentService.addLikeToCommentChild(postCommentChildId, user.getId());
+                        eventCommentService.addLikeToCommentChild(postCommentChildId, user.getId());
+                    } catch (DuplicateLikeException e) {
+                    }
+                }
+            }
+        }
+    }
+    public void createRecruitmentCommentChild(Long postCommentId, int commentChildCount) {
+        Random rand = new Random();
+        for(int cnt=0;cnt<commentChildCount;cnt++) {
+            User writer = users.get(rand.nextInt(users.size()));
+            //대댓글 등록
+            Long postCommentChildId = recruitmentCommentService.registerCommentChild(
+                    postCommentId,
+                    writer.getId(),
+                    PostCommentChildRegisterRequest.builder()
+                            .content("테스트대댓글" + cnt)
+                            .replyTargetPostCommentChildId(null)
+                            .build()
+            );
+            //대댓글 좋아요 추가
+            int likeCount = rand.nextInt(users.size());
+            for(int i=0;i<likeCount;i++) {
+                //자기가 쓴 글이 아니라면 추가
+                User user = users.get(rand.nextInt(users.size()));
+                if(user != writer) {
+                    try {
+                        recruitmentCommentService.addLikeToCommentChild(postCommentChildId, user.getId());
                     } catch (DuplicateLikeException e) {
                     }
                 }
