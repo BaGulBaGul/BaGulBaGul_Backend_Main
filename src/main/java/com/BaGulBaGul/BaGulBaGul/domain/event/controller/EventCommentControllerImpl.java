@@ -12,6 +12,8 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.PostCommentDetailR
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.PostCommentRegisterResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
+import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostCommentService;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
 import io.swagger.annotations.Api;
@@ -184,7 +186,10 @@ public class EventCommentControllerImpl implements EventCommentController {
             @PathVariable(name = "commentId") Long commentId,
             @AuthenticationPrincipal Long userId
     ) {
-        eventCommentService.addLikeToComment(commentId, userId);
+        try {
+            eventCommentService.addLikeToComment(commentId, userId);
+        } catch (DuplicateLikeException e) {
+        }
         return ApiResponse.of(
                 new LikeCountResponse(
                         postCommentService.getLikeCountFromComment(commentId)
@@ -203,7 +208,10 @@ public class EventCommentControllerImpl implements EventCommentController {
             @PathVariable(name = "commentId") Long commentId,
             @AuthenticationPrincipal Long userId
     ) {
-        eventCommentService.deleteLikeToComment(commentId, userId);
+        try {
+            eventCommentService.deleteLikeToComment(commentId, userId);
+        } catch (LikeNotExistException e) {
+        }
         return ApiResponse.of(
                 new LikeCountResponse(
                         postCommentService.getLikeCountFromComment(commentId)
@@ -238,7 +246,10 @@ public class EventCommentControllerImpl implements EventCommentController {
             @PathVariable(name = "commentChildId") Long commentChildId,
             @AuthenticationPrincipal Long userId
     ) {
-        eventCommentService.addLikeToCommentChild(commentChildId, userId);
+        try {
+            eventCommentService.addLikeToCommentChild(commentChildId, userId);
+        } catch (DuplicateLikeException e) {
+        }
         return ApiResponse.of(
                 new LikeCountResponse(
                         postCommentService.getLikeCountFromCommentChild(commentChildId)
@@ -256,7 +267,10 @@ public class EventCommentControllerImpl implements EventCommentController {
             @PathVariable(name = "commentChildId") Long commentChildId,
             @AuthenticationPrincipal Long userId
     ) {
-        eventCommentService.deleteLikeToCommentChild(commentChildId, userId);
+        try {
+            eventCommentService.deleteLikeToCommentChild(commentChildId, userId);
+        } catch (LikeNotExistException e) {
+        }
         return ApiResponse.of(
                 new LikeCountResponse(
                         postCommentService.getLikeCountFromCommentChild(commentChildId)

@@ -230,7 +230,7 @@ public class PostCommentServiceImpl implements PostCommentService {
     }
 
     @Override
-    @Transactional(rollbackFor = DuplicateLikeException.class)
+    @Transactional
     public void addLikeToComment(Long postCommentId, Long userId) throws DuplicateLikeException {
         //엔티티 로드 & 검증
         PostComment postComment = postCommentRepository.findById(postCommentId).orElseThrow(() -> new PostCommentNotFoundException());
@@ -250,7 +250,7 @@ public class PostCommentServiceImpl implements PostCommentService {
     }
 
     @Override
-    @Transactional(rollbackFor = LikeNotExistException.class)
+    @Transactional
     public void deleteLikeToComment(Long postCommentId, Long userId) throws LikeNotExistException {
         //엔티티 로드 & 검증
         PostComment postComment = postCommentRepository.findById(postCommentId).orElseThrow(() -> new PostCommentNotFoundException());

@@ -7,6 +7,8 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentChildReg
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.PostCommentDetailResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
+import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -25,11 +27,11 @@ public interface EventCommentService {
     void modifyCommentChild(Long commentChildId, Long userId, PostCommentChildModifyRequest postCommentChildModifyRequest);
     void deleteCommentChild(Long commentChildId, Long userId);
 
-    void addLikeToComment(Long commentId, Long userId);
-    void deleteLikeToComment(Long commentId, Long userId);
+    void addLikeToComment(Long commentId, Long userId) throws DuplicateLikeException;
+    void deleteLikeToComment(Long commentId, Long userId) throws LikeNotExistException;
     boolean existsCommentLike(Long commentId, Long userId);
 
-    void addLikeToCommentChild(Long commentChildId, Long userId);
-    void deleteLikeToCommentChild(Long commentChildId, Long userId);
+    void addLikeToCommentChild(Long commentChildId, Long userId) throws DuplicateLikeException;
+    void deleteLikeToCommentChild(Long commentChildId, Long userId) throws LikeNotExistException;
     boolean existsCommentChildLike(Long commentChildId, Long userId);
 }

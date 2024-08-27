@@ -1,9 +1,5 @@
 package com.BaGulBaGul.BaGulBaGul.domain.recruitment.service;
 
-import com.BaGulBaGul.BaGulBaGul.domain.event.applicationevent.NewEventCommentApplicationEvent;
-import com.BaGulBaGul.BaGulBaGul.domain.event.applicationevent.NewEventCommentChildApplicationEvent;
-import com.BaGulBaGul.BaGulBaGul.domain.event.applicationevent.NewEventCommentChildLikeApplicationEvent;
-import com.BaGulBaGul.BaGulBaGul.domain.event.applicationevent.NewEventCommentLikeApplicationEvent;
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.GetPostCommentChildPageResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.GetPostCommentPageResponse;
@@ -144,13 +140,9 @@ public class RecruitmentCommentServiceImpl implements RecruitmentCommentService 
     public void addLikeToComment(
             Long commentId,
             Long userId
-    ) {
-        //댓글 좋아요 추가 시도
-        try {
-            postCommentService.addLikeToComment(commentId, userId);
-        }
-        catch (DuplicateLikeException e) {
-        }
+    ) throws DuplicateLikeException {
+        //댓글 좋아요 추가
+        postCommentService.addLikeToComment(commentId, userId);
         //댓글 좋아요 추가 어플리케이션 이벤트 발행
         applicationEventPublisher.publishEvent(
                 NewRecruitmentCommentLikeApplicationEvent.builder()
@@ -163,12 +155,8 @@ public class RecruitmentCommentServiceImpl implements RecruitmentCommentService 
     public void deleteLikeToComment(
             Long commentId,
             Long userId
-    ) {
-        try {
-            postCommentService.deleteLikeToComment(commentId, userId);
-        }
-        catch (LikeNotExistException e) {
-        }
+    ) throws LikeNotExistException {
+        postCommentService.deleteLikeToComment(commentId, userId);
     }
 
     @Override
@@ -183,13 +171,9 @@ public class RecruitmentCommentServiceImpl implements RecruitmentCommentService 
     public void addLikeToCommentChild(
             Long commentChildId,
             Long userId
-    ) {
-        //대댓글 좋아요 추가 시도
-        try {
-            postCommentService.addLikeToCommentChild(commentChildId, userId);
-        }
-        catch (DuplicateLikeException e) {
-        }
+    ) throws DuplicateLikeException {
+        //대댓글 좋아요 추가
+        postCommentService.addLikeToCommentChild(commentChildId, userId);
         //대댓글 좋아요 추가 어플리케이션 이벤트 발행
         applicationEventPublisher.publishEvent(
                 NewRecruitmentCommentChildLikeApplicationEvent.builder()
@@ -202,12 +186,8 @@ public class RecruitmentCommentServiceImpl implements RecruitmentCommentService 
     public void deleteLikeToCommentChild(
             Long commentChildId,
             Long userId
-    ) {
-        try {
-            postCommentService.deleteLikeToCommentChild(commentChildId, userId);
-        }
-        catch (LikeNotExistException e) {
-        }
+    ) throws LikeNotExistException {
+        postCommentService.deleteLikeToCommentChild(commentChildId, userId);
     }
 
     @Override

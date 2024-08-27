@@ -266,7 +266,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    @Transactional(rollbackFor = {DuplicateLikeException.class})
+    @Transactional
     public void addLike(Long eventId, Long userId) throws DuplicateLikeException {
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException());
         //삭제된 이벤트
@@ -280,7 +280,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    @Transactional(rollbackFor = {LikeNotExistException.class})
+    @Transactional
     public void deleteLike(Long eventId, Long userId) throws LikeNotExistException {
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException());
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());

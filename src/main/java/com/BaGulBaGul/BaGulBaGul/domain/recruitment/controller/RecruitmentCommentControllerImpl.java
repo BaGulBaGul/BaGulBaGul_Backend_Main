@@ -11,6 +11,8 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.PostCommentDetailR
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.PostCommentRegisterResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
+import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostCommentService;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.service.RecruitmentCommentService;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
@@ -184,7 +186,10 @@ public class RecruitmentCommentControllerImpl implements RecruitmentCommentContr
             @PathVariable(name = "commentId") Long commentId,
             @AuthenticationPrincipal Long userId
     ) {
-        recruitmentCommentService.addLikeToComment(commentId, userId);
+        try {
+            recruitmentCommentService.addLikeToComment(commentId, userId);
+        } catch (DuplicateLikeException e) {
+        }
         return ApiResponse.of(
                 new LikeCountResponse(
                         postCommentService.getLikeCountFromComment(commentId)
@@ -203,7 +208,10 @@ public class RecruitmentCommentControllerImpl implements RecruitmentCommentContr
             @PathVariable(name = "commentId") Long commentId,
             @AuthenticationPrincipal Long userId
     ) {
-        recruitmentCommentService.deleteLikeToComment(commentId, userId);
+        try{
+            recruitmentCommentService.deleteLikeToComment(commentId, userId);
+        } catch (LikeNotExistException e) {
+        }
         return ApiResponse.of(
                 new LikeCountResponse(
                         postCommentService.getLikeCountFromComment(commentId)
@@ -238,7 +246,10 @@ public class RecruitmentCommentControllerImpl implements RecruitmentCommentContr
             @PathVariable(name = "commentChildId") Long commentChildId,
             @AuthenticationPrincipal Long userId
     ) {
-        recruitmentCommentService.addLikeToCommentChild(commentChildId, userId);
+        try {
+            recruitmentCommentService.addLikeToCommentChild(commentChildId, userId);
+        } catch (DuplicateLikeException e) {
+        }
         return ApiResponse.of(
                 new LikeCountResponse(
                         postCommentService.getLikeCountFromCommentChild(commentChildId)
@@ -256,7 +267,10 @@ public class RecruitmentCommentControllerImpl implements RecruitmentCommentContr
             @PathVariable(name = "commentChildId") Long commentChildId,
             @AuthenticationPrincipal Long userId
     ) {
-        recruitmentCommentService.deleteLikeToCommentChild(commentChildId, userId);
+        try {
+            recruitmentCommentService.deleteLikeToCommentChild(commentChildId, userId);
+        } catch (LikeNotExistException e) {
+        }
         return ApiResponse.of(
                 new LikeCountResponse(
                         postCommentService.getLikeCountFromCommentChild(commentChildId)
