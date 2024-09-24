@@ -2,6 +2,8 @@ package com.BaGulBaGul.BaGulBaGul.domain.user.info.service;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.SocialLoginUser;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
+import com.BaGulBaGul.BaGulBaGul.domain.user.UserAlarmStatus;
+import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.repository.UserAlarmStatusRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.auth.service.JwtProvider;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.dto.SocialLoginUserJoinRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.dto.UserRegisterRequest;
@@ -20,6 +22,7 @@ public class UserJoinServiceImpl implements UserJoinService {
     private final JwtProvider jwtProvider;
     private final SocialLoginUserRepository socialLoginUserRepository;
     private final UserRepository userRepository;
+    private final UserAlarmStatusRepository userAlarmStatusRepository;
 
     private final UserImageService userImageService;
 
@@ -49,6 +52,13 @@ public class UserJoinServiceImpl implements UserJoinService {
                 .email(userJoinRequest.getEmail())
                 .build();
         userRepository.save(user);
+        userAlarmStatusRepository.save(
+                UserAlarmStatus.builder()
+                        .user(user)
+                        .totalAlarmCount(0L)
+                        .uncheckedAlarmCount(0L)
+                        .build()
+        );
         return user;
     }
 
