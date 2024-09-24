@@ -16,7 +16,9 @@ import com.BaGulBaGul.BaGulBaGul.domain.recruitment.repository.RecruitmentReposi
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.service.RecruitmentCommentService;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.service.RecruitmentService;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
+import com.BaGulBaGul.BaGulBaGul.domain.user.info.dto.UserRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.UserRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.user.info.service.UserJoinService;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -36,6 +38,7 @@ public class InitDummyDB implements ApplicationListener<ApplicationReadyEvent> {
     private final EventRepository eventRepository;
     private final RecruitmentRepository recruitmentRepository;
 
+    private final UserJoinService userJoinService;
     private final EventService eventService;
     private final RecruitmentService recruitmentService;
     private final PostCommentService postCommentService;
@@ -69,19 +72,17 @@ public class InitDummyDB implements ApplicationListener<ApplicationReadyEvent> {
     }
 
     private List<User> createUser(int userCnt) {
-        Random rand = new Random();
         List<User> result = new ArrayList<>();
 
         for(int cnt=0; cnt<userCnt; cnt++) {
-            User user = User.builder()
-                    .email("test" + cnt + "email.com")
-                    .nickName("testUser" + cnt)
-                    .imageURI("testImage.png")
-                    .build();
-            userRepository.save(user);
+            User user = userJoinService.registerUser(
+                    UserRegisterRequest.builder()
+                            .email("test" + cnt + "email.com")
+                            .nickname("testUser" + cnt)
+                            .build()
+            );
             result.add(user);
         }
-
         return result;
     }
 
