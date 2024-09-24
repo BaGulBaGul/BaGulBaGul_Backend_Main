@@ -3,7 +3,9 @@ package com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.Alarm;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
+import com.BaGulBaGul.BaGulBaGul.domain.user.UserAlarmStatus;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.dto.AlarmPageResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.dto.GetAlarmStatusResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.exception.AlarmNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.exception.DuplicateAlarmCheckException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.repository.AlarmRepository;
@@ -11,7 +13,9 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.repository.UserAlarmStatusRep
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.AlarmCreator;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.UserRepository;
 import com.BaGulBaGul.BaGulBaGul.global.alarm.realtime.RealtimeAlarmPublishService;
+import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
 import com.BaGulBaGul.BaGulBaGul.global.exception.NoPermissionException;
+import com.BaGulBaGul.BaGulBaGul.global.response.ResponseCode;
 import javax.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -117,5 +121,15 @@ public class AlarmServiceImpl implements AlarmService {
     public void deleteAllAlarm(Long userId) {
         alarmRepository.deleteAllByUserId(userId);
         userAlarmStatusRepository.resetStatus(userId);
+    }
+
+    @Override
+    public GetAlarmStatusResponse getAlarmStatus(Long userId) {
+        UserAlarmStatus userAlarmStatus = userAlarmStatusRepository.findById(userId).orElseThrow(
+                () -> new GeneralException(ResponseCode.INTERNAL_SERVER_ERROR));
+        return GetAlarmStatusResponse.builder()
+                .totalAlarmCount(userAlarmStatus.getTotalAlarmCount())
+                .uncheckedAlarmCount(userAlarmStatus.getUncheckedAlarmCount())
+                .build();
     }
 }
