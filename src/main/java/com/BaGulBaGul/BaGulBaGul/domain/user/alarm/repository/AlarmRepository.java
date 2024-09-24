@@ -12,7 +12,7 @@ public interface AlarmRepository extends JpaRepository<Alarm, Long> {
 
     @Query(
             value = "SELECT al FROM Alarm al WHERE al.user.id = :userId ORDER BY al.time DESC",
-            countQuery = "SELECT count(*) FROM Alarm al WHERE al.user.id = :userId"
+            countQuery = "SELECT status.totalAlarmCount FROM UserAlarmStatus status WHERE status.userId = :userId"
     )
     Page<Alarm> findAlarmPageOrderByTime(@Param("userId") Long userId, Pageable pageable);
 
