@@ -1,7 +1,6 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user.alarm.repository;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.Alarm;
-import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -22,4 +21,10 @@ public interface AlarmRepository extends JpaRepository<Alarm, Long> {
             value = "DELETE FROM Alarm al WHERE al.user.id = :userId"
     )
     void deleteAllByUserId(@Param("userId") Long userId);
+
+    @Modifying
+    @Query(
+            value = "DELETE FROM Alarm al WHERE al.id = :alarmId and al.version = :version"
+    )
+    int deleteByAlarmIdAndVersion(@Param("alarmId") Long alarmId, @Param("version") int version);
 }
