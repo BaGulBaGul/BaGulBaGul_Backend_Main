@@ -11,11 +11,13 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.exception.DuplicateAlarmCheck
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.repository.AlarmRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.repository.UserAlarmStatusRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.AlarmCreator;
+import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.realtime.RealTimeAlarmContent;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.UserRepository;
 import com.BaGulBaGul.BaGulBaGul.global.alarm.realtime.RealtimeAlarmPublishService;
 import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
 import com.BaGulBaGul.BaGulBaGul.global.exception.NoPermissionException;
 import com.BaGulBaGul.BaGulBaGul.global.response.ResponseCode;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import javax.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -41,17 +43,16 @@ public class AlarmServiceImpl implements AlarmService {
             AlarmCreator alarmCreator
     ) {
         User targetUser = userRepository.getReferenceById(alarmCreator.getTargetUserId());
+        Alarm alarm = Alarm.builder()
+                .user(targetUser)
+                .type(alarmCreator.getType())
+                .title(alarmCreator.getTitle())
+                .message(alarmCreator.getMessage())
+                .subject(alarmCreator.getSubject())
+                .time(alarmCreator.getTime())
+                .build();
         //알림 등록
-        alarmRepository.save(
-                Alarm.builder()
-                        .user(targetUser)
-                        .type(alarmCreator.getType())
-                        .title(alarmCreator.getTitle())
-                        .message(alarmCreator.getMessage())
-                        .subject(alarmCreator.getSubject())
-                        .time(alarmCreator.getTime())
-                        .build()
-        );
+        alarmRepository.save(alarm);
         //유저의 알람 통계 테이블 업데이트
         //총 개수와 체크하지 않은 알람 개수를 1씩 증가시킴
         userAlarmStatusRepository.increaseTotalAndUnchecked(targetUser.getId());
@@ -59,7 +60,14 @@ public class AlarmServiceImpl implements AlarmService {
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override
             public void afterCommit() {
-                realtimeAlarmPublishService.publishAlarm(targetUser.getId(), alarmCreator.getTitle());
+                try {
+                    realtimeAlarmPublishService.publishAlarm(
+                            targetUser.getId(),
+                            RealTimeAlarmContent.from(alarm).toJSON()
+                    );
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException(e);
+                }
             }
         });
     }
