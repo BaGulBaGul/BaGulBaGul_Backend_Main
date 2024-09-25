@@ -25,6 +25,7 @@ import lombok.Setter;
 public class RealTimeAlarmContent {
     private static final ObjectMapper objectMapper = JsonConfig.getObjectMapper();
 
+    private Long alarmId;
     private AlarmType type;
     private String title;
     private String message;
@@ -33,6 +34,7 @@ public class RealTimeAlarmContent {
 
     public static RealTimeAlarmContent from(Alarm alarm) {
         return RealTimeAlarmContent.builder()
+                .alarmId(alarm.getId())
                 .type(alarm.getType())
                 .title(alarm.getTitle())
                 .message(alarm.getMessage())
