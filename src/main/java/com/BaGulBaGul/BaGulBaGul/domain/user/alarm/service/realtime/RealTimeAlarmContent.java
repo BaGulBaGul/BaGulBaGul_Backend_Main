@@ -2,6 +2,7 @@ package com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.realtime;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.Alarm;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.constant.AlarmType;
+import com.BaGulBaGul.BaGulBaGul.global.config.JsonConfig;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -22,14 +23,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class RealTimeAlarmContent {
-    private static final String dateFormat = "yyyy-MM-dd";
-    private static final String datetimeFormat = "yyyy-MM-dd'T'HH:mm:ss";
-    protected static final ObjectMapper objectMapper = new ObjectMapper()
-            //LocalDate, LocalDateTime 직렬화 모듈 주가
-            .registerModule(new SimpleModule()
-                    .addSerializer(LocalDate.class, new LocalDateSerializer(DateTimeFormatter.ofPattern(dateFormat)))
-                    .addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(DateTimeFormatter.ofPattern(datetimeFormat)))
-            );
+    private static final ObjectMapper objectMapper = JsonConfig.getObjectMapper();
 
     private AlarmType type;
     private String title;
