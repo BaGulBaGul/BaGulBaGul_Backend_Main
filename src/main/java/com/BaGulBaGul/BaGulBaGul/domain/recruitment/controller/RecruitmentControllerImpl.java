@@ -50,23 +50,22 @@ public class RecruitmentControllerImpl implements RecruitmentController {
     }
 
     @Override
-    @GetMapping("/{eventId}/recruitment")
+    @GetMapping("/recruitment")
     @Operation(summary = "어떤 이벤트에 속하면서 주어진 조건에 맞는 모집글을 페이징 조회",
             description = "페이징 관련 파라메터는 \n "
-                    + "http://localhost:8080/api/event/7/recruitment?size=10&page=0&sort=likeCount,desc&sort=views,asc \n "
+                    + "http://localhost:8080/api/event/recruitment?eventId=7&size=10&page=0&sort=likeCount,desc&sort=views,asc \n "
                     + "이런 식으로 넘기면 됨 \n "
                     + "sort가 여러 개면 앞에서부터 순서대로 정렬 적용\n"
                     + "파라메터로 명시하지 않은 조건은 무시되지만 페이징은 기본 페이징 조건 적용됨(page 0 size 20)\n"
                     + "정렬 가능 속성 : createdAt, views, likeCount, commentCount, startDate, endDate, headCount"
     )
     public ApiResponse<Page<RecruitmentSimpleResponse>> getRecruitmentPageByCondition(
-            @PathVariable(name = "eventId") Long eventId,
             RecruitmentConditionalApiRequest recruitmentConditionalApiRequest,
             Pageable pageable
     ) {
         return ApiResponse.of(
             recruitmentService.getRecruitmentPageByCondition(
-                    recruitmentConditionalApiRequest.toRecruitmentConditionalRequest(eventId),
+                    recruitmentConditionalApiRequest.toRecruitmentConditionalRequest(),
                     pageable
             )
         );
