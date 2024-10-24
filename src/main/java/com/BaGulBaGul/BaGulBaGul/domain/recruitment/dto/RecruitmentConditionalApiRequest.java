@@ -15,6 +15,9 @@ import lombok.Setter;
 @AllArgsConstructor
 public class RecruitmentConditionalApiRequest {
 
+    @ApiModelProperty(value = "모집글이 속한 이벤트의 id")
+    private Long eventId;
+
     @ApiModelProperty(value = "게시글 제목")
     private String title;
 
@@ -27,7 +30,7 @@ public class RecruitmentConditionalApiRequest {
     @ApiModelProperty(value = "남은 인원 수")
     private Integer leftHeadCount;
 
-    public RecruitmentConditionalRequest toRecruitmentConditionalRequest(Long eventId) {
+    public RecruitmentConditionalRequest toRecruitmentConditionalRequest() {
         return RecruitmentConditionalRequest.builder()
                 .eventId(eventId)
                 .title(title)

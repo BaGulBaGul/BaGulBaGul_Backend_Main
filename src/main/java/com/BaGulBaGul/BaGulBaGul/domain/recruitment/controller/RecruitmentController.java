@@ -17,7 +17,6 @@ public interface RecruitmentController {
     ApiResponse<RecruitmentDetailResponse> getRecruitmentById(Long recruitmentId);
 
     ApiResponse<Page<RecruitmentSimpleResponse>> getRecruitmentPageByCondition(
-            Long eventId,
             RecruitmentConditionalApiRequest recruitmentConditionalRequest,
             Pageable pageable
     );
