@@ -21,11 +21,13 @@ import com.BaGulBaGul.BaGulBaGul.domain.report.Report;
 import com.BaGulBaGul.BaGulBaGul.domain.report.Report.ReportBuilder;
 import com.BaGulBaGul.BaGulBaGul.domain.report.constant.ReportType;
 import com.BaGulBaGul.BaGulBaGul.domain.report.dto.ReportRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.report.exception.DuplicateReportException;
 import com.BaGulBaGul.BaGulBaGul.domain.report.repository.ReportRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.exception.UserNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,7 +44,7 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     @Transactional
-    public Long registerEventReport(Long eventId, ReportRegisterRequest reportRegisterRequest) {
+    public Long registerEventReport(Long eventId, ReportRegisterRequest reportRegisterRequest) throws DuplicateReportException {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(EventNotFoundException::new);
         Post post = event.getPost();
@@ -58,7 +60,7 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     @Transactional
-    public Long registerRecruitmentReport(Long recruitmentId, ReportRegisterRequest reportRegisterRequest) {
+    public Long registerRecruitmentReport(Long recruitmentId, ReportRegisterRequest reportRegisterRequest) throws DuplicateReportException {
         Recruitment recruitment = recruitmentRepository.findById(recruitmentId)
                 .orElseThrow(RecruitmentNotFoundException::new);
         Post post = recruitment.getPost();
@@ -74,7 +76,7 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     @Transactional
-    public Long registerPostCommentReport(Long postCommentId, ReportRegisterRequest reportRegisterRequest) {
+    public Long registerPostCommentReport(Long postCommentId, ReportRegisterRequest reportRegisterRequest) throws DuplicateReportException {
         PostComment postComment = postCommentRepository.findById(postCommentId)
                 .orElseThrow(PostCommentNotFoundException::new);
         User postCommentWriter = postComment.getUser();
@@ -89,7 +91,7 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     @Transactional
-    public Long registerPostCommentChildReport(Long postCommentChildId, ReportRegisterRequest reportRegisterRequest) {
+    public Long registerPostCommentChildReport(Long postCommentChildId, ReportRegisterRequest reportRegisterRequest) throws DuplicateReportException {
         PostCommentChild postCommentChild = postCommentChildRepository.findById(postCommentChildId).orElseThrow(
                 PostCommentChildNotFoundException::new);
         User postCommentChildWriter = postCommentChild.getUser();
@@ -102,7 +104,7 @@ public class ReportServiceImpl implements ReportService {
         );
     }
 
-    private Long saveReport(ReportBuilder reportBuilder, User reportedUser, ReportRegisterRequest reportRegisterRequest) {
+    private Long saveReport(ReportBuilder reportBuilder, User reportedUser, ReportRegisterRequest reportRegisterRequest) throws DuplicateReportException {
         ReportType reportType = reportRegisterRequest.getReportType();
         User reportingUser = userRepository.findById(reportRegisterRequest.getReportingUserId())
                 .orElseThrow(UserNotFoundException::new);
@@ -115,7 +117,13 @@ public class ReportServiceImpl implements ReportService {
                 reportingUser,
                 message
         );
-        reportRepository.save(report);
+        try {
+            reportRepository.save(report);
+        } catch (DataIntegrityViolationException e) {
+            if(e.getMessage().contains("UK__REPORT")) {
+                throw new DuplicateReportException();
+            }
+        }
         return report.getReportId();
     }
 
