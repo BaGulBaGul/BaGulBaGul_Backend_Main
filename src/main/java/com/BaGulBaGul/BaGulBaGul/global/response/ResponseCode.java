@@ -26,6 +26,8 @@ public class ResponseCode {
     public static final ResponseCode RECRUITMENT_NOT_FOUND = new ResponseCode("R00000", HttpStatus.OK, "모집글이 존재하지 않습니다");
     //POST
     public static final ResponseCode POST_NOT_FOUND = new ResponseCode("P00000", HttpStatus.OK, "게시글이 존재하지 않습니다");
+    //REPORT
+    public static final ResponseCode REPORT_DUPLICATE = new ResponseCode("RPT00000", HttpStatus.OK, "이미 대상을 신고했습니다");
     //USER
     public static final ResponseCode USER_NOT_FOUND = new ResponseCode("U00000", HttpStatus.OK, "존재하지 않는 유저입니다");
     //ALARM

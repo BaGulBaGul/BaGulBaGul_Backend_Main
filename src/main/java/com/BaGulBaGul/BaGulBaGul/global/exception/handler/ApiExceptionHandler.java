@@ -4,6 +4,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.exception.CategoryNotFoundExceptio
 import com.BaGulBaGul.BaGulBaGul.domain.event.exception.EventNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.PostNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.exception.RecruitmentNotFoundException;
+import com.BaGulBaGul.BaGulBaGul.domain.report.exception.DuplicateReportException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.auth.exception.JoinTokenExpiredException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.auth.exception.JoinTokenValidationException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.exception.UserNotFoundException;
@@ -93,6 +94,15 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = PostNotFoundException.class)
     public ResponseEntity<Object> postNotFound(PostNotFoundException e, WebRequest webRequest) {
         return handleExceptionInternal(e, ResponseCode.POST_NOT_FOUND, webRequest);
+    }
+
+    /************************
+     *   신고
+     ************************/
+    //같은 대상에 대한 중복 신고
+    @ExceptionHandler(value = DuplicateReportException.class)
+    public ResponseEntity<Object> duplicateReport(DuplicateReportException e, WebRequest webRequest) {
+        return handleExceptionInternal(e, ResponseCode.REPORT_DUPLICATE, webRequest);
     }
 
     /************************
