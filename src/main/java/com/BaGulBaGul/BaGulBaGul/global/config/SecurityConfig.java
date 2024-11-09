@@ -52,6 +52,7 @@ public class SecurityConfig {
                 //user 비로그인 허용 경로
                 .regexMatchers(HttpMethod.GET, "/api/user/info/\\d+").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/user/join/social").permitAll()
+                .antMatchers(HttpMethod.GET, "/api/user/join/check-duplicate-username").permitAll()
 
                 //나머지 로그인 필요
                 .anyRequest().authenticated();
