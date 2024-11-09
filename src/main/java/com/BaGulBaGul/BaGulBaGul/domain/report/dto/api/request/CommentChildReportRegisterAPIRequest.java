@@ -15,7 +15,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CommentChildReportRegisterAPIRequest extends ReportRegisterApiRequest {
-    @ApiModelProperty(value = "신고 대상 대댓글 id")
+    @ApiModelProperty(value = "신고 대상 대댓글 id", required = true)
     @NotNull(message = "신고 대상 대댓글 id는 필수입니다")
     private Long commentChildId;
 }
