@@ -1,4 +1,4 @@
-package com.BaGulBaGul.BaGulBaGul.domain.user.info;
+package com.BaGulBaGul.BaGulBaGul.domain.user.info.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
