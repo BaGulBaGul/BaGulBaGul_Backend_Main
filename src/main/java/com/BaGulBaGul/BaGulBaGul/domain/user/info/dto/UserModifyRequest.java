@@ -20,15 +20,19 @@ import org.openapitools.jackson.nullable.JsonNullable;
 public class UserModifyRequest {
     @ApiModelProperty(value = "이메일")
     @Email(message = "이메일 형식이 아닙니다.")
+    @Builder.Default
     JsonNullable<String> email = JsonNullable.undefined();
 
     @ApiModelProperty(value = "프로필 상태 메세지")
+    @Builder.Default
     JsonNullable<String> profileMessage = JsonNullable.undefined();
 
     @ApiModelProperty(value = "프로필 이미지의 resource id")
+    @Builder.Default
     JsonNullable<Long> imageResourceId = JsonNullable.undefined();
 
     @ApiModelProperty(value = "유저명")
+    @Builder.Default
     JsonNullable<String> username = JsonNullable.undefined();
 
     private static Pattern USERNAME_PATTERN = Pattern.compile("^[가-힣a-zA-Z]{2,12}$");
