@@ -8,9 +8,11 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.calendar.recruitment.repository.Rec
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.dto.MyUserInfoResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.dto.OtherUserInfoResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.dto.UserModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.info.exception.DuplicateUsernameException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.exception.UserNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -71,6 +73,25 @@ public class UserInfoServiceImpl implements UserInfoService {
         }
         if(userModifyRequest.getImageResourceId().isPresent()) {
             userImageService.setImage(user, userModifyRequest.getImageResourceId().get());
+        }
+        //닉네임 변경
+        if(userModifyRequest.getUsername().isPresent()) {
+            String username = userModifyRequest.getUsername().get();
+            //중복 닉네임 검사
+            if(userRepository.existsByNicknameIgnoreCase(username)) {
+                throw new DuplicateUsernameException();
+            }
+            //유저명 설정
+            user.setNickname(username);
+            //변경 시도(유니크 제약조건 검사) 나중에 aop로 리페터링 고려
+            try {
+                userRepository.flush();
+            } catch (DataIntegrityViolationException e) {
+                //유저명 유니크 제약조건 위반
+                if(DuplicateUsernameException.check(e)) {
+                    throw new DuplicateUsernameException();
+                }
+            }
         }
     }
 }
