@@ -7,6 +7,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.info.service.UserInfoService;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,7 +43,7 @@ public class UserInfoControllerImpl implements UserInfoController {
     )
     public ApiResponse<Object> modifyMyUserInfo(
             @AuthenticationPrincipal Long userId,
-            @RequestBody UserModifyRequest userModifyRequest
+            @RequestBody @Valid UserModifyRequest userModifyRequest
     ) {
         userInfoService.modifyUserInfo(userModifyRequest, userId);
         return ApiResponse.of(null);
