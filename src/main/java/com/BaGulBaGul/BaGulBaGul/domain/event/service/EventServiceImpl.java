@@ -175,6 +175,7 @@ public class EventServiceImpl implements EventService {
         Event event = Event.builder()
                 .type(eventRegisterRequest.getType())
                 .post(post)
+                .ageLimit(eventRegisterRequest.getAgeLimit())
                 .currentHeadCount(0)
                 .maxHeadCount(eventRegisterRequest.getMaxHeadCount())
                 .fullLocation(eventRegisterRequest.getFullLocation())
@@ -210,6 +211,9 @@ public class EventServiceImpl implements EventService {
         //나머지 event관련 속성 변경
         if(eventModifyRequest.getType() != null) {
             event.setType(eventModifyRequest.getType());
+        }
+        if(eventModifyRequest.getAgeLimit() != null) {
+            event.setAgeLimit(eventModifyRequest.getAgeLimit());
         }
         if(eventModifyRequest.getCurrentHeadCount().isPresent()) {
             event.setCurrentHeadCount(eventModifyRequest.getCurrentHeadCount().get());

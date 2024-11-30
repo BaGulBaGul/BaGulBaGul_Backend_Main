@@ -46,6 +46,10 @@ public class Event {
     @OneToOne(fetch = FetchType.LAZY)
     Post post;
 
+    @Setter
+    @Column(name = "age_limit")
+    Boolean ageLimit;
+
     //참여 인원수
     @Setter
     @Column(name = "headcount_current")
@@ -94,6 +98,7 @@ public class Event {
     public Event(
             EventType type,
             Post post,
+            Boolean ageLimit,
             Integer currentHeadCount,
             Integer maxHeadCount,
             String fullLocation,
@@ -106,6 +111,7 @@ public class Event {
         this.deleted = false;
         this.type = type;
         this.post = post;
+        this.ageLimit = ageLimit;
         this.currentHeadCount = currentHeadCount;
         this.maxHeadCount = maxHeadCount;
         this.fullLocation = fullLocation;

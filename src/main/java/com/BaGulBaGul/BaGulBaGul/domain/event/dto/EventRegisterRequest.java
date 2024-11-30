@@ -51,6 +51,9 @@ public class EventRegisterRequest {
     @ApiModelProperty(value = "게시글 내용")
     private String content;
 
+    @ApiModelProperty(value = "연령 제한 게시물 여부")
+    private Boolean ageLimit;
+
     @ApiModelProperty(value = "시작 시간")
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime startDate;
