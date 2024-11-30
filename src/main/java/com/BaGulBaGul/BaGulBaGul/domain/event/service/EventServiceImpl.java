@@ -24,14 +24,11 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostDetailInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
-import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostImageService;
 import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostService;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.exception.UserNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.UserRepository;
 import com.BaGulBaGul.BaGulBaGul.global.exception.NoPermissionException;
-import com.BaGulBaGul.BaGulBaGul.global.upload.repository.ResourceRepository;
-import com.BaGulBaGul.BaGulBaGul.global.upload.service.ResourceService;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -202,9 +199,8 @@ public class EventServiceImpl implements EventService {
         }
 
         //요청한 유저가 작성자가 아닐 경우 수정 권한 없음
-        if(!userId.equals(event.getPost().getUser().getId())) {
-            throw new NoPermissionException();
-        }
+        checkWritePermission(userId, event);
+
         //patch 방식으로 eventModifyRequest에서 null이 아닌 모든 필드를 변경
         //post관련은 postService에 위임
         postService.modifyPost(event.getPost(), eventModifyRequest.toPostModifyRequest());
@@ -256,9 +252,8 @@ public class EventServiceImpl implements EventService {
         }
 
         //요청한 유저가 작성자가 아닐 경우 수정 권한 없음
-        if(!userId.equals(event.getPost().getUser().getId())) {
-            throw new NoPermissionException();
-        }
+        checkWritePermission(userId, event);
+
         event.setDeleted(true);
     }
 
@@ -329,5 +324,13 @@ public class EventServiceImpl implements EventService {
     public void addCategory(Event event, Category category) {
         EventCategory eventCategory = new EventCategory(event, category);
         event.getCategories().add(eventCategory);
+    }
+
+    @Override
+    //어떤 유저의 어떤 이벤트에 대한 쓰기 권한을 확인
+    public void checkWritePermission(Long userId, Event event) throws NoPermissionException {
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        //게시글에 대한 권한 확인에 위임
+        postService.checkWritePermission(event.getPost(), user);
     }
 }

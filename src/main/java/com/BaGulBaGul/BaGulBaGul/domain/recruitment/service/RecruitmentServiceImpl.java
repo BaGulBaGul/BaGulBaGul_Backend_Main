@@ -8,7 +8,6 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostDetailInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
-import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostImageService;
 import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostService;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.Recruitment;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.applicationevent.NewRecruitmentLikeApplicationEvent;
@@ -27,7 +26,6 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.exception.UserNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.UserRepository;
 import com.BaGulBaGul.BaGulBaGul.global.exception.NoPermissionException;
-import com.BaGulBaGul.BaGulBaGul.global.upload.service.ResourceService;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -177,10 +175,10 @@ public class RecruitmentServiceImpl implements RecruitmentService {
         if(recruitment.getDeleted()) {
             throw new RecruitmentNotFoundException();
         }
-        //요청한 유저가 작성자가 아닐 경우 수정 권한 없음
-        if (!userId.equals(recruitment.getPost().getUser().getId())) {
-            throw new NoPermissionException();
-        }
+
+        //요청한 유저의 쓰기 권한을 확인
+        checkWritePermission(userId, recruitment);
+
         //patch 방식으로 recruitmentModifyRequest에서 null이 아닌 모든 필드를 변경
         //jsonnullable의 경우 null값 가능. present를 확인하고 변경
         //post관련은 postService에 위임
@@ -211,10 +209,10 @@ public class RecruitmentServiceImpl implements RecruitmentService {
         if(recruitment.getDeleted()) {
             throw new RecruitmentNotFoundException();
         }
-        //작성자가 아닐 경우 권한 없음
-        if (!userId.equals(recruitment.getPost().getUser().getId())) {
-            throw new NoPermissionException();
-        }
+
+        //요청한 유저의 쓰기 권한을 확인
+        checkWritePermission(userId, recruitment);
+
         int updatedCount = recruitmentRepository.setDeletedTrueAndGetCountIfNotDeleted(recruitmentId);
         //중복요청 등의 이유로 이미 삭제된 경우
         if(updatedCount == 0) {
@@ -258,5 +256,13 @@ public class RecruitmentServiceImpl implements RecruitmentService {
         Recruitment recruitment = recruitmentRepository.findById(recruitmentId).orElseThrow(() -> new RecruitmentNotFoundException());
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
         return postService.existsLike(recruitment.getPost(), user);
+    }
+
+    @Override
+    //어떤 유저의 어떤 모집글에 대한 쓰기 권한을 확인
+    public void checkWritePermission(Long userId, Recruitment recruitment) throws NoPermissionException {
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        //게시글에 대한 권한 확인에 위임
+        postService.checkWritePermission(recruitment.getPost(), user);
     }
 }
