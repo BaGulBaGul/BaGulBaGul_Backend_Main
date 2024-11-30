@@ -30,9 +30,11 @@ public class EventModifyRequest {
     private String title;
 
     @ApiModelProperty(value = "참여 인원")
+    @Builder.Default
     private JsonNullable<Integer> currentHeadCount = JsonNullable.undefined();
 
     @ApiModelProperty(value = "모집 인원")
+    @Builder.Default
     private JsonNullable<Integer> maxHeadCount = JsonNullable.undefined();
 
     @ApiModelProperty(value = "세부 주소", example = "서울시 영등포구 xxx로 xxx타워 x층")
