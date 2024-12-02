@@ -85,6 +85,7 @@ public class EventServiceImpl implements EventService {
                 .abstractLocation(event.getAbstractLocation())
                 .latitudeLocation(event.getLatitudeLocation())
                 .longitudeLocation(event.getLongitudeLocation())
+                .ageLimit(event.getAgeLimit())
                 .startDate(event.getStartDate())
                 .endDate(event.getEndDate())
                 .categories(
