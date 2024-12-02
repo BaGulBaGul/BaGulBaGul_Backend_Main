@@ -38,6 +38,9 @@ public class EventDetailInfo {
     @ApiModelProperty(value = "경도")
     private Float longitudeLocation;
 
+    @ApiModelProperty(value = "연령제한 게시물 여부")
+    private Boolean ageLimit;
+
     @ApiModelProperty(value = "시작 시간")
     private LocalDateTime startDate;
 
