@@ -52,6 +52,7 @@ public class EventRegisterRequest {
     private String content;
 
     @ApiModelProperty(value = "연령 제한 게시물 여부")
+    @NotNull
     private Boolean ageLimit;
 
     @ApiModelProperty(value = "시작 시간")
