@@ -1,11 +1,8 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user.alarm.controller;
 
-import com.BaGulBaGul.BaGulBaGul.domain.user.Alarm;
-import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.dto.AlarmPageResponse;
-import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.repository.AlarmRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.dto.GetAlarmStatusResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.AlarmService;
-import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.UserRepository;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
@@ -81,6 +78,19 @@ public class AlarmControllerImpl implements AlarmController {
         alarmService.deleteAllAlarm(userId);
         return ApiResponse.of(
                 null
+        );
+    }
+
+    @Override
+    @GetMapping("/status")
+    @Operation(summary = "유저의 알람 상태를 조회",
+            description = "로그인 필수. 총 알람 개수, 체크하지 않은 알람 등의 정보를 조회"
+    )
+    public ApiResponse<GetAlarmStatusResponse> getAlarmStatus(
+            @AuthenticationPrincipal Long userId
+    ) {
+        return ApiResponse.of(
+                alarmService.getAlarmStatus(userId)
         );
     }
 }

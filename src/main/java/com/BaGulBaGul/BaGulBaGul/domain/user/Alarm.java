@@ -12,6 +12,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Version;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -56,6 +57,9 @@ public class Alarm {
     @Setter
     @Column(name = "time")
     LocalDateTime time;
+
+    @Version
+    Integer version;
 
     @Builder
     public Alarm(User user, AlarmType type, String title, String message, String subject, boolean checked, LocalDateTime time) {

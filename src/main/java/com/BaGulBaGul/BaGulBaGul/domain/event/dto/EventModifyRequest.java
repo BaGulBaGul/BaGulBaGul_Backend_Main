@@ -30,9 +30,11 @@ public class EventModifyRequest {
     private String title;
 
     @ApiModelProperty(value = "참여 인원")
+    @Builder.Default
     private JsonNullable<Integer> currentHeadCount = JsonNullable.undefined();
 
     @ApiModelProperty(value = "모집 인원")
+    @Builder.Default
     private JsonNullable<Integer> maxHeadCount = JsonNullable.undefined();
 
     @ApiModelProperty(value = "세부 주소", example = "서울시 영등포구 xxx로 xxx타워 x층")
@@ -49,6 +51,9 @@ public class EventModifyRequest {
 
     @ApiModelProperty(value = "게시글 내용")
     private String content;
+
+    @ApiModelProperty(value = "연령 제한 게시물 여부")
+    private Boolean ageLimit;
 
     @ApiModelProperty(value = "시작 시간")
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")

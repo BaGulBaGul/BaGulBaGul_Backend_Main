@@ -2,6 +2,7 @@ package com.BaGulBaGul.BaGulBaGul.domain.user.auth.service;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.auth.exception.*;
 import com.BaGulBaGul.BaGulBaGul.domain.user.auth.oauth2.dto.OAuth2JoinTokenSubject;
+import com.BaGulBaGul.BaGulBaGul.global.config.JsonConfig;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.*;
@@ -13,6 +14,8 @@ import javax.crypto.spec.SecretKeySpec;
 import lombok.Builder;
 
 public class JwtProviderImpl implements JwtProvider {
+
+    private static final ObjectMapper objectMapper = JsonConfig.getObjectMapper();
 
     private final String SECRET_KEY_STRING;
     private final String SECRET_KEY_ALGORITHM;
@@ -55,7 +58,6 @@ public class JwtProviderImpl implements JwtProvider {
 
     @Override
     public String createOAuth2JoinToken(OAuth2JoinTokenSubject oAuth2JoinTokenSubject) {
-        ObjectMapper objectMapper = new ObjectMapper();
         String subject;
         try {
              subject = objectMapper.writeValueAsString(oAuth2JoinTokenSubject);
@@ -103,7 +105,6 @@ public class JwtProviderImpl implements JwtProvider {
         }
 
         OAuth2JoinTokenSubject oAuth2JoinTokenSubject;
-        ObjectMapper objectMapper = new ObjectMapper();
         try {
              oAuth2JoinTokenSubject = objectMapper.readValue(subject, OAuth2JoinTokenSubject.class);
         } catch (JsonProcessingException e) {

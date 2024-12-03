@@ -2,14 +2,18 @@ package com.BaGulBaGul.BaGulBaGul.domain.user.info.service;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.SocialLoginUser;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
+import com.BaGulBaGul.BaGulBaGul.domain.user.UserAlarmStatus;
+import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.repository.UserAlarmStatusRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.auth.service.JwtProvider;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.dto.SocialLoginUserJoinRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.dto.UserRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.info.exception.DuplicateUsernameException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.exception.UserNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.SocialLoginUserRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.UserRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.auth.oauth2.dto.OAuth2JoinTokenSubject;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +24,7 @@ public class UserJoinServiceImpl implements UserJoinService {
     private final JwtProvider jwtProvider;
     private final SocialLoginUserRepository socialLoginUserRepository;
     private final UserRepository userRepository;
+    private final UserAlarmStatusRepository userAlarmStatusRepository;
 
     private final UserImageService userImageService;
 
@@ -48,7 +53,20 @@ public class UserJoinServiceImpl implements UserJoinService {
                 .nickName(userJoinRequest.getNickname())
                 .email(userJoinRequest.getEmail())
                 .build();
-        userRepository.save(user);
+        try {
+            userRepository.save(user);
+        } catch (DataIntegrityViolationException e) {
+            if(DuplicateUsernameException.check(e)) {
+                throw new DuplicateUsernameException();
+            }
+        }
+        userAlarmStatusRepository.save(
+                UserAlarmStatus.builder()
+                        .user(user)
+                        .totalAlarmCount(0L)
+                        .uncheckedAlarmCount(0L)
+                        .build()
+        );
         return user;
     }
 

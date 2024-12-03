@@ -4,8 +4,10 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.exception.CategoryNotFoundExceptio
 import com.BaGulBaGul.BaGulBaGul.domain.event.exception.EventNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.PostNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.exception.RecruitmentNotFoundException;
+import com.BaGulBaGul.BaGulBaGul.domain.report.exception.DuplicateReportException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.auth.exception.JoinTokenExpiredException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.auth.exception.JoinTokenValidationException;
+import com.BaGulBaGul.BaGulBaGul.domain.user.info.exception.DuplicateUsernameException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.exception.UserNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
 import com.BaGulBaGul.BaGulBaGul.global.exception.NoPermissionException;
@@ -96,12 +98,27 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /************************
+     *   신고
+     ************************/
+    //같은 대상에 대한 중복 신고
+    @ExceptionHandler(value = DuplicateReportException.class)
+    public ResponseEntity<Object> duplicateReport(DuplicateReportException e, WebRequest webRequest) {
+        return handleExceptionInternal(e, ResponseCode.REPORT_DUPLICATE, webRequest);
+    }
+
+    /************************
      *   유저
      ************************/
     //존재하지 않는 유저
     @ExceptionHandler(value = UserNotFoundException.class)
     public ResponseEntity<Object> userNotFound(UserNotFoundException e, WebRequest webRequest) {
         return handleExceptionInternal(e, ResponseCode.USER_NOT_FOUND, webRequest);
+    }
+
+    //유저 이름 중복
+    @ExceptionHandler(value = DuplicateUsernameException.class)
+    public ResponseEntity<Object> duplicateUsername(DuplicateUsernameException e, WebRequest webRequest) {
+        return handleExceptionInternal(e, ResponseCode.USER_DUPLICATE_USERNAME, webRequest);
     }
 
     //잘못된 조인 토큰

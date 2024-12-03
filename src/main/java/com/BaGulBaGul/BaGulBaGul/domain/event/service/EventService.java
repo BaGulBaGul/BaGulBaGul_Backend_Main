@@ -13,6 +13,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventSimpleResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
+import com.BaGulBaGul.BaGulBaGul.global.exception.NoPermissionException;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -37,4 +38,6 @@ public interface EventService {
     void addCategories(Event event, List<String> categoryNames);
     void addCategory(Event event, String categoryName);
     void addCategory(Event event, Category category);
+
+    void checkWritePermission(Long userId, Event event) throws NoPermissionException;
 }
