@@ -168,6 +168,7 @@ public class InitDummyDB implements ApplicationListener<ApplicationReadyEvent> {
                             .latitudeLocation(latitudeLocation)
                             .longitudeLocation(longitudeLocation)
                             .content(content)
+                            .ageLimit(rand.nextBoolean())
                             .startDate(startDate)
                             .endDate(endDate)
                             .tags(tagStr)
