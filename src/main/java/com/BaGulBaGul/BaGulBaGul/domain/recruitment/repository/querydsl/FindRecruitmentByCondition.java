@@ -1,6 +1,6 @@
 package com.BaGulBaGul.BaGulBaGul.domain.recruitment.repository.querydsl;
 
-import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentConditionalRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.request.RecruitmentConditionalRequest;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

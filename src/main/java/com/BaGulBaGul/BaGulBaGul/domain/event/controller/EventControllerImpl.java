@@ -1,13 +1,12 @@
 package com.BaGulBaGul.BaGulBaGul.domain.event.controller;
 
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventConditionalRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventDetailResponse;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventModifyRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventRegisterRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventRegisterResponse;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventSimpleResponse;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.GetLikeEventRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.GetLikeEventResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventConditionalRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.EventDetailResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.EventSimpleResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.GetLikeEventRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.GetLikeEventResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.request.EventModifyApiRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.request.EventPageApiRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.request.EventRegisterApiRequest;

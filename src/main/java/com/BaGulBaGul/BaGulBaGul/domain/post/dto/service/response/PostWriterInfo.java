@@ -1,4 +1,4 @@
-package com.BaGulBaGul.BaGulBaGul.domain.post.dto;
+package com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.response;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import io.swagger.annotations.ApiModelProperty;

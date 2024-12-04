@@ -1,12 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.domain.event.repository.querydsl;
 
-import com.BaGulBaGul.BaGulBaGul.domain.event.Event;
-import com.BaGulBaGul.BaGulBaGul.domain.event.QCategory;
 import com.BaGulBaGul.BaGulBaGul.domain.event.QEvent;
-import com.BaGulBaGul.BaGulBaGul.domain.event.QEventCategory;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventConditionalRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.post.QPost;
-import com.BaGulBaGul.BaGulBaGul.domain.user.QUser;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventConditionalRequest;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;

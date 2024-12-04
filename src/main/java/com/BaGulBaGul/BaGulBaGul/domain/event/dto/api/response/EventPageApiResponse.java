@@ -1,8 +1,8 @@
 package com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response;
 
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventSimpleInfo;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventSimpleResponse;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostSimpleInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.EventSimpleInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.EventSimpleResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.response.PostSimpleInfo;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

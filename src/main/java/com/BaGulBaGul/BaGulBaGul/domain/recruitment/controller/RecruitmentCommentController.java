@@ -12,9 +12,8 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.PostCommentDetailR
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.PostCommentRegisterResponse;
-import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentIdResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.api.response.RecruitmentIdApiResponse;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
-import io.swagger.annotations.Api;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -34,5 +33,5 @@ public interface RecruitmentCommentController {
     ApiResponse<LikeCountResponse> addLikeToCommentChild(Long commentChildId, Long userId);
     ApiResponse<LikeCountResponse> deleteLikeToCommentChild(Long commentChildId, Long userId);
     ApiResponse<IsMyLikeResponse> isMyLikeCommentChild(Long commentChildId, Long userId);
-    ApiResponse<RecruitmentIdResponse> getRecruitmentIdFromCommentId(Long commentId);
+    ApiResponse<RecruitmentIdApiResponse> getRecruitmentIdFromCommentId(Long commentId);
 }

@@ -1,4 +1,4 @@
-package com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request;
+package com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.request;
 
 import com.BaGulBaGul.BaGulBaGul.domain.event.constant.EventType;
 import java.time.LocalDateTime;

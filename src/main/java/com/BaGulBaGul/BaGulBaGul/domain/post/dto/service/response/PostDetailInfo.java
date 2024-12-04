@@ -1,4 +1,4 @@
-package com.BaGulBaGul.BaGulBaGul.domain.post.dto;
+package com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.response;
 
 import io.swagger.annotations.ApiModelProperty;
 import java.time.LocalDateTime;

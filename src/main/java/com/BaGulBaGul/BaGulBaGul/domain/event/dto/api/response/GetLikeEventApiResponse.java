@@ -1,7 +1,6 @@
 package com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response;
 
-import com.BaGulBaGul.BaGulBaGul.domain.event.Event;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.GetLikeEventResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.GetLikeEventResponse;
 import io.swagger.annotations.ApiModelProperty;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;

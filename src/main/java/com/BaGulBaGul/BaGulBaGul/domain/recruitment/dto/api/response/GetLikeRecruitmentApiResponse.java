@@ -1,7 +1,6 @@
 package com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.api.response;
 
-import com.BaGulBaGul.BaGulBaGul.domain.recruitment.Recruitment;
-import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.GetLikeRecruitmentResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.response.GetLikeRecruitmentResponse;
 import io.swagger.annotations.ApiModelProperty;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;

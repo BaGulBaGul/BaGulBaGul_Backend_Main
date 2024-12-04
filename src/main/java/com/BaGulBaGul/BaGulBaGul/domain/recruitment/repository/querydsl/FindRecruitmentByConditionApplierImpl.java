@@ -6,7 +6,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.QEvent;
 import com.BaGulBaGul.BaGulBaGul.domain.post.QPost;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.queryDSL.FindPostByConditionApplier;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.QRecruitment;
-import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentConditionalRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.request.RecruitmentConditionalRequest;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;

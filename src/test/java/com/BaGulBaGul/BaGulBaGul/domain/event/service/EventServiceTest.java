@@ -8,13 +8,11 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import com.BaGulBaGul.BaGulBaGul.domain.event.Event;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventModifyRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.repository.EventRepository;
-import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
 import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostService;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.service.UserJoinService;

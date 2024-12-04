@@ -1,6 +1,6 @@
 package com.BaGulBaGul.BaGulBaGul.domain.event.repository.querydsl;
 
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventConditionalRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventConditionalRequest;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

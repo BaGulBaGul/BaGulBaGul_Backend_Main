@@ -1,6 +1,6 @@
-package com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto;
+package com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.request;
 
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.request.PostModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.constant.RecruitmentState;
 import io.swagger.annotations.ApiModelProperty;
 import java.time.LocalDateTime;

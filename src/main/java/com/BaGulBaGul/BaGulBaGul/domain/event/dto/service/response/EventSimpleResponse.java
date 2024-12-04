@@ -1,13 +1,7 @@
-package com.BaGulBaGul.BaGulBaGul.domain.event.dto;
+package com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response;
 
-import com.BaGulBaGul.BaGulBaGul.domain.event.Event;
-import com.BaGulBaGul.BaGulBaGul.domain.event.constant.EventType;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostSimpleInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.response.PostSimpleInfo;
 import io.swagger.annotations.ApiModelProperty;
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

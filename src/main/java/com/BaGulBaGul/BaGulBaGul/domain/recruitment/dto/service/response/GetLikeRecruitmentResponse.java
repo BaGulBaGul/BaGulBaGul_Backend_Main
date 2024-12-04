@@ -1,4 +1,4 @@
-package com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto;
+package com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.response;
 
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.Recruitment;
 import io.swagger.annotations.ApiModelProperty;

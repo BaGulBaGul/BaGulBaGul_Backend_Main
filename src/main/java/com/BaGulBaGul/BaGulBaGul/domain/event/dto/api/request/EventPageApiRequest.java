@@ -1,8 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.request;
 
 import com.BaGulBaGul.BaGulBaGul.domain.event.constant.EventType;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventConditionalRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostConditionalRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventConditionalRequest;
 import io.swagger.annotations.ApiModelProperty;
 import java.time.LocalDateTime;
 import java.util.List;

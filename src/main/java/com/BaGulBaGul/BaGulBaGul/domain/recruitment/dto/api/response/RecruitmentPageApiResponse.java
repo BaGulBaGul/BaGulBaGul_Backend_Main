@@ -1,8 +1,8 @@
 package com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.api.response;
 
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostSimpleInfo;
-import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentSimpleInfo;
-import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentSimpleResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.response.PostSimpleInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.response.RecruitmentSimpleInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.response.RecruitmentSimpleResponse;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

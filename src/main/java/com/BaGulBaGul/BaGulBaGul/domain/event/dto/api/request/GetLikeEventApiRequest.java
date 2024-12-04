@@ -1,7 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.request;
 
 import com.BaGulBaGul.BaGulBaGul.domain.event.constant.EventType;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.GetLikeEventRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.GetLikeEventRequest;
 import io.swagger.annotations.ApiModelProperty;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

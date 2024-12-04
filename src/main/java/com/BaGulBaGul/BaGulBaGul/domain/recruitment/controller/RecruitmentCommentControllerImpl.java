@@ -14,7 +14,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.PostCommentRegiste
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostCommentService;
-import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentIdResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.api.response.RecruitmentIdApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.service.RecruitmentCommentService;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
 import io.swagger.annotations.Api;
@@ -300,12 +300,12 @@ public class RecruitmentCommentControllerImpl implements RecruitmentCommentContr
     @Operation(summary = "어떤 댓글이 속한 모집글의 id를 조회",
             description = ""
     )
-    public ApiResponse<RecruitmentIdResponse> getRecruitmentIdFromCommentId(
+    public ApiResponse<RecruitmentIdApiResponse> getRecruitmentIdFromCommentId(
             @PathVariable(name = "commentId") Long commentId
     ) {
         Long recruitmentId = recruitmentCommentService.getRecruitmentIdFromCommentId(commentId);
         return ApiResponse.of(
-                RecruitmentIdResponse.builder()
+                RecruitmentIdApiResponse.builder()
                         .recruitmentId(recruitmentId)
                         .build()
         );

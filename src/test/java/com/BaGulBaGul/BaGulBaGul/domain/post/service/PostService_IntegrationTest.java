@@ -4,13 +4,12 @@ package com.BaGulBaGul.BaGulBaGul.domain.post.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostModifyRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.request.PostModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.request.PostRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.sampledata.PostSample;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;

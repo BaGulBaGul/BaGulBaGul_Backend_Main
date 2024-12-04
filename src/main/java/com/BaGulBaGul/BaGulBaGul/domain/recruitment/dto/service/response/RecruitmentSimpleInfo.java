@@ -1,4 +1,4 @@
-package com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto;
+package com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.response;
 
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.constant.RecruitmentState;
 import io.swagger.annotations.ApiModelProperty;
@@ -7,18 +7,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
-public class RecruitmentDetailInfo {
-
+public class RecruitmentSimpleInfo {
     @ApiModelProperty(value = "모잡글 id")
     private Long recruitmentId;
-
-    @ApiModelProperty(value = "이벤트 id")
-    private Long eventId;
 
     @ApiModelProperty(value = "모집 상태")
     private RecruitmentState state;
@@ -30,9 +27,10 @@ public class RecruitmentDetailInfo {
     private Integer maxHeadCount;
 
     @ApiModelProperty(value = "시작 시간")
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime startDate;
 
     @ApiModelProperty(value = "종료 시간")
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime endDate;
-
 }

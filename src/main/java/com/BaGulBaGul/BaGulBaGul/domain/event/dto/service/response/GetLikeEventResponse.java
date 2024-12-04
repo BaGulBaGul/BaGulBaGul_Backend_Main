@@ -1,4 +1,4 @@
-package com.BaGulBaGul.BaGulBaGul.domain.event.dto;
+package com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response;
 
 import com.BaGulBaGul.BaGulBaGul.domain.event.Event;
 import io.swagger.annotations.ApiModelProperty;

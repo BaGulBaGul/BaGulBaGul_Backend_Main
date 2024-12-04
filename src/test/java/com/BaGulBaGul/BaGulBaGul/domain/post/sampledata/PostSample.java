@@ -1,7 +1,5 @@
 package com.BaGulBaGul.BaGulBaGul.domain.post.sampledata;
 
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostRegisterRequest;
-import java.util.ArrayList;
 import java.util.List;
 
 public class PostSample {

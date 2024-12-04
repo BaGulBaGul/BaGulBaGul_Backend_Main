@@ -1,4 +1,4 @@
-package com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request;
+package com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.request;
 
 import java.util.List;
 import javax.validation.constraints.NotBlank;
