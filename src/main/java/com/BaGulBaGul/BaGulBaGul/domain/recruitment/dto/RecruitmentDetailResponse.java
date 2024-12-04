@@ -1,12 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto;
 
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostDetailInfo;
-import com.BaGulBaGul.BaGulBaGul.domain.recruitment.Recruitment;
-import com.BaGulBaGul.BaGulBaGul.domain.recruitment.constant.RecruitmentState;
 import io.swagger.annotations.ApiModelProperty;
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

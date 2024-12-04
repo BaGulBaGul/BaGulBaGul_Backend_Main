@@ -1,5 +1,6 @@
-package com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto;
+package com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.api.request;
 
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentConditionalRequest;
 import io.swagger.annotations.ApiModelProperty;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -13,7 +14,7 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RecruitmentConditionalApiRequest {
+public class RecruitmentPageApiRequest {
 
     @ApiModelProperty(value = "모집글이 속한 이벤트의 id")
     private Long eventId;
