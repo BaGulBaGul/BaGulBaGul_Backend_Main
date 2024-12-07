@@ -2,6 +2,7 @@ package com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.request;
 
 import com.BaGulBaGul.BaGulBaGul.domain.event.constant.EventType;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventConditionalRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.request.PostConditionalRequest;
 import io.swagger.annotations.ApiModelProperty;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -53,6 +54,22 @@ public class EventPageApiRequest {
     private Integer maxHeadCountMax;
 
     public EventConditionalRequest toEventConditionalRequest() {
-        throw new UnsupportedOperationException();
+        return EventConditionalRequest.builder()
+                .type(type)
+                .categories(categories)
+                .location(location)
+                .startDate(startDate)
+                .endDate(endDate)
+                .leftHeadCount(leftHeadCount)
+                .maxHeadCountMin(maxHeadCountMin)
+                .maxHeadCountMax(maxHeadCountMax)
+                .postConditionalRequest(
+                        PostConditionalRequest.builder()
+                                .title(title)
+                                .username(username)
+                                .tags(tags)
+                                .build()
+                )
+                .build();
     }
 }

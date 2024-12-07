@@ -16,6 +16,7 @@ import com.BaGulBaGul.BaGulBaGul.global.response.ResponseCode;
 import com.BaGulBaGul.BaGulBaGul.global.upload.exception.NotImageException;
 import com.BaGulBaGul.BaGulBaGul.global.upload.exception.ResourceNotFoundException;
 import java.text.MessageFormat;
+import javax.validation.ConstraintViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -65,6 +66,17 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
                 .build();
         return handleExceptionInternal(ex, responseCode, request);
     }
+    @ExceptionHandler(value = ConstraintViolationException.class)
+    protected ResponseEntity<Object> handleConstraintViolationException(ConstraintViolationException ex,
+                                                                        WebRequest request) {
+        ResponseCode responseCode = ResponseCode.builder()
+                .code(ResponseCode.BAD_REQUEST.getCode())
+                .httpStatus(ResponseCode.BAD_REQUEST.getHttpStatus())
+                .message(ex.getMessage())
+                .build();
+        return handleExceptionInternal(ex, responseCode, request);
+    }
+
     /************************
      *   이벤트
      ************************/

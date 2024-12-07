@@ -9,6 +9,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import com.BaGulBaGul.BaGulBaGul.domain.common.dto.request.LocationModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.common.dto.request.ParticipantStatusModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.common.dto.request.PeriodModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.Event;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventRegisterRequest;
@@ -62,18 +65,7 @@ class EventServiceTest {
         void shouldOK() {
             //given
             User user = userJoinService.registerUser(UserSample.NORMAL_USER_REGISTER_REQUEST);
-            EventRegisterRequest eventRegisterRequest = EventRegisterRequest.builder()
-                    .type(NORMAL_EVENT_TYPE)
-                    .maxHeadCount(NORMAL_MAX_HEAD_COUNT)
-                    .fullLocation(NORMAL_FULL_LOCATION)
-                    .abstractLocation(NORMAL_ABSTRACT_LOCATION)
-                    .latitudeLocation(NORMAL_LATITUDE_LOCATION)
-                    .longitudeLocation(NORMAL_LONGITUDE_LOCATION)
-                    .ageLimit(NORMAL_AGE_LIMIT)
-                    .startDate(NORMAL_START_DATE)
-                    .endDate(NORMAL_END_DATE)
-                    .categories(NORMAL_CATEGORIES)
-                    .build();
+            EventRegisterRequest eventRegisterRequest = NORMAL_REGISTER_REQUEST;
 
             //when
             Long eventId = eventService.registerEvent(user.getId(), eventRegisterRequest);
@@ -81,16 +73,16 @@ class EventServiceTest {
 
             //then
             assertThat(event.getType()).isEqualTo(eventRegisterRequest.getType());
-            assertThat(event.getMaxHeadCount()).isEqualTo(eventRegisterRequest.getMaxHeadCount());
-            assertThat(event.getFullLocation()).isEqualTo(eventRegisterRequest.getFullLocation());
-            assertThat(event.getAbstractLocation()).isEqualTo(eventRegisterRequest.getAbstractLocation());
-            assertThat(event.getLatitudeLocation()).isEqualTo(eventRegisterRequest.getLatitudeLocation());
-            assertThat(event.getLongitudeLocation()).isEqualTo(eventRegisterRequest.getLongitudeLocation());
             assertThat(event.getAgeLimit()).isEqualTo(eventRegisterRequest.getAgeLimit());
-            assertThat(event.getStartDate()).isEqualTo(eventRegisterRequest.getStartDate());
-            assertThat(event.getEndDate()).isEqualTo(eventRegisterRequest.getEndDate());
+            assertThat(event.getMaxHeadCount()).isEqualTo(eventRegisterRequest.getParticipantStatusRegisterRequest().getMaxHeadCount());
             assertThat(event.getCategories().stream().map(x -> x.getCategory().getName()).collect(Collectors.toList()))
                     .contains(eventRegisterRequest.getCategories().toArray(new String[0]));
+            assertThat(event.getFullLocation()).isEqualTo(eventRegisterRequest.getLocationRegisterRequest().getFullLocation());
+            assertThat(event.getAbstractLocation()).isEqualTo(eventRegisterRequest.getLocationRegisterRequest().getAbstractLocation());
+            assertThat(event.getLatitudeLocation()).isEqualTo(eventRegisterRequest.getLocationRegisterRequest().getLatitudeLocation());
+            assertThat(event.getLongitudeLocation()).isEqualTo(eventRegisterRequest.getLocationRegisterRequest().getLongitudeLocation());
+            assertThat(event.getStartDate()).isEqualTo(eventRegisterRequest.getPeriodRegisterRequest().getStartDate());
+            assertThat(event.getEndDate()).isEqualTo(eventRegisterRequest.getPeriodRegisterRequest().getEndDate());
             verify(postService, times(1)).registerPost(eq(user), any());
         }
     }
@@ -111,30 +103,25 @@ class EventServiceTest {
         void shouldChangeAll() {
             //given
             User user = userJoinService.registerUser(UserSample.NORMAL_USER_REGISTER_REQUEST);
-            EventRegisterRequest eventRegisterRequest = EventRegisterRequest.builder()
-                    .type(NORMAL_EVENT_TYPE)
-                    .maxHeadCount(NORMAL_MAX_HEAD_COUNT)
-                    .fullLocation(NORMAL_FULL_LOCATION)
-                    .abstractLocation(NORMAL_ABSTRACT_LOCATION)
-                    .latitudeLocation(NORMAL_LATITUDE_LOCATION)
-                    .longitudeLocation(NORMAL_LONGITUDE_LOCATION)
-                    .ageLimit(NORMAL_AGE_LIMIT)
-                    .startDate(NORMAL_START_DATE)
-                    .endDate(NORMAL_END_DATE)
-                    .categories(NORMAL_CATEGORIES)
-                    .build();
+            EventRegisterRequest eventRegisterRequest = NORMAL_REGISTER_REQUEST;
             EventModifyRequest eventModifyRequest = EventModifyRequest.builder()
                     .type(NORMAL2_EVENT_TYPE)
-                    .maxHeadCount(JsonNullable.of(NORMAL2_MAX_HEAD_COUNT))
-                    .currentHeadCount(JsonNullable.of(NORMAL2_CURRENT_HEAD_COUNT))
-                    .fullLocation(NORMAL2_FULL_LOCATION)
-                    .abstractLocation(NORMAL2_ABSTRACT_LOCATION)
-                    .latitudeLocation(NORMAL2_LATITUDE_LOCATION)
-                    .longitudeLocation(NORMAL2_LONGITUDE_LOCATION)
                     .ageLimit(NORMAL2_AGE_LIMIT)
-                    .startDate(NORMAL2_START_DATE)
-                    .endDate(NORMAL2_END_DATE)
                     .categories(NORMAL2_CATEGORIES)
+                    .locationModifyRequest(LocationModifyRequest.builder()
+                            .fullLocation(JsonNullable.of(NORMAL2_FULL_LOCATION))
+                            .abstractLocation(JsonNullable.of(NORMAL2_ABSTRACT_LOCATION))
+                            .latitudeLocation(JsonNullable.of(NORMAL2_LATITUDE_LOCATION))
+                            .longitudeLocation(JsonNullable.of(NORMAL2_LONGITUDE_LOCATION))
+                            .build())
+                    .participantStatusModifyRequest(ParticipantStatusModifyRequest.builder()
+                            .maxHeadCount(JsonNullable.of(NORMAL2_MAX_HEAD_COUNT))
+                            .currentHeadCount(JsonNullable.of(NORMAL2_CURRENT_HEAD_COUNT))
+                            .build())
+                    .periodModifyRequest(PeriodModifyRequest.builder()
+                            .startDate(JsonNullable.of(NORMAL2_START_DATE))
+                            .endDate(JsonNullable.of(NORMAL2_END_DATE))
+                            .build())
                     .build();
             Long eventId = eventService.registerEvent(user.getId(), eventRegisterRequest);
 
@@ -146,17 +133,30 @@ class EventServiceTest {
 
             //then
             assertThat(event.getType()).isEqualTo(eventModifyRequest.getType());
-            assertThat(event.getMaxHeadCount()).isEqualTo(eventModifyRequest.getMaxHeadCount().get());
-            assertThat(event.getCurrentHeadCount()).isEqualTo(eventModifyRequest.getCurrentHeadCount().get());
-            assertThat(event.getFullLocation()).isEqualTo(eventModifyRequest.getFullLocation());
-            assertThat(event.getAbstractLocation()).isEqualTo(eventModifyRequest.getAbstractLocation());
-            assertThat(event.getLatitudeLocation()).isEqualTo(eventModifyRequest.getLatitudeLocation());
-            assertThat(event.getLongitudeLocation()).isEqualTo(eventModifyRequest.getLongitudeLocation());
             assertThat(event.getAgeLimit()).isEqualTo(eventModifyRequest.getAgeLimit());
-            assertThat(event.getStartDate()).isEqualTo(eventModifyRequest.getStartDate());
-            assertThat(event.getEndDate()).isEqualTo(eventModifyRequest.getEndDate());
-            assertThat(event.getCategories().stream().map(x -> x.getCategory().getName()).collect(Collectors.toList()))
+            assertThat(event.getCategories().stream()
+                    .map(x -> x.getCategory().getName()).collect(Collectors.toList()))
                     .contains(eventModifyRequest.getCategories().toArray(new String[0]));
+
+            assertThat(event.getFullLocation())
+                    .isEqualTo(eventModifyRequest.getLocationModifyRequest().getFullLocation().get());
+            assertThat(event.getAbstractLocation())
+                    .isEqualTo(eventModifyRequest.getLocationModifyRequest().getAbstractLocation().get());
+            assertThat(event.getLatitudeLocation())
+                    .isEqualTo(eventModifyRequest.getLocationModifyRequest().getLatitudeLocation().get());
+            assertThat(event.getLongitudeLocation())
+                    .isEqualTo(eventModifyRequest.getLocationModifyRequest().getLongitudeLocation().get());
+
+            assertThat(event.getMaxHeadCount())
+                    .isEqualTo(eventModifyRequest.getParticipantStatusModifyRequest().getMaxHeadCount().get());
+            assertThat(event.getCurrentHeadCount())
+                    .isEqualTo(eventModifyRequest.getParticipantStatusModifyRequest().getCurrentHeadCount().get());
+
+            assertThat(event.getStartDate())
+                    .isEqualTo(eventModifyRequest.getPeriodModifyRequest().getStartDate().get());
+            assertThat(event.getEndDate())
+                    .isEqualTo(eventModifyRequest.getPeriodModifyRequest().getEndDate().get());
+
             verify(postService, times(1)).modifyPost(any(), any());
         }
 
@@ -166,18 +166,7 @@ class EventServiceTest {
         void shouldChangeNothing() {
             //given
             User user = userJoinService.registerUser(UserSample.NORMAL_USER_REGISTER_REQUEST);
-            EventRegisterRequest eventRegisterRequest = EventRegisterRequest.builder()
-                    .type(NORMAL_EVENT_TYPE)
-                    .maxHeadCount(NORMAL_MAX_HEAD_COUNT)
-                    .fullLocation(NORMAL_FULL_LOCATION)
-                    .abstractLocation(NORMAL_ABSTRACT_LOCATION)
-                    .latitudeLocation(NORMAL_LATITUDE_LOCATION)
-                    .longitudeLocation(NORMAL_LONGITUDE_LOCATION)
-                    .ageLimit(NORMAL_AGE_LIMIT)
-                    .startDate(NORMAL_START_DATE)
-                    .endDate(NORMAL_END_DATE)
-                    .categories(NORMAL_CATEGORIES)
-                    .build();
+            EventRegisterRequest eventRegisterRequest = NORMAL_REGISTER_REQUEST;
             EventModifyRequest eventModifyRequest = EventModifyRequest.builder()
                     .build();
             Long eventId = eventService.registerEvent(user.getId(), eventRegisterRequest);
@@ -190,16 +179,26 @@ class EventServiceTest {
 
             //then
             assertThat(event.getType()).isEqualTo(eventRegisterRequest.getType());
-            assertThat(event.getMaxHeadCount()).isEqualTo(eventRegisterRequest.getMaxHeadCount());
-            assertThat(event.getFullLocation()).isEqualTo(eventRegisterRequest.getFullLocation());
-            assertThat(event.getAbstractLocation()).isEqualTo(eventRegisterRequest.getAbstractLocation());
-            assertThat(event.getLatitudeLocation()).isEqualTo(eventRegisterRequest.getLatitudeLocation());
-            assertThat(event.getLongitudeLocation()).isEqualTo(eventRegisterRequest.getLongitudeLocation());
             assertThat(event.getAgeLimit()).isEqualTo(eventRegisterRequest.getAgeLimit());
-            assertThat(event.getStartDate()).isEqualTo(eventRegisterRequest.getStartDate());
-            assertThat(event.getEndDate()).isEqualTo(eventRegisterRequest.getEndDate());
-            assertThat(event.getCategories().stream().map(x -> x.getCategory().getName()).collect(Collectors.toList()))
+            assertThat(event.getCategories().stream()
+                    .map(x -> x.getCategory().getName()).collect(Collectors.toList()))
                     .contains(eventRegisterRequest.getCategories().toArray(new String[0]));
+
+            assertThat(event.getFullLocation())
+                    .isEqualTo(eventRegisterRequest.getLocationRegisterRequest().getFullLocation());
+            assertThat(event.getAbstractLocation())
+                    .isEqualTo(eventRegisterRequest.getLocationRegisterRequest().getAbstractLocation());
+            assertThat(event.getLatitudeLocation())
+                    .isEqualTo(eventRegisterRequest.getLocationRegisterRequest().getLatitudeLocation());
+            assertThat(event.getLongitudeLocation())
+                    .isEqualTo(eventRegisterRequest.getLocationRegisterRequest().getLongitudeLocation());
+
+            assertThat(event.getMaxHeadCount())
+                    .isEqualTo(eventRegisterRequest.getParticipantStatusRegisterRequest().getMaxHeadCount());
+
+            assertThat(event.getStartDate()).isEqualTo(eventRegisterRequest.getPeriodRegisterRequest().getStartDate());
+            assertThat(event.getEndDate()).isEqualTo(eventRegisterRequest.getPeriodRegisterRequest().getEndDate());
+
             verify(postService, times(1)).modifyPost(any(), any());
         }
     }

@@ -14,7 +14,10 @@ import org.springframework.format.annotation.DateTimeFormat;
 @Builder
 @AllArgsConstructor
 public class PostConditionalRequest {
+    //요청 제목을 포함하는 이벤트 검색
     private String title;
+    //요청 태그를 모두 가진 이벤트 검색
     private List<String> tags;
+    //작성자 닉네임이 일치하는 이벤트 검색
     private String username;
 }

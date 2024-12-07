@@ -1,6 +1,10 @@
 package com.BaGulBaGul.BaGulBaGul.domain.event.sampledata;
 
+import com.BaGulBaGul.BaGulBaGul.domain.common.dto.request.LocationRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.common.dto.request.ParticipantStatusRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.common.dto.request.PeriodRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.constant.EventType;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventRegisterRequest;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.List;
@@ -22,7 +26,31 @@ public abstract class EventSample {
     );
     public static final List<String> NORMAL_CATEGORIES = List.of("문화/예술", "식품/음료");
 
-
+    public static EventRegisterRequest NORMAL_REGISTER_REQUEST = EventRegisterRequest.builder()
+            .type(NORMAL_EVENT_TYPE)
+            .ageLimit(NORMAL_AGE_LIMIT)
+            .categories(NORMAL_CATEGORIES)
+            .participantStatusRegisterRequest(
+                    ParticipantStatusRegisterRequest.builder()
+                            .currentHeadCount(null)
+                            .maxHeadCount(NORMAL_MAX_HEAD_COUNT)
+                            .build()
+            )
+            .locationRegisterRequest(
+                    LocationRegisterRequest.builder()
+                            .fullLocation(NORMAL_FULL_LOCATION)
+                            .abstractLocation(NORMAL_ABSTRACT_LOCATION)
+                            .latitudeLocation(NORMAL_LATITUDE_LOCATION)
+                            .longitudeLocation(NORMAL_LONGITUDE_LOCATION)
+                            .build()
+            )
+            .periodRegisterRequest(
+                    PeriodRegisterRequest.builder()
+                            .startDate(NORMAL_START_DATE)
+                            .endDate(NORMAL_END_DATE)
+                            .build()
+            )
+            .build();
 
     public static final EventType NORMAL2_EVENT_TYPE = EventType.PARTY;
     public static final Integer NORMAL2_MAX_HEAD_COUNT = 15;

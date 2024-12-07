@@ -21,6 +21,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.LikeCountResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
+import com.BaGulBaGul.BaGulBaGul.global.validation.ValidationUtil;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -65,9 +66,13 @@ public class EventControllerImpl implements EventController {
             EventPageApiRequest eventPageApiRequest,
             Pageable pageable
     ) {
+        //이벤트 조건검색 요청 변환 후 검증
         EventConditionalRequest eventConditionalRequest = eventPageApiRequest.toEventConditionalRequest();
+        ValidationUtil.validate(eventConditionalRequest);
+        //조건에 맞는 이벤트 페이지 검색
         Page<EventSimpleResponse> eventSimpleResponses = eventService.getEventPageByCondition(eventConditionalRequest,
                 pageable);
+        //api 응답 dto로 변환
         Page<EventPageApiResponse> eventPageApiResponse = eventSimpleResponses.map(EventPageApiResponse::from);
         return ApiResponse.of(eventPageApiResponse);
     }
@@ -82,7 +87,10 @@ public class EventControllerImpl implements EventController {
             @AuthenticationPrincipal Long userId,
             @RequestBody EventRegisterApiRequest eventRegisterApiRequest
     ) {
+        //이벤트 등록 요청 변환 후 검증
         EventRegisterRequest eventRegisterRequest = eventRegisterApiRequest.toEventRegisterRequest();
+        ValidationUtil.validate(eventRegisterRequest);
+        //이벤트 등록
         Long eventId = eventService.registerEvent(userId, eventRegisterRequest);
         return ApiResponse.of(new EventIdApiResponse(eventId));
     }
@@ -99,6 +107,7 @@ public class EventControllerImpl implements EventController {
             @RequestBody EventModifyApiRequest eventModifyApiRequest
     ) {
         EventModifyRequest eventModifyRequest = eventModifyApiRequest.toEventModifyRequest();
+        ValidationUtil.validate(eventModifyRequest);
         eventService.modifyEvent(eventId, userId, eventModifyRequest);
         return ApiResponse.of(null);
     }

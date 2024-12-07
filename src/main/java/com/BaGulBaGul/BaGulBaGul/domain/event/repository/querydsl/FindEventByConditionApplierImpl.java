@@ -90,7 +90,7 @@ public class FindEventByConditionApplierImpl implements FindEventByConditionAppl
         //post 관련 조건 적용
         QPost post = QPost.post;
         query.join(event.post, post);
-        findPostByConditionApplier.applyCondition(query, eventConditionalRequest.toPostConditionalRequest(), post);
+        findPostByConditionApplier.applyCondition(query, eventConditionalRequest.getPostConditionalRequest(), post);
         return query;
     }
 
