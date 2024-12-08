@@ -39,7 +39,7 @@ import org.springframework.transaction.annotation.Transactional;
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
 @ActiveProfiles("test2")
-class EventServiceTest {
+class EventService_IntegrationTest {
     @SpyBean
     EventService eventService;
 
