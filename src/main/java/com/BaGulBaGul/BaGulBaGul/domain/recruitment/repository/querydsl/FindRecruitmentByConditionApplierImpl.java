@@ -71,7 +71,7 @@ public class FindRecruitmentByConditionApplierImpl implements FindRecruitmentByC
         query.join(recruitment.post, post);
         findPostByConditionApplier.applyCondition(
                 query,
-                recruitmentConditionalRequest.toPostConditionalRequest(),
+                recruitmentConditionalRequest.getPostConditionalRequest(),
                 recruitment.post
         );
         return query;

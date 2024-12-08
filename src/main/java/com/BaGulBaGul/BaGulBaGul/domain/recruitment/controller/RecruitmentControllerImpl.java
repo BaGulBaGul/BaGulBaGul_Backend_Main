@@ -19,6 +19,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.api.response.Recruitment
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.service.RecruitmentService;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.IsMyLikeResponse;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
+import com.BaGulBaGul.BaGulBaGul.global.validation.ValidationUtil;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -57,7 +58,7 @@ public class RecruitmentControllerImpl implements RecruitmentController {
 
     @Override
     @GetMapping("/recruitment")
-    @Operation(summary = "어떤 이벤트에 속하면서 주어진 조건에 맞는 모집글을 페이징 조회",
+    @Operation(summary = "주어진 조건에 맞는 모집글을 페이징 조회",
             description = "페이징 관련 파라메터는 \n "
                     + "http://localhost:8080/api/event/recruitment?eventId=7&size=10&page=0&sort=likeCount,desc&sort=views,asc \n "
                     + "이런 식으로 넘기면 됨 \n "
@@ -69,12 +70,15 @@ public class RecruitmentControllerImpl implements RecruitmentController {
             RecruitmentPageApiRequest recruitmentPageApiRequest,
             Pageable pageable
     ) {
+        //모집글 조건 조회 요청 생성 후 검증
         RecruitmentConditionalRequest recruitmentConditionalRequest = recruitmentPageApiRequest.toRecruitmentConditionalRequest();
-
+        ValidationUtil.validate(recruitmentConditionalRequest);
+        //페이지 조회
         Page<RecruitmentSimpleResponse> recruitmentPageByCondition = recruitmentService.getRecruitmentPageByCondition(
                 recruitmentPageApiRequest.toRecruitmentConditionalRequest(),
                 pageable
         );
+        //페이지 api 응답 dto로 변환
         Page<RecruitmentPageApiResponse> responses = recruitmentPageByCondition.map(RecruitmentPageApiResponse::from);
         return ApiResponse.of(responses);
     }
@@ -90,7 +94,10 @@ public class RecruitmentControllerImpl implements RecruitmentController {
             @AuthenticationPrincipal Long userId,
             @RequestBody RecruitmentRegisterApiRequest recruitmentRegisterApiRequest
     ) {
+        //모집글 생성 요청 변환 후 검증
         RecruitmentRegisterRequest recruitmentRegisterRequest = recruitmentRegisterApiRequest.toRecruitmentRegisterRequest();
+        ValidationUtil.validate(recruitmentRegisterRequest);
+        //모집글 생성
         Long id = recruitmentService.registerRecruitment(eventId, userId, recruitmentRegisterRequest);
         return ApiResponse.of(new RecruitmentIdApiResponse(id));
     }
@@ -106,7 +113,10 @@ public class RecruitmentControllerImpl implements RecruitmentController {
             @AuthenticationPrincipal Long userId,
             @RequestBody RecruitmentModifyApiRequest recruitmentModifyApiRequest
     ) {
+        //모집글 수정 요청으로 변환 후 검증
         RecruitmentModifyRequest recruitmentModifyRequest = recruitmentModifyApiRequest.toRecruitmentModifyRequest();
+        ValidationUtil.validate(recruitmentModifyRequest);
+        //모집글 수정
         recruitmentService.modifyRecruitment(recruitmentId, userId, recruitmentModifyRequest);
         return ApiResponse.of(null);
     }
@@ -192,7 +202,9 @@ public class RecruitmentControllerImpl implements RecruitmentController {
             @AuthenticationPrincipal Long userId,
             Pageable pageable
     ) {
+        //좋아요 누른 페이지 검색
         Page<GetLikeRecruitmentResponse> myLikeRecruitments = recruitmentService.getMyLikeRecruitment(userId, pageable);
+        //api 응답 dto로 변환
         Page<GetLikeRecruitmentApiResponse> responses = myLikeRecruitments.map(GetLikeRecruitmentApiResponse::from);
         return ApiResponse.of(responses);
     }

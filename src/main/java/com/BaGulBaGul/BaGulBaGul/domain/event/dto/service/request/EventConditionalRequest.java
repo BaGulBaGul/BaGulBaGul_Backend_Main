@@ -5,6 +5,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.request.PostConditional
 import io.swagger.annotations.ApiModelProperty;
 import java.time.LocalDateTime;
 import java.util.List;
+import javax.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -44,5 +45,7 @@ public class EventConditionalRequest {
     private Integer maxHeadCountMax;
 
     //게시글 관련 검색
-    private PostConditionalRequest postConditionalRequest;
+    @Valid
+    @Builder.Default
+    private PostConditionalRequest postConditionalRequest = new PostConditionalRequest();
 }

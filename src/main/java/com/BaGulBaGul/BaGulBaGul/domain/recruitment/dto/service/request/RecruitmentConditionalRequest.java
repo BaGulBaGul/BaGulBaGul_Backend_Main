@@ -2,6 +2,7 @@ package com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.request;
 
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.request.PostConditionalRequest;
 import java.util.List;
+import javax.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,21 +16,12 @@ import lombok.Setter;
 @AllArgsConstructor
 public class RecruitmentConditionalRequest {
 
-    private String title;
-
-    private List<String> tags;
-
-    private String username;
+    private Long eventId;
 
     private Integer leftHeadCount;
 
-    private Long eventId;
+    @Valid
+    @Builder.Default
+    private PostConditionalRequest postConditionalRequest = new PostConditionalRequest();
 
-    public PostConditionalRequest toPostConditionalRequest() {
-        return PostConditionalRequest.builder()
-                .title(title)
-                .username(username)
-                .tags(tags)
-                .build();
-    }
 }

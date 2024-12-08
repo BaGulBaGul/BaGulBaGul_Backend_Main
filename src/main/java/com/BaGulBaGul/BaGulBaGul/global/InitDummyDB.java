@@ -273,13 +273,19 @@ public class InitDummyDB implements ApplicationListener<ApplicationReadyEvent> {
                     event.getId(),
                     writer.getId(),
                     RecruitmentRegisterRequest.builder()
-                            .maxHeadCount(maxHeadCount)
-                            .startDate(startDate)
-                            .endDate(endDate)
-                            .title(title)
-                            .content(content)
-                            .tags(tagStr)
-                            .imageIds(null)
+                            .periodRegisterRequest(PeriodRegisterRequest.builder()
+                                    .startDate(startDate)
+                                    .endDate(endDate)
+                                    .build())
+                            .participantStatusRegisterRequest(ParticipantStatusRegisterRequest.builder()
+                                    .maxHeadCount(maxHeadCount)
+                                    .build())
+                            .postRegisterRequest(PostRegisterRequest.builder()
+                                    .title(title)
+                                    .content(content)
+                                    .tags(tagStr)
+                                    .imageIds(null)
+                                    .build())
                             .build()
             );
 

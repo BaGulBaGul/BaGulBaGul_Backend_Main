@@ -1,5 +1,9 @@
 package com.BaGulBaGul.BaGulBaGul.domain.recruitment.service;
 
+import com.BaGulBaGul.BaGulBaGul.domain.common.dto.request.ParticipantStatusModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.common.dto.request.ParticipantStatusRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.common.dto.request.PeriodModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.common.dto.request.PeriodRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.Event;
 import com.BaGulBaGul.BaGulBaGul.domain.event.exception.EventNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.event.repository.EventRepository;
@@ -152,15 +156,19 @@ public class RecruitmentServiceImpl implements RecruitmentService {
     public Long registerRecruitment(Long eventId, Long userId, RecruitmentRegisterRequest recruitmentRegisterRequest) {
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException());
-        //게시글 생성
-        Post post = postService.registerPost(user, recruitmentRegisterRequest.toPostRegisterRequest());
+        //게시글 생성은 게시글 서비스에 위임
+        Post post = postService.registerPost(user, recruitmentRegisterRequest.getPostRegisterRequest());
+        //모집글 생성
+        ParticipantStatusRegisterRequest participantStatusRegisterRequest = recruitmentRegisterRequest
+                .getParticipantStatusRegisterRequest();
+        PeriodRegisterRequest periodRegisterRequest = recruitmentRegisterRequest.getPeriodRegisterRequest();
         Recruitment recruitment = Recruitment.builder()
                 .event(event)
                 .post(post)
                 .currentHeadCount(0)
-                .maxHeadCount(recruitmentRegisterRequest.getMaxHeadCount())
-                .startDate(recruitmentRegisterRequest.getStartDate())
-                .endDate(recruitmentRegisterRequest.getEndDate())
+                .maxHeadCount(participantStatusRegisterRequest.getMaxHeadCount())
+                .startDate(periodRegisterRequest.getStartDate())
+                .endDate(periodRegisterRequest.getEndDate())
                 .build();
         //저장
         recruitmentRepository.save(recruitment);
@@ -180,24 +188,29 @@ public class RecruitmentServiceImpl implements RecruitmentService {
         checkWritePermission(userId, recruitment);
 
         //patch 방식으로 recruitmentModifyRequest에서 null이 아닌 모든 필드를 변경
-        //jsonnullable의 경우 null값 가능. present를 확인하고 변경
+        //jsonnullable의 경우 null값 가능. isPresent를 확인하고 변경
         //post관련은 postService에 위임
-        postService.modifyPost(recruitment.getPost(), recruitmentModifyRequest.toPostModifyRequest());
+        postService.modifyPost(recruitment.getPost(), recruitmentModifyRequest.getPostModifyRequest());
         //나머지 recruitment관련 속성 변경
         if(recruitmentModifyRequest.getState() != null) {
             recruitment.setState(recruitmentModifyRequest.getState());
         }
-        if(recruitmentModifyRequest.getCurrentHeadCount().isPresent()) {
-            recruitment.setCurrentHeadCount(recruitmentModifyRequest.getCurrentHeadCount().get());
+        //참여자
+        ParticipantStatusModifyRequest participantStatusModifyRequest = recruitmentModifyRequest
+                .getParticipantStatusModifyRequest();
+        if(participantStatusModifyRequest.getCurrentHeadCount().isPresent()) {
+            recruitment.setCurrentHeadCount(participantStatusModifyRequest.getCurrentHeadCount().get());
         }
-        if(recruitmentModifyRequest.getMaxHeadCount().isPresent()) {
-            recruitment.setMaxHeadCount(recruitmentModifyRequest.getMaxHeadCount().get());
+        if(participantStatusModifyRequest.getMaxHeadCount().isPresent()) {
+            recruitment.setMaxHeadCount(participantStatusModifyRequest.getMaxHeadCount().get());
         }
-        if(recruitmentModifyRequest.getStartDate() != null) {
-            recruitment.setStartDate(recruitmentModifyRequest.getStartDate());
+        //모집 기간
+        PeriodModifyRequest periodModifyRequest = recruitmentModifyRequest.getPeriodModifyRequest();
+        if(periodModifyRequest.getStartDate().isPresent()) {
+            recruitment.setStartDate(periodModifyRequest.getStartDate().get());
         }
-        if(recruitmentModifyRequest.getEndDate() != null) {
-            recruitment.setEndDate(recruitmentModifyRequest.getEndDate());
+        if(periodModifyRequest.getEndDate().isPresent()) {
+            recruitment.setEndDate(periodModifyRequest.getEndDate().get());
         }
     }
 
