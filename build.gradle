@@ -40,9 +40,13 @@ dependencies {
 	implementation 'org.flywaydb:flyway-mysql'
 
 	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+	testCompileOnly 'org.projectlombok:lombok:1.18.12' // 테스트 의존성 추가
+	testAnnotationProcessor 'org.projectlombok:lombok:1.18.12' // 테스트 의존성 추가
+
 	runtimeOnly 'com.h2database:h2'
 	runtimeOnly 'com.mysql:mysql-connector-j'
-	annotationProcessor 'org.projectlombok:lombok'
+
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 
