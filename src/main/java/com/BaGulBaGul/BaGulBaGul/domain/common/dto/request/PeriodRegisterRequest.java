@@ -19,7 +19,7 @@ public class PeriodRegisterRequest {
 
     private LocalDateTime endDate;
 
-    @AssertTrue(message = "시작 날짜는 종료 날짜보다 빨라야 합니다.")
+    @AssertTrue(message = "시작 일시는 종료 일시보다 빨라야 합니다.")
     private boolean isStartDateBeforeEndDate() {
         return startDate == null || endDate == null || startDate.isBefore(endDate);
     }

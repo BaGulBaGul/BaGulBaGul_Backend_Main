@@ -140,8 +140,8 @@ public class InitDummyDB implements ApplicationListener<ApplicationReadyEvent> {
             String l2 = LOCATION_NAMES2.get(l1)[rand.nextInt(LOCATION_NAMES2.get(l1).length)];
             String fullLocation = l1 + " " + l2;
             String abstractLocation = fullLocation;
-            Float latitudeLocation = (float)(rand.nextInt(1000)) / 10;
-            Float longitudeLocation = (float)(rand.nextInt(1000)) / 10;
+            Float latitudeLocation = (float)(rand.nextInt(900)) / 10 * (rand.nextBoolean() ? -1 : 1);
+            Float longitudeLocation = (float)(rand.nextInt(1800)) / 10 * (rand.nextBoolean() ? -1 : 1);
 
             //작성자
             User writer = users.get(rand.nextInt(users.size()));

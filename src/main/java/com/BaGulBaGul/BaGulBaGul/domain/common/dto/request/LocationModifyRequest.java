@@ -1,5 +1,6 @@
 package com.BaGulBaGul.BaGulBaGul.domain.common.dto.request;
 
+import javax.validation.constraints.AssertTrue;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,4 +25,16 @@ public class LocationModifyRequest {
 
     @Builder.Default
     private JsonNullable<Float> longitudeLocation = JsonNullable.undefined();
+
+    @AssertTrue(message = "위도는 -90.0 ~ 90.0 사이의 소수여야 합니다.")
+    private boolean isValidLatitudeLocation() {
+        return latitudeLocation.isPresent() || latitudeLocation.get() == null &&
+                (latitudeLocation.get() >= -90f && latitudeLocation.get() <= 90f);
+    }
+
+    @AssertTrue(message = "경도는 -180.0 ~ 180.0 사이의 소수여야 합니다.")
+    private boolean isValidLongitudeLocation() {
+        return longitudeLocation.isPresent() || latitudeLocation.get() == null ||
+                (longitudeLocation.get() >= -180f && longitudeLocation.get() <= 180f);
+    }
 }

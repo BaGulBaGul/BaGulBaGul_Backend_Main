@@ -16,10 +16,15 @@ import com.BaGulBaGul.BaGulBaGul.global.response.ResponseCode;
 import com.BaGulBaGul.BaGulBaGul.global.upload.exception.NotImageException;
 import com.BaGulBaGul.BaGulBaGul.global.upload.exception.ResourceNotFoundException;
 import java.text.MessageFormat;
+import java.util.Set;
+import java.util.stream.Collectors;
+import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
+import org.hibernate.validator.internal.engine.ConstraintViolationImpl;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.TransactionSystemException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -73,6 +78,34 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
                 .code(ResponseCode.BAD_REQUEST.getCode())
                 .httpStatus(ResponseCode.BAD_REQUEST.getHttpStatus())
                 .message(ex.getMessage())
+                .build();
+        return handleExceptionInternal(ex, responseCode, request);
+    }
+
+    //트랜젝션 예외
+    @ExceptionHandler(TransactionSystemException.class)
+    public ResponseEntity<Object> handleTransactionSystemException(TransactionSystemException ex,
+                                                                   WebRequest request) {
+        Throwable cause = ex.getRootCause();
+        // 엔티티 검증 예외, ConstraintViolationException에 대한 처리
+        if (cause instanceof ConstraintViolationException) {
+            ConstraintViolationException constraintViolationException = (ConstraintViolationException) cause;
+            return handleEntityConstraintViolationException(constraintViolationException, request);
+        }
+        //그 외는 스프링 기본 예외와 같이 500
+        return internalServerError(ex, request);
+    }
+
+    //엔티티의 검증 예외에서 서버 내부 정보를 감추기 위한 처리
+    private ResponseEntity<Object> handleEntityConstraintViolationException(ConstraintViolationException ex,
+                                                                            WebRequest request) {
+        String errorMessage = ex.getConstraintViolations().stream()
+                .map(violation -> violation.getMessage())
+                .collect(Collectors.joining("\n"));
+        ResponseCode responseCode = ResponseCode.builder()
+                .code(ResponseCode.BAD_REQUEST.getCode())
+                .httpStatus(ResponseCode.BAD_REQUEST.getHttpStatus())
+                .message(errorMessage)
                 .build();
         return handleExceptionInternal(ex, responseCode, request);
     }

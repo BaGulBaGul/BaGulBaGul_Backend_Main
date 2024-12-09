@@ -22,11 +22,21 @@ public class ParticipantStatusRegisterRequest {
     @Min(value = 1, message = "모집 인원은 {value}명 이상이여야 합니다")
     private Integer maxHeadCount;
 
+    @AssertTrue(message = "참여 인원은 0명 이상이여야 합니다")
+    public boolean isCurrentHeadCountNonNegative() {
+        //값null이거나 0명 이상이여야 함
+        return currentHeadCount == null || currentHeadCount >= 0;
+    }
+
+    @AssertTrue(message = "모집 인원은 1명 이상이여야 합니다")
+    private boolean isMaxHeadCountPositive() {
+        //null이거나 1명 이상이여야 함
+        return maxHeadCount == null || maxHeadCount >= 1;
+    }
+
     @AssertTrue(message = "현재 인원이 모집 인원보다 클 수 없습니다")
     private boolean isCurrentHeadCount_LessThanOrEqual_MaxHeadCount() {
-        if(currentHeadCount == null || maxHeadCount == null) {
-            return true;
-        }
-        return currentHeadCount <= maxHeadCount;
+        //둘 중 하나라도 null일 경우 비교 무시
+        return currentHeadCount == null || maxHeadCount == null || currentHeadCount <= maxHeadCount;
     }
 }
