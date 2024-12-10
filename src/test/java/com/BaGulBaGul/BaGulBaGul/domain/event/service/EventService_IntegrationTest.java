@@ -16,6 +16,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.Event;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.repository.EventRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.event.sampledata.EventSample;
 import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostService;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.service.UserJoinService;
@@ -65,7 +66,7 @@ class EventService_IntegrationTest {
         void shouldOK() {
             //given
             User user = userJoinService.registerUser(UserSample.NORMAL_USER_REGISTER_REQUEST);
-            EventRegisterRequest eventRegisterRequest = NORMAL_REGISTER_REQUEST;
+            EventRegisterRequest eventRegisterRequest = EventSample.getNormalRegisterRequest();
 
             //when
             Long eventId = eventService.registerEvent(user.getId(), eventRegisterRequest);
@@ -103,7 +104,7 @@ class EventService_IntegrationTest {
         void shouldChangeAll() {
             //given
             User user = userJoinService.registerUser(UserSample.NORMAL_USER_REGISTER_REQUEST);
-            EventRegisterRequest eventRegisterRequest = NORMAL_REGISTER_REQUEST;
+            EventRegisterRequest eventRegisterRequest = EventSample.getNormalRegisterRequest();
             EventModifyRequest eventModifyRequest = EventModifyRequest.builder()
                     .type(NORMAL2_EVENT_TYPE)
                     .ageLimit(NORMAL2_AGE_LIMIT)
@@ -166,7 +167,7 @@ class EventService_IntegrationTest {
         void shouldChangeNothing() {
             //given
             User user = userJoinService.registerUser(UserSample.NORMAL_USER_REGISTER_REQUEST);
-            EventRegisterRequest eventRegisterRequest = NORMAL_REGISTER_REQUEST;
+            EventRegisterRequest eventRegisterRequest = EventSample.getNormalRegisterRequest();
             EventModifyRequest eventModifyRequest = EventModifyRequest.builder()
                     .build();
             Long eventId = eventService.registerEvent(user.getId(), eventRegisterRequest);

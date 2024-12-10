@@ -18,8 +18,8 @@ public class RecruitmentSample {
     public static final LocalDateTime NORMAL_END_DATE = LocalDateTime.of(
             2024, Month.NOVEMBER, 15, 17, 00);
 
-    public static final Recruitment NORMAL;
-    static {
+
+    public static Recruitment getNormal() {
         Recruitment recruitment = Recruitment.builder()
                 .currentHeadCount(NORMAL_CURRENT_HEAD_COUNT)
                 .maxHeadCount(NORMAL_MAX_HEAD_COUNT)
@@ -28,20 +28,23 @@ public class RecruitmentSample {
                 .build();
         recruitment.setState(NORMAL_RECRUITMENT_STATE);
         recruitment.setDeleted(NORMAL_DELETED);
-        NORMAL = recruitment;
+        return recruitment;
     }
 
-    public static final RecruitmentRegisterRequest NORMAL_REGISTER_REQUEST = RecruitmentRegisterRequest
-            .builder()
-            .periodRegisterRequest(PeriodRegisterRequest.builder()
-                    .startDate(NORMAL_START_DATE)
-                    .endDate(NORMAL_END_DATE)
-                    .build())
-            .participantStatusRegisterRequest(ParticipantStatusRegisterRequest.builder()
-                    .currentHeadCount(NORMAL_CURRENT_HEAD_COUNT)
-                    .maxHeadCount(NORMAL_MAX_HEAD_COUNT)
-                    .build())
-            .build();
+
+    public static RecruitmentRegisterRequest getNormalRegisterRequest() {
+        return RecruitmentRegisterRequest
+                .builder()
+                .periodRegisterRequest(PeriodRegisterRequest.builder()
+                        .startDate(NORMAL_START_DATE)
+                        .endDate(NORMAL_END_DATE)
+                        .build())
+                .participantStatusRegisterRequest(ParticipantStatusRegisterRequest.builder()
+                        .currentHeadCount(NORMAL_CURRENT_HEAD_COUNT)
+                        .maxHeadCount(NORMAL_MAX_HEAD_COUNT)
+                        .build())
+                .build();
+    }
 
     public static final RecruitmentState NORMAL2_RECRUITMENT_STATE = RecruitmentState.PROCEEDING;
     public static final Boolean NORMAL2_DELETED = false;

@@ -78,9 +78,9 @@ class RecruitmentService_IntegrationTest {
         void shouldOK() {
             //given
             User user = userJoinService.registerUser(UserSample.NORMAL_USER_REGISTER_REQUEST);
-            Long eventId = eventService.registerEvent(user.getId(), EventSample.NORMAL_REGISTER_REQUEST);
+            Long eventId = eventService.registerEvent(user.getId(), EventSample.getNormalRegisterRequest());
 
-            RecruitmentRegisterRequest recruitmentRegisterRequest = RecruitmentSample.NORMAL_REGISTER_REQUEST;
+            RecruitmentRegisterRequest recruitmentRegisterRequest = RecruitmentSample.getNormalRegisterRequest();
 
             //when
             Long recruitmentId = recruitmentService.registerRecruitment(eventId, user.getId(), recruitmentRegisterRequest);
@@ -120,9 +120,9 @@ class RecruitmentService_IntegrationTest {
         void shouldChangeAll() {
             //given
             User user = userJoinService.registerUser(UserSample.NORMAL_USER_REGISTER_REQUEST);
-            Long eventId = eventService.registerEvent(user.getId(), EventSample.NORMAL_REGISTER_REQUEST);
+            Long eventId = eventService.registerEvent(user.getId(), EventSample.getNormalRegisterRequest());
 
-            RecruitmentRegisterRequest recruitmentRegisterRequest = RecruitmentSample.NORMAL_REGISTER_REQUEST;
+            RecruitmentRegisterRequest recruitmentRegisterRequest = RecruitmentSample.getNormalRegisterRequest();
             Long recruitmentId = recruitmentService.registerRecruitment(
                     eventId, user.getId(), recruitmentRegisterRequest);
 
@@ -168,9 +168,9 @@ class RecruitmentService_IntegrationTest {
         void shouldChangeNothing() {
             //given
             User user = userJoinService.registerUser(UserSample.NORMAL_USER_REGISTER_REQUEST);
-            Long eventId = eventService.registerEvent(user.getId(), EventSample.NORMAL_REGISTER_REQUEST);
+            Long eventId = eventService.registerEvent(user.getId(), EventSample.getNormalRegisterRequest());
 
-            RecruitmentRegisterRequest recruitmentRegisterRequest = RecruitmentSample.NORMAL_REGISTER_REQUEST;
+            RecruitmentRegisterRequest recruitmentRegisterRequest = RecruitmentSample.getNormalRegisterRequest();
             RecruitmentModifyRequest recruitmentModifyRequest = RecruitmentModifyRequest.builder()
                     .build();
             Long recruitmentId = recruitmentService.registerRecruitment(eventId,

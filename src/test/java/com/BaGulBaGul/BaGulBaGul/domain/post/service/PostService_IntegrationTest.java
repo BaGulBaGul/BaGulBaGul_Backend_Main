@@ -64,7 +64,7 @@ class PostService_IntegrationTest {
         void shouldOK() {
             //given
             User user = userJoinService.registerUser(UserSample.NORMAL_USER_REGISTER_REQUEST);
-            PostRegisterRequest postRegisterRequest = PostSample.NORMAL_REGISTER_REQUEST;
+            PostRegisterRequest postRegisterRequest = PostSample.getNormalRegisterRequest();
 
             //when
             Post post = postService.registerPost(user, postRegisterRequest);
@@ -91,7 +91,7 @@ class PostService_IntegrationTest {
         void shouldOK() {
             //given
             User user = userJoinService.registerUser(UserSample.NORMAL_USER_REGISTER_REQUEST);
-            PostRegisterRequest postRegisterRequest = PostSample.NORMAL_REGISTER_REQUEST;
+            PostRegisterRequest postRegisterRequest = PostSample.getNormalRegisterRequest();
             PostModifyRequest postModifyRequest = PostModifyRequest.builder()
                     .title(PostSample.NORMAL2_TITLE)
                     .content(PostSample.NORMAL2_CONTENT)

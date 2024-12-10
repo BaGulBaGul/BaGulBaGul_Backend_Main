@@ -38,8 +38,7 @@ public abstract class EventSample {
     public static final List<String> NORMAL_CATEGORIES = List.of("문화/예술", "식품/음료");
 
     //정상 이벤트
-    public static Event NORMAL;
-    static {
+    public static Event getNORMAL() {
         Event event = Event.builder()
                 .type(NORMAL_EVENT_TYPE)
                 .ageLimit(NORMAL_AGE_LIMIT)
@@ -60,36 +59,38 @@ public abstract class EventSample {
         event.getCategories().addAll(categories);
         //삭제됨 필드 설정
         event.setDeleted(NORMAL_DELETED);
-        //NORMAL 설정
-        NORMAL = event;
+        return event;
     }
 
+
     //정상 이벤트 생성 요청
-    public static EventRegisterRequest NORMAL_REGISTER_REQUEST = EventRegisterRequest.builder()
-            .type(NORMAL_EVENT_TYPE)
-            .ageLimit(NORMAL_AGE_LIMIT)
-            .categories(NORMAL_CATEGORIES)
-            .participantStatusRegisterRequest(
-                    ParticipantStatusRegisterRequest.builder()
-                            .currentHeadCount(null)
-                            .maxHeadCount(NORMAL_MAX_HEAD_COUNT)
-                            .build()
-            )
-            .locationRegisterRequest(
-                    LocationRegisterRequest.builder()
-                            .fullLocation(NORMAL_FULL_LOCATION)
-                            .abstractLocation(NORMAL_ABSTRACT_LOCATION)
-                            .latitudeLocation(NORMAL_LATITUDE_LOCATION)
-                            .longitudeLocation(NORMAL_LONGITUDE_LOCATION)
-                            .build()
-            )
-            .periodRegisterRequest(
-                    PeriodRegisterRequest.builder()
-                            .startDate(NORMAL_START_DATE)
-                            .endDate(NORMAL_END_DATE)
-                            .build()
-            )
-            .build();
+    public static EventRegisterRequest getNormalRegisterRequest() {
+        return EventRegisterRequest.builder()
+                .type(NORMAL_EVENT_TYPE)
+                .ageLimit(NORMAL_AGE_LIMIT)
+                .categories(NORMAL_CATEGORIES)
+                .participantStatusRegisterRequest(
+                        ParticipantStatusRegisterRequest.builder()
+                                .currentHeadCount(null)
+                                .maxHeadCount(NORMAL_MAX_HEAD_COUNT)
+                                .build()
+                )
+                .locationRegisterRequest(
+                        LocationRegisterRequest.builder()
+                                .fullLocation(NORMAL_FULL_LOCATION)
+                                .abstractLocation(NORMAL_ABSTRACT_LOCATION)
+                                .latitudeLocation(NORMAL_LATITUDE_LOCATION)
+                                .longitudeLocation(NORMAL_LONGITUDE_LOCATION)
+                                .build()
+                )
+                .periodRegisterRequest(
+                        PeriodRegisterRequest.builder()
+                                .startDate(NORMAL_START_DATE)
+                                .endDate(NORMAL_END_DATE)
+                                .build()
+                )
+                .build();
+    }
 
     public static final EventType NORMAL2_EVENT_TYPE = EventType.PARTY;
     public static final Integer NORMAL2_MAX_HEAD_COUNT = 15;
