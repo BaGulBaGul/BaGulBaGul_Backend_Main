@@ -16,9 +16,10 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PostModifyRequest {
-
+    @Size(max = 255, message = "제목은 최대 {max}자까지 가능합니다.")
     private String title;
 
+    @Size(max = 255, message = "내용은 최대 {max}자까지 가능합니다.")
     private String content;
 
     @Size(max = 10, message = "태그 개수는 {max}개 이하여야 합니다.")
