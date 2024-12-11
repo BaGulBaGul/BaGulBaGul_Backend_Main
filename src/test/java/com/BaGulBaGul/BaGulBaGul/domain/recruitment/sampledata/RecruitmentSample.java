@@ -2,8 +2,12 @@ package com.BaGulBaGul.BaGulBaGul.domain.recruitment.sampledata;
 
 import com.BaGulBaGul.BaGulBaGul.domain.common.dto.request.ParticipantStatusRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.common.dto.request.PeriodRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.common.sampledata.ParticipantStatusSample;
+import com.BaGulBaGul.BaGulBaGul.domain.common.sampledata.PeriodSample;
+import com.BaGulBaGul.BaGulBaGul.domain.post.sampledata.PostSample;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.Recruitment;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.constant.RecruitmentState;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.request.RecruitmentModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.request.RecruitmentRegisterRequest;
 import java.time.LocalDateTime;
 import java.time.Month;
@@ -11,47 +15,40 @@ import java.time.Month;
 public class RecruitmentSample {
     public static final RecruitmentState NORMAL_RECRUITMENT_STATE = RecruitmentState.PROCEEDING;
     public static final Boolean NORMAL_DELETED = false;
-    public static final Integer NORMAL_CURRENT_HEAD_COUNT = 0;
-    public static final Integer NORMAL_MAX_HEAD_COUNT = 8;
-    public static final LocalDateTime NORMAL_START_DATE = LocalDateTime.of(
-            2024, Month.NOVEMBER, 13, 7, 00);
-    public static final LocalDateTime NORMAL_END_DATE = LocalDateTime.of(
-            2024, Month.NOVEMBER, 15, 17, 00);
-
 
     public static Recruitment getNormal() {
+        RecruitmentRegisterRequest recruitmentRegisterRequest = getNormalRegisterRequest();
         Recruitment recruitment = Recruitment.builder()
-                .currentHeadCount(NORMAL_CURRENT_HEAD_COUNT)
-                .maxHeadCount(NORMAL_MAX_HEAD_COUNT)
-                .startDate(NORMAL_START_DATE)
-                .endDate(NORMAL_END_DATE)
+                .currentHeadCount(recruitmentRegisterRequest.getParticipantStatusRegisterRequest().getCurrentHeadCount())
+                .maxHeadCount(recruitmentRegisterRequest.getParticipantStatusRegisterRequest().getMaxHeadCount())
+                .startDate(recruitmentRegisterRequest.getPeriodRegisterRequest().getStartDate())
+                .endDate(recruitmentRegisterRequest.getPeriodRegisterRequest().getEndDate())
                 .build();
         recruitment.setState(NORMAL_RECRUITMENT_STATE);
         recruitment.setDeleted(NORMAL_DELETED);
         return recruitment;
     }
 
-
     public static RecruitmentRegisterRequest getNormalRegisterRequest() {
+
+        ParticipantStatusRegisterRequest participantStatusRegisterRequest = ParticipantStatusSample
+                .getNormalRegisterRequest();
+        participantStatusRegisterRequest.setCurrentHeadCount(0);
         return RecruitmentRegisterRequest
                 .builder()
-                .periodRegisterRequest(PeriodRegisterRequest.builder()
-                        .startDate(NORMAL_START_DATE)
-                        .endDate(NORMAL_END_DATE)
-                        .build())
-                .participantStatusRegisterRequest(ParticipantStatusRegisterRequest.builder()
-                        .currentHeadCount(NORMAL_CURRENT_HEAD_COUNT)
-                        .maxHeadCount(NORMAL_MAX_HEAD_COUNT)
-                        .build())
+                .periodRegisterRequest(PeriodSample.getNormalRegisterRequest())
+                .participantStatusRegisterRequest(participantStatusRegisterRequest)
                 .build();
     }
 
     public static final RecruitmentState NORMAL2_RECRUITMENT_STATE = RecruitmentState.PROCEEDING;
     public static final Boolean NORMAL2_DELETED = false;
-    public static final Integer NORMAL2_CURRENT_HEAD_COUNT = 3;
-    public static final Integer NORMAL2_MAX_HEAD_COUNT = 8;
-    public static final LocalDateTime NORMAL2_START_DATE = LocalDateTime.of(
-            2024, Month.NOVEMBER, 16, 12, 00);
-    public static final LocalDateTime NORMAL2_END_DATE = LocalDateTime.of(
-            2024, Month.NOVEMBER, 20, 22, 00);
+    public static RecruitmentModifyRequest getNormal2ModifyRequest() {
+        return RecruitmentModifyRequest.builder()
+                .state(NORMAL2_RECRUITMENT_STATE)
+                .participantStatusModifyRequest(ParticipantStatusSample.getNormal2ModifyRequest())
+                .periodModifyRequest(PeriodSample.getNormal2ModifyRequest())
+                .postModifyRequest(PostSample.getNormal2ModifyRequest())
+                .build();
+    }
 }

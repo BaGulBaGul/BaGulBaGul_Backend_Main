@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.BaGulBaGul.BaGulBaGul.domain.event.sampledata.EventSample;
 import com.BaGulBaGul.BaGulBaGul.global.validation.ValidationUtil;
-import java.time.LocalDateTime;
 import javax.validation.ConstraintViolationException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -20,7 +19,7 @@ class Event_UnitTest {
         @Test
         @DisplayName("정상 이벤트")
         void shouldOK() {
-            assertDoesNotThrow(() -> ValidationUtil.validate(EventSample.getNORMAL()));
+            assertDoesNotThrow(() -> ValidationUtil.validate(EventSample.getNormal()));
         }
         @Nested
         @DisplayName("기간 검증")
@@ -29,7 +28,7 @@ class Event_UnitTest {
             @DisplayName("시작 날짜가 종료 날짜보다 뒤에 있을 때 예외")
             void shouldThrowException_WhenStartDateLaterThanEndDate() {
                 //given
-                Event event = EventSample.getNORMAL();
+                Event event = EventSample.getNormal();
                 //종료시간에 1시간을 더한 값을 시작시간으로
                 event.setStartDate(event.getEndDate().plusHours(1));
 
@@ -44,7 +43,7 @@ class Event_UnitTest {
             @DisplayName("참여 인원이 모집 인원보다 많을 때 예외")
             void shouldThrowException_WhenCurrentGreaterThanMax() {
                 //given
-                Event event = EventSample.getNORMAL();
+                Event event = EventSample.getNormal();
                 event.setCurrentHeadCount(event.getMaxHeadCount() + 1);
 
                 //when //then

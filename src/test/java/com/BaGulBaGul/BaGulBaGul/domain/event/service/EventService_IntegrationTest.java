@@ -1,17 +1,12 @@
 package com.BaGulBaGul.BaGulBaGul.domain.event.service;
 
-import static com.BaGulBaGul.BaGulBaGul.domain.event.sampledata.EventSample.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import com.BaGulBaGul.BaGulBaGul.domain.common.dto.request.LocationModifyRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.common.dto.request.ParticipantStatusModifyRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.common.dto.request.PeriodModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.Event;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventRegisterRequest;
@@ -105,25 +100,7 @@ class EventService_IntegrationTest {
             //given
             User user = userJoinService.registerUser(UserSample.NORMAL_USER_REGISTER_REQUEST);
             EventRegisterRequest eventRegisterRequest = EventSample.getNormalRegisterRequest();
-            EventModifyRequest eventModifyRequest = EventModifyRequest.builder()
-                    .type(NORMAL2_EVENT_TYPE)
-                    .ageLimit(NORMAL2_AGE_LIMIT)
-                    .categories(NORMAL2_CATEGORIES)
-                    .locationModifyRequest(LocationModifyRequest.builder()
-                            .fullLocation(JsonNullable.of(NORMAL2_FULL_LOCATION))
-                            .abstractLocation(JsonNullable.of(NORMAL2_ABSTRACT_LOCATION))
-                            .latitudeLocation(JsonNullable.of(NORMAL2_LATITUDE_LOCATION))
-                            .longitudeLocation(JsonNullable.of(NORMAL2_LONGITUDE_LOCATION))
-                            .build())
-                    .participantStatusModifyRequest(ParticipantStatusModifyRequest.builder()
-                            .maxHeadCount(JsonNullable.of(NORMAL2_MAX_HEAD_COUNT))
-                            .currentHeadCount(JsonNullable.of(NORMAL2_CURRENT_HEAD_COUNT))
-                            .build())
-                    .periodModifyRequest(PeriodModifyRequest.builder()
-                            .startDate(JsonNullable.of(NORMAL2_START_DATE))
-                            .endDate(JsonNullable.of(NORMAL2_END_DATE))
-                            .build())
-                    .build();
+            EventModifyRequest eventModifyRequest = EventSample.getNormal2ModifyRequest();
             Long eventId = eventService.registerEvent(user.getId(), eventRegisterRequest);
 
             //when

@@ -123,20 +123,10 @@ class RecruitmentService_IntegrationTest {
             Long eventId = eventService.registerEvent(user.getId(), EventSample.getNormalRegisterRequest());
 
             RecruitmentRegisterRequest recruitmentRegisterRequest = RecruitmentSample.getNormalRegisterRequest();
+            RecruitmentModifyRequest recruitmentModifyRequest = RecruitmentSample.getNormal2ModifyRequest();
             Long recruitmentId = recruitmentService.registerRecruitment(
                     eventId, user.getId(), recruitmentRegisterRequest);
 
-            RecruitmentModifyRequest recruitmentModifyRequest = RecruitmentModifyRequest.builder()
-                    .state(RecruitmentSample.NORMAL2_RECRUITMENT_STATE)
-                    .periodModifyRequest(PeriodModifyRequest.builder()
-                            .startDate(JsonNullable.of(RecruitmentSample.NORMAL2_START_DATE))
-                            .endDate(JsonNullable.of(RecruitmentSample.NORMAL2_END_DATE))
-                            .build())
-                    .participantStatusModifyRequest(ParticipantStatusModifyRequest.builder()
-                            .currentHeadCount(JsonNullable.of(RecruitmentSample.NORMAL2_CURRENT_HEAD_COUNT))
-                            .maxHeadCount(JsonNullable.of(RecruitmentSample.NORMAL2_MAX_HEAD_COUNT))
-                            .build())
-                    .build();
             //when
             recruitmentService.modifyRecruitment(recruitmentId, user.getId(), recruitmentModifyRequest);
             entityManager.flush();
@@ -171,6 +161,7 @@ class RecruitmentService_IntegrationTest {
             Long eventId = eventService.registerEvent(user.getId(), EventSample.getNormalRegisterRequest());
 
             RecruitmentRegisterRequest recruitmentRegisterRequest = RecruitmentSample.getNormalRegisterRequest();
+
             RecruitmentModifyRequest recruitmentModifyRequest = RecruitmentModifyRequest.builder()
                     .build();
             Long recruitmentId = recruitmentService.registerRecruitment(eventId,
@@ -188,8 +179,6 @@ class RecruitmentService_IntegrationTest {
             assertThat(recruitment.getDeleted()).isEqualTo(false);
             assertThat(recruitment.getEvent().getId()).isEqualTo(eventId);
             //참가자
-            assertThat(recruitment.getCurrentHeadCount()).isEqualTo(recruitmentRegisterRequest
-                    .getParticipantStatusRegisterRequest().getCurrentHeadCount());
             assertThat(recruitment.getMaxHeadCount()).isEqualTo(recruitmentRegisterRequest
                     .getParticipantStatusRegisterRequest().getMaxHeadCount());
             //기간

@@ -28,13 +28,15 @@ public class LocationModifyRequest {
 
     @AssertTrue(message = "위도는 -90.0 ~ 90.0 사이의 소수여야 합니다.")
     private boolean isValidLatitudeLocation() {
-        return latitudeLocation.isPresent() || latitudeLocation.get() == null &&
+        //존재하지 않거나 null인 경우는 무시
+        return !latitudeLocation.isPresent() || latitudeLocation.get() == null ||
                 (latitudeLocation.get() >= -90f && latitudeLocation.get() <= 90f);
     }
 
     @AssertTrue(message = "경도는 -180.0 ~ 180.0 사이의 소수여야 합니다.")
     private boolean isValidLongitudeLocation() {
-        return longitudeLocation.isPresent() || latitudeLocation.get() == null ||
+        //존재하지 않거나 null인 경우는 무시
+        return !longitudeLocation.isPresent() || latitudeLocation.get() == null ||
                 (longitudeLocation.get() >= -180f && longitudeLocation.get() <= 180f);
     }
 }
