@@ -1,18 +1,24 @@
 package com.BaGulBaGul.BaGulBaGul.domain.event.service;
 
+import com.BaGulBaGul.BaGulBaGul.domain.common.dto.request.LocationModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.common.dto.request.LocationRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.common.dto.request.ParticipantStatusModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.common.dto.request.ParticipantStatusRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.common.dto.request.PeriodModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.common.dto.request.PeriodRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.Category;
 import com.BaGulBaGul.BaGulBaGul.domain.event.Event;
 import com.BaGulBaGul.BaGulBaGul.domain.event.EventCategory;
 import com.BaGulBaGul.BaGulBaGul.domain.event.applicationevent.NewEventLikeApplicationEvent;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventConditionalRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventDetailInfo;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventDetailResponse;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventModifyRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventRegisterRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventSimpleInfo;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventSimpleResponse;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.GetLikeEventRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.GetLikeEventResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventConditionalRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.EventDetailInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.EventDetailResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.EventSimpleInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.EventSimpleResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.GetLikeEventRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.GetLikeEventResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.exception.CategoryNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.event.exception.EventNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.event.repository.EventCategoryRepository;
@@ -20,7 +26,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.repository.CategoryRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.event.repository.EventRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.event.repository.querydsl.FindEventByCondition.EventIdsWithTotalCountOfPageResult;
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostDetailInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.response.PostDetailInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
@@ -168,20 +174,25 @@ public class EventServiceImpl implements EventService {
     public Long registerEvent(Long userId, EventRegisterRequest eventRegisterRequest) {
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
         //게시글 생성
-        Post post = postService.registerPost(user, eventRegisterRequest.toPostRegisterRequest());
+        Post post = postService.registerPost(user, eventRegisterRequest.getPostRegisterRequest());
         //이벤트 생성
+        LocationRegisterRequest locationRegisterRequest = eventRegisterRequest.getLocationRegisterRequest();
+        PeriodRegisterRequest periodRegisterRequest = eventRegisterRequest.getPeriodRegisterRequest();
+        ParticipantStatusRegisterRequest participantStatusRegisterRequest = eventRegisterRequest
+                .getParticipantStatusRegisterRequest();
         Event event = Event.builder()
                 .type(eventRegisterRequest.getType())
                 .post(post)
                 .ageLimit(eventRegisterRequest.getAgeLimit())
                 .currentHeadCount(0)
-                .maxHeadCount(eventRegisterRequest.getMaxHeadCount())
-                .fullLocation(eventRegisterRequest.getFullLocation())
-                .abstractLocation(eventRegisterRequest.getAbstractLocation())
-                .latitudeLocation(eventRegisterRequest.getLatitudeLocation())
-                .longitudeLocation(eventRegisterRequest.getLongitudeLocation())
-                .startDate(eventRegisterRequest.getStartDate())
-                .endDate(eventRegisterRequest.getEndDate()).build();
+                .maxHeadCount(participantStatusRegisterRequest.getMaxHeadCount())
+                .fullLocation(locationRegisterRequest.getFullLocation())
+                .abstractLocation(locationRegisterRequest.getAbstractLocation())
+                .latitudeLocation(locationRegisterRequest.getLatitudeLocation())
+                .longitudeLocation(locationRegisterRequest.getLongitudeLocation())
+                .startDate(periodRegisterRequest.getStartDate())
+                .endDate(periodRegisterRequest.getEndDate())
+                .build();
         //카테고리 추가
         addCategories(event, eventRegisterRequest.getCategories());
         //저장
@@ -204,7 +215,8 @@ public class EventServiceImpl implements EventService {
 
         //patch 방식으로 eventModifyRequest에서 null이 아닌 모든 필드를 변경
         //post관련은 postService에 위임
-        postService.modifyPost(event.getPost(), eventModifyRequest.toPostModifyRequest());
+        postService.modifyPost(event.getPost(), eventModifyRequest.getPostModifyRequest());
+
         //나머지 event관련 속성 변경
         if(eventModifyRequest.getType() != null) {
             event.setType(eventModifyRequest.getType());
@@ -212,33 +224,40 @@ public class EventServiceImpl implements EventService {
         if(eventModifyRequest.getAgeLimit() != null) {
             event.setAgeLimit(eventModifyRequest.getAgeLimit());
         }
-        if(eventModifyRequest.getCurrentHeadCount().isPresent()) {
-            event.setCurrentHeadCount(eventModifyRequest.getCurrentHeadCount().get());
-        }
-        if(eventModifyRequest.getMaxHeadCount().isPresent()) {
-            event.setMaxHeadCount(eventModifyRequest.getMaxHeadCount().get());
-        }
-        if(eventModifyRequest.getFullLocation() != null) {
-            event.setFullLocation(eventModifyRequest.getFullLocation());
-        }
-        if(eventModifyRequest.getAbstractLocation() != null) {
-            event.setAbstractLocation(eventModifyRequest.getAbstractLocation());
-        }
-        if(eventModifyRequest.getLatitudeLocation() != null) {
-            event.setLatitudeLocation(eventModifyRequest.getLatitudeLocation());
-        }
-        if(eventModifyRequest.getLongitudeLocation() != null) {
-            event.setLongitudeLocation(eventModifyRequest.getLongitudeLocation());
-        }
-        if(eventModifyRequest.getStartDate() != null) {
-            event.setStartDate(eventModifyRequest.getStartDate());
-        }
-        if(eventModifyRequest.getEndDate() != null) {
-            event.setEndDate(eventModifyRequest.getEndDate());
-        }
         if(eventModifyRequest.getCategories() != null) {
             clearCategory(event);
             addCategories(event, eventModifyRequest.getCategories());
+        }
+        //참가자
+        ParticipantStatusModifyRequest participantStatusModifyRequest = eventModifyRequest
+                .getParticipantStatusModifyRequest();
+        if(participantStatusModifyRequest.getCurrentHeadCount().isPresent()) {
+            event.setCurrentHeadCount(participantStatusModifyRequest.getCurrentHeadCount().get());
+        }
+        if(participantStatusModifyRequest.getMaxHeadCount().isPresent()) {
+            event.setMaxHeadCount(participantStatusModifyRequest.getMaxHeadCount().get());
+        }
+        //위치
+        LocationModifyRequest locationModifyRequest = eventModifyRequest.getLocationModifyRequest();
+        if(locationModifyRequest.getFullLocation().isPresent()) {
+            event.setFullLocation(locationModifyRequest.getFullLocation().get());
+        }
+        if(locationModifyRequest.getAbstractLocation().isPresent()) {
+            event.setAbstractLocation(locationModifyRequest.getAbstractLocation().get());
+        }
+        if(locationModifyRequest.getLatitudeLocation().isPresent()) {
+            event.setLatitudeLocation(locationModifyRequest.getLatitudeLocation().get());
+        }
+        if(locationModifyRequest.getLongitudeLocation().isPresent()) {
+            event.setLongitudeLocation(locationModifyRequest.getLongitudeLocation().get());
+        }
+        //기간
+        PeriodModifyRequest periodModifyRequest = eventModifyRequest.getPeriodModifyRequest();
+        if(periodModifyRequest.getStartDate().isPresent()) {
+            event.setStartDate(periodModifyRequest.getStartDate().get());
+        }
+        if(periodModifyRequest.getEndDate().isPresent()) {
+            event.setEndDate(periodModifyRequest.getEndDate().get());
         }
     }
 

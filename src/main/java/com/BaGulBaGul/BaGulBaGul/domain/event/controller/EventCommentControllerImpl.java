@@ -1,6 +1,6 @@
 package com.BaGulBaGul.BaGulBaGul.domain.event.controller;
 
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventIdResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response.EventIdApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.service.EventCommentService;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.GetPostCommentChildPageResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.GetPostCommentPageResponse;
@@ -300,12 +300,12 @@ public class EventCommentControllerImpl implements EventCommentController {
     @Operation(summary = "어떤 댓글이 속한 이벤트의 id를 조회",
             description = ""
     )
-    public ApiResponse<EventIdResponse> getEventIdFromCommentId(
+    public ApiResponse<EventIdApiResponse> getEventIdFromCommentId(
             @PathVariable(name = "commentId") Long commentId
     ) {
         Long eventId = eventCommentService.getEventIdFromCommentId(commentId);
         return ApiResponse.of(
-                EventIdResponse.builder()
+                EventIdApiResponse.builder()
                         .eventId(eventId)
                         .build()
         );

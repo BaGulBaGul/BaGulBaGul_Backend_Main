@@ -5,7 +5,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 import com.BaGulBaGul.BaGulBaGul.domain.event.QCategory;
 import com.BaGulBaGul.BaGulBaGul.domain.event.QEvent;
 import com.BaGulBaGul.BaGulBaGul.domain.event.QEventCategory;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventConditionalRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventConditionalRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.QPost;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.queryDSL.FindPostByConditionApplier;
 import com.querydsl.core.types.Order;
@@ -90,7 +90,7 @@ public class FindEventByConditionApplierImpl implements FindEventByConditionAppl
         //post 관련 조건 적용
         QPost post = QPost.post;
         query.join(event.post, post);
-        findPostByConditionApplier.applyCondition(query, eventConditionalRequest.toPostConditionalRequest(), post);
+        findPostByConditionApplier.applyCondition(query, eventConditionalRequest.getPostConditionalRequest(), post);
         return query;
     }
 

@@ -4,13 +4,12 @@ package com.BaGulBaGul.BaGulBaGul.domain.post.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostModifyRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.request.PostModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.request.PostRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.sampledata.PostSample;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
@@ -65,12 +64,7 @@ class PostService_IntegrationTest {
         void shouldOK() {
             //given
             User user = userJoinService.registerUser(UserSample.NORMAL_USER_REGISTER_REQUEST);
-            PostRegisterRequest postRegisterRequest = PostRegisterRequest.builder()
-                    .title(PostSample.NORMAL_TITLE)
-                    .content(PostSample.NORMAL_CONTENT)
-                    .tags(PostSample.NORMAL_TAGS)
-                    .imageIds(Collections.emptyList())
-                    .build();
+            PostRegisterRequest postRegisterRequest = PostSample.getNormalRegisterRequest();
 
             //when
             Post post = postService.registerPost(user, postRegisterRequest);
@@ -97,12 +91,7 @@ class PostService_IntegrationTest {
         void shouldOK() {
             //given
             User user = userJoinService.registerUser(UserSample.NORMAL_USER_REGISTER_REQUEST);
-            PostRegisterRequest postRegisterRequest = PostRegisterRequest.builder()
-                    .title(PostSample.NORMAL_TITLE)
-                    .content(PostSample.NORMAL_CONTENT)
-                    .tags(PostSample.NORMAL_TAGS)
-                    .imageIds(Collections.emptyList())
-                    .build();
+            PostRegisterRequest postRegisterRequest = PostSample.getNormalRegisterRequest();
             PostModifyRequest postModifyRequest = PostModifyRequest.builder()
                     .title(PostSample.NORMAL2_TITLE)
                     .content(PostSample.NORMAL2_CONTENT)

@@ -17,6 +17,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.validation.constraints.AssertTrue;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -93,6 +94,17 @@ public class Event {
     //카테고리들
     @OneToMany(mappedBy = "event", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private List<EventCategory> categories = new ArrayList<>();
+
+    @AssertTrue(message = "시작 일시는 종료 일시보다 빨라야 합니다.")
+    private boolean isStartDateBeforeEndDate() {
+        return startDate == null || endDate == null || startDate.isBefore(endDate);
+    }
+
+    @AssertTrue(message = "현재 인원이 모집 인원보다 클 수 없습니다")
+    private boolean isCurrentHeadCount_LessThanOrEqual_MaxHeadCount() {
+        //둘 중 하나라도 null일 경우 비교 무시
+        return currentHeadCount == null || maxHeadCount == null || currentHeadCount <= maxHeadCount;
+    }
 
     @Builder
     public Event(

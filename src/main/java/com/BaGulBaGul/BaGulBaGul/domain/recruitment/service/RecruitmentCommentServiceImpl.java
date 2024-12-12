@@ -9,7 +9,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentChildReg
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.PostCommentDetailResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentRegisterRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.result.RegisterPostCommentChildResult;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.response.RegisterPostCommentChildResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.PostCommentNotFoundException;
@@ -114,7 +114,7 @@ public class RecruitmentCommentServiceImpl implements RecruitmentCommentService 
             PostCommentChildRegisterRequest postCommentChildRegisterRequest
     ) {
         //대댓글 추가 후 결과를 받아옴
-        RegisterPostCommentChildResult result = postCommentService.registerPostCommentChild(commentId, userId, postCommentChildRegisterRequest);
+        RegisterPostCommentChildResponse result = postCommentService.registerPostCommentChild(commentId, userId, postCommentChildRegisterRequest);
         //대댓글 추가 어플리케이션 이벤트 발행
         applicationEventPublisher.publishEvent(
                 NewRecruitmentCommentChildApplicationEvent.builder()
