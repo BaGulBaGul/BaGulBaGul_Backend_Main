@@ -69,14 +69,11 @@ public abstract class EventSample {
 
     //정상 이벤트 생성 요청
     public static EventRegisterRequest getNormalRegisterRequest() {
-        ParticipantStatusRegisterRequest participantStatusRegisterRequest = ParticipantStatusSample
-                .getNormalRegisterRequest();
-        participantStatusRegisterRequest.setCurrentHeadCount(0);
         return EventRegisterRequest.builder()
                 .type(NORMAL_EVENT_TYPE)
                 .ageLimit(NORMAL_AGE_LIMIT)
                 .categories(NORMAL_CATEGORIES)
-                .participantStatusRegisterRequest(participantStatusRegisterRequest)
+                .participantStatusRegisterRequest(ParticipantStatusSample.getNormalRegisterRequest())
                 .locationRegisterRequest(LocationSample.getNormalRegisterRequest())
                 .periodRegisterRequest(PeriodSample.getNormalRegisterRequest())
                 .postRegisterRequest(PostSample.getNormalRegisterRequest())

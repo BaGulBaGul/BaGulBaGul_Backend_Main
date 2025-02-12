@@ -30,14 +30,10 @@ public class RecruitmentSample {
     }
 
     public static RecruitmentRegisterRequest getNormalRegisterRequest() {
-
-        ParticipantStatusRegisterRequest participantStatusRegisterRequest = ParticipantStatusSample
-                .getNormalRegisterRequest();
-        participantStatusRegisterRequest.setCurrentHeadCount(0);
         return RecruitmentRegisterRequest
                 .builder()
                 .periodRegisterRequest(PeriodSample.getNormalRegisterRequest())
-                .participantStatusRegisterRequest(participantStatusRegisterRequest)
+                .participantStatusRegisterRequest(ParticipantStatusSample.getNormalRegisterRequest())
                 .build();
     }
 

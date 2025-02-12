@@ -71,6 +71,7 @@ class EventService_IntegrationTest {
             assertThat(event.getType()).isEqualTo(eventRegisterRequest.getType());
             assertThat(event.getAgeLimit()).isEqualTo(eventRegisterRequest.getAgeLimit());
             assertThat(event.getMaxHeadCount()).isEqualTo(eventRegisterRequest.getParticipantStatusRegisterRequest().getMaxHeadCount());
+            assertThat(event.getCurrentHeadCount()).isEqualTo(eventRegisterRequest.getParticipantStatusRegisterRequest().getCurrentHeadCount());
             assertThat(event.getCategories().stream().map(x -> x.getCategory().getName()).collect(Collectors.toList()))
                     .contains(eventRegisterRequest.getCategories().toArray(new String[0]));
             assertThat(event.getFullLocation()).isEqualTo(eventRegisterRequest.getLocationRegisterRequest().getFullLocation());
