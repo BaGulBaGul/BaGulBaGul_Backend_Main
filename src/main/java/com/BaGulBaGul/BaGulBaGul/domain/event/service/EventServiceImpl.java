@@ -164,7 +164,7 @@ public class EventServiceImpl implements EventService {
         //post와 fetch join
         if(events.getNumberOfElements() > 0) {
             List<Long> ids = events.stream().map(Event::getId).collect(Collectors.toList());
-            eventRepository.findWithPostByIds(ids);
+            eventRepository.findWithPostAndUserByIds(ids);
         }
         return events.map(GetLikeEventResponse::of);
     }

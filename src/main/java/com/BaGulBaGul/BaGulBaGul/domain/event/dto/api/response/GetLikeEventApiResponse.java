@@ -32,6 +32,12 @@ public class GetLikeEventApiResponse {
     @ApiModelProperty(value = "종료 시간")
     private LocalDateTime endDate;
 
+    @ApiModelProperty(value = "작성자 id")
+    private Long eventWriterId;
+
+    @ApiModelProperty(value = "작성자 프로필 이미지 url")
+    private String eventWriterProfileImageUrl;
+
     public static GetLikeEventApiResponse from(GetLikeEventResponse getLikeEventResponse) {
         return GetLikeEventApiResponse.builder()
                 .eventId(getLikeEventResponse.getEventId())
@@ -40,6 +46,8 @@ public class GetLikeEventApiResponse {
                 .abstractLocation(getLikeEventResponse.getAbstractLocation())
                 .startDate(getLikeEventResponse.getStartDate())
                 .endDate(getLikeEventResponse.getEndDate())
+                .eventWriterId(getLikeEventResponse.getEventWriterId())
+                .eventWriterProfileImageUrl(getLikeEventResponse.getEventWriterProfileImageUrl())
                 .build();
     }
 }
