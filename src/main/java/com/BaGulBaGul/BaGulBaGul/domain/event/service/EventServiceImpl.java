@@ -184,7 +184,7 @@ public class EventServiceImpl implements EventService {
                 .type(eventRegisterRequest.getType())
                 .post(post)
                 .ageLimit(eventRegisterRequest.getAgeLimit())
-                .currentHeadCount(0)
+                .currentHeadCount(participantStatusRegisterRequest.getCurrentHeadCount())
                 .maxHeadCount(participantStatusRegisterRequest.getMaxHeadCount())
                 .fullLocation(locationRegisterRequest.getFullLocation())
                 .abstractLocation(locationRegisterRequest.getAbstractLocation())

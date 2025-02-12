@@ -60,6 +60,8 @@ public class EventRegisterApiRequest {
 
     @ApiModelProperty(value = "모집 인원")
     private Integer maxHeadCount;
+    @ApiModelProperty(value = "현재 인원")
+    private Integer currentHeadCount;
 
 
     @ApiModelProperty(value = "시작 시간")
@@ -87,7 +89,7 @@ public class EventRegisterApiRequest {
                         .longitudeLocation(longitudeLocation)
                         .build())
                 .participantStatusRegisterRequest(ParticipantStatusRegisterRequest.builder()
-                        .currentHeadCount(null)
+                        .currentHeadCount(currentHeadCount)
                         .maxHeadCount(maxHeadCount)
                         .build())
                 .periodRegisterRequest(PeriodRegisterRequest.builder()
