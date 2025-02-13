@@ -165,7 +165,7 @@ public class RecruitmentServiceImpl implements RecruitmentService {
         Recruitment recruitment = Recruitment.builder()
                 .event(event)
                 .post(post)
-                .currentHeadCount(0)
+                .currentHeadCount(participantStatusRegisterRequest.getCurrentHeadCount())
                 .maxHeadCount(participantStatusRegisterRequest.getMaxHeadCount())
                 .startDate(periodRegisterRequest.getStartDate())
                 .endDate(periodRegisterRequest.getEndDate())

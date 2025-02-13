@@ -35,5 +35,10 @@ public interface EventRepository extends JpaRepository<Event, Long>, FindEventBy
     )
     List<Event> findWithPostByIds(@Param("ids") List<Long> ids);
 
+    @Query(
+            value = "SELECT e FROM Event e INNER JOIN FETCH e.post p INNER JOIN FETCH p.user u WHERE e.id in :ids"
+    )
+    List<Event> findWithPostAndUserByIds(@Param("ids") List<Long> ids);
+
     Event findByPost(Post post);
 }

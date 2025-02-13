@@ -27,6 +27,8 @@ public class RecruitmentRegisterApiRequest {
 
     @ApiModelProperty(value = "모집 인원")
     private Integer maxHeadCount;
+    @ApiModelProperty(value = "현재 인원")
+    private Integer currentHeadCount;
 
     @ApiModelProperty(value = "시작 시간")
     private LocalDateTime startDate;
@@ -54,6 +56,7 @@ public class RecruitmentRegisterApiRequest {
                         .build())
                 .participantStatusRegisterRequest(ParticipantStatusRegisterRequest.builder()
                         .maxHeadCount(maxHeadCount)
+                        .currentHeadCount(currentHeadCount)
                         .build())
                 .postRegisterRequest(PostRegisterRequest.builder()
                         .title(title)
