@@ -48,8 +48,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
-
-    private final PostRepository postRepository;
+    
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final EventCategoryRepository eventCategoryRepository;
@@ -121,12 +120,6 @@ public class EventServiceImpl implements EventService {
                 .event(eventDetailInfo)
                 .post(postDetailInfo)
                 .build();
-
-        //조회수 증가
-        postRepository.increaseViewsById(event.getPost().getId());
-
-        //방금 증가시킨 조회수를 반영해줌.
-        postDetailInfo.setViews(postDetailInfo.getViews() + 1);
 
         return eventDetailResponse;
     }

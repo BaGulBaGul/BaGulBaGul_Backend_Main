@@ -18,6 +18,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.api.response.Recruitment
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.api.response.RecruitmentPageApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.service.RecruitmentService;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.IsMyLikeResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.service.RecruitmentStatisticsService;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
 import com.BaGulBaGul.BaGulBaGul.global.validation.ValidationUtil;
 import io.swagger.annotations.Api;
@@ -42,6 +43,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class RecruitmentControllerImpl implements RecruitmentController {
 
     private final RecruitmentService recruitmentService;
+    private final RecruitmentStatisticsService recruitmentStatisticsService;
 
     @Override
     @GetMapping("/recruitment/{recruitmentId}")
@@ -51,7 +53,11 @@ public class RecruitmentControllerImpl implements RecruitmentController {
     public ApiResponse<RecruitmentDetailApiResponse> getRecruitmentById(
             @PathVariable(name="recruitmentId") Long recruitmentId
     ) {
+        //모집글 상세조회
         RecruitmentDetailResponse recruitmentDetailResponse = recruitmentService.getRecruitmentDetailById(recruitmentId);
+        //모집글을 유저가 클릭했을 경우 통계처리
+        recruitmentStatisticsService.handleViewByUser(recruitmentDetailResponse);
+        //api 응답으로 변환
         RecruitmentDetailApiResponse response = RecruitmentDetailApiResponse.from(recruitmentDetailResponse);
         return ApiResponse.of(response);
     }

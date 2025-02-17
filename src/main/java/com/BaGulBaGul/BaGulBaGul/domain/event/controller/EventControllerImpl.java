@@ -16,6 +16,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response.EventIdApiRespons
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response.EventPageApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response.GetLikeEventApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.service.EventService;
+import com.BaGulBaGul.BaGulBaGul.domain.event.service.EventStatisticsService;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.IsMyLikeResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.LikeCountResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
@@ -37,6 +38,7 @@ import org.springframework.web.bind.annotation.*;
 public class EventControllerImpl implements EventController {
 
     private final EventService eventService;
+    private final EventStatisticsService eventStatisticsService;
 
     @Override
     @GetMapping("/{eventId}")
@@ -46,7 +48,11 @@ public class EventControllerImpl implements EventController {
     public ApiResponse<EventDetailApiResponse> getEventById(
             @PathVariable(name="eventId") Long eventId
     ) {
+        //이벤트 상세조회
         EventDetailResponse eventDetailResponse = eventService.getEventDetailById(eventId);
+        //이벤트를 유저가 클릭했을 경우 통계처리
+        eventStatisticsService.handleViewByUser(eventDetailResponse);
+        //api 응답으로 변환 후 반환
         return ApiResponse.of(EventDetailApiResponse.from(eventDetailResponse));
     }
 

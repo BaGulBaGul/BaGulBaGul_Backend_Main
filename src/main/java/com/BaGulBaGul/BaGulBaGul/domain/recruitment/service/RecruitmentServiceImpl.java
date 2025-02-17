@@ -47,7 +47,6 @@ public class RecruitmentServiceImpl implements RecruitmentService {
     private final RecruitmentRepository recruitmentRepository;
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
-    private final PostRepository postRepository;
 
     private final PostService postService;
 
@@ -101,12 +100,6 @@ public class RecruitmentServiceImpl implements RecruitmentService {
                 .recruitment(recruitmentDetailInfo)
                 .post(postDetailInfo)
                 .build();
-
-        //조회수 증가
-        postRepository.increaseViewsById(recruitment.getPost().getId());
-
-        //방금 조회한 조회수를 반영해줌.
-        postDetailInfo.setViews(postDetailInfo.getViews() + 1);
 
         return response;
     }
