@@ -20,9 +20,6 @@ import org.springframework.data.domain.Pageable;
 
 public interface EventService {
 
-    EventSimpleInfo getEventSimpleInfoById(Long eventId);
-    EventDetailInfo getEventDetailInfoById(Long eventId);
-
     //연결된 자원 등을 포함한 이벤트의 모든 정보인 EventDetailResponse를 반환
     EventDetailResponse getEventDetailById(Long eventId);
 

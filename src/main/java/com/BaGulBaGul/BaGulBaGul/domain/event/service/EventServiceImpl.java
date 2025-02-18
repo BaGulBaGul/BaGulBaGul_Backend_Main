@@ -29,7 +29,6 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.response.PostDetailInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
-import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostService;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.info.exception.UserNotFoundException;
@@ -60,49 +59,6 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public EventSimpleInfo getEventSimpleInfoById(Long eventId) {
-        Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException());
-        return EventSimpleInfo.builder()
-                .eventId(event.getId())
-                .type(event.getType())
-                .abstractLocation(event.getAbstractLocation())
-                .currentHeadCount(event.getCurrentHeadCount())
-                .maxHeadCount(event.getMaxHeadCount())
-                .startDate(event.getStartDate())
-                .endDate(event.getEndDate())
-                .categories(
-                        event.getCategories().stream()
-                                .map(eventCategory -> eventCategory.getCategory().getName())
-                                .collect(Collectors.toList())
-                )
-                .build();
-    }
-
-    @Override
-    public EventDetailInfo getEventDetailInfoById(Long eventId) {
-        Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException());
-        return EventDetailInfo.builder()
-                .eventId(event.getId())
-                .type(event.getType())
-                .currentHeadCount(event.getCurrentHeadCount())
-                .maxHeadCount(event.getMaxHeadCount())
-                .fullLocation(event.getFullLocation())
-                .abstractLocation(event.getAbstractLocation())
-                .latitudeLocation(event.getLatitudeLocation())
-                .longitudeLocation(event.getLongitudeLocation())
-                .ageLimit(event.getAgeLimit())
-                .startDate(event.getStartDate())
-                .endDate(event.getEndDate())
-                .categories(
-                        event.getCategories().stream()
-                                .map(eventCategory -> eventCategory.getCategory().getName())
-                                .collect(Collectors.toList())
-                )
-                .build();
-    }
-
-    @Override
-    @Transactional
     public EventDetailResponse getEventDetailById(Long eventId) {
         Event event = eventRepository.findWithPostAndUserAndCategoryById(eventId).orElseThrow(() -> new EventNotFoundException());
 
@@ -112,7 +68,7 @@ public class EventServiceImpl implements EventService {
         }
 
         //필요한 정보 추출
-        EventDetailInfo eventDetailInfo = getEventDetailInfoById(eventId);
+        EventDetailInfo eventDetailInfo = getEventDetailInfo(event);
         PostDetailInfo postDetailInfo = postService.getPostDetailInfo(event.getPost().getId());
 
         //응답 dto 생성
@@ -148,7 +104,7 @@ public class EventServiceImpl implements EventService {
                 .stream()
                 .map(eventRepository::findById)
                 .map(event -> new EventSimpleResponse(
-                        getEventSimpleInfoById(event.get().getId()),
+                        getEventSimpleInfo(event.get()),
                         postService.getPostSimpleInfo(event.get().getPost().getId())))
                 .collect(Collectors.toList());
         return eventSimpleResponses;
@@ -353,5 +309,43 @@ public class EventServiceImpl implements EventService {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         //게시글에 대한 권한 확인에 위임
         postService.checkWritePermission(event.getPost(), user);
+    }
+
+    private EventSimpleInfo getEventSimpleInfo(Event event) {
+        return EventSimpleInfo.builder()
+                .eventId(event.getId())
+                .type(event.getType())
+                .abstractLocation(event.getAbstractLocation())
+                .currentHeadCount(event.getCurrentHeadCount())
+                .maxHeadCount(event.getMaxHeadCount())
+                .startDate(event.getStartDate())
+                .endDate(event.getEndDate())
+                .categories(
+                        event.getCategories().stream()
+                                .map(eventCategory -> eventCategory.getCategory().getName())
+                                .collect(Collectors.toList())
+                )
+                .build();
+    }
+
+    private EventDetailInfo getEventDetailInfo(Event event) {
+        return EventDetailInfo.builder()
+                .eventId(event.getId())
+                .type(event.getType())
+                .currentHeadCount(event.getCurrentHeadCount())
+                .maxHeadCount(event.getMaxHeadCount())
+                .fullLocation(event.getFullLocation())
+                .abstractLocation(event.getAbstractLocation())
+                .latitudeLocation(event.getLatitudeLocation())
+                .longitudeLocation(event.getLongitudeLocation())
+                .ageLimit(event.getAgeLimit())
+                .startDate(event.getStartDate())
+                .endDate(event.getEndDate())
+                .categories(
+                        event.getCategories().stream()
+                                .map(eventCategory -> eventCategory.getCategory().getName())
+                                .collect(Collectors.toList())
+                )
+                .build();
     }
 }
