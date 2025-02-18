@@ -8,6 +8,7 @@ import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
 import io.swagger.annotations.Api;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +25,7 @@ public class EventRealtimeRankingControllerImpl implements EventRealtimeRankingC
     @Override
     @GetMapping("/views")
     public ApiResponse<List<EventRealtimeViewRankingApiResponse>> getEventViewRanking(
-            EventRealtimeRankingApiRequest eventRankingRequest) {
+            @Valid EventRealtimeRankingApiRequest eventRankingRequest) {
         //조회수 랭킹 조회
         List<EventSimpleResponse> eventViewRanking = eventRealtimeRankingService.getEventViewRanking(
                 eventRankingRequest.getEventType(),

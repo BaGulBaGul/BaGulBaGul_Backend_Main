@@ -25,6 +25,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.TransactionSystemException;
+import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -55,6 +56,20 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     //검증 예외에서 메세지를 추출하도록 재정의
+    //쿼리 파라메터의 @Valid 검증
+    @Override
+    protected ResponseEntity<Object> handleBindException(
+            BindException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        ResponseCode responseCode = ResponseCode.builder()
+                .code(ResponseCode.BAD_REQUEST.getCode())
+                .httpStatus(ResponseCode.BAD_REQUEST.getHttpStatus())
+                .message(ex.getFieldError().getDefaultMessage())
+                .build();
+        return handleExceptionInternal(ex, responseCode, headers, status, request);
+    }
+
+    //검증 예외에서 메세지를 추출하도록 재정의
+    //@RequestBody의 @Valid 검증
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
             MethodArgumentNotValidException ex,
