@@ -132,18 +132,26 @@ public class EventServiceImpl implements EventService {
     ) {
         //조건에 해당하는 event id를 페이지 검색함.
         EventIdsWithTotalCountOfPageResult pageResult = eventRepository.getEventIdsByConditionAndPageable(eventConditionalRequest, pageable);
+        //순서 유지한 채로 EventSimpleResponse로 변환
+        List<EventSimpleResponse> eventSimpleResponses = getEventSimpleResponseByIds(pageResult.getEventIds());
+        //페이지 정보로 변환
+        return new PageImpl<>(eventSimpleResponses, pageable, pageResult.getTotalCount());
+    }
+
+    @Override
+    @Transactional
+    public List<EventSimpleResponse> getEventSimpleResponseByIds(List<Long> eventIds) {
         //필요한 정보를 fetch join
-        eventRepository.findWithPostAndUserAndCategoriesByIds(pageResult.getEventIds());
+        eventRepository.findWithPostAndUserAndCategoriesByIds(eventIds);
         //페이지 조회한 ids를 순서대로 EventSimpleResponse로 변환
-        List<EventSimpleResponse> eventSimpleResponses = pageResult.getEventIds()
+        List<EventSimpleResponse> eventSimpleResponses = eventIds
                 .stream()
                 .map(eventRepository::findById)
                 .map(event -> new EventSimpleResponse(
-                                getEventSimpleInfoById(event.get().getId()),
-                                postService.getPostSimpleInfo(event.get().getPost().getId())))
+                        getEventSimpleInfoById(event.get().getId()),
+                        postService.getPostSimpleInfo(event.get().getPost().getId())))
                 .collect(Collectors.toList());
-        //페이지 정보로 변환
-        return new PageImpl<>(eventSimpleResponses, pageable, pageResult.getTotalCount());
+        return eventSimpleResponses;
     }
 
     @Override
