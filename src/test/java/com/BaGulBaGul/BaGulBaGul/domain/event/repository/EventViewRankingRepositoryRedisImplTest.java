@@ -2,6 +2,7 @@ package com.BaGulBaGul.BaGulBaGul.domain.event.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.BaGulBaGul.BaGulBaGul.domain.ranking.repository.EventViewRankingRepositoryRedisImpl;
 import com.BaGulBaGul.BaGulBaGul.extension.RedisTestContainerExtension;
 import com.BaGulBaGul.BaGulBaGul.domain.event.constant.EventType;
 import java.lang.reflect.InvocationTargetException;

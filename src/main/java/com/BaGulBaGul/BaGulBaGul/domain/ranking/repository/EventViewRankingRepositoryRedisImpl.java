@@ -1,4 +1,4 @@
-package com.BaGulBaGul.BaGulBaGul.domain.event.repository;
+package com.BaGulBaGul.BaGulBaGul.domain.ranking.repository;
 
 import com.BaGulBaGul.BaGulBaGul.domain.event.constant.EventType;
 import java.time.LocalDateTime;
@@ -8,7 +8,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.stereotype.Repository;

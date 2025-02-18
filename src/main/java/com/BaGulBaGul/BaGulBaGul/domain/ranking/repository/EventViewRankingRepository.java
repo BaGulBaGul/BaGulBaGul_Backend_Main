@@ -1,4 +1,4 @@
-package com.BaGulBaGul.BaGulBaGul.domain.event.repository;
+package com.BaGulBaGul.BaGulBaGul.domain.ranking.repository;
 
 import com.BaGulBaGul.BaGulBaGul.domain.event.constant.EventType;
 import java.time.LocalDateTime;

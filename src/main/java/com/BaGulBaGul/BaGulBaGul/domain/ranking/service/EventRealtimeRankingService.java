@@ -7,4 +7,5 @@ import java.util.List;
 public interface EventRealtimeRankingService {
     //1위부터 count개수 만큼 조회
     List<EventSimpleResponse> getEventViewRanking(EventType eventType, int count);
+    void increaseViews(Long eventId, EventType eventType);
 }
