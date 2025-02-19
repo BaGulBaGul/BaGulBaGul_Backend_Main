@@ -19,7 +19,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostLikeRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.global.exception.NoPermissionException;
-import com.BaGulBaGul.BaGulBaGul.global.upload.service.ResourceService;
+import com.BaGulBaGul.BaGulBaGul.domain.upload.service.ResourceService;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

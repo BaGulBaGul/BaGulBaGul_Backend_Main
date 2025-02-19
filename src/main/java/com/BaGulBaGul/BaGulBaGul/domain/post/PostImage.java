@@ -1,6 +1,6 @@
 package com.BaGulBaGul.BaGulBaGul.domain.post;
 
-import com.BaGulBaGul.BaGulBaGul.global.upload.Resource;
+import com.BaGulBaGul.BaGulBaGul.domain.upload.Resource;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;

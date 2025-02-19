@@ -1,13 +1,11 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user;
 
-import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
-import com.BaGulBaGul.BaGulBaGul.global.upload.Resource;
+import com.BaGulBaGul.BaGulBaGul.domain.upload.Resource;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.MapsId;
 import javax.persistence.OneToOne;
 import lombok.AccessLevel;

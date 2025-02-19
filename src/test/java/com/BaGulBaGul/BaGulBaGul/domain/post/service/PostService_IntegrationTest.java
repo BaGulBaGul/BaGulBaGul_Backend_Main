@@ -13,7 +13,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.request.PostRegisterReq
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.sampledata.PostSample;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
-import com.BaGulBaGul.BaGulBaGul.domain.user.info.service.UserJoinService;
+import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserJoinService;
 import com.BaGulBaGul.BaGulBaGul.domain.user.sampledata.UserSample;
 import java.util.Collections;
 import javax.persistence.EntityManager;

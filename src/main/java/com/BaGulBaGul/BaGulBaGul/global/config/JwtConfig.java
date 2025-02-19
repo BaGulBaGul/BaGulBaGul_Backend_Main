@@ -1,7 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.global.config;
 
-import com.BaGulBaGul.BaGulBaGul.domain.user.auth.service.JwtProvider;
-import com.BaGulBaGul.BaGulBaGul.domain.user.auth.service.JwtProviderImpl;
+import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtProvider;
+import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtProviderImpl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

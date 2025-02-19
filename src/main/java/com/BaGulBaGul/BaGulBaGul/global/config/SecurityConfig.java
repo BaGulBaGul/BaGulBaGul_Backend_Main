@@ -1,8 +1,8 @@
 package com.BaGulBaGul.BaGulBaGul.global.config;
 
-import com.BaGulBaGul.BaGulBaGul.domain.user.auth.filter.JwtAuthenticationFilter;
-import com.BaGulBaGul.BaGulBaGul.domain.user.auth.oauth2.OAuth2SuccessHandler;
-import com.BaGulBaGul.BaGulBaGul.domain.user.auth.oauth2.OAuth2UserService;
+import com.BaGulBaGul.BaGulBaGul.global.auth.filter.JwtAuthenticationFilter;
+import com.BaGulBaGul.BaGulBaGul.global.auth.oauth2.OAuth2SuccessHandler;
+import com.BaGulBaGul.BaGulBaGul.global.auth.oauth2.OAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
