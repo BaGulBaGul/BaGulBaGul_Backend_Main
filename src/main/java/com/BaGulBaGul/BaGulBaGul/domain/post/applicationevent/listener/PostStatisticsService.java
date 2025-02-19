@@ -1,4 +1,4 @@
-package com.BaGulBaGul.BaGulBaGul.domain.post.service;
+package com.BaGulBaGul.BaGulBaGul.domain.post.applicationevent.listener;
 
 import com.BaGulBaGul.BaGulBaGul.domain.post.applicationevent.QueryPostDetailByUserApplicationEvent;
 

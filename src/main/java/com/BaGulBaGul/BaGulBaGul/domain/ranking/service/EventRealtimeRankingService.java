@@ -10,6 +10,4 @@ public interface EventRealtimeRankingService {
     List<EventSimpleResponse> getEventViewRanking(EventType eventType, int count);
     //특정 이벤트의 조회수 증가
     void increaseViews(Long eventId, EventType eventType);
-    //특정 이벤트를 유저가 상세조회 했을 시 처리
-    void handleQueryEventDetailByUser(QueryEventDetailByUserApplicationEvent event);
 }

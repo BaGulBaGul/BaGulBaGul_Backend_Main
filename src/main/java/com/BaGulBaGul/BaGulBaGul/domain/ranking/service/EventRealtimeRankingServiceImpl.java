@@ -41,13 +41,4 @@ public class EventRealtimeRankingServiceImpl implements EventRealtimeRankingServ
                 1L
         );
     }
-
-    @Override
-    @EventListener
-    public void handleQueryEventDetailByUser(QueryEventDetailByUserApplicationEvent event) {
-        increaseViews(
-                event.getEventDetailResponse().getEvent().getEventId(),
-                event.getEventDetailResponse().getEvent().getType()
-        );
-    }
 }

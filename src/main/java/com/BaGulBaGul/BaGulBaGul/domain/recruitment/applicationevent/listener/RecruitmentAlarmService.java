@@ -1,4 +1,4 @@
-package com.BaGulBaGul.BaGulBaGul.domain.recruitment.service;
+package com.BaGulBaGul.BaGulBaGul.domain.recruitment.applicationevent.listener;
 
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.applicationevent.NewRecruitmentCommentApplicationEvent;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.applicationevent.NewRecruitmentCommentChildApplicationEvent;

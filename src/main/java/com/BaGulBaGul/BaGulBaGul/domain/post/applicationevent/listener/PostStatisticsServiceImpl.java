@@ -1,7 +1,6 @@
-package com.BaGulBaGul.BaGulBaGul.domain.post.service;
+package com.BaGulBaGul.BaGulBaGul.domain.post.applicationevent.listener;
 
 import com.BaGulBaGul.BaGulBaGul.domain.post.applicationevent.QueryPostDetailByUserApplicationEvent;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.response.PostDetailInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;

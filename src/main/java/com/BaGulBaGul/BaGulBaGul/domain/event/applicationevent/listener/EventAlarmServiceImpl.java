@@ -1,4 +1,4 @@
-package com.BaGulBaGul.BaGulBaGul.domain.event.service;
+package com.BaGulBaGul.BaGulBaGul.domain.event.applicationevent.listener;
 
 import com.BaGulBaGul.BaGulBaGul.domain.event.Event;
 import com.BaGulBaGul.BaGulBaGul.domain.event.applicationevent.NewEventCommentApplicationEvent;
@@ -8,10 +8,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.applicationevent.NewEventCommentLi
 import com.BaGulBaGul.BaGulBaGul.domain.event.applicationevent.NewEventLikeApplicationEvent;
 import com.BaGulBaGul.BaGulBaGul.domain.event.repository.EventRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
-import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentChildRepository;
-import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostAlarmService;
-import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.AlarmService;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.AlarmCreator;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.event.NewEventCommentAlarmCreator;

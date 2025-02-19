@@ -1,4 +1,4 @@
-package com.BaGulBaGul.BaGulBaGul.domain.event.service;
+package com.BaGulBaGul.BaGulBaGul.domain.event.applicationevent.listener;
 
 import com.BaGulBaGul.BaGulBaGul.domain.event.applicationevent.NewEventCommentApplicationEvent;
 import com.BaGulBaGul.BaGulBaGul.domain.event.applicationevent.NewEventCommentChildApplicationEvent;

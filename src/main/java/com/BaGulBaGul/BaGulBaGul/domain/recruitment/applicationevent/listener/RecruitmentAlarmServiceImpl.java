@@ -1,10 +1,6 @@
-package com.BaGulBaGul.BaGulBaGul.domain.recruitment.service;
+package com.BaGulBaGul.BaGulBaGul.domain.recruitment.applicationevent.listener;
 
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
-import com.BaGulBaGul.BaGulBaGul.domain.post.PostComment;
-import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentChild;
-import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentChildRepository;
-import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostAlarmService;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.Recruitment;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.applicationevent.NewRecruitmentCommentApplicationEvent;
@@ -13,14 +9,8 @@ import com.BaGulBaGul.BaGulBaGul.domain.recruitment.applicationevent.NewRecruitm
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.applicationevent.NewRecruitmentCommentLikeApplicationEvent;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.applicationevent.NewRecruitmentLikeApplicationEvent;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.repository.RecruitmentRepository;
-import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.AlarmService;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.AlarmCreator;
-import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.event.NewEventCommentAlarmCreator;
-import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.event.NewEventCommentChildAlarmCreator;
-import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.event.NewEventCommentChildLikeAlarmCreator;
-import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.event.NewEventCommentLikeAlarmCreator;
-import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.event.NewEventLikeAlarmCreator;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentAlarmInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentChildAlarmInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentChildLikeAlarmInfo;
