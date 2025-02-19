@@ -1,5 +1,6 @@
 package com.BaGulBaGul.BaGulBaGul.domain.event.controller;
 
+import com.BaGulBaGul.BaGulBaGul.domain.event.applicationevent.QueryEventDetailByUserApplicationEvent;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventConditionalRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.EventDetailResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventModifyRequest;
@@ -16,7 +17,6 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response.EventIdApiRespons
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response.EventPageApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response.GetLikeEventApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.service.EventService;
-import com.BaGulBaGul.BaGulBaGul.domain.event.service.EventStatisticsService;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.IsMyLikeResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.LikeCountResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
@@ -26,6 +26,7 @@ import com.BaGulBaGul.BaGulBaGul.global.validation.ValidationUtil;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -38,7 +39,7 @@ import org.springframework.web.bind.annotation.*;
 public class EventControllerImpl implements EventController {
 
     private final EventService eventService;
-    private final EventStatisticsService eventStatisticsService;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     @GetMapping("/{eventId}")
@@ -50,8 +51,10 @@ public class EventControllerImpl implements EventController {
     ) {
         //이벤트 상세조회
         EventDetailResponse eventDetailResponse = eventService.getEventDetailById(eventId);
-        //이벤트를 유저가 클릭했을 경우 통계처리
-        eventStatisticsService.handleViewByUser(eventDetailResponse);
+        //이벤트를 유저가 상세조회 했을 경우에 대한 이벤트 발행
+        applicationEventPublisher.publishEvent(
+                new QueryEventDetailByUserApplicationEvent(eventDetailResponse)
+        );
         //api 응답으로 변환 후 반환
         return ApiResponse.of(EventDetailApiResponse.from(eventDetailResponse));
     }

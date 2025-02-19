@@ -1,5 +1,6 @@
 package com.BaGulBaGul.BaGulBaGul.domain.ranking.service;
 
+import com.BaGulBaGul.BaGulBaGul.domain.event.applicationevent.QueryEventDetailByUserApplicationEvent;
 import com.BaGulBaGul.BaGulBaGul.domain.event.constant.EventType;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.EventSimpleResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.ranking.repository.EventViewRankingRepository;
@@ -7,6 +8,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.service.EventService;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -37,6 +39,15 @@ public class EventRealtimeRankingServiceImpl implements EventRealtimeRankingServ
                 eventId,
                 eventType,
                 1L
+        );
+    }
+
+    @Override
+    @EventListener
+    public void handleQueryEventDetailByUser(QueryEventDetailByUserApplicationEvent event) {
+        increaseViews(
+                event.getEventDetailResponse().getEvent().getEventId(),
+                event.getEventDetailResponse().getEvent().getType()
         );
     }
 }
