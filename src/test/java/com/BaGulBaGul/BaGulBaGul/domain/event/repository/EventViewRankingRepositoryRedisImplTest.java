@@ -2,6 +2,7 @@ package com.BaGulBaGul.BaGulBaGul.domain.event.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.BaGulBaGul.BaGulBaGul.domain.ranking.dto.service.response.EventViewsRankingItemInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.ranking.repository.EventViewRankingRepositoryRedisImpl;
 import com.BaGulBaGul.BaGulBaGul.extension.RedisTestContainerExtension;
 import com.BaGulBaGul.BaGulBaGul.domain.event.constant.EventType;
@@ -191,7 +192,7 @@ class EventViewRankingRepositoryRedisImplTest {
             }
 
             //when
-            Iterator<Entry<String, String>> iterator = eventViewRankingRepository.getDayViewCountIterator(
+            Iterator<EventViewsRankingItemInfo> iterator = eventViewRankingRepository.getDayViewCountIterator(
                     eventType,
                     testTime
             );
@@ -200,10 +201,8 @@ class EventViewRankingRepositoryRedisImplTest {
             int iterateCount = 0;
             while(iterator.hasNext()) {
                 iterateCount++;
-                Entry<String, String> entry = iterator.next();
-                Long eventId = Long.parseLong(entry.getKey());
-                Long viewCount = Long.parseLong(entry.getValue());
-                assertThat(eventViewCountMap.get(eventId)).isEqualTo(viewCount);
+                EventViewsRankingItemInfo item = iterator.next();
+                assertThat(eventViewCountMap.get(item.getEventId())).isEqualTo(item.getViewCount());
             }
             assertThat(eventCount).isEqualTo(iterateCount);
         }

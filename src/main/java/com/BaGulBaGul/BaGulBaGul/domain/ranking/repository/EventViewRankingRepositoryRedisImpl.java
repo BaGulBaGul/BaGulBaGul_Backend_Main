@@ -1,6 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.domain.ranking.repository;
 
 import com.BaGulBaGul.BaGulBaGul.domain.event.constant.EventType;
+import com.BaGulBaGul.BaGulBaGul.domain.ranking.dto.service.response.EventViewsRankingItemInfo;
 import java.time.LocalDateTime;
 import java.util.Iterator;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.stereotype.Repository;
@@ -23,6 +25,26 @@ public class EventViewRankingRepositoryRedisImpl implements EventViewRankingRepo
     private static final int SCAN_COUNT = 100;
 
     private final RedisTemplate<String, String> redisTemplate;
+
+    @RequiredArgsConstructor
+    static class ViewsRankingItemIterator implements Iterator<EventViewsRankingItemInfo> {
+
+        private final Cursor<Entry<String, String>> cursor;
+
+        @Override
+        public boolean hasNext() {
+            return cursor.hasNext();
+        }
+
+        @Override
+        public EventViewsRankingItemInfo next() {
+            Entry<String, String> entry = cursor.next();
+            return EventViewsRankingItemInfo.builder()
+                    .eventId(Long.parseLong(entry.getKey()))
+                    .viewCount(Long.parseLong(entry.getValue()))
+                    .build();
+        }
+    }
 
     @Override
     public void increase7DaysViewCount(Long eventId, EventType eventType, Long amount) {
@@ -59,12 +81,13 @@ public class EventViewRankingRepositoryRedisImpl implements EventViewRankingRepo
     }
 
     @Override
-    public Iterator<Entry<String, String>> getDayViewCountIterator(EventType eventType, LocalDateTime time) {
+    public Iterator<EventViewsRankingItemInfo> getDayViewCountIterator(EventType eventType, LocalDateTime time) {
         ScanOptions scanOptions = ScanOptions.scanOptions().count(SCAN_COUNT).build();
-        return redisTemplate.<String, String>opsForHash().scan(
+        Cursor<Entry<String, String>> cursor = redisTemplate.<String, String>opsForHash().scan(
                 getDayKey(eventType, time),
                 scanOptions
         );
+        return new ViewsRankingItemIterator(cursor);
     }
 
     @Override

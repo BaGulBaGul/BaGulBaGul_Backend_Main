@@ -1,6 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.domain.ranking.repository;
 
 import com.BaGulBaGul.BaGulBaGul.domain.event.constant.EventType;
+import com.BaGulBaGul.BaGulBaGul.domain.ranking.dto.service.response.EventViewsRankingItemInfo;
 import java.time.LocalDateTime;
 import java.util.Iterator;
 import java.util.List;
@@ -17,7 +18,7 @@ public interface EventViewRankingRepository {
     //특정 날짜에서 특정 이벤트의 조회수를 증가
     void increaseDayViewCount(Long eventId, EventType eventType, LocalDateTime time, Long amount);
     //특정 날짜의 특정 이벤트 타입에 대해 순회
-    Iterator<Entry<String, String>> getDayViewCountIterator(EventType eventType, LocalDateTime time);
+    Iterator<EventViewsRankingItemInfo> getDayViewCountIterator(EventType eventType, LocalDateTime time);
     //특정 날짜의 조회수 정보를 전부 삭제
     void deleteAllDayViewCountByTime(EventType eventType, LocalDateTime time);
 }
