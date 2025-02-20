@@ -8,11 +8,11 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentRepository;
 
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
-import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentAlarmInfo;
-import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentChildAlarmInfo;
-import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentChildLikeAlarmInfo;
-import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentLikeAlarmInfo;
-import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewPostLikeAlarmInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.alarm.dto.service.creator.post.NewCommentAlarmInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.alarm.dto.service.creator.post.NewCommentChildAlarmInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.alarm.dto.service.creator.post.NewCommentChildLikeAlarmInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.alarm.dto.service.creator.post.NewCommentLikeAlarmInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.alarm.dto.service.creator.post.NewPostLikeAlarmInfo;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

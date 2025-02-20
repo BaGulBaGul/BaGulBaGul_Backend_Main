@@ -11,7 +11,6 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.response.PostDetailInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
-import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostService;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.Recruitment;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.applicationevent.NewRecruitmentLikeApplicationEvent;
@@ -27,8 +26,8 @@ import com.BaGulBaGul.BaGulBaGul.domain.recruitment.exception.RecruitmentNotFoun
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.repository.RecruitmentRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.repository.querydsl.FindRecruitmentByCondition.RecruitmentIdsWithTotalCountOfPageResult;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
-import com.BaGulBaGul.BaGulBaGul.domain.user.info.exception.UserNotFoundException;
-import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.UserRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.user.exception.UserNotFoundException;
+import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserRepository;
 import com.BaGulBaGul.BaGulBaGul.global.exception.NoPermissionException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -47,7 +46,6 @@ public class RecruitmentServiceImpl implements RecruitmentService {
     private final RecruitmentRepository recruitmentRepository;
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
-    private final PostRepository postRepository;
 
     private final PostService postService;
 
@@ -101,12 +99,6 @@ public class RecruitmentServiceImpl implements RecruitmentService {
                 .recruitment(recruitmentDetailInfo)
                 .post(postDetailInfo)
                 .build();
-
-        //조회수 증가
-        postRepository.increaseViewsById(recruitment.getPost().getId());
-
-        //방금 조회한 조회수를 반영해줌.
-        postDetailInfo.setViews(postDetailInfo.getViews() + 1);
 
         return response;
     }

@@ -29,11 +29,10 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.response.PostDetailInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
-import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostService;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
-import com.BaGulBaGul.BaGulBaGul.domain.user.info.exception.UserNotFoundException;
-import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.UserRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.user.exception.UserNotFoundException;
+import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserRepository;
 import com.BaGulBaGul.BaGulBaGul.global.exception.NoPermissionException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -48,8 +47,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
-
-    private final PostRepository postRepository;
+    
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final EventCategoryRepository eventCategoryRepository;
@@ -58,49 +56,6 @@ public class EventServiceImpl implements EventService {
     private final PostService postService;
 
     private final ApplicationEventPublisher applicationEventPublisher;
-
-    @Override
-    @Transactional
-    public EventSimpleInfo getEventSimpleInfoById(Long eventId) {
-        Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException());
-        return EventSimpleInfo.builder()
-                .eventId(event.getId())
-                .type(event.getType())
-                .abstractLocation(event.getAbstractLocation())
-                .currentHeadCount(event.getCurrentHeadCount())
-                .maxHeadCount(event.getMaxHeadCount())
-                .startDate(event.getStartDate())
-                .endDate(event.getEndDate())
-                .categories(
-                        event.getCategories().stream()
-                                .map(eventCategory -> eventCategory.getCategory().getName())
-                                .collect(Collectors.toList())
-                )
-                .build();
-    }
-
-    @Override
-    public EventDetailInfo getEventDetailInfoById(Long eventId) {
-        Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException());
-        return EventDetailInfo.builder()
-                .eventId(event.getId())
-                .type(event.getType())
-                .currentHeadCount(event.getCurrentHeadCount())
-                .maxHeadCount(event.getMaxHeadCount())
-                .fullLocation(event.getFullLocation())
-                .abstractLocation(event.getAbstractLocation())
-                .latitudeLocation(event.getLatitudeLocation())
-                .longitudeLocation(event.getLongitudeLocation())
-                .ageLimit(event.getAgeLimit())
-                .startDate(event.getStartDate())
-                .endDate(event.getEndDate())
-                .categories(
-                        event.getCategories().stream()
-                                .map(eventCategory -> eventCategory.getCategory().getName())
-                                .collect(Collectors.toList())
-                )
-                .build();
-    }
 
     @Override
     @Transactional
@@ -113,7 +68,7 @@ public class EventServiceImpl implements EventService {
         }
 
         //필요한 정보 추출
-        EventDetailInfo eventDetailInfo = getEventDetailInfoById(eventId);
+        EventDetailInfo eventDetailInfo = getEventDetailInfo(event);
         PostDetailInfo postDetailInfo = postService.getPostDetailInfo(event.getPost().getId());
 
         //응답 dto 생성
@@ -121,12 +76,6 @@ public class EventServiceImpl implements EventService {
                 .event(eventDetailInfo)
                 .post(postDetailInfo)
                 .build();
-
-        //조회수 증가
-        postRepository.increaseViewsById(event.getPost().getId());
-
-        //방금 증가시킨 조회수를 반영해줌.
-        postDetailInfo.setViews(postDetailInfo.getViews() + 1);
 
         return eventDetailResponse;
     }
@@ -139,18 +88,26 @@ public class EventServiceImpl implements EventService {
     ) {
         //조건에 해당하는 event id를 페이지 검색함.
         EventIdsWithTotalCountOfPageResult pageResult = eventRepository.getEventIdsByConditionAndPageable(eventConditionalRequest, pageable);
+        //순서 유지한 채로 EventSimpleResponse로 변환
+        List<EventSimpleResponse> eventSimpleResponses = getEventSimpleResponseByIds(pageResult.getEventIds());
+        //페이지 정보로 변환
+        return new PageImpl<>(eventSimpleResponses, pageable, pageResult.getTotalCount());
+    }
+
+    @Override
+    @Transactional
+    public List<EventSimpleResponse> getEventSimpleResponseByIds(List<Long> eventIds) {
         //필요한 정보를 fetch join
-        eventRepository.findWithPostAndUserAndCategoriesByIds(pageResult.getEventIds());
+        eventRepository.findWithPostAndUserAndCategoriesByIds(eventIds);
         //페이지 조회한 ids를 순서대로 EventSimpleResponse로 변환
-        List<EventSimpleResponse> eventSimpleResponses = pageResult.getEventIds()
+        List<EventSimpleResponse> eventSimpleResponses = eventIds
                 .stream()
                 .map(eventRepository::findById)
                 .map(event -> new EventSimpleResponse(
-                                getEventSimpleInfoById(event.get().getId()),
-                                postService.getPostSimpleInfo(event.get().getPost().getId())))
+                        getEventSimpleInfo(event.get()),
+                        postService.getPostSimpleInfo(event.get().getPost().getId())))
                 .collect(Collectors.toList());
-        //페이지 정보로 변환
-        return new PageImpl<>(eventSimpleResponses, pageable, pageResult.getTotalCount());
+        return eventSimpleResponses;
     }
 
     @Override
@@ -352,5 +309,43 @@ public class EventServiceImpl implements EventService {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         //게시글에 대한 권한 확인에 위임
         postService.checkWritePermission(event.getPost(), user);
+    }
+
+    private EventSimpleInfo getEventSimpleInfo(Event event) {
+        return EventSimpleInfo.builder()
+                .eventId(event.getId())
+                .type(event.getType())
+                .abstractLocation(event.getAbstractLocation())
+                .currentHeadCount(event.getCurrentHeadCount())
+                .maxHeadCount(event.getMaxHeadCount())
+                .startDate(event.getStartDate())
+                .endDate(event.getEndDate())
+                .categories(
+                        event.getCategories().stream()
+                                .map(eventCategory -> eventCategory.getCategory().getName())
+                                .collect(Collectors.toList())
+                )
+                .build();
+    }
+
+    private EventDetailInfo getEventDetailInfo(Event event) {
+        return EventDetailInfo.builder()
+                .eventId(event.getId())
+                .type(event.getType())
+                .currentHeadCount(event.getCurrentHeadCount())
+                .maxHeadCount(event.getMaxHeadCount())
+                .fullLocation(event.getFullLocation())
+                .abstractLocation(event.getAbstractLocation())
+                .latitudeLocation(event.getLatitudeLocation())
+                .longitudeLocation(event.getLongitudeLocation())
+                .ageLimit(event.getAgeLimit())
+                .startDate(event.getStartDate())
+                .endDate(event.getEndDate())
+                .categories(
+                        event.getCategories().stream()
+                                .map(eventCategory -> eventCategory.getCategory().getName())
+                                .collect(Collectors.toList())
+                )
+                .build();
     }
 }

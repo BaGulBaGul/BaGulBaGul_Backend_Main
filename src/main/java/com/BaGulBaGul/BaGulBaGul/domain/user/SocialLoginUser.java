@@ -1,6 +1,6 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user;
 
-import com.BaGulBaGul.BaGulBaGul.domain.user.auth.oauth2.constant.OAuth2Provider;
+import com.BaGulBaGul.BaGulBaGul.global.auth.oauth2.constant.OAuth2Provider;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;

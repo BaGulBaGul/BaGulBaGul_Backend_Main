@@ -1,8 +1,10 @@
 package com.BaGulBaGul.BaGulBaGul.domain.recruitment.controller;
 
+import com.BaGulBaGul.BaGulBaGul.domain.event.applicationevent.QueryEventDetailByUserApplicationEvent;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.LikeCountResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.applicationevent.QueryRecruitmentDetailByUserApplicationEvent;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.response.GetLikeRecruitmentResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.request.RecruitmentConditionalRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.response.RecruitmentDetailResponse;
@@ -23,6 +25,7 @@ import com.BaGulBaGul.BaGulBaGul.global.validation.ValidationUtil;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -42,6 +45,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class RecruitmentControllerImpl implements RecruitmentController {
 
     private final RecruitmentService recruitmentService;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     @GetMapping("/recruitment/{recruitmentId}")
@@ -51,7 +55,13 @@ public class RecruitmentControllerImpl implements RecruitmentController {
     public ApiResponse<RecruitmentDetailApiResponse> getRecruitmentById(
             @PathVariable(name="recruitmentId") Long recruitmentId
     ) {
+        //모집글 상세조회
         RecruitmentDetailResponse recruitmentDetailResponse = recruitmentService.getRecruitmentDetailById(recruitmentId);
+        //모집글을 유저가 상세조회 했을 경우에 대한 이벤트 발행
+        applicationEventPublisher.publishEvent(
+                new QueryRecruitmentDetailByUserApplicationEvent(recruitmentDetailResponse)
+        );
+        //api 응답으로 변환
         RecruitmentDetailApiResponse response = RecruitmentDetailApiResponse.from(recruitmentDetailResponse);
         return ApiResponse.of(response);
     }
