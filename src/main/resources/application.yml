@@ -24,6 +24,7 @@ spring:
       - auth
       - upload
       - redis
+      - batch
   #spring boot 2.6이후에 기본값이 ant_path_matcher에서 path_pattern_parser로 변경되면서 swagger에서 업데이트가 되지 않아 오류
   #그래서 기본값을 바꿔준다.
   mvc:
