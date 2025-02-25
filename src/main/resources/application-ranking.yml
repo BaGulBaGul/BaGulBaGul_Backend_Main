@@ -1,0 +1,6 @@
+ranking:
+  event:
+    aggregate-period: 7
+    batch:
+      scheduler:
+        cron: ${EVENT_RANKING_UPDATE_JOB_SCHEDULER_CRON}
