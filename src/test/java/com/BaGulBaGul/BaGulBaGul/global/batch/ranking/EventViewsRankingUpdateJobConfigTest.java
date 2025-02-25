@@ -6,6 +6,8 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.constant.EventType;
 import com.BaGulBaGul.BaGulBaGul.domain.ranking.dto.service.response.EventViewsRankingItemInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.ranking.repository.EventViewRankingRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.ranking.repository.EventViewRankingRepositoryRedisImpl;
+import com.BaGulBaGul.BaGulBaGul.extension.AllTestContainerExtension;
+import com.BaGulBaGul.BaGulBaGul.extension.MysqlTestContainerExtension;
 import com.BaGulBaGul.BaGulBaGul.extension.RedisTestContainerExtension;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -40,8 +42,8 @@ import org.springframework.test.context.ActiveProfiles;
 
 @SpringBatchTest
 @SpringBootTest
-@ExtendWith(RedisTestContainerExtension.class)
-@ActiveProfiles("test2")
+@ExtendWith(AllTestContainerExtension.class)
+@ActiveProfiles("test")
 class EventViewsRankingUpdateJobConfigTest {
 
     @Autowired

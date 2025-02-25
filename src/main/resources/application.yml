@@ -1,23 +1,15 @@
 spring:
   profiles:
     active:
-      - dev2
+      - dev
     group:
       dev:
-        - db-dev
-        - db-h2
-        - upload-aws
-      dev2:
         - db-dev
         - db-mysql
         - upload-aws
       test:
-        - db-test
-        - db-h2
-        - upload-aws
-      test2:
         - db-dev
-        - db-test-mysql
+        - db-mysql
         - upload-aws
     include:
       - db

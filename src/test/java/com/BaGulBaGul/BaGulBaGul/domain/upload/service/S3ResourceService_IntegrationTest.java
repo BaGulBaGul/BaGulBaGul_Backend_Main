@@ -11,6 +11,8 @@ import com.BaGulBaGul.BaGulBaGul.domain.upload.Resource;
 import com.BaGulBaGul.BaGulBaGul.domain.upload.constant.StorageVendor;
 import com.BaGulBaGul.BaGulBaGul.domain.upload.repository.ResourceRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.upload.service.S3ResourceService;
+import com.BaGulBaGul.BaGulBaGul.extension.AllTestContainerExtension;
+import com.BaGulBaGul.BaGulBaGul.extension.MysqlTestContainerExtension;
 import com.amazonaws.services.s3.AmazonS3;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -32,6 +34,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 @ExtendWith(MockitoExtension.class)
+@ExtendWith(AllTestContainerExtension.class)
 @SpringBootTest
 @ActiveProfiles("test")
 class S3ResourceService_IntegrationTest {

@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.BaGulBaGul.BaGulBaGul.domain.ranking.dto.service.response.EventViewsRankingItemInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.ranking.repository.EventViewRankingRepositoryRedisImpl;
+import com.BaGulBaGul.BaGulBaGul.extension.AllTestContainerExtension;
+import com.BaGulBaGul.BaGulBaGul.extension.MysqlTestContainerExtension;
 import com.BaGulBaGul.BaGulBaGul.extension.RedisTestContainerExtension;
 import com.BaGulBaGul.BaGulBaGul.domain.event.constant.EventType;
 import java.lang.reflect.InvocationTargetException;
@@ -34,8 +36,8 @@ import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
 import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
-@ExtendWith(RedisTestContainerExtension.class)
-@ActiveProfiles("test2")
+@ExtendWith(AllTestContainerExtension.class)
+@ActiveProfiles("test")
 class EventViewRankingRepositoryRedisImplTest {
 
     @Autowired
