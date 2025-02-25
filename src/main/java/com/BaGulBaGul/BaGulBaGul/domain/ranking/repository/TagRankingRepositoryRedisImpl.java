@@ -138,6 +138,7 @@ public class TagRankingRepositoryRedisImpl implements TagRankingRepository {
     }
 
     private String getDayKey(LocalDateTime time) {
+        time = time.withHour(0).withMinute(0).withSecond(0).withNano(0);
         return String.format(KEY_DAY_FORMAT, time);
     }
 }

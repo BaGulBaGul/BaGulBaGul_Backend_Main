@@ -163,7 +163,8 @@ public class EventViewRankingRepositoryRedisImpl implements EventViewRankingRepo
         return String.format(KEY_7DAYS_FORMAT, eventType);
     }
 
-    private String getDayKey(EventType eventType, LocalDateTime localDateTime) {
-        return String.format(KEY_DAY_FORMAT, eventType, localDateTime);
+    private String getDayKey(EventType eventType, LocalDateTime time) {
+        time = time.withHour(0).withMinute(0).withSecond(0).withNano(0);
+        return String.format(KEY_DAY_FORMAT, eventType, time);
     }
 }
