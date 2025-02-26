@@ -6,6 +6,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.request.PostRegisterReq
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.request.RecruitmentRegisterRequest;
 import io.swagger.annotations.ApiModelProperty;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.Min;
@@ -27,6 +28,7 @@ public class RecruitmentRegisterApiRequest {
 
     @ApiModelProperty(value = "모집 인원")
     private Integer maxHeadCount;
+
     @ApiModelProperty(value = "현재 인원")
     private Integer currentHeadCount;
 
@@ -43,10 +45,10 @@ public class RecruitmentRegisterApiRequest {
     private String content;
 
     @ApiModelProperty(value = "태그들", example = "[\"물놀이\",\"바베큐\"]")
-    private List<String> tags;
+    private List<String> tags = Collections.emptyList();
 
     @ApiModelProperty(value = "등록한 이미지들의 resource id. 순서는 보존되며 첫번째 이미지가 대표이미지가 된다.")
-    private List<Long> imageIds;
+    private List<Long> imageIds = Collections.emptyList();
 
     public RecruitmentRegisterRequest toRecruitmentRegisterRequest() {
         return RecruitmentRegisterRequest.builder()

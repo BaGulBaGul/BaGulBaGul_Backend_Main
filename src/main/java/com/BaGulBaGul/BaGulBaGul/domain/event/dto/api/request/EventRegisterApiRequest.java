@@ -8,6 +8,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventRegisterR
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.request.PostRegisterRequest;
 import io.swagger.annotations.ApiModelProperty;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,7 +30,7 @@ public class EventRegisterApiRequest {
     private Boolean ageLimit;
 
     @ApiModelProperty(value = "등록할 카테고리의 이름들", example = "[\"스포츠/레저\",\"식품/음료\",\"문화/예술\"]")
-    private List<String> categories;
+    private List<String> categories = Collections.emptyList();
 
 
     @ApiModelProperty(value = "이벤트 제목 | 필수, 공백 불허")
@@ -39,10 +40,10 @@ public class EventRegisterApiRequest {
     private String content;
 
     @ApiModelProperty(value = "태그들", example = "[\"물놀이\",\"바베큐\"]")
-    private List<String> tags;
+    private List<String> tags = Collections.emptyList();
 
     @ApiModelProperty(value = "등록한 이미지들의 resource id. 순서는 보존되며 첫번째 이미지가 대표이미지가 된다.")
-    private List<Long> imageIds;
+    private List<Long> imageIds = Collections.emptyList();
 
 
     @ApiModelProperty(value = "세부 주소", example = "서울시 영등포구 xxx로 xxx타워 x층")
