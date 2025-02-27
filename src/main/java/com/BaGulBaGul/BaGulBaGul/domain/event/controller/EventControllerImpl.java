@@ -1,6 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.domain.event.controller;
 
 import com.BaGulBaGul.BaGulBaGul.domain.event.applicationevent.QueryEventDetailByUserApplicationEvent;
+import com.BaGulBaGul.BaGulBaGul.domain.event.applicationevent.QueryEventWithConditionByUserApplicationEvent;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventConditionalRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.EventDetailResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventModifyRequest;
@@ -81,6 +82,10 @@ public class EventControllerImpl implements EventController {
         //조건에 맞는 이벤트 페이지 검색
         Page<EventSimpleResponse> eventSimpleResponses = eventService.getEventPageByCondition(eventConditionalRequest,
                 pageable);
+        //이벤트를 유저가 조건검색 했을 경우에 대한 이벤트 발행
+        applicationEventPublisher.publishEvent(
+                new QueryEventWithConditionByUserApplicationEvent(eventConditionalRequest)
+        );
         //api 응답 dto로 변환
         Page<EventPageApiResponse> eventPageApiResponse = eventSimpleResponses.map(EventPageApiResponse::from);
         return ApiResponse.of(eventPageApiResponse);

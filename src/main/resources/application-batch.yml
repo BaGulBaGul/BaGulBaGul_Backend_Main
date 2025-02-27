@@ -1,0 +1,17 @@
+spring:
+  batch:
+    job:
+      enabled: false #자동 실행 비활성화
+app:
+  scheduling:
+    enable: true
+---
+spring:
+  config:
+    activate:
+      on-profile:
+      - 'test'
+      - 'test2'
+app:
+  scheduling:
+    enable: false

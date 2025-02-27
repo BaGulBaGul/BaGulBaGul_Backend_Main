@@ -5,6 +5,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.LikeCountResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.applicationevent.QueryRecruitmentDetailByUserApplicationEvent;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.applicationevent.QueryRecruitmentWithConditionByUserApplicationEvent;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.response.GetLikeRecruitmentResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.request.RecruitmentConditionalRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.response.RecruitmentDetailResponse;
@@ -87,6 +88,10 @@ public class RecruitmentControllerImpl implements RecruitmentController {
         Page<RecruitmentSimpleResponse> recruitmentPageByCondition = recruitmentService.getRecruitmentPageByCondition(
                 recruitmentPageApiRequest.toRecruitmentConditionalRequest(),
                 pageable
+        );
+        //모집글을 유저가 조건검색 했을 경우에 대한 이벤트 발행
+        applicationEventPublisher.publishEvent(
+                new QueryRecruitmentWithConditionByUserApplicationEvent(recruitmentConditionalRequest)
         );
         //페이지 api 응답 dto로 변환
         Page<RecruitmentPageApiResponse> responses = recruitmentPageByCondition.map(RecruitmentPageApiResponse::from);

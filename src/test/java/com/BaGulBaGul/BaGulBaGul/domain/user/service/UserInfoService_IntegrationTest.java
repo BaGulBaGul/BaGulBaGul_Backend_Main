@@ -17,6 +17,8 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.sampledata.UserSample;
 import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserImageService;
 import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserInfoService;
 import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserJoinService;
+import com.BaGulBaGul.BaGulBaGul.extension.AllTestContainerExtension;
+import com.BaGulBaGul.BaGulBaGul.extension.MysqlTestContainerExtension;
 import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -32,8 +34,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 @ExtendWith(MockitoExtension.class)
+@ExtendWith(AllTestContainerExtension.class)
 @SpringBootTest
-@ActiveProfiles("test2")
+@ActiveProfiles("test")
 class UserInfoService_IntegrationTest {
 
     @MockBean

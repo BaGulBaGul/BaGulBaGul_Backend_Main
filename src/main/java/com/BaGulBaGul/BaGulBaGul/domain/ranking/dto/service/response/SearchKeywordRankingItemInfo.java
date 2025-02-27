@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @Builder
 @AllArgsConstructor
-public class EventViewsRankingItemInfo {
-    private Long eventId;
-    private Long viewCount;
+public class SearchKeywordRankingItemInfo {
+    private String keyword;
+    private Long referenceCount;
 }

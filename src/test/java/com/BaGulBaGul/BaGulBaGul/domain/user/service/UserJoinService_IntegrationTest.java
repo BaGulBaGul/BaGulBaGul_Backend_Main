@@ -7,6 +7,8 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.dto.UserRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.exception.DuplicateUsernameException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.sampledata.UserSample;
 import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserJoinService;
+import com.BaGulBaGul.BaGulBaGul.extension.AllTestContainerExtension;
+import com.BaGulBaGul.BaGulBaGul.extension.MysqlTestContainerExtension;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -18,8 +20,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 @ExtendWith(MockitoExtension.class)
+@ExtendWith(AllTestContainerExtension.class)
 @SpringBootTest
-@ActiveProfiles("test2")
+@ActiveProfiles("test")
 public class UserJoinService_IntegrationTest {
 
     @Autowired

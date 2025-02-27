@@ -7,6 +7,8 @@ import static org.mockito.Mockito.verify;
 
 import com.BaGulBaGul.BaGulBaGul.domain.upload.service.ResourceService;
 import com.BaGulBaGul.BaGulBaGul.domain.upload.service.TransactionResourceService;
+import com.BaGulBaGul.BaGulBaGul.extension.AllTestContainerExtension;
+import com.BaGulBaGul.BaGulBaGul.extension.MysqlTestContainerExtension;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -21,6 +23,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 @ExtendWith(MockitoExtension.class)
+@ExtendWith(AllTestContainerExtension.class)
 @SpringBootTest
 @ActiveProfiles("test")
 class TransactionResourceService_IntegrationTest {
