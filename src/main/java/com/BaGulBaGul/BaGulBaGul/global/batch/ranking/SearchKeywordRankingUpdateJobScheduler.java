@@ -12,21 +12,21 @@ import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
 import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
 import org.springframework.batch.core.repository.JobRestartException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Value;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class EventViewsRankingJobScheduler {
+public class SearchKeywordRankingUpdateJobScheduler {
     private final JobLauncher jobLauncher;
-    private final Job eventViewsRankingUpdateJob;
+    private final Job searchKeywordRankingUpdateJob;
 
-    @Value("${ranking.event.aggregate-period}")
+    @Value("${ranking.search.aggregate-period}")
     private int AGGREGATE_PERIOD;
 
-    @Scheduled(cron = "${ranking.event.batch.scheduler.cron}")
+    @Scheduled(cron = "${ranking.search.batch.scheduler.cron}")
     public void run() {
         //현재 시간에서 AGGREGATE_PERIOD일 전 날짜를 job parameter로 사용
         Calendar nowCalendar = Calendar.getInstance();
@@ -42,7 +42,7 @@ public class EventViewsRankingJobScheduler {
                 .toJobParameters();
         log.info("작업");
         try {
-            jobLauncher.run(eventViewsRankingUpdateJob, jobParameters);
+            jobLauncher.run(searchKeywordRankingUpdateJob, jobParameters);
         } catch (JobExecutionAlreadyRunningException e) {
             log.info("이미 작업이 실행 중");
         } catch (JobRestartException e) {

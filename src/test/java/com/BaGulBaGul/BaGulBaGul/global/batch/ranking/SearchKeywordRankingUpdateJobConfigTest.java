@@ -2,30 +2,22 @@ package com.BaGulBaGul.BaGulBaGul.global.batch.ranking;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.BaGulBaGul.BaGulBaGul.domain.event.constant.EventType;
-import com.BaGulBaGul.BaGulBaGul.domain.ranking.dto.service.response.EventViewsRankingItemInfo;
-import com.BaGulBaGul.BaGulBaGul.domain.ranking.repository.EventViewRankingRepository;
-import com.BaGulBaGul.BaGulBaGul.domain.ranking.repository.EventViewRankingRepositoryRedisImpl;
+import com.BaGulBaGul.BaGulBaGul.domain.ranking.dto.service.response.SearchKeywordRankingItemInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.ranking.dto.service.response.TagRankingItemInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.ranking.repository.SearchKeywordRankingRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.ranking.repository.TagRankingRepository;
 import com.BaGulBaGul.BaGulBaGul.extension.AllTestContainerExtension;
-import com.BaGulBaGul.BaGulBaGul.extension.MysqlTestContainerExtension;
-import com.BaGulBaGul.BaGulBaGul.extension.RedisTestContainerExtension;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
@@ -37,30 +29,26 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.context.ActiveProfiles;
 
 @SpringBatchTest
 @SpringBootTest
 @ExtendWith(AllTestContainerExtension.class)
 @ActiveProfiles("test")
-class EventViewsRankingUpdateJobConfigTest {
+class SearchKeywordRankingUpdateJobConfigTest {
 
     @Autowired
     JobLauncherTestUtils jobLauncherTestUtils;
 
     @Autowired
-    EventViewRankingRepository eventViewRankingRepository;
-
-    @Autowired
-    RedisTemplate<String, String> redisTemplate;
+    SearchKeywordRankingRepository searchKeywordRankingRepository;
 
     @TestConfiguration
     static class TestContextConfiguration {
         @Bean
         @Primary
-        Job testJob(@Qualifier("eventViewsRankingUpdateJob") Job eventViewsRankingUpdateJob) {
-            return eventViewsRankingUpdateJob;
+        Job testJob(@Qualifier("searchKeywordRankingUpdateJob") Job searchKeywordRankingUpdateJob) {
+            return searchKeywordRankingUpdateJob;
         }
     }
 
@@ -70,35 +58,24 @@ class EventViewsRankingUpdateJobConfigTest {
 
     @AfterEach
     void tearDown() {
-        for(EventType eventType : EventType.values()) {
-            eventViewRankingRepository.deleteAllDayViewCountByTime(eventType, targetLocalDateTime);
-            eventViewRankingRepository.deleteAllDayViewCountByTime(eventType, notToDeleteTime);
-            eventViewRankingRepository.deleteAll7DaysViewCount(eventType);
-        }
+        searchKeywordRankingRepository.deleteAllDayKeywordsByTime(targetLocalDateTime);
+        searchKeywordRankingRepository.deleteAllDayKeywordsByTime(notToDeleteTime);
+        searchKeywordRankingRepository.deleteAll7DaysKeywords();
     }
 
-    @ParameterizedTest
-    @EnumSource(EventType.class)
+    @Test
     @DisplayName("성공")
-    void success(EventType eventType) throws Exception {
+    void success() throws Exception {
         //given
         //반영 대상 데이터
         int eventCount = 200;
+        List<SearchKeywordRankingItemInfo> items = new ArrayList<>();
         for(int i = 0; i < eventCount; i++) {
-            eventViewRankingRepository.increaseDayViewCount(
-                    (long) i,
-                    eventType,
-                    targetLocalDateTime,
-                    (long) i
-            );
+            items.add(new SearchKeywordRankingItemInfo(String.valueOf(i), (long) i));
         }
+        searchKeywordRankingRepository.increaseDayKeywords(targetLocalDateTime, items);
         //영향받지 않을 날짜의 데이터 1개
-        eventViewRankingRepository.increaseDayViewCount(
-                1L,
-                eventType,
-                notToDeleteTime,
-                1L
-        );
+        searchKeywordRankingRepository.increaseDayKeywords(notToDeleteTime, items.subList(0, 1));
 
         //when
         Random random = new Random();
@@ -110,20 +87,16 @@ class EventViewsRankingUpdateJobConfigTest {
 
         //then
         //targetDate의 모든 조회수가 최근 7일 조회수에 -로 반영
-        List<Long> topK = eventViewRankingRepository.getTopKRankEventFrom7DaysViewCount(
-                eventType,
-                eventCount
-        );
+        List<String> topK = searchKeywordRankingRepository.getTopKKeywordsFrom7Days(eventCount);
         for(int i=0; i<eventCount; i++) {
-            assertThat(topK.get(i)).isEqualTo(i);
+            assertThat(Long.parseLong(topK.get(i))).isEqualTo(i);
         }
         //targetDate의 모든 조회수 삭제
-        Iterator<EventViewsRankingItemInfo> iterator = eventViewRankingRepository.getDayViewCountIterator(eventType,
+        Iterator<SearchKeywordRankingItemInfo> iterator = searchKeywordRankingRepository.getDayKeywordsIterator(
                 targetLocalDateTime);
         assertThat(iterator.hasNext()).isFalse();
         //notToDeleteTime의 조회수는 삭제되면 안됨
-        iterator = eventViewRankingRepository.getDayViewCountIterator(eventType,
-                notToDeleteTime);
+        iterator = searchKeywordRankingRepository.getDayKeywordsIterator(notToDeleteTime);
         assertThat(iterator.hasNext()).isTrue();
     }
 }

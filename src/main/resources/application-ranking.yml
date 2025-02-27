@@ -4,3 +4,13 @@ ranking:
     batch:
       scheduler:
         cron: ${EVENT_RANKING_UPDATE_JOB_SCHEDULER_CRON}
+  tag:
+    aggregate-period: 7
+    batch:
+      scheduler:
+        cron: ${TAG_RANKING_UPDATE_JOB_SCHEDULER_CRON}
+  search:
+    aggregate-period: 7
+    batch:
+      scheduler:
+        cron: ${SEARCH_RANKING_UPDATE_JOB_SCHEDULER_CRON}
