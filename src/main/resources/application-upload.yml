@@ -14,3 +14,9 @@ cloud:
       auto: false
     stack:
       auto: false
+resource:
+  temp:
+    effective-minute: ${TEMP_RESOURCE_EFFECTIVE_MINUTE}
+    batch:
+      scheduler:
+        cron: ${CLEAR_TEMP_RESOURCE_JOB_SCHEDULER_CRON}
