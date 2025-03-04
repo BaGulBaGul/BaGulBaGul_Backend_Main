@@ -145,6 +145,20 @@ public class S3ResourceService extends ResourceService {
         s3TempResourceRepository.deleteAllByIdInBatch(resourceIds);
     }
 
+    @Override
+    @Transactional
+    public void deleteTempResource(Long resourceId) {
+        s3TempResourceRepository.deleteById(resourceId);
+        deleteResource(resourceId);
+    }
+
+    @Override
+    @Transactional
+    public void deleteTempResources(List<Long> resourceIds) {
+        s3TempResourceRepository.deleteAllByIdInBatch(resourceIds);
+        deleteResources(resourceIds);
+    }
+
     private String getUrlFromKey(String key) {
         return amazonS3.getUrl(bucketName, key).toString();
     }
