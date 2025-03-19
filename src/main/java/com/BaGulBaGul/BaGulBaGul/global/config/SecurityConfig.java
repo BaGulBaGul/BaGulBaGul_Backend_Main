@@ -57,6 +57,9 @@ public class SecurityConfig {
                 //ranking 비로그인 허용
                 .antMatchers(HttpMethod.GET, "/api/ranking/**").permitAll()
 
+                //상태 체크 비로그인 허용
+                .antMatchers(HttpMethod.GET, "/").permitAll()
+
                 //나머지 로그인 필요
                 .anyRequest().authenticated();
 
