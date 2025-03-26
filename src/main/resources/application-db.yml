@@ -5,15 +5,6 @@ spring:
       default_batch_fetch_size: 100
     open-in-view: false
 ---
-#테스트 환경이 아닐 경우 flyway 설정
-spring:
-  config:
-    active:
-      on-profile: '!db-test'
-  flyway:
-    locations: classpath:db/migration
-    enabled: true
----
 #dev용 db 설정
 spring:
   config:
@@ -28,21 +19,22 @@ spring:
         use_sql_comments: true
         format_sql: true
 ---
-#test용 db 설정
+#mysql용 db 설정
 spring:
   config:
     activate:
-      on-profile: 'db-test'
+      on-profile: 'db-mysql'
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${MYSQL_URL}
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
   jpa:
-    show-sql: true
-    hibernate:
-      ddl-auto: create
-    properties:
-      hibernate:
-        use_sql_comments: true
-        format_sql: true
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
   flyway:
-    enabled: false
+    locations: classpath:db/migration
+    enabled: true
 ---
 #h2용 db 설정
 spring:
@@ -57,31 +49,5 @@ spring:
   datasource:
     url: jdbc:h2:mem:BaGulBaGul;NON_KEYWORDS=USER;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     driverClassName: org.h2.Driver
----
-#mysql용 db 설정
-spring:
-  config:
-    activate:
-      on-profile: 'db-mysql'
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${MYSQL_URL}
-    username: ${MYSQL_USERNAME}
-    password: ${MYSQL_PASSWORD}
-  jpa:
-    database: mysql
-    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
----
-#mysql 테스트용 db 설정
-spring:
-  config:
-    activate:
-      on-profile: 'db-test-mysql'
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${MYSQL_TEST_URL}
-    username: ${MYSQL_TEST_USERNAME}
-    password: ${MYSQL_TEST_PASSWORD}
-  jpa:
-    database: mysql
-    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+  flyway:
+    enabled: false

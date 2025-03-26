@@ -1,7 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.domain.event.repository.querydsl;
 
 import com.BaGulBaGul.BaGulBaGul.domain.event.QEvent;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventConditionalRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventConditionalRequest;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQuery;
 import java.util.List;

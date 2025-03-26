@@ -1,10 +1,10 @@
 package com.BaGulBaGul.BaGulBaGul.domain.post.service;
 
-import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentAlarmInfo;
-import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentChildAlarmInfo;
-import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentChildLikeAlarmInfo;
-import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewCommentLikeAlarmInfo;
-import com.BaGulBaGul.BaGulBaGul.domain.user.alarm.service.creator.post.NewPostLikeAlarmInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.alarm.dto.service.creator.post.NewCommentAlarmInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.alarm.dto.service.creator.post.NewCommentChildAlarmInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.alarm.dto.service.creator.post.NewCommentChildLikeAlarmInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.alarm.dto.service.creator.post.NewCommentLikeAlarmInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.alarm.dto.service.creator.post.NewPostLikeAlarmInfo;
 import java.time.LocalDateTime;
 
 public interface PostAlarmService {

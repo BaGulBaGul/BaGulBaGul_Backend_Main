@@ -1,8 +1,8 @@
 package com.BaGulBaGul.BaGulBaGul.global.config;
 
-import com.BaGulBaGul.BaGulBaGul.domain.user.auth.filter.JwtAuthenticationFilter;
-import com.BaGulBaGul.BaGulBaGul.domain.user.auth.oauth2.OAuth2SuccessHandler;
-import com.BaGulBaGul.BaGulBaGul.domain.user.auth.oauth2.OAuth2UserService;
+import com.BaGulBaGul.BaGulBaGul.global.auth.filter.JwtAuthenticationFilter;
+import com.BaGulBaGul.BaGulBaGul.global.auth.oauth2.OAuth2SuccessHandler;
+import com.BaGulBaGul.BaGulBaGul.global.auth.oauth2.OAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -53,6 +53,12 @@ public class SecurityConfig {
                 .regexMatchers(HttpMethod.GET, "/api/user/info/\\d+").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/user/join/social").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/user/join/check-duplicate-username").permitAll()
+
+                //ranking 비로그인 허용
+                .antMatchers(HttpMethod.GET, "/api/ranking/**").permitAll()
+
+                //상태 체크 비로그인 허용
+                .antMatchers(HttpMethod.GET, "/").permitAll()
 
                 //나머지 로그인 필요
                 .anyRequest().authenticated();

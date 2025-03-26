@@ -1,23 +1,33 @@
 package com.BaGulBaGul.BaGulBaGul.domain.event.controller;
 
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventConditionalRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventDetailResponse;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventModifyRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventRegisterRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventRegisterResponse;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventSimpleResponse;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.GetLikeEventRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.GetLikeEventResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.event.applicationevent.QueryEventDetailByUserApplicationEvent;
+import com.BaGulBaGul.BaGulBaGul.domain.event.applicationevent.QueryEventWithConditionByUserApplicationEvent;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventConditionalRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.EventDetailResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.EventSimpleResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.GetLikeEventRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.GetLikeEventResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.request.EventModifyApiRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.request.EventPageApiRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.request.EventRegisterApiRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.request.GetLikeEventApiRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response.EventDetailApiResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response.EventIdApiResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response.EventPageApiResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response.GetLikeEventApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.service.EventService;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.IsMyLikeResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.LikeCountResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
+import com.BaGulBaGul.BaGulBaGul.global.validation.ValidationUtil;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
-import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -30,17 +40,24 @@ import org.springframework.web.bind.annotation.*;
 public class EventControllerImpl implements EventController {
 
     private final EventService eventService;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     @GetMapping("/{eventId}")
     @Operation(summary = "이벤트 id를 받아 자세한 정보를 조회",
             description = "참고 : api 호출 시 조회수 1 증가"
     )
-    public ApiResponse<EventDetailResponse> getEventById(
+    public ApiResponse<EventDetailApiResponse> getEventById(
             @PathVariable(name="eventId") Long eventId
     ) {
+        //이벤트 상세조회
         EventDetailResponse eventDetailResponse = eventService.getEventDetailById(eventId);
-        return ApiResponse.of(eventDetailResponse);
+        //이벤트를 유저가 상세조회 했을 경우에 대한 이벤트 발행
+        applicationEventPublisher.publishEvent(
+                new QueryEventDetailByUserApplicationEvent(eventDetailResponse)
+        );
+        //api 응답으로 변환 후 반환
+        return ApiResponse.of(EventDetailApiResponse.from(eventDetailResponse));
     }
 
     @Override
@@ -55,13 +72,23 @@ public class EventControllerImpl implements EventController {
                     + "정렬 가능 속성 : createdAt, views, likeCount, commentCount, startDate, endDate, headCount\n"
                     + "파라메터로 명시하지 않거나 null인 조건은 무시되지만(즉 쿼리파라메터가 없으면 모든 이벤트 검색) 페이징은 기본 페이징 조건 적용됨(page 0 size 20)"
     )
-    public ApiResponse<Page<EventSimpleResponse>> getEventPageByCondition(
-            EventConditionalRequest eventConditionalRequest,
+    public ApiResponse<Page<EventPageApiResponse>> getEventPageByCondition(
+            EventPageApiRequest eventPageApiRequest,
             Pageable pageable
     ) {
-        return ApiResponse.of(
-                eventService.getEventPageByCondition(eventConditionalRequest, pageable)
+        //이벤트 조건검색 요청 변환 후 검증
+        EventConditionalRequest eventConditionalRequest = eventPageApiRequest.toEventConditionalRequest();
+        ValidationUtil.validate(eventConditionalRequest);
+        //조건에 맞는 이벤트 페이지 검색
+        Page<EventSimpleResponse> eventSimpleResponses = eventService.getEventPageByCondition(eventConditionalRequest,
+                pageable);
+        //이벤트를 유저가 조건검색 했을 경우에 대한 이벤트 발행
+        applicationEventPublisher.publishEvent(
+                new QueryEventWithConditionByUserApplicationEvent(eventConditionalRequest)
         );
+        //api 응답 dto로 변환
+        Page<EventPageApiResponse> eventPageApiResponse = eventSimpleResponses.map(EventPageApiResponse::from);
+        return ApiResponse.of(eventPageApiResponse);
     }
 
     @Override
@@ -70,14 +97,16 @@ public class EventControllerImpl implements EventController {
             description = "로그인 필요\n"
                     + "생성한 이벤트 id 반환"
     )
-    public ApiResponse<EventRegisterResponse> registerEvent(
+    public ApiResponse<EventIdApiResponse> registerEvent(
             @AuthenticationPrincipal Long userId,
-            @RequestBody @Valid EventRegisterRequest eventRegisterRequest
+            @RequestBody EventRegisterApiRequest eventRegisterApiRequest
     ) {
+        //이벤트 등록 요청 변환 후 검증
+        EventRegisterRequest eventRegisterRequest = eventRegisterApiRequest.toEventRegisterRequest();
+        ValidationUtil.validate(eventRegisterRequest);
+        //이벤트 등록
         Long eventId = eventService.registerEvent(userId, eventRegisterRequest);
-        return ApiResponse.of(
-                new EventRegisterResponse(eventId)
-        );
+        return ApiResponse.of(new EventIdApiResponse(eventId));
     }
 
     @Override
@@ -89,8 +118,10 @@ public class EventControllerImpl implements EventController {
     public ApiResponse<Object> modifyEvent(
             @PathVariable(name="eventId") Long eventId,
             @AuthenticationPrincipal Long userId,
-            @RequestBody @Valid EventModifyRequest eventModifyRequest
+            @RequestBody EventModifyApiRequest eventModifyApiRequest
     ) {
+        EventModifyRequest eventModifyRequest = eventModifyApiRequest.toEventModifyRequest();
+        ValidationUtil.validate(eventModifyRequest);
         eventService.modifyEvent(eventId, userId, eventModifyRequest);
         return ApiResponse.of(null);
     }
@@ -173,13 +204,14 @@ public class EventControllerImpl implements EventController {
                     + "이벤트 타입 파라메터 전달 필수\n"
                     + "페이징 지원"
     )
-    public ApiResponse<Page<GetLikeEventResponse>> getMyLike(
+    public ApiResponse<Page<GetLikeEventApiResponse>> getMyLike(
             @AuthenticationPrincipal Long userId,
-            @Valid GetLikeEventRequest getLikeEventRequest,
+            GetLikeEventApiRequest getLikeEventApiRequest,
             Pageable pageable
     ) {
-        return ApiResponse.of(
-                eventService.getMyLikeEvent(getLikeEventRequest, userId, pageable)
-        );
+        GetLikeEventRequest getLikeEventRequest = getLikeEventApiRequest.toGetLikeEventRequest();
+        Page<GetLikeEventResponse> myLikeEvents = eventService.getMyLikeEvent(getLikeEventRequest, userId, pageable);
+        Page<GetLikeEventApiResponse> responses = myLikeEvents.map(GetLikeEventApiResponse::from);
+        return ApiResponse.of(responses);
     }
 }

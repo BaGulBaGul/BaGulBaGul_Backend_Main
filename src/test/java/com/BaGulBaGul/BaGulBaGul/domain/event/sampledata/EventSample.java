@@ -1,42 +1,110 @@
 package com.BaGulBaGul.BaGulBaGul.domain.event.sampledata;
 
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
+
+import com.BaGulBaGul.BaGulBaGul.domain.common.dto.request.LocationModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.common.dto.request.LocationRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.common.dto.request.ParticipantStatusModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.common.dto.request.ParticipantStatusRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.common.dto.request.PeriodModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.common.dto.request.PeriodRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.common.sampledata.LocationSample;
+import com.BaGulBaGul.BaGulBaGul.domain.common.sampledata.ParticipantStatusSample;
+import com.BaGulBaGul.BaGulBaGul.domain.common.sampledata.PeriodSample;
+import com.BaGulBaGul.BaGulBaGul.domain.event.Category;
+import com.BaGulBaGul.BaGulBaGul.domain.event.Event;
+import com.BaGulBaGul.BaGulBaGul.domain.event.EventCategory;
 import com.BaGulBaGul.BaGulBaGul.domain.event.constant.EventType;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.sampledata.PostSample;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.List;
+import java.util.stream.Collectors;
+import org.openapitools.jackson.nullable.JsonNullable;
 
 public abstract class EventSample {
+    //제약조건
+    public static final int CATEGORY_MAX_COUNT = 2;
+    //정상 이벤트 필드값
     public static final EventType NORMAL_EVENT_TYPE = EventType.LOCAL_EVENT;
-    public static final Integer NORMAL_MAX_HEAD_COUNT = 8;
-    public static final Integer NORMAL_CURRENT_HEAD_COUNT = 3;
-    public static final String NORMAL_FULL_LOCATION = "서울시 영등포구 xxx로 xxx타워 x층";
-    public static final String NORMAL_ABSTRACT_LOCATION = "서울시 영등포구";
-    public static final Float NORMAL_LATITUDE_LOCATION = 33.83f;
-    public static final Float NORMAL_LONGITUDE_LOCATION = 40.23f;
+    public static final Boolean NORMAL_DELETED = false;
     public static final Boolean NORMAL_AGE_LIMIT = false;
-    public static final LocalDateTime NORMAL_START_DATE = LocalDateTime.of(
-            2024, Month.NOVEMBER, 13, 7, 00
-    );
-    public static final LocalDateTime NORMAL_END_DATE = LocalDateTime.of(
-            2024, Month.NOVEMBER, 15, 17, 00
-    );
     public static final List<String> NORMAL_CATEGORIES = List.of("문화/예술", "식품/음료");
 
+    //정상 이벤트
+    public static Event getNormal() {
+        EventRegisterRequest eventRegisterRequest = getNormalRegisterRequest();
+        ParticipantStatusRegisterRequest participantStatusRegisterRequest = eventRegisterRequest
+                .getParticipantStatusRegisterRequest();
+        PeriodRegisterRequest periodRegisterRequest = eventRegisterRequest.getPeriodRegisterRequest();
+        LocationRegisterRequest locationRegisterRequest = eventRegisterRequest.getLocationRegisterRequest();
 
+        Event event = Event.builder()
+                .type(NORMAL_EVENT_TYPE)
+                .ageLimit(NORMAL_AGE_LIMIT)
+                .currentHeadCount(participantStatusRegisterRequest.getCurrentHeadCount())
+                .maxHeadCount(participantStatusRegisterRequest.getMaxHeadCount())
+                .fullLocation(locationRegisterRequest.getFullLocation())
+                .abstractLocation(locationRegisterRequest.getAbstractLocation())
+                .latitudeLocation(locationRegisterRequest.getLatitudeLocation())
+                .longitudeLocation(locationRegisterRequest.getLongitudeLocation())
+                .startDate(periodRegisterRequest.getStartDate())
+                .endDate(periodRegisterRequest.getEndDate())
+                .build();
+        //카테고리 추가
+        List<EventCategory> categories = eventRegisterRequest.getCategories()
+                .stream()
+                .map(name -> Category.builder().name(name).build())
+                .map(category -> new EventCategory(event, category))
+                .collect(Collectors.toList());
+        event.getCategories().addAll(categories);
+        //삭제됨 필드 설정
+        event.setDeleted(NORMAL_DELETED);
+        return event;
+    }
+
+
+    //정상 이벤트 생성 요청
+    public static EventRegisterRequest getNormalRegisterRequest() {
+        return EventRegisterRequest.builder()
+                .type(NORMAL_EVENT_TYPE)
+                .ageLimit(NORMAL_AGE_LIMIT)
+                .categories(NORMAL_CATEGORIES)
+                .participantStatusRegisterRequest(ParticipantStatusSample.getNormalRegisterRequest())
+                .locationRegisterRequest(LocationSample.getNormalRegisterRequest())
+                .periodRegisterRequest(PeriodSample.getNormalRegisterRequest())
+                .postRegisterRequest(PostSample.getNormalRegisterRequest())
+                .build();
+    }
+
+    public static EventModifyRequest getNormalModifyRequest() {
+        return EventModifyRequest.builder()
+                .type(NORMAL_EVENT_TYPE)
+                .ageLimit(NORMAL_AGE_LIMIT)
+                .categories(NORMAL_CATEGORIES)
+                .participantStatusModifyRequest(ParticipantStatusSample.getNormalModifyRequest())
+                .locationModifyRequest(LocationSample.getNormalModifyRequest())
+                .periodModifyRequest(PeriodSample.getNormalModifyRequest())
+                .postModifyRequest(PostSample.getNormalModifyRequest())
+                .build();
+    }
 
     public static final EventType NORMAL2_EVENT_TYPE = EventType.PARTY;
-    public static final Integer NORMAL2_MAX_HEAD_COUNT = 15;
-    public static final Integer NORMAL2_CURRENT_HEAD_COUNT = 8;
-    public static final String NORMAL2_FULL_LOCATION = "경기도 고양시 xxx로 xxx타워 x층";
-    public static final String NORMAL2_ABSTRACT_LOCATION = "경기도 고양시";
-    public static final Float NORMAL2_LATITUDE_LOCATION = 30.83f;
-    public static final Float NORMAL2_LONGITUDE_LOCATION = 55.23f;
     public static final Boolean NORMAL2_AGE_LIMIT = true;
-    public static final LocalDateTime NORMAL2_START_DATE = LocalDateTime.of(
-            2024, Month.NOVEMBER, 15, 7, 00
-    );
-    public static final LocalDateTime NORMAL2_END_DATE = LocalDateTime.of(
-            2024, Month.NOVEMBER, 17, 17, 00
-    );
     public static final List<String> NORMAL2_CATEGORIES = List.of("문화/예술", "교육/체험");
+
+    public static EventModifyRequest getNormal2ModifyRequest() {
+        return EventModifyRequest.builder()
+                .type(NORMAL2_EVENT_TYPE)
+                .ageLimit(NORMAL2_AGE_LIMIT)
+                .categories(NORMAL2_CATEGORIES)
+                .participantStatusModifyRequest(ParticipantStatusSample.getNormal2ModifyRequest())
+                .locationModifyRequest(LocationSample.getNormal2ModifyRequest())
+                .periodModifyRequest(PeriodSample.getNormal2ModifyRequest())
+                .postModifyRequest(PostSample.getNormal2ModifyRequest())
+                .build();
+    }
 }

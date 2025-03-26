@@ -1,18 +1,24 @@
 package com.BaGulBaGul.BaGulBaGul.domain.event.service;
 
+import com.BaGulBaGul.BaGulBaGul.domain.common.dto.request.LocationModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.common.dto.request.LocationRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.common.dto.request.ParticipantStatusModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.common.dto.request.ParticipantStatusRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.common.dto.request.PeriodModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.common.dto.request.PeriodRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.Category;
 import com.BaGulBaGul.BaGulBaGul.domain.event.Event;
 import com.BaGulBaGul.BaGulBaGul.domain.event.EventCategory;
 import com.BaGulBaGul.BaGulBaGul.domain.event.applicationevent.NewEventLikeApplicationEvent;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventConditionalRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventDetailInfo;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventDetailResponse;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventModifyRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventRegisterRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventSimpleInfo;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventSimpleResponse;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.GetLikeEventRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.GetLikeEventResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventConditionalRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.EventDetailInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.EventDetailResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.EventSimpleInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.EventSimpleResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.GetLikeEventRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.GetLikeEventResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.exception.CategoryNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.event.exception.EventNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.event.repository.EventCategoryRepository;
@@ -20,14 +26,13 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.repository.CategoryRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.event.repository.EventRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.event.repository.querydsl.FindEventByCondition.EventIdsWithTotalCountOfPageResult;
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.PostDetailInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.response.PostDetailInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
-import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostService;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
-import com.BaGulBaGul.BaGulBaGul.domain.user.info.exception.UserNotFoundException;
-import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.UserRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.user.exception.UserNotFoundException;
+import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserRepository;
 import com.BaGulBaGul.BaGulBaGul.global.exception.NoPermissionException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -42,8 +47,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
-
-    private final PostRepository postRepository;
+    
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final EventCategoryRepository eventCategoryRepository;
@@ -52,49 +56,6 @@ public class EventServiceImpl implements EventService {
     private final PostService postService;
 
     private final ApplicationEventPublisher applicationEventPublisher;
-
-    @Override
-    @Transactional
-    public EventSimpleInfo getEventSimpleInfoById(Long eventId) {
-        Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException());
-        return EventSimpleInfo.builder()
-                .eventId(event.getId())
-                .type(event.getType())
-                .abstractLocation(event.getAbstractLocation())
-                .currentHeadCount(event.getCurrentHeadCount())
-                .maxHeadCount(event.getMaxHeadCount())
-                .startDate(event.getStartDate())
-                .endDate(event.getEndDate())
-                .categories(
-                        event.getCategories().stream()
-                                .map(eventCategory -> eventCategory.getCategory().getName())
-                                .collect(Collectors.toList())
-                )
-                .build();
-    }
-
-    @Override
-    public EventDetailInfo getEventDetailInfoById(Long eventId) {
-        Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException());
-        return EventDetailInfo.builder()
-                .eventId(event.getId())
-                .type(event.getType())
-                .currentHeadCount(event.getCurrentHeadCount())
-                .maxHeadCount(event.getMaxHeadCount())
-                .fullLocation(event.getFullLocation())
-                .abstractLocation(event.getAbstractLocation())
-                .latitudeLocation(event.getLatitudeLocation())
-                .longitudeLocation(event.getLongitudeLocation())
-                .ageLimit(event.getAgeLimit())
-                .startDate(event.getStartDate())
-                .endDate(event.getEndDate())
-                .categories(
-                        event.getCategories().stream()
-                                .map(eventCategory -> eventCategory.getCategory().getName())
-                                .collect(Collectors.toList())
-                )
-                .build();
-    }
 
     @Override
     @Transactional
@@ -107,7 +68,7 @@ public class EventServiceImpl implements EventService {
         }
 
         //필요한 정보 추출
-        EventDetailInfo eventDetailInfo = getEventDetailInfoById(eventId);
+        EventDetailInfo eventDetailInfo = getEventDetailInfo(event);
         PostDetailInfo postDetailInfo = postService.getPostDetailInfo(event.getPost().getId());
 
         //응답 dto 생성
@@ -115,12 +76,6 @@ public class EventServiceImpl implements EventService {
                 .event(eventDetailInfo)
                 .post(postDetailInfo)
                 .build();
-
-        //조회수 증가
-        postRepository.increaseViewsById(event.getPost().getId());
-
-        //방금 증가시킨 조회수를 반영해줌.
-        postDetailInfo.setViews(postDetailInfo.getViews() + 1);
 
         return eventDetailResponse;
     }
@@ -133,18 +88,26 @@ public class EventServiceImpl implements EventService {
     ) {
         //조건에 해당하는 event id를 페이지 검색함.
         EventIdsWithTotalCountOfPageResult pageResult = eventRepository.getEventIdsByConditionAndPageable(eventConditionalRequest, pageable);
+        //순서 유지한 채로 EventSimpleResponse로 변환
+        List<EventSimpleResponse> eventSimpleResponses = getEventSimpleResponseByIds(pageResult.getEventIds());
+        //페이지 정보로 변환
+        return new PageImpl<>(eventSimpleResponses, pageable, pageResult.getTotalCount());
+    }
+
+    @Override
+    @Transactional
+    public List<EventSimpleResponse> getEventSimpleResponseByIds(List<Long> eventIds) {
         //필요한 정보를 fetch join
-        eventRepository.findWithPostAndUserAndCategoriesByIds(pageResult.getEventIds());
+        eventRepository.findWithPostAndUserAndCategoriesByIds(eventIds);
         //페이지 조회한 ids를 순서대로 EventSimpleResponse로 변환
-        List<EventSimpleResponse> eventSimpleResponses = pageResult.getEventIds()
+        List<EventSimpleResponse> eventSimpleResponses = eventIds
                 .stream()
                 .map(eventRepository::findById)
                 .map(event -> new EventSimpleResponse(
-                                getEventSimpleInfoById(event.get().getId()),
-                                postService.getPostSimpleInfo(event.get().getPost().getId())))
+                        getEventSimpleInfo(event.get()),
+                        postService.getPostSimpleInfo(event.get().getPost().getId())))
                 .collect(Collectors.toList());
-        //페이지 정보로 변환
-        return new PageImpl<>(eventSimpleResponses, pageable, pageResult.getTotalCount());
+        return eventSimpleResponses;
     }
 
     @Override
@@ -158,7 +121,7 @@ public class EventServiceImpl implements EventService {
         //post와 fetch join
         if(events.getNumberOfElements() > 0) {
             List<Long> ids = events.stream().map(Event::getId).collect(Collectors.toList());
-            eventRepository.findWithPostByIds(ids);
+            eventRepository.findWithPostAndUserByIds(ids);
         }
         return events.map(GetLikeEventResponse::of);
     }
@@ -168,20 +131,25 @@ public class EventServiceImpl implements EventService {
     public Long registerEvent(Long userId, EventRegisterRequest eventRegisterRequest) {
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
         //게시글 생성
-        Post post = postService.registerPost(user, eventRegisterRequest.toPostRegisterRequest());
+        Post post = postService.registerPost(user, eventRegisterRequest.getPostRegisterRequest());
         //이벤트 생성
+        LocationRegisterRequest locationRegisterRequest = eventRegisterRequest.getLocationRegisterRequest();
+        PeriodRegisterRequest periodRegisterRequest = eventRegisterRequest.getPeriodRegisterRequest();
+        ParticipantStatusRegisterRequest participantStatusRegisterRequest = eventRegisterRequest
+                .getParticipantStatusRegisterRequest();
         Event event = Event.builder()
                 .type(eventRegisterRequest.getType())
                 .post(post)
                 .ageLimit(eventRegisterRequest.getAgeLimit())
-                .currentHeadCount(0)
-                .maxHeadCount(eventRegisterRequest.getMaxHeadCount())
-                .fullLocation(eventRegisterRequest.getFullLocation())
-                .abstractLocation(eventRegisterRequest.getAbstractLocation())
-                .latitudeLocation(eventRegisterRequest.getLatitudeLocation())
-                .longitudeLocation(eventRegisterRequest.getLongitudeLocation())
-                .startDate(eventRegisterRequest.getStartDate())
-                .endDate(eventRegisterRequest.getEndDate()).build();
+                .currentHeadCount(participantStatusRegisterRequest.getCurrentHeadCount())
+                .maxHeadCount(participantStatusRegisterRequest.getMaxHeadCount())
+                .fullLocation(locationRegisterRequest.getFullLocation())
+                .abstractLocation(locationRegisterRequest.getAbstractLocation())
+                .latitudeLocation(locationRegisterRequest.getLatitudeLocation())
+                .longitudeLocation(locationRegisterRequest.getLongitudeLocation())
+                .startDate(periodRegisterRequest.getStartDate())
+                .endDate(periodRegisterRequest.getEndDate())
+                .build();
         //카테고리 추가
         addCategories(event, eventRegisterRequest.getCategories());
         //저장
@@ -204,7 +172,8 @@ public class EventServiceImpl implements EventService {
 
         //patch 방식으로 eventModifyRequest에서 null이 아닌 모든 필드를 변경
         //post관련은 postService에 위임
-        postService.modifyPost(event.getPost(), eventModifyRequest.toPostModifyRequest());
+        postService.modifyPost(event.getPost(), eventModifyRequest.getPostModifyRequest());
+
         //나머지 event관련 속성 변경
         if(eventModifyRequest.getType() != null) {
             event.setType(eventModifyRequest.getType());
@@ -212,33 +181,40 @@ public class EventServiceImpl implements EventService {
         if(eventModifyRequest.getAgeLimit() != null) {
             event.setAgeLimit(eventModifyRequest.getAgeLimit());
         }
-        if(eventModifyRequest.getCurrentHeadCount().isPresent()) {
-            event.setCurrentHeadCount(eventModifyRequest.getCurrentHeadCount().get());
-        }
-        if(eventModifyRequest.getMaxHeadCount().isPresent()) {
-            event.setMaxHeadCount(eventModifyRequest.getMaxHeadCount().get());
-        }
-        if(eventModifyRequest.getFullLocation() != null) {
-            event.setFullLocation(eventModifyRequest.getFullLocation());
-        }
-        if(eventModifyRequest.getAbstractLocation() != null) {
-            event.setAbstractLocation(eventModifyRequest.getAbstractLocation());
-        }
-        if(eventModifyRequest.getLatitudeLocation() != null) {
-            event.setLatitudeLocation(eventModifyRequest.getLatitudeLocation());
-        }
-        if(eventModifyRequest.getLongitudeLocation() != null) {
-            event.setLongitudeLocation(eventModifyRequest.getLongitudeLocation());
-        }
-        if(eventModifyRequest.getStartDate() != null) {
-            event.setStartDate(eventModifyRequest.getStartDate());
-        }
-        if(eventModifyRequest.getEndDate() != null) {
-            event.setEndDate(eventModifyRequest.getEndDate());
-        }
         if(eventModifyRequest.getCategories() != null) {
             clearCategory(event);
             addCategories(event, eventModifyRequest.getCategories());
+        }
+        //참가자
+        ParticipantStatusModifyRequest participantStatusModifyRequest = eventModifyRequest
+                .getParticipantStatusModifyRequest();
+        if(participantStatusModifyRequest.getCurrentHeadCount().isPresent()) {
+            event.setCurrentHeadCount(participantStatusModifyRequest.getCurrentHeadCount().get());
+        }
+        if(participantStatusModifyRequest.getMaxHeadCount().isPresent()) {
+            event.setMaxHeadCount(participantStatusModifyRequest.getMaxHeadCount().get());
+        }
+        //위치
+        LocationModifyRequest locationModifyRequest = eventModifyRequest.getLocationModifyRequest();
+        if(locationModifyRequest.getFullLocation().isPresent()) {
+            event.setFullLocation(locationModifyRequest.getFullLocation().get());
+        }
+        if(locationModifyRequest.getAbstractLocation().isPresent()) {
+            event.setAbstractLocation(locationModifyRequest.getAbstractLocation().get());
+        }
+        if(locationModifyRequest.getLatitudeLocation().isPresent()) {
+            event.setLatitudeLocation(locationModifyRequest.getLatitudeLocation().get());
+        }
+        if(locationModifyRequest.getLongitudeLocation().isPresent()) {
+            event.setLongitudeLocation(locationModifyRequest.getLongitudeLocation().get());
+        }
+        //기간
+        PeriodModifyRequest periodModifyRequest = eventModifyRequest.getPeriodModifyRequest();
+        if(periodModifyRequest.getStartDate().isPresent()) {
+            event.setStartDate(periodModifyRequest.getStartDate().get());
+        }
+        if(periodModifyRequest.getEndDate().isPresent()) {
+            event.setEndDate(periodModifyRequest.getEndDate().get());
         }
     }
 
@@ -333,5 +309,43 @@ public class EventServiceImpl implements EventService {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         //게시글에 대한 권한 확인에 위임
         postService.checkWritePermission(event.getPost(), user);
+    }
+
+    private EventSimpleInfo getEventSimpleInfo(Event event) {
+        return EventSimpleInfo.builder()
+                .eventId(event.getId())
+                .type(event.getType())
+                .abstractLocation(event.getAbstractLocation())
+                .currentHeadCount(event.getCurrentHeadCount())
+                .maxHeadCount(event.getMaxHeadCount())
+                .startDate(event.getStartDate())
+                .endDate(event.getEndDate())
+                .categories(
+                        event.getCategories().stream()
+                                .map(eventCategory -> eventCategory.getCategory().getName())
+                                .collect(Collectors.toList())
+                )
+                .build();
+    }
+
+    private EventDetailInfo getEventDetailInfo(Event event) {
+        return EventDetailInfo.builder()
+                .eventId(event.getId())
+                .type(event.getType())
+                .currentHeadCount(event.getCurrentHeadCount())
+                .maxHeadCount(event.getMaxHeadCount())
+                .fullLocation(event.getFullLocation())
+                .abstractLocation(event.getAbstractLocation())
+                .latitudeLocation(event.getLatitudeLocation())
+                .longitudeLocation(event.getLongitudeLocation())
+                .ageLimit(event.getAgeLimit())
+                .startDate(event.getStartDate())
+                .endDate(event.getEndDate())
+                .categories(
+                        event.getCategories().stream()
+                                .map(eventCategory -> eventCategory.getCategory().getName())
+                                .collect(Collectors.toList())
+                )
+                .build();
     }
 }

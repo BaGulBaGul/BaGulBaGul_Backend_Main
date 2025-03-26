@@ -1,24 +1,28 @@
 package com.BaGulBaGul.BaGulBaGul.global;
 
+import com.BaGulBaGul.BaGulBaGul.domain.common.dto.request.LocationRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.common.dto.request.ParticipantStatusRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.common.dto.request.PeriodRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.Event;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.EventRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.repository.EventRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.event.service.EventCommentService;
 import com.BaGulBaGul.BaGulBaGul.domain.event.service.EventService;
 import com.BaGulBaGul.BaGulBaGul.domain.event.constant.EventType;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentChildRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.request.PostRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostCommentService;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.Recruitment;
-import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.request.RecruitmentRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.repository.RecruitmentRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.service.RecruitmentCommentService;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.service.RecruitmentService;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
-import com.BaGulBaGul.BaGulBaGul.domain.user.info.dto.UserRegisterRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.UserRepository;
-import com.BaGulBaGul.BaGulBaGul.domain.user.info.service.UserJoinService;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.UserRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserJoinService;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -46,7 +50,7 @@ public class InitDummyDB implements ApplicationListener<ApplicationReadyEvent> {
     private final RecruitmentCommentService recruitmentCommentService;
 
     private List<User> users;
-    private List<String> categoryNames = Arrays.asList("문화/예술","공연전시/행사","식품/음료","교육/체험","스포츠/레저");
+    private List<String> categoryNames = Arrays.asList("문화/예술","공연전시/행사","식품/음료","교육/체험","스포츠/레저", "지역특색", "민속/전통", "주류", "종교", "인물/역사");
     private List<Event> events;
 
     private static final int USER_COUNT = 10;
@@ -136,8 +140,8 @@ public class InitDummyDB implements ApplicationListener<ApplicationReadyEvent> {
             String l2 = LOCATION_NAMES2.get(l1)[rand.nextInt(LOCATION_NAMES2.get(l1).length)];
             String fullLocation = l1 + " " + l2;
             String abstractLocation = fullLocation;
-            Float latitudeLocation = (float)(rand.nextInt(1000)) / 10;
-            Float longitudeLocation = (float)(rand.nextInt(1000)) / 10;
+            Float latitudeLocation = (float)(rand.nextInt(900)) / 10 * (rand.nextBoolean() ? -1 : 1);
+            Float longitudeLocation = (float)(rand.nextInt(1800)) / 10 * (rand.nextBoolean() ? -1 : 1);
 
             //작성자
             User writer = users.get(rand.nextInt(users.size()));
@@ -147,7 +151,7 @@ public class InitDummyDB implements ApplicationListener<ApplicationReadyEvent> {
             int maxHeadCount = rand.nextInt(100);
             String title = "테스트" + cnt;
             String content = "테스트게시글" + cnt;
-            List<String> tagStr = tagSet.stream().collect(Collectors.toList());
+            List<String> tagList = tagSet.stream().collect(Collectors.toList());
 
             //카테고리
             int categoryCnt = rand.nextInt(2);
@@ -161,18 +165,36 @@ public class InitDummyDB implements ApplicationListener<ApplicationReadyEvent> {
                     writer.getId(),
                     EventRegisterRequest.builder()
                             .type(type)
-                            .title(title)
-                            .maxHeadCount(maxHeadCount)
-                            .fullLocation(fullLocation)
-                            .abstractLocation(abstractLocation)
-                            .latitudeLocation(latitudeLocation)
-                            .longitudeLocation(longitudeLocation)
-                            .content(content)
-                            .startDate(startDate)
-                            .endDate(endDate)
-                            .tags(tagStr)
+
+                            .ageLimit(rand.nextBoolean())
                             .categories(categoryNameSet.stream().collect(Collectors.toList()))
-                            .imageIds(null)
+                            .postRegisterRequest(
+                                    PostRegisterRequest.builder()
+                                            .title(title)
+                                            .content(content)
+                                            .tags(tagList)
+                                            .imageIds(null)
+                                            .build()
+                            )
+                            .locationRegisterRequest(
+                                    LocationRegisterRequest.builder()
+                                            .fullLocation(fullLocation)
+                                            .abstractLocation(abstractLocation)
+                                            .latitudeLocation(latitudeLocation)
+                                            .longitudeLocation(longitudeLocation)
+                                            .build()
+                            )
+                            .periodRegisterRequest(
+                                    PeriodRegisterRequest.builder()
+                                            .startDate(startDate)
+                                            .endDate(endDate)
+                                            .build()
+                            )
+                            .participantStatusRegisterRequest(
+                                    ParticipantStatusRegisterRequest.builder()
+                                            .maxHeadCount(maxHeadCount)
+                                            .build()
+                            )
                             .build()
             );
 
@@ -251,13 +273,19 @@ public class InitDummyDB implements ApplicationListener<ApplicationReadyEvent> {
                     event.getId(),
                     writer.getId(),
                     RecruitmentRegisterRequest.builder()
-                            .maxHeadCount(maxHeadCount)
-                            .startDate(startDate)
-                            .endDate(endDate)
-                            .title(title)
-                            .content(content)
-                            .tags(tagStr)
-                            .imageIds(null)
+                            .periodRegisterRequest(PeriodRegisterRequest.builder()
+                                    .startDate(startDate)
+                                    .endDate(endDate)
+                                    .build())
+                            .participantStatusRegisterRequest(ParticipantStatusRegisterRequest.builder()
+                                    .maxHeadCount(maxHeadCount)
+                                    .build())
+                            .postRegisterRequest(PostRegisterRequest.builder()
+                                    .title(title)
+                                    .content(content)
+                                    .tags(tagStr)
+                                    .imageIds(null)
+                                    .build())
                             .build()
             );
 

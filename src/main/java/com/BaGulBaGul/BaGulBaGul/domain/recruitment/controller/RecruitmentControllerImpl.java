@@ -1,22 +1,32 @@
 package com.BaGulBaGul.BaGulBaGul.domain.recruitment.controller;
 
+import com.BaGulBaGul.BaGulBaGul.domain.event.applicationevent.QueryEventDetailByUserApplicationEvent;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.LikeCountResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
-import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.GetLikeRecruitmentResponse;
-import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentConditionalApiRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentDetailResponse;
-import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentModifyRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentRegisterRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentRegisterResponse;
-import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.RecruitmentSimpleResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.applicationevent.QueryRecruitmentDetailByUserApplicationEvent;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.applicationevent.QueryRecruitmentWithConditionByUserApplicationEvent;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.response.GetLikeRecruitmentResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.request.RecruitmentConditionalRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.response.RecruitmentDetailResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.request.RecruitmentModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.request.RecruitmentRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.response.RecruitmentSimpleResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.api.request.RecruitmentModifyApiRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.api.request.RecruitmentPageApiRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.api.request.RecruitmentRegisterApiRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.api.response.GetLikeRecruitmentApiResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.api.response.RecruitmentDetailApiResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.api.response.RecruitmentIdApiResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.api.response.RecruitmentPageApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.service.RecruitmentService;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.IsMyLikeResponse;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
+import com.BaGulBaGul.BaGulBaGul.global.validation.ValidationUtil;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
-import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -36,22 +46,30 @@ import org.springframework.web.bind.annotation.RestController;
 public class RecruitmentControllerImpl implements RecruitmentController {
 
     private final RecruitmentService recruitmentService;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     @GetMapping("/recruitment/{recruitmentId}")
     @Operation(summary = "모집글 id를 받아 자세한 정보를 조회",
             description = "참고 : api 호출 시 조회수 1 증가"
     )
-    public ApiResponse<RecruitmentDetailResponse> getRecruitmentById(
+    public ApiResponse<RecruitmentDetailApiResponse> getRecruitmentById(
             @PathVariable(name="recruitmentId") Long recruitmentId
     ) {
+        //모집글 상세조회
         RecruitmentDetailResponse recruitmentDetailResponse = recruitmentService.getRecruitmentDetailById(recruitmentId);
-        return ApiResponse.of(recruitmentDetailResponse);
+        //모집글을 유저가 상세조회 했을 경우에 대한 이벤트 발행
+        applicationEventPublisher.publishEvent(
+                new QueryRecruitmentDetailByUserApplicationEvent(recruitmentDetailResponse)
+        );
+        //api 응답으로 변환
+        RecruitmentDetailApiResponse response = RecruitmentDetailApiResponse.from(recruitmentDetailResponse);
+        return ApiResponse.of(response);
     }
 
     @Override
     @GetMapping("/recruitment")
-    @Operation(summary = "어떤 이벤트에 속하면서 주어진 조건에 맞는 모집글을 페이징 조회",
+    @Operation(summary = "주어진 조건에 맞는 모집글을 페이징 조회",
             description = "페이징 관련 파라메터는 \n "
                     + "http://localhost:8080/api/event/recruitment?eventId=7&size=10&page=0&sort=likeCount,desc&sort=views,asc \n "
                     + "이런 식으로 넘기면 됨 \n "
@@ -59,16 +77,25 @@ public class RecruitmentControllerImpl implements RecruitmentController {
                     + "파라메터로 명시하지 않은 조건은 무시되지만 페이징은 기본 페이징 조건 적용됨(page 0 size 20)\n"
                     + "정렬 가능 속성 : createdAt, views, likeCount, commentCount, startDate, endDate, headCount"
     )
-    public ApiResponse<Page<RecruitmentSimpleResponse>> getRecruitmentPageByCondition(
-            RecruitmentConditionalApiRequest recruitmentConditionalApiRequest,
+    public ApiResponse<Page<RecruitmentPageApiResponse>> getRecruitmentPageByCondition(
+            RecruitmentPageApiRequest recruitmentPageApiRequest,
             Pageable pageable
     ) {
-        return ApiResponse.of(
-            recruitmentService.getRecruitmentPageByCondition(
-                    recruitmentConditionalApiRequest.toRecruitmentConditionalRequest(),
-                    pageable
-            )
+        //모집글 조건 조회 요청 생성 후 검증
+        RecruitmentConditionalRequest recruitmentConditionalRequest = recruitmentPageApiRequest.toRecruitmentConditionalRequest();
+        ValidationUtil.validate(recruitmentConditionalRequest);
+        //페이지 조회
+        Page<RecruitmentSimpleResponse> recruitmentPageByCondition = recruitmentService.getRecruitmentPageByCondition(
+                recruitmentPageApiRequest.toRecruitmentConditionalRequest(),
+                pageable
         );
+        //모집글을 유저가 조건검색 했을 경우에 대한 이벤트 발행
+        applicationEventPublisher.publishEvent(
+                new QueryRecruitmentWithConditionByUserApplicationEvent(recruitmentConditionalRequest)
+        );
+        //페이지 api 응답 dto로 변환
+        Page<RecruitmentPageApiResponse> responses = recruitmentPageByCondition.map(RecruitmentPageApiResponse::from);
+        return ApiResponse.of(responses);
     }
 
     @Override
@@ -77,15 +104,17 @@ public class RecruitmentControllerImpl implements RecruitmentController {
             description = "로그인 필요\n"
                     + "생성한 모집글 id 반환"
     )
-    public ApiResponse<RecruitmentRegisterResponse> registerRecruitment(
+    public ApiResponse<RecruitmentIdApiResponse> registerRecruitment(
             @PathVariable(name = "eventId") Long eventId,
             @AuthenticationPrincipal Long userId,
-            @RequestBody @Valid RecruitmentRegisterRequest recruitmentRegisterRequest
+            @RequestBody RecruitmentRegisterApiRequest recruitmentRegisterApiRequest
     ) {
+        //모집글 생성 요청 변환 후 검증
+        RecruitmentRegisterRequest recruitmentRegisterRequest = recruitmentRegisterApiRequest.toRecruitmentRegisterRequest();
+        ValidationUtil.validate(recruitmentRegisterRequest);
+        //모집글 생성
         Long id = recruitmentService.registerRecruitment(eventId, userId, recruitmentRegisterRequest);
-        return ApiResponse.of(
-                new RecruitmentRegisterResponse(id)
-        );
+        return ApiResponse.of(new RecruitmentIdApiResponse(id));
     }
 
     @Override
@@ -97,8 +126,12 @@ public class RecruitmentControllerImpl implements RecruitmentController {
     public ApiResponse<Object> modifyRecruitment(
             @PathVariable(name="recruitmentId") Long recruitmentId,
             @AuthenticationPrincipal Long userId,
-            @RequestBody @Valid RecruitmentModifyRequest recruitmentModifyRequest
+            @RequestBody RecruitmentModifyApiRequest recruitmentModifyApiRequest
     ) {
+        //모집글 수정 요청으로 변환 후 검증
+        RecruitmentModifyRequest recruitmentModifyRequest = recruitmentModifyApiRequest.toRecruitmentModifyRequest();
+        ValidationUtil.validate(recruitmentModifyRequest);
+        //모집글 수정
         recruitmentService.modifyRecruitment(recruitmentId, userId, recruitmentModifyRequest);
         return ApiResponse.of(null);
     }
@@ -180,12 +213,14 @@ public class RecruitmentControllerImpl implements RecruitmentController {
             description = "로그인 필요\n"
                     + "페이징 지원"
     )
-    public ApiResponse<Page<GetLikeRecruitmentResponse>> getMyLike(
+    public ApiResponse<Page<GetLikeRecruitmentApiResponse>> getMyLike(
             @AuthenticationPrincipal Long userId,
             Pageable pageable
     ) {
-        return ApiResponse.of(
-                recruitmentService.getMyLikeRecruitment(userId, pageable)
-        );
+        //좋아요 누른 페이지 검색
+        Page<GetLikeRecruitmentResponse> myLikeRecruitments = recruitmentService.getMyLikeRecruitment(userId, pageable);
+        //api 응답 dto로 변환
+        Page<GetLikeRecruitmentApiResponse> responses = myLikeRecruitments.map(GetLikeRecruitmentApiResponse::from);
+        return ApiResponse.of(responses);
     }
 }

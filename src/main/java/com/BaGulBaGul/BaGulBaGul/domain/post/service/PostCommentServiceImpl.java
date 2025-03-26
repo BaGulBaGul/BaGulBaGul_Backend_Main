@@ -12,7 +12,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentRegister
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.GetPostCommentChildPageResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.GetPostCommentPageResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.PostCommentDetailResponse;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.result.RegisterPostCommentChildResult;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.response.RegisterPostCommentChildResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.PostCommentChildNotFoundException;
@@ -24,12 +24,11 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentLikeRepositor
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
-import com.BaGulBaGul.BaGulBaGul.domain.user.info.exception.UserNotFoundException;
-import com.BaGulBaGul.BaGulBaGul.domain.user.info.repository.UserRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.user.exception.UserNotFoundException;
+import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserRepository;
 import com.BaGulBaGul.BaGulBaGul.global.exception.NoPermissionException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -138,7 +137,7 @@ public class PostCommentServiceImpl implements PostCommentService {
 
     @Override
     @Transactional
-    public RegisterPostCommentChildResult registerPostCommentChild(
+    public RegisterPostCommentChildResponse registerPostCommentChild(
             Long postCommentId,
             Long userId,
             PostCommentChildRegisterRequest postCommentChildRegisterRequest
@@ -175,7 +174,7 @@ public class PostCommentServiceImpl implements PostCommentService {
                 .build();
         postCommentChildRepository.save(postCommentChild);
 
-        return RegisterPostCommentChildResult.builder()
+        return RegisterPostCommentChildResponse.builder()
                 .postCommentChildId(postCommentChild.getId())
                 .validatedReplyTargetId(validatedReplyTargetId)
                 .build();

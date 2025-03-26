@@ -3,11 +3,11 @@ package com.BaGulBaGul.BaGulBaGul.domain.post.service;
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostImage;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostImageRepository;
-import com.BaGulBaGul.BaGulBaGul.global.upload.Resource;
-import com.BaGulBaGul.BaGulBaGul.global.upload.exception.ResourceNotFoundException;
-import com.BaGulBaGul.BaGulBaGul.global.upload.repository.ResourceRepository;
-import com.BaGulBaGul.BaGulBaGul.global.upload.service.ResourceService;
-import com.BaGulBaGul.BaGulBaGul.global.upload.service.TransactionResourceService;
+import com.BaGulBaGul.BaGulBaGul.domain.upload.Resource;
+import com.BaGulBaGul.BaGulBaGul.domain.upload.exception.ResourceNotFoundException;
+import com.BaGulBaGul.BaGulBaGul.domain.upload.repository.ResourceRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.upload.service.ResourceService;
+import com.BaGulBaGul.BaGulBaGul.domain.upload.service.TransactionResourceService;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -68,8 +68,9 @@ public class PostImageServiceImpl implements PostImageService {
         List<PostImage> originalImages = postImageRepository.findImageByPost(post);
         //기존 이미지들의 resource id를 set으로 생성
         Set<Long> originalResourceIdSet = originalImages.stream().map(x -> x.getResource().getId()).collect(Collectors.toSet());
-        //삭제될 이미지들(삭제 대상은 여기서 찾지만 rollback을 대비해서 s3에 삭제 요청은 마지막에 보냄.
+        //삭제될 이미지들
         List<PostImage> imagesToDelete = new ArrayList<>();
+
         //기존 이미지를 중에서 남길 이미지와 삭제할 이미지를 찾는다.
         for(PostImage image : originalImages) {
             //남아있을 이미지는 순서만 변경
@@ -113,15 +114,11 @@ public class PostImageServiceImpl implements PostImageService {
         );
 
         // * 연결 끊긴 이미지 삭제
-        //삭제 대상 이미지들의 resource
-        List<Resource> resourcesToDelete = imagesToDelete.stream().map(PostImage::getResource).collect(Collectors.toList());
         //삭제 대상 이미지들의 resource id값
         List<Long> resourceIdsToDelete = imagesToDelete.stream().map(x -> x.getResource().getId()).collect(Collectors.toList());
         //삭제 대상인 PostS3Image db에서 삭제
         postImageRepository.deleteAllByIdInBatch(resourceIdsToDelete);
-        //리소스 삭제 요청을 보내기 전에 db요청을 전부 보내서 삭제 후에 db가 rollback되는 상황을 방지
-        postImageRepository.flush();
-        //삭제 대상 리소스를 비동기로 삭제
+        //삭제 대상 리소스를 현재 트랜젝션 커밋 이후에 비동기로 삭제
         transactionResourceService.deleteResourcesAsyncAfterCommit(resourceIdsToDelete);
     }
 }

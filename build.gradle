@@ -10,6 +10,7 @@ version = '0.0.1-SNAPSHOT'
 
 java {
 	sourceCompatibility = '11'
+	targetCompatibility = '11'
 }
 
 configurations {
@@ -36,15 +37,24 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'org.springframework.boot:spring-boot-starter-batch'
 	implementation 'org.flywaydb:flyway-core'
 	implementation 'org.flywaydb:flyway-mysql'
 
 	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+	testCompileOnly 'org.projectlombok:lombok:1.18.12' // 테스트 의존성 추가
+	testAnnotationProcessor 'org.projectlombok:lombok:1.18.12' // 테스트 의존성 추가
+
 	runtimeOnly 'com.h2database:h2'
 	runtimeOnly 'com.mysql:mysql-connector-j'
-	annotationProcessor 'org.projectlombok:lombok'
+
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
+	testImplementation 'org.springframework.batch:spring-batch-test'
+	testImplementation "org.testcontainers:testcontainers:1.20.5"
+	testImplementation "org.testcontainers:junit-jupiter:1.20.5"
+	testImplementation "org.testcontainers:mysql:1.20.5"
 
 	//스프링 logging 기본 slf4j구현체인 logback을 log4j2로 변경
 	implementation("org.springframework.boot:spring-boot-starter-log4j2")
@@ -100,5 +110,26 @@ compileQuerydsl{
 }
 
 tasks.named('test') {
+	doFirst {
+		println "========================================================"
+		println "환경변수 대입 작업 실행"
+		def envFile = file('.env')
+		if (envFile.exists()) {
+			println "========================================================"
+			println "환경변수 파일 발견"
+			println "========================================================"
+			envFile.readLines().each { line ->
+				if (!line.isEmpty() && !line.startsWith("#")) {
+					def pos = line.indexOf("=")
+					def key = line.substring(0, pos)
+					def value = line.substring(pos + 1)
+
+					environment key, value
+					println key
+				}
+			}
+			println "========================================================"
+		}
+	}
 	useJUnitPlatform()
 }

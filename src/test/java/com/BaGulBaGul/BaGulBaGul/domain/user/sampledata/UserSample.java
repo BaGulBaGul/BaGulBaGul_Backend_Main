@@ -1,6 +1,6 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user.sampledata;
 
-import com.BaGulBaGul.BaGulBaGul.domain.user.info.dto.UserRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.UserRegisterRequest;
 
 public abstract class UserSample {
     public static final String NORMAL_EMAIL = "osm@naver.com";
