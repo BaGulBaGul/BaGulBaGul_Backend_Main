@@ -12,6 +12,12 @@ jobs:
       ENV_KEY: env
       ENV_BLUE_NAME: bagulbagul-backend-main-blue
     steps:
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
       - name: asg-blue를 찾아서 인스턴스 수를 0으로 변경
         run: |          
           # asg blue를 찾는다
