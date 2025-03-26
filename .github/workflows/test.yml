@@ -27,17 +27,8 @@ jobs:
           java-version: '11'
           distribution: 'temurin'
 
-      # 환경변수 출력
-      - name: show local env
-        run: |
-          echo "$CONFIG_REPO_ADDRESS"
-          echo "$CONFIG_REPO_NAME"
-          echo "$CONFIG_FILEPATH"
-          echo "CONFIG_EXTRACT_DOCKER_IMAGE_NAME"
-          echo "TARGET_DOCKER_IMAGE_NAME"
-
-      #앱이 사용하는 환경변수 파일 추출
-      - name: extract app env
+      #환경변수 파일 추출
+      - name: config 레포지토리의 환경변수 파일을 clone하고 복호화
         run: >
           docker run
           -v .:/home
@@ -47,11 +38,11 @@ jobs:
           ohretry/$CONFIG_EXTRACT_DOCKER_IMAGE_NAME
 
       #환경변수 파일 확인
-      - name: check app env file
+      - name: 앱 환경변수 파일 체크
         run: ls -l "$CONFIG_REPO_NAME/$CONFIG_FILEPATH"
 
       #테스트
-      - name: test
+      - name: 테스트
         id: test
         run: |
           cp "$CONFIG_REPO_NAME/$CONFIG_FILEPATH" .env
