@@ -15,6 +15,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.filter.CorsFilter;
 
 @Configuration
@@ -34,10 +35,13 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.cors().and().csrf().disable()
-                .httpBasic().disable()
+        http.cors().and()
+                //Double-Submit Cookie를 이용한 csrf 방어 적용
+                .csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).and()
+                //세션 x
                 .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션x
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .httpBasic().disable()
                 .authorizeRequests()
                 //recruitment 로그인 필요
                 .antMatchers(HttpMethod.GET, "/api/event/recruitment/*/ismylike").authenticated()
