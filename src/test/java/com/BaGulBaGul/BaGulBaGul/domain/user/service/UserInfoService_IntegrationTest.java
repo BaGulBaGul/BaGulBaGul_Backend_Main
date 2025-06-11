@@ -9,16 +9,12 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
-import com.BaGulBaGul.BaGulBaGul.domain.user.dto.UserModifyRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.user.dto.UserRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.UserModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.UserRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.exception.DuplicateUsernameException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.sampledata.UserSample;
-import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserImageService;
-import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserInfoService;
-import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserJoinService;
 import com.BaGulBaGul.BaGulBaGul.extension.AllTestContainerExtension;
-import com.BaGulBaGul.BaGulBaGul.extension.MysqlTestContainerExtension;
 import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

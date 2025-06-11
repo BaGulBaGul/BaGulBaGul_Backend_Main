@@ -1,5 +1,6 @@
-package com.BaGulBaGul.BaGulBaGul.domain.user.dto;
+package com.BaGulBaGul.BaGulBaGul.domain.user.dto.api.response;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,6 +12,7 @@ import lombok.Setter;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CheckDuplicateUsernameResponse {
+public class CheckDuplicateUsernameApiResponse {
+    @ApiModelProperty(value = "닉네임 중복 여부")
     boolean duplicate;
 }

@@ -1,8 +1,8 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user.service;
 
-import com.BaGulBaGul.BaGulBaGul.domain.user.dto.MyUserInfoResponse;
-import com.BaGulBaGul.BaGulBaGul.domain.user.dto.OtherUserInfoResponse;
-import com.BaGulBaGul.BaGulBaGul.domain.user.dto.UserModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.UserModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.response.MyUserInfoResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.response.OtherUserInfoResponse;
 
 public interface UserInfoService {
     MyUserInfoResponse getMyUserInfo(Long userId);

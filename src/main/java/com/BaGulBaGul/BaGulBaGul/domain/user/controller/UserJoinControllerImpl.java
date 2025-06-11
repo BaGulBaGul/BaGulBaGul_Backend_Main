@@ -3,8 +3,8 @@ package com.BaGulBaGul.BaGulBaGul.domain.user.controller;
 import com.BaGulBaGul.BaGulBaGul.domain.user.SocialLoginUser;
 import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtCookieService;
 import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtProvider;
-import com.BaGulBaGul.BaGulBaGul.domain.user.dto.CheckDuplicateUsernameResponse;
-import com.BaGulBaGul.BaGulBaGul.domain.user.dto.SocialLoginUserJoinRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.api.response.CheckDuplicateUsernameApiResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.api.request.SocialLoginUserJoinApiRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserJoinService;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
 import io.swagger.annotations.Api;
@@ -39,10 +39,11 @@ public class UserJoinControllerImpl implements UserJoinController {
                     + "회원가입 성공 시 즉시 로그인 됨(인증 토큰을 쿠키에 저장)"
     )
     public ApiResponse<Object> joinSocialLoginUser(
-            @RequestBody @Valid SocialLoginUserJoinRequest socialLoginUserJoinRequest,
+            @RequestBody @Valid SocialLoginUserJoinApiRequest socialLoginUserJoinApiRequest,
             HttpServletResponse response
     ) {
-        SocialLoginUser user = userJoinService.registerSocialLoginUser(socialLoginUserJoinRequest);
+        SocialLoginUser user = userJoinService.registerSocialLoginUser(
+                socialLoginUserJoinApiRequest.toSocialLoginUserJoinRequest());
         jwtCookieService.setAccessToken(response, jwtProvider.createAccessToken(user.getUser().getId()));
         jwtCookieService.setRefreshToken(response, jwtProvider.createRefreshToken(user.getUser().getId()));
         return ApiResponse.of(null);
@@ -66,11 +67,11 @@ public class UserJoinControllerImpl implements UserJoinController {
     @Override
     @GetMapping("/check-duplicate-username")
     @Operation(summary = "유저명 중복 체크 api")
-    public ApiResponse<CheckDuplicateUsernameResponse> checkDuplicateUsername(
+    public ApiResponse<CheckDuplicateUsernameApiResponse> checkDuplicateUsername(
             String username
     ) {
         return ApiResponse.of(
-                CheckDuplicateUsernameResponse.builder()
+                CheckDuplicateUsernameApiResponse.builder()
                         .duplicate(userJoinService.checkDuplicateUsername(username))
                         .build()
         );

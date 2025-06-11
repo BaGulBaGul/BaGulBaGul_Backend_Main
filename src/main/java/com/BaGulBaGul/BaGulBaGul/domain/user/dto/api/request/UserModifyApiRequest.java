@@ -1,6 +1,6 @@
-package com.BaGulBaGul.BaGulBaGul.domain.user.dto;
+package com.BaGulBaGul.BaGulBaGul.domain.user.dto.api.request;
 
-import com.BaGulBaGul.BaGulBaGul.domain.user.User;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.UserModifyRequest;
 import io.swagger.annotations.ApiModelProperty;
 import java.util.regex.Pattern;
 import javax.validation.constraints.AssertTrue;
@@ -17,7 +17,7 @@ import org.openapitools.jackson.nullable.JsonNullable;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserModifyRequest {
+public class UserModifyApiRequest {
     @ApiModelProperty(value = "이메일")
     @Email(message = "이메일 형식이 아닙니다.")
     @Builder.Default
@@ -46,5 +46,14 @@ public class UserModifyRequest {
             return USERNAME_PATTERN.matcher(username.get()).matches();
         }
         return true;
+    }
+
+    public UserModifyRequest toUserModifyRequest() {
+        return UserModifyRequest.builder()
+                .email(email)
+                .profileMessage(profileMessage)
+                .imageResourceId(imageResourceId)
+                .username(username)
+                .build();
     }
 }

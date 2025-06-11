@@ -1,5 +1,7 @@
-package com.BaGulBaGul.BaGulBaGul.domain.user.dto;
+package com.BaGulBaGul.BaGulBaGul.domain.user.dto.api.request;
 
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.SocialLoginUserJoinRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.UserRegisterRequest;
 import io.swagger.annotations.ApiModelProperty;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
@@ -18,7 +20,7 @@ import javax.validation.constraints.NotBlank;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SocialLoginUserJoinRequest {
+public class SocialLoginUserJoinApiRequest {
 
     @ApiModelProperty(value = "oauth2 인증 후 프론트에 url 파라메터로 넘겨준 joinToken을 그대로 전달 | 필수")
     @NotBlank
@@ -34,10 +36,14 @@ public class SocialLoginUserJoinRequest {
     @Email(message = "이메일 형식이 아닙니다.")
     String email;
 
-    public UserRegisterRequest toUserRegisterRequest() {
-        return UserRegisterRequest.builder()
-                .email(email)
-                .nickname(nickname)
+
+    public SocialLoginUserJoinRequest toSocialLoginUserJoinRequest() {
+        return SocialLoginUserJoinRequest.builder()
+                .joinToken(joinToken)
+                .userRegisterRequest(UserRegisterRequest.builder()
+                        .nickname(nickname)
+                        .email(email)
+                        .build())
                 .build();
     }
 }

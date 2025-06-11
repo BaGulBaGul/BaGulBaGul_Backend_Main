@@ -1,7 +1,6 @@
-package com.BaGulBaGul.BaGulBaGul.domain.user.dto;
+package com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.response;
 
 import io.swagger.annotations.ApiModelProperty;
-import javax.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,7 +10,13 @@ import lombok.Setter;
 @Getter
 @Builder
 @AllArgsConstructor
-public class UserRegisterRequest {
+public class MyUserInfoResponse {
+    Long id;
     String nickname;
     String email;
+    String profileMessage;
+    String imageURI;
+    long writingCount;
+    long postLikeCount;
+    long calendarCount;
 }
