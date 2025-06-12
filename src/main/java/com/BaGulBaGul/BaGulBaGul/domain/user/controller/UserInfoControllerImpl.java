@@ -3,8 +3,10 @@ package com.BaGulBaGul.BaGulBaGul.domain.user.controller;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.api.response.MyUserInfoApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.api.response.OtherUserInfoApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.api.request.UserModifyApiRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.UserModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserInfoService;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
+import com.BaGulBaGul.BaGulBaGul.global.validation.ValidationUtil;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
 import javax.validation.Valid;
@@ -45,9 +47,11 @@ public class UserInfoControllerImpl implements UserInfoController {
     )
     public ApiResponse<Object> modifyMyUserInfo(
             @AuthenticationPrincipal Long userId,
-            @RequestBody @Valid UserModifyApiRequest userModifyApiRequest
+            @RequestBody UserModifyApiRequest userModifyApiRequest
     ) {
-        userInfoService.modifyUserInfo(userModifyApiRequest.toUserModifyRequest(), userId);
+        UserModifyRequest userModifyRequest = userModifyApiRequest.toUserModifyRequest();
+        ValidationUtil.validate(userModifyRequest);
+        userInfoService.modifyUserInfo(userModifyRequest, userId);
         return ApiResponse.of(null);
     }
 

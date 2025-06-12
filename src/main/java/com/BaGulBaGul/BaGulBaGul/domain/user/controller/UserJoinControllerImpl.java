@@ -1,12 +1,14 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user.controller;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.SocialLoginUser;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.SocialLoginUserJoinRequest;
 import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtCookieService;
 import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtProvider;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.api.response.CheckDuplicateUsernameApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.api.request.SocialLoginUserJoinApiRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserJoinService;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
+import com.BaGulBaGul.BaGulBaGul.global.validation.ValidationUtil;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
 import javax.servlet.http.HttpServletResponse;
@@ -39,11 +41,15 @@ public class UserJoinControllerImpl implements UserJoinController {
                     + "회원가입 성공 시 즉시 로그인 됨(인증 토큰을 쿠키에 저장)"
     )
     public ApiResponse<Object> joinSocialLoginUser(
-            @RequestBody @Valid SocialLoginUserJoinApiRequest socialLoginUserJoinApiRequest,
+            @RequestBody SocialLoginUserJoinApiRequest socialLoginUserJoinApiRequest,
             HttpServletResponse response
     ) {
-        SocialLoginUser user = userJoinService.registerSocialLoginUser(
-                socialLoginUserJoinApiRequest.toSocialLoginUserJoinRequest());
+        SocialLoginUserJoinRequest socialLoginUserJoinRequest = socialLoginUserJoinApiRequest
+                .toSocialLoginUserJoinRequest();
+        ValidationUtil.validate(socialLoginUserJoinRequest);
+
+        SocialLoginUser user = userJoinService.registerSocialLoginUser(socialLoginUserJoinRequest);
+
         jwtCookieService.setAccessToken(response, jwtProvider.createAccessToken(user.getUser().getId()));
         jwtCookieService.setRefreshToken(response, jwtProvider.createRefreshToken(user.getUser().getId()));
         return ApiResponse.of(null);

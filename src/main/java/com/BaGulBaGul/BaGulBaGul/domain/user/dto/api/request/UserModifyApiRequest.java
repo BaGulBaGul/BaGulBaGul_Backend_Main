@@ -19,7 +19,6 @@ import org.openapitools.jackson.nullable.JsonNullable;
 @NoArgsConstructor
 public class UserModifyApiRequest {
     @ApiModelProperty(value = "이메일")
-    @Email(message = "이메일 형식이 아닙니다.")
     @Builder.Default
     JsonNullable<String> email = JsonNullable.undefined();
 
@@ -35,18 +34,6 @@ public class UserModifyApiRequest {
     @Builder.Default
     JsonNullable<String> username = JsonNullable.undefined();
 
-    private static Pattern USERNAME_PATTERN = Pattern.compile("^[가-힣a-zA-Z]{2,12}$");
-
-    @AssertTrue(message = "유저명은 2이상 12이하의 영어, 한글 문자여야 합니다.")
-    public boolean isUsernameValid() {
-        if(username.isPresent()) {
-            if(username == null) {
-                return false;
-            }
-            return USERNAME_PATTERN.matcher(username.get()).matches();
-        }
-        return true;
-    }
 
     public UserModifyRequest toUserModifyRequest() {
         return UserModifyRequest.builder()
