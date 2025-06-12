@@ -77,7 +77,7 @@ class RecruitmentService_IntegrationTest {
         @Transactional
         void shouldOK() {
             //given
-            User user = userJoinService.registerUser(UserSample.NORMAL_USER_REGISTER_REQUEST);
+            User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
             Long eventId = eventService.registerEvent(user.getId(), EventSample.getNormalRegisterRequest());
 
             RecruitmentRegisterRequest recruitmentRegisterRequest = RecruitmentSample.getNormalRegisterRequest();
@@ -119,7 +119,7 @@ class RecruitmentService_IntegrationTest {
         @Transactional
         void shouldChangeAll() {
             //given
-            User user = userJoinService.registerUser(UserSample.NORMAL_USER_REGISTER_REQUEST);
+            User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
             Long eventId = eventService.registerEvent(user.getId(), EventSample.getNormalRegisterRequest());
 
             RecruitmentRegisterRequest recruitmentRegisterRequest = RecruitmentSample.getNormalRegisterRequest();
@@ -157,7 +157,7 @@ class RecruitmentService_IntegrationTest {
         @Transactional
         void shouldChangeNothing() {
             //given
-            User user = userJoinService.registerUser(UserSample.NORMAL_USER_REGISTER_REQUEST);
+            User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
             Long eventId = eventService.registerEvent(user.getId(), EventSample.getNormalRegisterRequest());
 
             RecruitmentRegisterRequest recruitmentRegisterRequest = RecruitmentSample.getNormalRegisterRequest();

@@ -63,7 +63,7 @@ class UserInfoService_IntegrationTest {
         @Transactional
         void shouldOK() {
             //given
-            User user = userJoinService.registerUser(UserSample.NORMAL_USER_REGISTER_REQUEST);
+            User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
             UserModifyRequest normalUserModifyRequest = UserModifyRequest.builder()
                     .username(JsonNullable.of(UserSample.NORMAL_USERNAME2))
                     .email(JsonNullable.of(UserSample.NORMAL_USERNAME2))

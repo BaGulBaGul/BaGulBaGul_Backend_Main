@@ -66,7 +66,7 @@ class PostService_IntegrationTest {
         @Transactional
         void shouldOK() {
             //given
-            User user = userJoinService.registerUser(UserSample.NORMAL_USER_REGISTER_REQUEST);
+            User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
             PostRegisterRequest postRegisterRequest = PostSample.getNormalRegisterRequest();
 
             //when
@@ -93,7 +93,7 @@ class PostService_IntegrationTest {
         @Transactional
         void shouldOK() {
             //given
-            User user = userJoinService.registerUser(UserSample.NORMAL_USER_REGISTER_REQUEST);
+            User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
             PostRegisterRequest postRegisterRequest = PostSample.getNormalRegisterRequest();
             PostModifyRequest postModifyRequest = PostModifyRequest.builder()
                     .title(PostSample.NORMAL2_TITLE)

@@ -62,7 +62,7 @@ class EventService_IntegrationTest {
         @Transactional
         void shouldOK() {
             //given
-            User user = userJoinService.registerUser(UserSample.NORMAL_USER_REGISTER_REQUEST);
+            User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
             EventRegisterRequest eventRegisterRequest = EventSample.getNormalRegisterRequest();
 
             //when
@@ -101,7 +101,7 @@ class EventService_IntegrationTest {
         @Transactional
         void shouldChangeAll() {
             //given
-            User user = userJoinService.registerUser(UserSample.NORMAL_USER_REGISTER_REQUEST);
+            User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
             EventRegisterRequest eventRegisterRequest = EventSample.getNormalRegisterRequest();
             EventModifyRequest eventModifyRequest = EventSample.getNormal2ModifyRequest();
             Long eventId = eventService.registerEvent(user.getId(), eventRegisterRequest);
@@ -146,7 +146,7 @@ class EventService_IntegrationTest {
         @Transactional
         void shouldChangeNothing() {
             //given
-            User user = userJoinService.registerUser(UserSample.NORMAL_USER_REGISTER_REQUEST);
+            User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
             EventRegisterRequest eventRegisterRequest = EventSample.getNormalRegisterRequest();
             EventModifyRequest eventModifyRequest = EventModifyRequest.builder()
                     .build();

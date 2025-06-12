@@ -46,7 +46,7 @@ class UserJoinService_UnitTest {
             when(userRepository.save(any())).thenThrow(new DataIntegrityViolationException(UserSample.CONSTRAINT_UNIQUE_USERNAME));
             //when
             //then
-            assertThatThrownBy(() -> userJoinService.registerUser(UserSample.NORMAL_USER_REGISTER_REQUEST))
+            assertThatThrownBy(() -> userJoinService.registerUser(UserSample.getNormalUserRegisterRequest()))
                     .isInstanceOf(DuplicateUsernameException.class);
         }
     }

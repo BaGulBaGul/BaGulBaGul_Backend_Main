@@ -34,7 +34,7 @@ public class UserJoinService_IntegrationTest {
         @Transactional
         void shouldOK() {
             userJoinService.registerUser(
-                    UserSample.NORMAL_USER_REGISTER_REQUEST
+                    UserSample.getNormalUserRegisterRequest()
             );
         }
 
@@ -43,7 +43,7 @@ public class UserJoinService_IntegrationTest {
         @Transactional
         void shouldThrowDuplicateUsernameException_WhenExactlySame() {
             //given
-            UserRegisterRequest userRegisterRequest = UserSample.NORMAL_USER_REGISTER_REQUEST;
+            UserRegisterRequest userRegisterRequest = UserSample.getNormalUserRegisterRequest();
             userJoinService.registerUser(
                     userRegisterRequest
             );
@@ -80,7 +80,7 @@ public class UserJoinService_IntegrationTest {
         @Transactional
         void shouldDuplicateUsername_WhenMatchExactly() {
             //given
-            userJoinService.registerUser(UserSample.NORMAL_USER_REGISTER_REQUEST);
+            userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
             //when
             boolean isDuplicate = userJoinService.checkDuplicateUsername(UserSample.NORMAL_USERNAME);
             //then
@@ -92,7 +92,7 @@ public class UserJoinService_IntegrationTest {
         @Transactional
         void shouldDuplicateUsername_WhenMatchLowerCase() {
             //given
-            userJoinService.registerUser(UserSample.NORMAL_USER_REGISTER_REQUEST);
+            userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
             //when
             boolean isDuplicate = userJoinService.checkDuplicateUsername(UserSample.NORMAL_USERNAME_UPPERCASE);
             //then
