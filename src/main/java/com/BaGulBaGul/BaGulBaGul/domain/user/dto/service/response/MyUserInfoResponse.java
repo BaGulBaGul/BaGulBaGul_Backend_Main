@@ -5,18 +5,32 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Setter
 @Getter
-@Builder
+@SuperBuilder
 @AllArgsConstructor
-public class MyUserInfoResponse {
-    Long id;
-    String nickname;
-    String email;
-    String profileMessage;
-    String imageURI;
+public class MyUserInfoResponse extends UserInfoResponse {
     long writingCount;
     long postLikeCount;
     long calendarCount;
+
+    public static MyUserInfoResponse from(
+            UserInfoResponse userInfoResponse,
+            long writingCount,
+            long postLikeCount,
+            long calendarCount
+    ) {
+        return MyUserInfoResponse.builder()
+                .id(userInfoResponse.getId())
+                .nickname(userInfoResponse.getNickname())
+                .email(userInfoResponse.getEmail())
+                .profileMessage(userInfoResponse.getProfileMessage())
+                .imageURI(userInfoResponse.getImageURI())
+                .writingCount(writingCount)
+                .postLikeCount(postLikeCount)
+                .calendarCount(calendarCount)
+                .build();
+    }
 }

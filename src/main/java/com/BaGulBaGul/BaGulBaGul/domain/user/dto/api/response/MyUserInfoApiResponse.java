@@ -7,22 +7,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Setter
 @Getter
-@Builder
+@SuperBuilder
 @AllArgsConstructor
-public class MyUserInfoApiResponse {
-    @ApiModelProperty(value = "유저 id")
-    Long id;
-    @ApiModelProperty(value = "닉네임")
-    String nickname;
-    @ApiModelProperty(value = "이메일")
-    String email;
-    @ApiModelProperty(value = "프로필 상태 메세지")
-    String profileMessage;
-    @ApiModelProperty(value = "프로필 이미지")
-    String imageURI;
+public class MyUserInfoApiResponse extends UserInfoApiResponse {
     @ApiModelProperty(value = "작성한 게시글 개수")
     long writingCount;
     @ApiModelProperty(value = "좋아요 누른 게시글 개수")

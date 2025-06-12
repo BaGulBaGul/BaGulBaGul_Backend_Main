@@ -36,7 +36,7 @@ public class UserModifyRequest_UnitTest {
 
 
         @Test
-        @DisplayName("유저명에 한글, 영어 이외의 문자가 포함되면 예외")
+        @DisplayName("유저명에 한글, 영어 이외의 문자가 포함되면  예외")
         void shouldThrowConstraintViolationException_whenUsernameContainsInvalidCharacters() {
             UserModifyRequest userModifyRequest = UserSample.getNormalUserModifyRequest();
             userModifyRequest.setUsername(JsonNullable.of("osm!!"));

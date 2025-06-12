@@ -8,6 +8,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.calendar.recruitment.repository.Recruitm
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.UserModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.response.MyUserInfoResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.response.OtherUserInfoResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.response.UserInfoResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.user.exception.DuplicateUsernameException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.exception.UserNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserRepository;
@@ -28,36 +29,37 @@ public class UserInfoServiceImpl implements UserInfoService {
     private final EventCalendarRepository eventCalendarRepository;
     private final RecruitmentCalendarRepository recruitmentCalendarRepository;
 
+
     @Override
-    public MyUserInfoResponse getMyUserInfo(Long userId) {
+    public UserInfoResponse getUserInfo(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
-        long writingCount = postRepository.countByUserId(userId);
-        long postLikeCount = postLikeRepository.countByUserId(userId);
-        long calendarCount = eventCalendarRepository.countByUserId(userId) + recruitmentCalendarRepository.countByUserId(userId);
-        return MyUserInfoResponse.builder()
+        return UserInfoResponse.builder()
                 .id(userId)
                 .nickname(user.getNickname())
                 .email(user.getEmail())
                 .profileMessage(user.getProfileMessage())
                 .imageURI(user.getImageURI())
-                .writingCount(writingCount)
-                .postLikeCount(postLikeCount)
-                .calendarCount(calendarCount)
                 .build();
     }
 
     @Override
+    public MyUserInfoResponse getMyUserInfo(Long userId) {
+        UserInfoResponse userInfo = getUserInfo(userId);
+        return MyUserInfoResponse.from(
+                userInfo,
+                getWritingCount(userId),
+                getPostLikeCount(userId),
+                getCalendarCount(userId)
+        );
+    }
+
+    @Override
     public OtherUserInfoResponse getOtherUserInfo(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
-        long writingCount = postRepository.countByUserId(userId);
-        return OtherUserInfoResponse.builder()
-                .id(userId)
-                .nickname(user.getNickname())
-                .email(user.getEmail())
-                .profileMessage(user.getProfileMessage())
-                .imageURI(user.getImageURI())
-                .writingCount(writingCount)
-                .build();
+        UserInfoResponse userInfo = getUserInfo(userId);
+        return OtherUserInfoResponse.from(
+                userInfo,
+                getWritingCount(userId)
+        );
     }
 
     @Override
@@ -93,5 +95,17 @@ public class UserInfoServiceImpl implements UserInfoService {
                 }
             }
         }
+    }
+
+    private long getWritingCount(long userId) {
+        return postRepository.countByUserId(userId);
+    }
+
+    private long getCalendarCount(Long userId) {
+        return eventCalendarRepository.countByUserId(userId) + recruitmentCalendarRepository.countByUserId(userId);
+    }
+
+    private long getPostLikeCount(Long userId) {
+        return postLikeRepository.countByUserId(userId);
     }
 }
