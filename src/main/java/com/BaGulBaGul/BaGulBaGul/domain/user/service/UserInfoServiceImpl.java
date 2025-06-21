@@ -1,17 +1,28 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user.service;
 
+import com.BaGulBaGul.BaGulBaGul.domain.event.Event;
+import com.BaGulBaGul.BaGulBaGul.domain.event.constant.EventType;
+import com.BaGulBaGul.BaGulBaGul.domain.event.repository.EventRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostLikeRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.calendar.event.repository.EventCalendarRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.calendar.recruitment.repository.RecruitmentCalendarRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.AdminManageEventHostUserModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.UserModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.response.EventHostUserInfoResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.response.MyUserInfoResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.response.OtherUserInfoResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.response.UserInfoResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.user.exception.DuplicateUsernameException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.exception.UserNotFoundException;
+import com.BaGulBaGul.BaGulBaGul.domain.user.repository.AdminManageEventHostUserRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserRepository;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import lombok.Builder;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -22,12 +33,15 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserInfoServiceImpl implements UserInfoService {
 
     private final UserRepository userRepository;
+    private final AdminManageEventHostUserRepository adminManageEventHostUserRepository;
+    private final EventRepository eventRepository;
 
     private final UserImageService userImageService;
     private final PostRepository postRepository;
     private final PostLikeRepository postLikeRepository;
     private final EventCalendarRepository eventCalendarRepository;
     private final RecruitmentCalendarRepository recruitmentCalendarRepository;
+
 
 
     @Override
@@ -59,6 +73,18 @@ public class UserInfoServiceImpl implements UserInfoService {
         return OtherUserInfoResponse.from(
                 userInfo,
                 getWritingCount(userId)
+        );
+    }
+
+    @Override
+    @Transactional
+    public EventHostUserInfoResponse getEventHostUserInfo(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        UserInfoResponse userInfo = getUserInfo(userId);
+        UserEventCounts eventCount = getEventCount(userId);
+        return EventHostUserInfoResponse.from(
+                userInfo,
+                eventCount.festivalCount, eventCount.localEventCount, eventCount.partyCount
         );
     }
 
@@ -97,6 +123,14 @@ public class UserInfoServiceImpl implements UserInfoService {
         }
     }
 
+    @Override
+    public void modifyAdminManageEventHostUser(
+            AdminManageEventHostUserModifyRequest adminManageEventHostUserModifyRequest,
+            Long userId
+    ) {
+        modifyUserInfo(adminManageEventHostUserModifyRequest.getUserModifyRequest(), userId);
+    }
+
     private long getWritingCount(long userId) {
         return postRepository.countByUserId(userId);
     }
@@ -107,5 +141,30 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     private long getPostLikeCount(Long userId) {
         return postLikeRepository.countByUserId(userId);
+    }
+
+    private UserEventCounts getEventCount(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        List<Event> events = eventRepository.findByHostUser(user);
+        Map<EventType, Integer> counts = new HashMap<>();
+        for(EventType type : EventType.values()) {
+            counts.put(type, 0);
+        }
+        for(Event event : events) {
+            counts.put(event.getType(), counts.get(event.getType()) + 1);
+        }
+        return UserEventCounts.builder()
+                .festivalCount(counts.get(EventType.FESTIVAL))
+                .localEventCount(counts.get(EventType.LOCAL_EVENT))
+                .partyCount(counts.get(EventType.PARTY))
+                .build();
+    }
+
+    @Getter
+    @Builder
+    private static class UserEventCounts {
+        private long festivalCount;
+        private long localEventCount;
+        private long partyCount;
     }
 }

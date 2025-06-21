@@ -18,4 +18,13 @@ public class UserInfoResponse {
     String email;
     String profileMessage;
     String imageURI;
+
+    public <T extends UserInfoResponseBuilder> T mapBuilder(T builder) {
+        return (T) builder
+                .id(id)
+                .nickname(nickname)
+                .email(email)
+                .profileMessage(profileMessage)
+                .imageURI(imageURI);
+    }
 }

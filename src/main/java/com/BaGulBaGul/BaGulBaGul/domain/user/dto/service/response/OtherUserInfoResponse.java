@@ -16,12 +16,7 @@ public class OtherUserInfoResponse extends UserInfoResponse{
             UserInfoResponse userInfoResponse,
             long writingCount
     ) {
-        return OtherUserInfoResponse.builder()
-                .id(userInfoResponse.getId())
-                .nickname(userInfoResponse.getNickname())
-                .email(userInfoResponse.getEmail())
-                .profileMessage(userInfoResponse.getProfileMessage())
-                .imageURI(userInfoResponse.getImageURI())
+        return userInfoResponse.mapBuilder(OtherUserInfoResponse.builder())
                 .writingCount(writingCount)
                 .build();
     }

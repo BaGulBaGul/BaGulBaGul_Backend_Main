@@ -22,12 +22,7 @@ public class MyUserInfoResponse extends UserInfoResponse {
             long postLikeCount,
             long calendarCount
     ) {
-        return MyUserInfoResponse.builder()
-                .id(userInfoResponse.getId())
-                .nickname(userInfoResponse.getNickname())
-                .email(userInfoResponse.getEmail())
-                .profileMessage(userInfoResponse.getProfileMessage())
-                .imageURI(userInfoResponse.getImageURI())
+        return userInfoResponse.mapBuilder(MyUserInfoResponse.builder())
                 .writingCount(writingCount)
                 .postLikeCount(postLikeCount)
                 .calendarCount(calendarCount)
