@@ -20,7 +20,7 @@ class EventRegisterRequest_UnitTest {
     class Validation {
         //Event의 책임이 아닌 부분은 검증 대상에서 제외
         EventRegisterRequest getNormalRegisterRequest() {
-            EventRegisterRequest eventRegisterRequest = EventSample.getNormalRegisterRequest();
+            EventRegisterRequest eventRegisterRequest = EventSample.getNormalRegisterRequest(1L);
             eventRegisterRequest.setLocationRegisterRequest(null);
             eventRegisterRequest.setParticipantStatusRegisterRequest(null);
             eventRegisterRequest.setPeriodRegisterRequest(null);

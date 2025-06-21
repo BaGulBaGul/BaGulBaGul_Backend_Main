@@ -8,7 +8,8 @@ public class SocialLoginUserSample {
     public static SocialLoginUserJoinRequest getNormalSocialLoginUserJoinRequest() {
         return SocialLoginUserJoinRequest.builder()
                 .joinToken(NORMAL_JOIN_TOKEN)
-                .userRegisterRequest(null)
+                .userRegisterRequest(UserSample.getNormalUserRegisterRequest())
                 .build();
     }
 }
+
