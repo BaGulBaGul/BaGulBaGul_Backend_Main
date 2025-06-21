@@ -2,6 +2,7 @@ package com.BaGulBaGul.BaGulBaGul.domain.event;
 
 import com.BaGulBaGul.BaGulBaGul.domain.event.constant.EventType;
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
+import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +16,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.validation.constraints.AssertTrue;
@@ -41,6 +43,11 @@ public class Event {
     @Column(name = "type")
     @Enumerated(value = EnumType.STRING)
     EventType type;
+
+    @Setter
+    @JoinColumn(name = "event_host_user_id")
+    @ManyToOne
+    User hostUser;
 
     @Setter
     @JoinColumn(name = "post_id")
@@ -109,6 +116,7 @@ public class Event {
     @Builder
     public Event(
             EventType type,
+            User hostUser,
             Post post,
             Boolean ageLimit,
             Integer currentHeadCount,
@@ -122,6 +130,7 @@ public class Event {
     ) {
         this.deleted = false;
         this.type = type;
+        this.hostUser = hostUser;
         this.post = post;
         this.ageLimit = ageLimit;
         this.currentHeadCount = currentHeadCount;

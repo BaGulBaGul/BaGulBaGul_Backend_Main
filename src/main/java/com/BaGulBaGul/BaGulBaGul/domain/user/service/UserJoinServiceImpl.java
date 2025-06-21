@@ -1,14 +1,17 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user.service;
 
+import com.BaGulBaGul.BaGulBaGul.domain.user.AdminManageEventHostUser;
 import com.BaGulBaGul.BaGulBaGul.domain.user.SocialLoginUser;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.alarm.UserAlarmStatus;
 import com.BaGulBaGul.BaGulBaGul.domain.alarm.repository.UserAlarmStatusRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.AdminManageEventHostUserRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.SocialLoginUserJoinRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.UserRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.repository.AdminManageEventHostUserRepository;
 import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtProvider;
 import com.BaGulBaGul.BaGulBaGul.domain.user.exception.DuplicateUsernameException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.exception.UserNotFoundException;
-import com.BaGulBaGul.BaGulBaGul.domain.user.dto.SocialLoginUserJoinRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.user.dto.UserRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.SocialLoginUserRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserRepository;
 import com.BaGulBaGul.BaGulBaGul.global.auth.oauth2.dto.OAuth2JoinTokenSubject;
@@ -24,6 +27,7 @@ public class UserJoinServiceImpl implements UserJoinService {
     private final JwtProvider jwtProvider;
     private final SocialLoginUserRepository socialLoginUserRepository;
     private final UserRepository userRepository;
+    private final AdminManageEventHostUserRepository adminManageEventHostUserRepository;
     private final UserAlarmStatusRepository userAlarmStatusRepository;
 
     private final UserImageService userImageService;
@@ -35,7 +39,7 @@ public class UserJoinServiceImpl implements UserJoinService {
         //joinToken에서 OAuth2JoinTokenSubject 추출.
         OAuth2JoinTokenSubject oAuth2JoinTokenSubject = jwtProvider.getOAuth2JoinTokenSubject(joinToken);
         //유저 생성
-        User user = registerUser(socialLoginUserJoinRequest.toUserRegisterRequest());
+        User user = registerUser(socialLoginUserJoinRequest.getUserRegisterRequest());
         //소셜 유저 생성
         SocialLoginUser socialLoginUser = SocialLoginUser.builder()
                 .id(oAuth2JoinTokenSubject.getSocialLoginId())
@@ -48,10 +52,24 @@ public class UserJoinServiceImpl implements UserJoinService {
 
     @Override
     @Transactional
-    public User registerUser(UserRegisterRequest userJoinRequest) {
+    public AdminManageEventHostUser registerAdminManageEventHostUser(
+            AdminManageEventHostUserRegisterRequest eventHostUserRegisterRequest
+    ) {
+        User user = registerUser(eventHostUserRegisterRequest.getUserRegisterRequest());
+        AdminManageEventHostUser adminManageEventHostUser = adminManageEventHostUserRepository.save(
+                AdminManageEventHostUser.builder()
+                        .user(user)
+                        .build()
+        );
+        return adminManageEventHostUser;
+    }
+
+    @Override
+    @Transactional
+    public User registerUser(UserRegisterRequest userRegisterRequest) {
         User user = User.builder()
-                .nickName(userJoinRequest.getNickname())
-                .email(userJoinRequest.getEmail())
+                .nickName(userRegisterRequest.getNickname())
+                .email(userRegisterRequest.getEmail())
                 .build();
         try {
             userRepository.save(user);
@@ -81,6 +99,16 @@ public class UserJoinServiceImpl implements UserJoinService {
         //유저 정보 삭제
         userRepository.deleteById(userId);
     }
+
+    @Override
+    @Transactional
+    public void deleteAdminManageEventHostUser(Long adminManageEventHostUserId) {
+        AdminManageEventHostUser adminManageEventHostUser = adminManageEventHostUserRepository
+                .findById(adminManageEventHostUserId).orElseThrow(UserNotFoundException::new);
+        adminManageEventHostUserRepository.deleteById(adminManageEventHostUserId);
+        deleteUser(adminManageEventHostUser.getUser().getId());
+    }
+
 
     @Override
     public boolean checkDuplicateUsername(String username) {

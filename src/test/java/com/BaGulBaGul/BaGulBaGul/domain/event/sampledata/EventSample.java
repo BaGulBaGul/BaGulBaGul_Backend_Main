@@ -35,8 +35,8 @@ public abstract class EventSample {
     public static final List<String> NORMAL_CATEGORIES = List.of("문화/예술", "식품/음료");
 
     //정상 이벤트
-    public static Event getNormal() {
-        EventRegisterRequest eventRegisterRequest = getNormalRegisterRequest();
+    public static Event getNormal(Long hostUserId) {
+        EventRegisterRequest eventRegisterRequest = getNormalRegisterRequest(hostUserId);
         ParticipantStatusRegisterRequest participantStatusRegisterRequest = eventRegisterRequest
                 .getParticipantStatusRegisterRequest();
         PeriodRegisterRequest periodRegisterRequest = eventRegisterRequest.getPeriodRegisterRequest();
@@ -68,9 +68,10 @@ public abstract class EventSample {
 
 
     //정상 이벤트 생성 요청
-    public static EventRegisterRequest getNormalRegisterRequest() {
+    public static EventRegisterRequest getNormalRegisterRequest(Long hostUserId) {
         return EventRegisterRequest.builder()
                 .type(NORMAL_EVENT_TYPE)
+                .eventHostUserId(hostUserId)
                 .ageLimit(NORMAL_AGE_LIMIT)
                 .categories(NORMAL_CATEGORIES)
                 .participantStatusRegisterRequest(ParticipantStatusSample.getNormalRegisterRequest())
@@ -80,9 +81,10 @@ public abstract class EventSample {
                 .build();
     }
 
-    public static EventModifyRequest getNormalModifyRequest() {
+    public static EventModifyRequest getNormalModifyRequest(Long hostUserId) {
         return EventModifyRequest.builder()
                 .type(NORMAL_EVENT_TYPE)
+                .eventHostUserId(JsonNullable.of(hostUserId))
                 .ageLimit(NORMAL_AGE_LIMIT)
                 .categories(NORMAL_CATEGORIES)
                 .participantStatusModifyRequest(ParticipantStatusSample.getNormalModifyRequest())
@@ -96,9 +98,23 @@ public abstract class EventSample {
     public static final Boolean NORMAL2_AGE_LIMIT = true;
     public static final List<String> NORMAL2_CATEGORIES = List.of("문화/예술", "교육/체험");
 
-    public static EventModifyRequest getNormal2ModifyRequest() {
+    public static EventRegisterRequest getNormal2RegisterRequest(Long hostUserId) {
+        return EventRegisterRequest.builder()
+                .type(NORMAL2_EVENT_TYPE)
+                .eventHostUserId(hostUserId)
+                .ageLimit(NORMAL2_AGE_LIMIT)
+                .categories(NORMAL2_CATEGORIES)
+                .participantStatusRegisterRequest(ParticipantStatusSample.getNormal2RegisterRequest())
+                .locationRegisterRequest(LocationSample.getNormal2RegisterRequest())
+                .periodRegisterRequest(PeriodSample.getNormal2RegisterRequest())
+                .postRegisterRequest(PostSample.getNormal2RegisterRequest())
+                .build();
+    }
+
+    public static EventModifyRequest getNormal2ModifyRequest(Long hostUserId) {
         return EventModifyRequest.builder()
                 .type(NORMAL2_EVENT_TYPE)
+                .eventHostUserId(JsonNullable.of(hostUserId))
                 .ageLimit(NORMAL2_AGE_LIMIT)
                 .categories(NORMAL2_CATEGORIES)
                 .participantStatusModifyRequest(ParticipantStatusSample.getNormal2ModifyRequest())

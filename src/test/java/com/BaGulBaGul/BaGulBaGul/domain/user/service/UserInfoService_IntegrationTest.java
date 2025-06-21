@@ -9,16 +9,13 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
-import com.BaGulBaGul.BaGulBaGul.domain.user.dto.UserModifyRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.user.dto.UserRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.UserModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.UserRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.exception.DuplicateUsernameException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.sampledata.UserSample;
-import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserImageService;
-import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserInfoService;
-import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserJoinService;
 import com.BaGulBaGul.BaGulBaGul.extension.AllTestContainerExtension;
-import com.BaGulBaGul.BaGulBaGul.extension.MysqlTestContainerExtension;
+import java.util.List;
 import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -54,38 +51,34 @@ class UserInfoService_IntegrationTest {
     @Autowired
     EntityManager entityManager;
 
+    @BeforeEach
+    void init() {
+        doNothing().when(userImageService).setImage(any(), any());
+    }
+
     @Nested
     @DisplayName("유저 수정 테스트")
     class modifyUserInfoTest {
-        @BeforeEach
-        void init() {
-            doNothing().when(userImageService).setImage(any(), any());
-        }
 
         @Test
         @DisplayName("정상 동작")
         @Transactional
         void shouldOK() {
             //given
-            User user = userJoinService.registerUser(UserSample.NORMAL_USER_REGISTER_REQUEST);
-            UserModifyRequest normalUserModifyRequest = UserModifyRequest.builder()
-                    .username(JsonNullable.of(UserSample.NORMAL_USERNAME2))
-                    .email(JsonNullable.of(UserSample.NORMAL_USERNAME2))
-                    .profileMessage(JsonNullable.of(UserSample.NORMAL_PROFILE_MESSAGE2))
-                    .imageResourceId(JsonNullable.of(1L))
-                    .build();
-
+            User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
+            UserModifyRequest normal2UserModifyRequest = UserSample.getNormal2UserModifyRequest();
+            normal2UserModifyRequest.setImageResourceId(JsonNullable.of(1L));
             //when
-            userInfoService.modifyUserInfo(normalUserModifyRequest, user.getId());
+            userInfoService.modifyUserInfo(normal2UserModifyRequest, user.getId());
             //수정한 내용을 db에 즉시 반영하고 영속성 컨텍스트 초기화
             entityManager.flush();
             entityManager.clear();
             user = userRepository.findById(user.getId()).orElse(null);
 
             //then
-            assertThat(user.getNickname()).isEqualTo(normalUserModifyRequest.getUsername().get());
-            assertThat(user.getEmail()).isEqualTo(normalUserModifyRequest.getEmail().get());
-            assertThat(user.getProfileMessage()).isEqualTo(normalUserModifyRequest.getProfileMessage().get());
+            assertThat(user.getNickname()).isEqualTo(normal2UserModifyRequest.getUsername().get());
+            assertThat(user.getEmail()).isEqualTo(normal2UserModifyRequest.getEmail().get());
+            assertThat(user.getProfileMessage()).isEqualTo(normal2UserModifyRequest.getProfileMessage().get());
             verify(userImageService, times(1)).setImage(any(), any());
         }
 
@@ -94,12 +87,9 @@ class UserInfoService_IntegrationTest {
         @Transactional
         void shouldThrowDuplicateUsernameException_WhenUsernameExactlySame() {
             //given
-            UserRegisterRequest userRegisterRequest = UserRegisterRequest.builder()
-                    .nickname(UserSample.NORMAL_USERNAME)
-                    .build();
-            UserModifyRequest userModifyRequest = UserModifyRequest.builder()
-                    .username(JsonNullable.of(userRegisterRequest.getNickname()))
-                    .build();
+            UserRegisterRequest userRegisterRequest = UserSample.getNormalUserRegisterRequest();
+            UserModifyRequest userModifyRequest = UserSample.getNormal2UserModifyRequest();
+            userModifyRequest.setUsername(JsonNullable.of(userRegisterRequest.getNickname()));
             User user = userJoinService.registerUser(userRegisterRequest);
             //when then
             assertThatThrownBy(() -> {
@@ -115,12 +105,10 @@ class UserInfoService_IntegrationTest {
         @Transactional
         void shouldThrowDuplicateUsernameException_WhenUsernameCaseInsensitiveSame() {
             //given
-            UserRegisterRequest userRegisterRequest = UserRegisterRequest.builder()
-                    .nickname(UserSample.NORMAL_USERNAME.toLowerCase())
-                    .build();
-            UserModifyRequest userModifyRequest = UserModifyRequest.builder()
-                    .username(JsonNullable.of(userRegisterRequest.getNickname().toUpperCase()))
-                    .build();
+            UserRegisterRequest userRegisterRequest = UserSample.getNormalUserRegisterRequest();
+            userRegisterRequest.setNickname(userRegisterRequest.getNickname().toLowerCase());
+            UserModifyRequest userModifyRequest = UserSample.getNormal2UserModifyRequest();
+            userModifyRequest.setUsername(JsonNullable.of(userRegisterRequest.getNickname().toUpperCase()));
             User user = userJoinService.registerUser(userRegisterRequest);
             //when then
             assertThatThrownBy(() -> {
