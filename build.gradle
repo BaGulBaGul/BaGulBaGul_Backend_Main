@@ -41,8 +41,8 @@ dependencies {
 	implementation 'org.flywaydb:flyway-core'
 	implementation 'org.flywaydb:flyway-mysql'
 
-	compileOnly 'org.projectlombok:lombok'
-	annotationProcessor 'org.projectlombok:lombok'
+	compileOnly 'org.projectlombok:lombok:1.18.12'
+	annotationProcessor 'org.projectlombok:lombok:1.18.12'
 	testCompileOnly 'org.projectlombok:lombok:1.18.12' // 테스트 의존성 추가
 	testAnnotationProcessor 'org.projectlombok:lombok:1.18.12' // 테스트 의존성 추가
 
@@ -107,6 +107,18 @@ sourceSets {
 }
 compileQuerydsl{
 	options.annotationProcessorPath = configurations.querydsl
+}
+
+project.afterEvaluate {
+	project.tasks.compileQuerydsl.options.compilerArgs = [
+			"-proc:only",  // 컴파일 없이 어노테이션 처리만 수행
+			"-processor",
+			project.querydsl.processors() + ',lombok.launch.AnnotationProcessorHider$AnnotationProcessor'
+	]
+}
+
+tasks.named('compileJava') {
+	dependsOn tasks.named('compileQuerydsl')  // QueryDSL 컴파일 우선 실행:cite[1]
 }
 
 tasks.named('test') {

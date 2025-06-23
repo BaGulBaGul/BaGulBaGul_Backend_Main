@@ -28,13 +28,13 @@ import org.springframework.format.annotation.DateTimeFormat;
 @AllArgsConstructor
 public class EventModifyRequest {
 
-    @ApiModelProperty(value = "이벤트 타입 FESTIVAL, LOCAL_EVENT, PARTY 중 하나")
     private EventType type;
 
-    @ApiModelProperty(value = "연령 제한 게시물 여부")
+    @Builder.Default
+    private JsonNullable<Long> eventHostUserId = JsonNullable.undefined();
+
     private Boolean ageLimit;
 
-    @ApiModelProperty(value = "등록할 카테고리의 이름들", example = "[\"스포츠/레저\",\"식품/음료\",\"문화/예술\"]")
     @Size(max = 2, message = "카테고리 개수는 {1}개 이하여야 합니다.")
     private List<String> categories;
 

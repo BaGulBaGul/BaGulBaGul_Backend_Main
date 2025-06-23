@@ -32,6 +32,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostService;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.exception.UserNotFoundException;
+import com.BaGulBaGul.BaGulBaGul.domain.user.repository.AdminManageEventHostUserRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserRepository;
 import com.BaGulBaGul.BaGulBaGul.global.exception.NoPermissionException;
 import java.util.List;
@@ -50,6 +51,7 @@ public class EventServiceImpl implements EventService {
     
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
+    private final AdminManageEventHostUserRepository adminManageEventHostUserRepository;
     private final EventCategoryRepository eventCategoryRepository;
     private final CategoryRepository categoryRepository;
 
@@ -129,7 +131,14 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public Long registerEvent(Long userId, EventRegisterRequest eventRegisterRequest) {
+        //작성자 조회
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
+        //주최자 조회
+        User eventHostUser = null;
+        if(eventRegisterRequest.getEventHostUserId() != null) {
+            eventHostUser = userRepository.findById(eventRegisterRequest.getEventHostUserId())
+                .orElseThrow(() -> new UserNotFoundException());
+        }
         //게시글 생성
         Post post = postService.registerPost(user, eventRegisterRequest.getPostRegisterRequest());
         //이벤트 생성
@@ -139,6 +148,7 @@ public class EventServiceImpl implements EventService {
                 .getParticipantStatusRegisterRequest();
         Event event = Event.builder()
                 .type(eventRegisterRequest.getType())
+                .hostUser(eventHostUser)
                 .post(post)
                 .ageLimit(eventRegisterRequest.getAgeLimit())
                 .currentHeadCount(participantStatusRegisterRequest.getCurrentHeadCount())
@@ -177,6 +187,11 @@ public class EventServiceImpl implements EventService {
         //나머지 event관련 속성 변경
         if(eventModifyRequest.getType() != null) {
             event.setType(eventModifyRequest.getType());
+        }
+        if(eventModifyRequest.getEventHostUserId().isPresent()) {
+            User eventHostUser = userRepository.findById(eventModifyRequest.getEventHostUserId().get())
+                    .orElseThrow(UserNotFoundException::new);
+            event.setHostUser(eventHostUser);
         }
         if(eventModifyRequest.getAgeLimit() != null) {
             event.setAgeLimit(eventModifyRequest.getAgeLimit());
@@ -315,6 +330,9 @@ public class EventServiceImpl implements EventService {
         return EventSimpleInfo.builder()
                 .eventId(event.getId())
                 .type(event.getType())
+                .eventHostUserId(event.getHostUser().getId())
+                .eventHostUserName(event.getHostUser().getNickname())
+                .eventHostUserProfileImageUrl(event.getHostUser().getProfileMessage())
                 .abstractLocation(event.getAbstractLocation())
                 .currentHeadCount(event.getCurrentHeadCount())
                 .maxHeadCount(event.getMaxHeadCount())
@@ -332,6 +350,9 @@ public class EventServiceImpl implements EventService {
         return EventDetailInfo.builder()
                 .eventId(event.getId())
                 .type(event.getType())
+                .eventHostUserId(event.getHostUser().getId())
+                .eventHostUserName(event.getHostUser().getNickname())
+                .eventHostUserProfileImageUrl(event.getHostUser().getProfileMessage())
                 .currentHeadCount(event.getCurrentHeadCount())
                 .maxHeadCount(event.getMaxHeadCount())
                 .fullLocation(event.getFullLocation())

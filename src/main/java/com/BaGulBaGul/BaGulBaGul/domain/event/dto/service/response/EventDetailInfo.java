@@ -20,6 +20,15 @@ public class EventDetailInfo {
     @ApiModelProperty(value = "이벤트 타입 FESTIVAL, LOCAL_EVENT, PARTY 중 하나")
     private EventType type;
 
+    @ApiModelProperty(value = "주최자 유저 id")
+    private Long eventHostUserId;
+
+    @ApiModelProperty(value = "주최자 유저 닉네임")
+    private String eventHostUserName;
+
+    @ApiModelProperty(value = "주최자 프로필 이미지 url")
+    private String eventHostUserProfileImageUrl;
+
     @ApiModelProperty(value = "참여 인원")
     private Integer currentHeadCount;
 
