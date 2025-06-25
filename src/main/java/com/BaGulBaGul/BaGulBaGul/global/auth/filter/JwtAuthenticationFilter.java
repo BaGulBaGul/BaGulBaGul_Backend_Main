@@ -1,5 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.global.auth.filter;
 
+import com.BaGulBaGul.BaGulBaGul.global.auth.dto.ParsedAccessTokenInfo;
+import com.BaGulBaGul.BaGulBaGul.global.auth.dto.ParsedRefreshTokenInfo;
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.AccessTokenException;
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.RefreshTokenException;
 import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtProvider;
@@ -45,14 +47,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         //AccessToken 검증 후 userId 추출 시도
         Long userId;
         try {
-            userId = jwtProvider.getUserIdFromAccessToken(accessToken);
+            ParsedAccessTokenInfo parsedAccessTokenInfo = jwtProvider.parseAccessToken(accessToken);
+            userId = parsedAccessTokenInfo.getUserId();
         }
         //userId가 없다면 RefreshToken 검증 후 AccessToken, RefreshToken 재발급 시도
         catch (AccessTokenException ae) {
             String refreshToken = jwtCookieService.getRefreshToken(request);
+
             //RefreshToken 검증 후 userId 추출 시도
             try {
-                userId = jwtProvider.getUserIdFromRefreshToken(refreshToken);
+                ParsedRefreshTokenInfo parsedRefreshTokenInfo = jwtProvider.parseRefreshToken(refreshToken);
+                userId = parsedRefreshTokenInfo.getUserId();
             }
             //RefreshToken도 없다면 인증 실패
             catch (RefreshTokenException re) {

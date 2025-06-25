@@ -1,6 +1,10 @@
 package com.BaGulBaGul.BaGulBaGul.global.auth.service;
 
+import com.BaGulBaGul.BaGulBaGul.global.auth.dto.ParsedAccessTokenInfo;
+import com.BaGulBaGul.BaGulBaGul.global.auth.dto.ParsedRefreshTokenInfo;
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.AccessTokenException;
+import com.BaGulBaGul.BaGulBaGul.global.auth.exception.ExpiredAccessTokenException;
+import com.BaGulBaGul.BaGulBaGul.global.auth.exception.InvalidAccessTokenException;
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.JoinTokenDeserializeException;
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.JoinTokenExpiredException;
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.JoinTokenSerializeException;
@@ -14,6 +18,7 @@ import io.jsonwebtoken.*;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.UUID;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import lombok.Builder;
@@ -73,32 +78,6 @@ public class JwtProviderImpl implements JwtProvider {
     }
 
     @Override
-    public Long getUserIdFromAccessToken(String accessToken) {
-        if(accessToken == null) {
-            throw new AccessTokenException();
-        }
-        try {
-            return Long.parseLong(getSubject(accessToken));
-        }
-        catch (Exception ex) {
-            throw new AccessTokenException();
-        }
-    }
-
-    @Override
-    public Long getUserIdFromRefreshToken(String refreshToken) {
-        if(refreshToken == null) {
-            throw new RefreshTokenException();
-        }
-        try {
-            return Long.parseLong(getSubject(refreshToken));
-        }
-        catch (Exception ex) {
-            throw new RefreshTokenException();
-        }
-    }
-
-    @Override
     public OAuth2JoinTokenSubject getOAuth2JoinTokenSubject(String joinToken) {
         String subject;
         try {
@@ -127,6 +106,52 @@ public class JwtProviderImpl implements JwtProvider {
         return claims.getSubject();
     }
 
+    @Override
+    public ParsedAccessTokenInfo parseAccessToken(String accessToken) {
+        Claims claims = null;
+        try {
+            claims = Jwts.parser()
+                    .setSigningKey(secretKey)
+                    .parseClaimsJws(accessToken)
+                    .getBody();
+        } catch (ExpiredJwtException ex) {
+            throw new ExpiredAccessTokenException();
+        } catch (JwtException ex) {
+            throw new InvalidAccessTokenException();
+        }
+        Long userId = Long.parseLong(claims.getSubject());
+
+        return ParsedAccessTokenInfo.builder()
+                .jti(claims.getId())
+                .issuedAt(claims.getIssuedAt())
+                .expireAt(claims.getExpiration())
+                .userId(userId)
+                .build();
+    }
+
+    @Override
+    public ParsedRefreshTokenInfo parseRefreshToken(String refreshToken) {
+        Claims claims = null;
+        try {
+            claims = Jwts.parser()
+                    .setSigningKey(secretKey)
+                    .parseClaimsJws(refreshToken)
+                    .getBody();
+        } catch (ExpiredJwtException ex) {
+            throw new ExpiredAccessTokenException();
+        } catch (JwtException ex) {
+            throw new InvalidAccessTokenException();
+        }
+        Long userId = Long.parseLong(claims.getSubject());
+
+        return ParsedRefreshTokenInfo.builder()
+                .jti(claims.getId())
+                .issuedAt(claims.getIssuedAt())
+                .expireAt(claims.getExpiration())
+                .userId(userId)
+                .build();
+    }
+
     private String createToken(String subject, int expireMinute) {
         Date now = new Date();
         Calendar calendar = Calendar.getInstance();
@@ -140,6 +165,7 @@ public class JwtProviderImpl implements JwtProvider {
                 .setIssuer(ISSUER)
                 .setIssuedAt(now)
                 .setExpiration(expiredAt)
+                .setId(UUID.randomUUID().toString())
                 .compact();
     }
 }
