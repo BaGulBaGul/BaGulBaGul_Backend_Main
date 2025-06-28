@@ -14,10 +14,15 @@ import com.BaGulBaGul.BaGulBaGul.global.auth.exception.JoinTokenSerializeExcepti
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.JoinTokenValidationException;
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.RefreshTokenException;
 import io.jsonwebtoken.JwtException;
+import java.util.Date;
 
 public interface JwtProvider {
     String createAccessToken(Long userId);
+    String createAccessToken(Long userId, Date issuedAt);
+    String createAccessToken(Long userId, Date issuedAt, Date expireAt);
     String createRefreshToken(Long userId);
+    String createRefreshToken(Long userId, Date issuedAt);
+    String createRefreshToken(Long userId, Date issuedAt, Date expireAt);
     String createOAuth2JoinToken(OAuth2JoinTokenSubject oAuth2JoinTokenContent) throws JoinTokenSerializeException;
 
 

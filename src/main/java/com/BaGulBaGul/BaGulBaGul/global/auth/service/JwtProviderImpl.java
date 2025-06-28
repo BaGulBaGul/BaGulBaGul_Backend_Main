@@ -4,7 +4,9 @@ import com.BaGulBaGul.BaGulBaGul.global.auth.dto.ParsedAccessTokenInfo;
 import com.BaGulBaGul.BaGulBaGul.global.auth.dto.ParsedRefreshTokenInfo;
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.AccessTokenException;
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.ExpiredAccessTokenException;
+import com.BaGulBaGul.BaGulBaGul.global.auth.exception.ExpiredRefreshTokenException;
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.InvalidAccessTokenException;
+import com.BaGulBaGul.BaGulBaGul.global.auth.exception.InvalidRefreshTokenException;
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.JoinTokenDeserializeException;
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.JoinTokenExpiredException;
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.JoinTokenSerializeException;
@@ -62,8 +64,28 @@ public class JwtProviderImpl implements JwtProvider {
     }
 
     @Override
+    public String createAccessToken(Long userId, Date issuedAt) {
+        return createToken(userId.toString(), issuedAt, ACCESS_TOKEN_EXPIRE_MINUTE);
+    }
+
+    @Override
+    public String createAccessToken(Long userId, Date issuedAt, Date expireAt) {
+        return createToken(userId.toString(), issuedAt, expireAt);
+    }
+
+    @Override
     public String createRefreshToken(Long userId) {
         return createToken(userId.toString(), REFRESH_TOKEN_EXPIRE_MINUTE);
+    }
+
+    @Override
+    public String createRefreshToken(Long userId, Date issuedAt) {
+        return createToken(userId.toString(), issuedAt, REFRESH_TOKEN_EXPIRE_MINUTE);
+    }
+
+    @Override
+    public String createRefreshToken(Long userId, Date issuedAt, Date expireAt) {
+        return createToken(userId.toString(), issuedAt, expireAt);
     }
 
     @Override
@@ -138,9 +160,9 @@ public class JwtProviderImpl implements JwtProvider {
                     .parseClaimsJws(refreshToken)
                     .getBody();
         } catch (ExpiredJwtException ex) {
-            throw new ExpiredAccessTokenException();
+            throw new ExpiredRefreshTokenException();
         } catch (JwtException ex) {
-            throw new InvalidAccessTokenException();
+            throw new InvalidRefreshTokenException();
         }
         Long userId = Long.parseLong(claims.getSubject());
 
@@ -153,18 +175,25 @@ public class JwtProviderImpl implements JwtProvider {
     }
 
     private String createToken(String subject, int expireMinute) {
-        Date now = new Date();
+        return createToken(subject, new Date(), expireMinute);
+    }
+
+    private String createToken(String subject, Date issuedAt, int expireMinute) {
         Calendar calendar = Calendar.getInstance();
-        calendar.setTime(now);
+        calendar.setTime(issuedAt);
         calendar.add(Calendar.MINUTE, expireMinute);
         Date expiredAt = calendar.getTime();
 
+        return createToken(subject, issuedAt, expiredAt);
+    }
+
+    private String createToken(String subject, Date issuedAt, Date expireAt) {
         return Jwts.builder()
                 .signWith(SignatureAlgorithm.HS512, secretKey)
                 .setSubject(subject)
                 .setIssuer(ISSUER)
-                .setIssuedAt(now)
-                .setExpiration(expiredAt)
+                .setIssuedAt(issuedAt)
+                .setExpiration(expireAt)
                 .setId(UUID.randomUUID().toString())
                 .compact();
     }

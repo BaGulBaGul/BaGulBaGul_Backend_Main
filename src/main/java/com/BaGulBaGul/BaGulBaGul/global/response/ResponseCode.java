@@ -39,6 +39,10 @@ public class ResponseCode {
     //Upload
     public static final ResponseCode UPLOAD_NOT_IMAGE = new ResponseCode("UPLOAD00000", HttpStatus.OK, "이미지 파일이 아닙니다");
     public static final ResponseCode UPLOAD_RESOURCE_NOT_FOUND = new ResponseCode("UPLOAD00001", HttpStatus.OK, "등록하려는 자원을 찾을 수 없습니다. resourceId={0}");
+    //AUTH
+    public static final ResponseCode AUTH_EXPIRED_ACCESS_TOKEN = new ResponseCode("AUTH00000", HttpStatus.UNAUTHORIZED, "AccessToken 만료");
+    public static final ResponseCode AUTH_EXPIRED_REFRESH_TOKEN = new ResponseCode("AUTH00001", HttpStatus.UNAUTHORIZED, "RefreshToken 만료");
+
 
     public static final ResponseCode[] types = {SUCCESS, BAD_REQUEST};
 

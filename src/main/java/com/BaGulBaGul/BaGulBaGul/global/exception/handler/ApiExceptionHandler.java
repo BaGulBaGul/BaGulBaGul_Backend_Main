@@ -5,10 +5,12 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.exception.EventNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.PostNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.exception.RecruitmentNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.report.exception.DuplicateReportException;
+import com.BaGulBaGul.BaGulBaGul.global.auth.exception.ExpiredRefreshTokenException;
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.JoinTokenExpiredException;
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.JoinTokenValidationException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.exception.DuplicateUsernameException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.exception.UserNotFoundException;
+import com.BaGulBaGul.BaGulBaGul.global.auth.exception.RefreshTokenException;
 import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
 import com.BaGulBaGul.BaGulBaGul.global.exception.NoPermissionException;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
@@ -214,6 +216,25 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
                 .build();
         return handleExceptionInternal(e, responseCode, webRequest);
     }
+
+    /************************
+     *   인증
+     ************************/
+    //RT가 만료되었을 때
+    @ExceptionHandler(
+            ExpiredRefreshTokenException.class
+    )
+    public ResponseEntity<Object> expiredRefreshToken(ExpiredRefreshTokenException e, WebRequest webRequest) {
+        return handleExceptionInternal(e, ResponseCode.AUTH_EXPIRED_REFRESH_TOKEN, webRequest);
+    }
+    //유효하지 않은 RT
+    @ExceptionHandler(
+            RefreshTokenException.class
+    )
+    public ResponseEntity<Object> invalidRefreshToken(RefreshTokenException e, WebRequest webRequest) {
+        return handleExceptionInternal(e, ResponseCode.UNAUTHORIZED, webRequest);
+    }
+
     /************************
      *   스프링 내부 예외처리와 연결
      ************************/
