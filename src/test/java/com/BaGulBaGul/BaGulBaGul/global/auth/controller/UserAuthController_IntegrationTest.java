@@ -68,8 +68,8 @@ class UserAuthController_IntegrationTest {
         void shouldRefresh_WhenNormalATNormalRT() throws Exception {
             //given
             Long userId = 1L;
-            String accessToken = jwtProvider.createAccessToken(userId);
-            String refreshToken = jwtProvider.createRefreshToken(userId);
+            String accessToken = jwtProvider.createAccessToken(userId).getJwt();
+            String refreshToken = jwtProvider.createRefreshToken(userId).getJwt();
 
             int rtExpireSecond = REFRESH_TOKEN_EXPIRE_MINUTE * 60;
             int atExpireSecond = rtExpireSecond;
@@ -93,8 +93,8 @@ class UserAuthController_IntegrationTest {
             calendar.add(Calendar.MINUTE, -10);
             Date expiredDate = calendar.getTime();
 
-            String accessToken = jwtProvider.createAccessToken(userId, expiredDate, expiredDate);
-            String refreshToken = jwtProvider.createRefreshToken(userId);
+            String accessToken = jwtProvider.createAccessToken(userId, expiredDate, expiredDate).getJwt();
+            String refreshToken = jwtProvider.createRefreshToken(userId).getJwt();
 
             int rtExpireSecond = REFRESH_TOKEN_EXPIRE_MINUTE * 60;
             int atExpireSecond = rtExpireSecond;
@@ -127,8 +127,8 @@ class UserAuthController_IntegrationTest {
             calendar.add(Calendar.MINUTE, -10);
             Date expiredDate = calendar.getTime();
 
-            String accessToken = jwtProvider.createAccessToken(userId);
-            String refreshToken = jwtProvider.createRefreshToken(userId, expiredDate, expiredDate);
+            String accessToken = jwtProvider.createAccessToken(userId).getJwt();
+            String refreshToken = jwtProvider.createRefreshToken(userId, expiredDate, expiredDate).getJwt();
 
             //when then
             ResponseCode responseCode = ResponseCode.FORBIDDEN;
@@ -150,8 +150,8 @@ class UserAuthController_IntegrationTest {
             calendar.add(Calendar.MINUTE, -10);
             Date expiredDate = calendar.getTime();
 
-            String accessToken = jwtProvider.createAccessToken(userId, expiredDate, expiredDate);
-            String refreshToken = jwtProvider.createRefreshToken(userId, expiredDate, expiredDate);
+            String accessToken = jwtProvider.createAccessToken(userId, expiredDate, expiredDate).getJwt()
+            String refreshToken = jwtProvider.createRefreshToken(userId, expiredDate, expiredDate).getJwt();
 
             //when
             ResponseCode responseCode = ResponseCode.AUTH_EXPIRED_REFRESH_TOKEN;

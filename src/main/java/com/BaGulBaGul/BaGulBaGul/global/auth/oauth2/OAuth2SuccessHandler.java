@@ -50,7 +50,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                     .socialLoginId(socialLoginId)
                     .oAuth2Provider(applicationOAuth2User.getOAuthProvider())
                     .build();
-            String oauth2JoinToken = jwtProvider.createOAuth2JoinToken(oAuth2JoinTokenSubject);
+            String oauth2JoinToken = jwtProvider.createOAuth2JoinToken(oAuth2JoinTokenSubject).getJwt();
             response.sendRedirect(
                     composeQueryParam(FRONT_JOIN_REDIRECT_URL, JOIN_TOKEN_PARAM_NAME, oauth2JoinToken)
             );
@@ -59,8 +59,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         else{
             Long userId = socialLoginUser.getUser().getId();
             //토큰 발급
-            String accessToken = jwtProvider.createAccessToken(userId);
-            String refreshToken = jwtProvider.createRefreshToken(userId);
+            String accessToken = jwtProvider.createAccessToken(userId).getJwt();
+            String refreshToken = jwtProvider.createRefreshToken(userId).getJwt();
             //쿠키 저장
             jwtCookieService.setAccessToken(response, accessToken);
             jwtCookieService.setRefreshToken(response, refreshToken);

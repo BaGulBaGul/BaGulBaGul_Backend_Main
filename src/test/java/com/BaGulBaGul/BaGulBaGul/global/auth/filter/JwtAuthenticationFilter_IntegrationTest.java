@@ -76,7 +76,7 @@ class JwtAuthenticationFilter_IntegrationTest {
     void shouldOk_WhenNotNeedAuthenticate_WhenNotOfferAT() throws Exception {
         //given
         Long userId = 1L;
-        String accessToken = jwtProvider.createAccessToken(userId);
+        String accessToken = jwtProvider.createAccessToken(userId).getJwt();
 
         mvc.perform(get(NORMAL_PATH)
                         .cookie(new Cookie(ACCESS_TOKEN_COOKIE_NAME, accessToken)))
@@ -98,7 +98,7 @@ class JwtAuthenticationFilter_IntegrationTest {
         //given
         User user = userJoinService.registerUser(UserSample.NORMAL_USER_REGISTER_REQUEST);
         Long userId = user.getId();
-        String accessToken = jwtProvider.createAccessToken(userId);
+        String accessToken = jwtProvider.createAccessToken(userId).getJwt();
 
         mvc.perform(get(SECURE_PATH)
                 .cookie(new Cookie(ACCESS_TOKEN_COOKIE_NAME, accessToken)))
@@ -120,7 +120,7 @@ class JwtAuthenticationFilter_IntegrationTest {
         Date issuedAt = calendar.getTime();
         calendar.add(Calendar.MINUTE, 15);
         Date expireAt = calendar.getTime();
-        String accessToken = jwtProvider.createAccessToken(userId, issuedAt, expireAt);
+        String accessToken = jwtProvider.createAccessToken(userId, issuedAt, expireAt).getJwt();
 
         //when
         mvc.perform(get(SECURE_PATH)
@@ -136,7 +136,7 @@ class JwtAuthenticationFilter_IntegrationTest {
         //given
         User user = userJoinService.registerUser(UserSample.NORMAL_USER_REGISTER_REQUEST);
         Long userId = user.getId();
-        String accessToken = jwtProvider.createAccessToken(userId);
+        String accessToken = jwtProvider.createAccessToken(userId).getJwt();
         //서명 마지막 문자만 변조
         String b64urlChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
                 "abcdefghijklmnopqrstuvwxyz" +

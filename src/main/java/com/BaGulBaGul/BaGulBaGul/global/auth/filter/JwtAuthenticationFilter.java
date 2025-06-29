@@ -1,35 +1,22 @@
 package com.BaGulBaGul.BaGulBaGul.global.auth.filter;
 
-import com.BaGulBaGul.BaGulBaGul.global.auth.dto.ParsedAccessTokenInfo;
-import com.BaGulBaGul.BaGulBaGul.global.auth.dto.ParsedRefreshTokenInfo;
-import com.BaGulBaGul.BaGulBaGul.global.auth.exception.AccessTokenException;
+import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AccessTokenInfo;
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.ExpiredAccessTokenException;
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.InvalidAccessTokenException;
-import com.BaGulBaGul.BaGulBaGul.global.auth.exception.RefreshTokenException;
 import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtProvider;
 import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtCookieService;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.FilterChainProxy;
-import org.springframework.security.web.FilterInvocation;
-import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
-import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -66,7 +53,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         //AccessToken 검증 후 정보를 파싱
-        ParsedAccessTokenInfo parsedAccessTokenInfo;
+        AccessTokenInfo parsedAccessTokenInfo;
         try {
             parsedAccessTokenInfo = jwtProvider.parseAccessToken(accessToken);
         } catch (ExpiredAccessTokenException e) {

@@ -1,8 +1,9 @@
 package com.BaGulBaGul.BaGulBaGul.global.auth.service;
 
-import com.BaGulBaGul.BaGulBaGul.global.auth.dto.ParsedAccessTokenInfo;
-import com.BaGulBaGul.BaGulBaGul.global.auth.dto.ParsedRefreshTokenInfo;
-import com.BaGulBaGul.BaGulBaGul.global.auth.exception.AccessTokenException;
+import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AccessTokenInfo;
+import com.BaGulBaGul.BaGulBaGul.global.auth.dto.JWTInfo;
+import com.BaGulBaGul.BaGulBaGul.global.auth.dto.OAuth2JoinTokenInfo;
+import com.BaGulBaGul.BaGulBaGul.global.auth.dto.RefreshTokenInfo;
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.ExpiredAccessTokenException;
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.ExpiredRefreshTokenException;
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.InvalidAccessTokenException;
@@ -11,7 +12,6 @@ import com.BaGulBaGul.BaGulBaGul.global.auth.exception.JoinTokenDeserializeExcep
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.JoinTokenExpiredException;
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.JoinTokenSerializeException;
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.JoinTokenValidationException;
-import com.BaGulBaGul.BaGulBaGul.global.auth.exception.RefreshTokenException;
 import com.BaGulBaGul.BaGulBaGul.global.auth.oauth2.dto.OAuth2JoinTokenSubject;
 import com.BaGulBaGul.BaGulBaGul.global.config.JsonConfig;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -59,44 +59,60 @@ public class JwtProviderImpl implements JwtProvider {
     }
     
     @Override
-    public String createAccessToken(Long userId) {
-        return createToken(userId.toString(), ACCESS_TOKEN_EXPIRE_MINUTE);
+    public AccessTokenInfo createAccessToken(Long userId) {
+        return AccessTokenInfo.from(
+                createToken(userId.toString(), ACCESS_TOKEN_EXPIRE_MINUTE),
+                userId);
     }
 
     @Override
-    public String createAccessToken(Long userId, Date issuedAt) {
-        return createToken(userId.toString(), issuedAt, ACCESS_TOKEN_EXPIRE_MINUTE);
+    public AccessTokenInfo createAccessToken(Long userId, Date issuedAt) {
+        return AccessTokenInfo.from(
+                createToken(userId.toString(), issuedAt, ACCESS_TOKEN_EXPIRE_MINUTE),
+                userId);
     }
 
     @Override
-    public String createAccessToken(Long userId, Date issuedAt, Date expireAt) {
-        return createToken(userId.toString(), issuedAt, expireAt);
+    public AccessTokenInfo createAccessToken(Long userId, Date issuedAt, Date expireAt) {
+        return AccessTokenInfo.from(
+                createToken(userId.toString(), issuedAt, expireAt),
+                userId);
     }
 
     @Override
-    public String createRefreshToken(Long userId) {
-        return createToken(userId.toString(), REFRESH_TOKEN_EXPIRE_MINUTE);
+    public RefreshTokenInfo createRefreshToken(Long userId) {
+        return RefreshTokenInfo.from(
+                createToken(userId.toString(), REFRESH_TOKEN_EXPIRE_MINUTE),
+                userId);
     }
 
     @Override
-    public String createRefreshToken(Long userId, Date issuedAt) {
-        return createToken(userId.toString(), issuedAt, REFRESH_TOKEN_EXPIRE_MINUTE);
+    public RefreshTokenInfo createRefreshToken(Long userId, Date issuedAt) {
+        return RefreshTokenInfo.from(
+                createToken(userId.toString(), issuedAt, REFRESH_TOKEN_EXPIRE_MINUTE),
+                userId);
     }
 
     @Override
-    public String createRefreshToken(Long userId, Date issuedAt, Date expireAt) {
-        return createToken(userId.toString(), issuedAt, expireAt);
+    public RefreshTokenInfo createRefreshToken(Long userId, Date issuedAt, Date expireAt) {
+        return RefreshTokenInfo.from(
+                createToken(userId.toString(), issuedAt, expireAt),
+                userId);
     }
 
     @Override
-    public String createOAuth2JoinToken(OAuth2JoinTokenSubject oAuth2JoinTokenSubject) {
+    public OAuth2JoinTokenInfo createOAuth2JoinToken(OAuth2JoinTokenSubject oAuth2JoinTokenSubject) {
         String subject;
         try {
              subject = objectMapper.writeValueAsString(oAuth2JoinTokenSubject);
         } catch (JsonProcessingException e) {
             throw new JoinTokenSerializeException();
         }
-        return createToken(subject, OAUTH_JOIN_TOKEN_EXPIRE_MINUTE);
+        JWTInfo jwtInfo = createToken(subject, OAUTH_JOIN_TOKEN_EXPIRE_MINUTE);
+        return OAuth2JoinTokenInfo.from(
+                jwtInfo,
+                oAuth2JoinTokenSubject
+        );
     }
 
     @Override
@@ -129,7 +145,7 @@ public class JwtProviderImpl implements JwtProvider {
     }
 
     @Override
-    public ParsedAccessTokenInfo parseAccessToken(String accessToken) {
+    public AccessTokenInfo parseAccessToken(String accessToken) {
         Claims claims = null;
         try {
             claims = Jwts.parser()
@@ -143,7 +159,7 @@ public class JwtProviderImpl implements JwtProvider {
         }
         Long userId = Long.parseLong(claims.getSubject());
 
-        return ParsedAccessTokenInfo.builder()
+        return AccessTokenInfo.builder()
                 .jti(claims.getId())
                 .issuedAt(claims.getIssuedAt())
                 .expireAt(claims.getExpiration())
@@ -152,7 +168,32 @@ public class JwtProviderImpl implements JwtProvider {
     }
 
     @Override
-    public ParsedRefreshTokenInfo parseRefreshToken(String refreshToken) {
+    public AccessTokenInfo parseAccessTokenIfExpired(String accessToken) throws InvalidAccessTokenException {
+        Claims claims = null;
+        try {
+            claims = Jwts.parser()
+                    .setSigningKey(secretKey)
+                    .parseClaimsJws(accessToken)
+                    .getBody();
+            //만료되지 않은 AT라면 null 반환
+            return null;
+        } catch (ExpiredJwtException ex) {
+            claims = ex.getClaims();
+        } catch (JwtException ex) {
+            throw new InvalidAccessTokenException();
+        }
+        Long userId = Long.parseLong(claims.getSubject());
+
+        return AccessTokenInfo.builder()
+                .jti(claims.getId())
+                .issuedAt(claims.getIssuedAt())
+                .expireAt(claims.getExpiration())
+                .userId(userId)
+                .build();
+    }
+
+    @Override
+    public RefreshTokenInfo parseRefreshToken(String refreshToken) {
         Claims claims = null;
         try {
             claims = Jwts.parser()
@@ -166,7 +207,7 @@ public class JwtProviderImpl implements JwtProvider {
         }
         Long userId = Long.parseLong(claims.getSubject());
 
-        return ParsedRefreshTokenInfo.builder()
+        return RefreshTokenInfo.builder()
                 .jti(claims.getId())
                 .issuedAt(claims.getIssuedAt())
                 .expireAt(claims.getExpiration())
@@ -174,11 +215,11 @@ public class JwtProviderImpl implements JwtProvider {
                 .build();
     }
 
-    private String createToken(String subject, int expireMinute) {
+    private JWTInfo createToken(String subject, int expireMinute) {
         return createToken(subject, new Date(), expireMinute);
     }
 
-    private String createToken(String subject, Date issuedAt, int expireMinute) {
+    private JWTInfo createToken(String subject, Date issuedAt, int expireMinute) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(issuedAt);
         calendar.add(Calendar.MINUTE, expireMinute);
@@ -187,14 +228,22 @@ public class JwtProviderImpl implements JwtProvider {
         return createToken(subject, issuedAt, expiredAt);
     }
 
-    private String createToken(String subject, Date issuedAt, Date expireAt) {
-        return Jwts.builder()
+    private JWTInfo createToken(String subject, Date issuedAt, Date expireAt) {
+        String jti = UUID.randomUUID().toString();
+        String jwt = Jwts.builder()
                 .signWith(SignatureAlgorithm.HS512, secretKey)
                 .setSubject(subject)
                 .setIssuer(ISSUER)
                 .setIssuedAt(issuedAt)
                 .setExpiration(expireAt)
-                .setId(UUID.randomUUID().toString())
+                .setId(jti)
                 .compact();
+        return JWTInfo.builder()
+                .jwt(jwt)
+                .jti(jti)
+                .subject(subject)
+                .issuedAt(issuedAt)
+                .expireAt(expireAt)
+                .build();
     }
 }
