@@ -10,11 +10,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.BaGulBaGul.BaGulBaGul.extension.AllTestContainerExtension;
+import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AccessTokenInfo;
+import com.BaGulBaGul.BaGulBaGul.global.auth.dto.RefreshTokenInfo;
 import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtProvider;
+import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtStorageService;
 import com.BaGulBaGul.BaGulBaGul.global.response.ResponseCode;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Set;
 import javax.servlet.http.Cookie;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -25,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -43,6 +49,12 @@ class UserAuthController_IntegrationTest {
     @Autowired
     JwtProvider jwtProvider;
 
+    @Autowired
+    JwtStorageService jwtStorageService;
+
+    @Autowired
+    RedisTemplate<String, String> redisTemplate;
+
     @Value("${user.login.access_token_cookie_name}")
     private String ACCESS_TOKEN_COOKIE_NAME;
 
@@ -60,6 +72,12 @@ class UserAuthController_IntegrationTest {
                 .build();
     }
 
+    @AfterEach
+    void tearDown() {
+        Set<String> keys = redisTemplate.keys("*");
+        redisTemplate.delete(keys);
+    }
+
     @Nested
     @DisplayName("인증 토큰 재발급 테스트")
     class RefreshTokenTest {
@@ -68,17 +86,19 @@ class UserAuthController_IntegrationTest {
         void shouldRefresh_WhenNormalATNormalRT() throws Exception {
             //given
             Long userId = 1L;
-            String accessToken = jwtProvider.createAccessToken(userId).getJwt();
-            String refreshToken = jwtProvider.createRefreshToken(userId).getJwt();
+            AccessTokenInfo atInfo = jwtProvider.createAccessToken(userId);
+            RefreshTokenInfo rtInfo = jwtProvider.createRefreshToken(userId);
 
             int rtExpireSecond = REFRESH_TOKEN_EXPIRE_MINUTE * 60;
             int atExpireSecond = rtExpireSecond;
 
+            jwtStorageService.save(atInfo, rtInfo);
+
             //when then
             ResponseCode responseCode = ResponseCode.FORBIDDEN;
             mvc.perform(post("/api/auth/refresh")
-                            .cookie(new Cookie(ACCESS_TOKEN_COOKIE_NAME, accessToken))
-                            .cookie(new Cookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken)))
+                            .cookie(new Cookie(ACCESS_TOKEN_COOKIE_NAME, atInfo.getJwt()))
+                            .cookie(new Cookie(REFRESH_TOKEN_COOKIE_NAME, rtInfo.getJwt())))
                     .andExpect(status().is(responseCode.getHttpStatus().value()))
                     .andExpect(jsonPath("$.errorCode").value(responseCode.getCode()));
         }
@@ -93,17 +113,19 @@ class UserAuthController_IntegrationTest {
             calendar.add(Calendar.MINUTE, -10);
             Date expiredDate = calendar.getTime();
 
-            String accessToken = jwtProvider.createAccessToken(userId, expiredDate, expiredDate).getJwt();
-            String refreshToken = jwtProvider.createRefreshToken(userId).getJwt();
+            AccessTokenInfo atInfo = jwtProvider.createAccessToken(userId, expiredDate, expiredDate);
+            RefreshTokenInfo rtInfo = jwtProvider.createRefreshToken(userId);
 
             int rtExpireSecond = REFRESH_TOKEN_EXPIRE_MINUTE * 60;
             int atExpireSecond = rtExpireSecond;
 
+            jwtStorageService.save(atInfo, rtInfo);
+
             //when then
             ResponseCode responseCode = ResponseCode.SUCCESS;
             mvc.perform(post("/api/auth/refresh")
-                            .cookie(new Cookie(ACCESS_TOKEN_COOKIE_NAME, accessToken))
-                            .cookie(new Cookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken)))
+                            .cookie(new Cookie(ACCESS_TOKEN_COOKIE_NAME, atInfo.getJwt()))
+                            .cookie(new Cookie(REFRESH_TOKEN_COOKIE_NAME, rtInfo.getJwt())))
                     .andExpect(status().is(responseCode.getHttpStatus().value()))
                     .andExpect(jsonPath("$.errorCode").value(responseCode.getCode()))
                     .andExpectAll(
@@ -118,7 +140,7 @@ class UserAuthController_IntegrationTest {
         }
 
         @Test
-        @DisplayName("정상 AT, 만료된 RT =? 403 FORBIDDEN")
+        @DisplayName("정상 AT, 만료된 RT => 403 FORBIDDEN")
         void shouldNotRefresh_WhenNormalATExpiredRT() throws Exception {
             //given
             Long userId = 1L;
@@ -127,14 +149,14 @@ class UserAuthController_IntegrationTest {
             calendar.add(Calendar.MINUTE, -10);
             Date expiredDate = calendar.getTime();
 
-            String accessToken = jwtProvider.createAccessToken(userId).getJwt();
-            String refreshToken = jwtProvider.createRefreshToken(userId, expiredDate, expiredDate).getJwt();
+            AccessTokenInfo atInfo = jwtProvider.createAccessToken(userId);
+            RefreshTokenInfo rtInfo = jwtProvider.createRefreshToken(userId, expiredDate, expiredDate);
 
             //when then
             ResponseCode responseCode = ResponseCode.FORBIDDEN;
             mvc.perform(post("/api/auth/refresh")
-                            .cookie(new Cookie(ACCESS_TOKEN_COOKIE_NAME, accessToken))
-                            .cookie(new Cookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken)))
+                            .cookie(new Cookie(ACCESS_TOKEN_COOKIE_NAME, atInfo.getJwt()))
+                            .cookie(new Cookie(REFRESH_TOKEN_COOKIE_NAME, rtInfo.getJwt())))
                     .andExpect(status().is(responseCode.getHttpStatus().value()))
                     .andExpect(jsonPath("$.errorCode").value(responseCode.getCode()));
         }
@@ -150,17 +172,46 @@ class UserAuthController_IntegrationTest {
             calendar.add(Calendar.MINUTE, -10);
             Date expiredDate = calendar.getTime();
 
-            String accessToken = jwtProvider.createAccessToken(userId, expiredDate, expiredDate).getJwt()
-            String refreshToken = jwtProvider.createRefreshToken(userId, expiredDate, expiredDate).getJwt();
+            AccessTokenInfo atInfo = jwtProvider.createAccessToken(userId, expiredDate, expiredDate);
+            RefreshTokenInfo rtInfo = jwtProvider.createRefreshToken(userId, expiredDate, expiredDate);
 
             //when
             ResponseCode responseCode = ResponseCode.AUTH_EXPIRED_REFRESH_TOKEN;
             ResultActions perform = mvc.perform(post("/api/auth/refresh")
-                    .cookie(new Cookie(ACCESS_TOKEN_COOKIE_NAME, accessToken))
-                    .cookie(new Cookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken)));
+                    .cookie(new Cookie(ACCESS_TOKEN_COOKIE_NAME, atInfo.getJwt()))
+                    .cookie(new Cookie(REFRESH_TOKEN_COOKIE_NAME, rtInfo.getJwt())));
 
             //then
             perform.andExpect(status().is(responseCode.getHttpStatus().value()))
+                    .andExpect(jsonPath("$.errorCode").value(responseCode.getCode()));
+        }
+
+        @Test
+        @DisplayName("만료된 AT, 사용한 RT => 403 FORBIDDEN")
+        void shouldNotRefresh_WhenExpiredATUsedRT() throws Exception {
+            //given
+            Long userId = 1L;
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(new Date());
+            calendar.add(Calendar.MINUTE, -10);
+            Date expiredDate = calendar.getTime();
+
+            AccessTokenInfo atInfo = jwtProvider.createAccessToken(userId, expiredDate, expiredDate);
+            RefreshTokenInfo rtInfo = jwtProvider.createRefreshToken(userId);
+
+            int rtExpireSecond = REFRESH_TOKEN_EXPIRE_MINUTE * 60;
+            int atExpireSecond = rtExpireSecond;
+
+            //등록 후 삭제 = 필요없는 코드이지만 의도 파악을 위해 남겨둠
+            jwtStorageService.save(atInfo, rtInfo);
+            jwtStorageService.delete(atInfo);
+
+            //when then
+            ResponseCode responseCode = ResponseCode.FORBIDDEN;
+            mvc.perform(post("/api/auth/refresh")
+                            .cookie(new Cookie(ACCESS_TOKEN_COOKIE_NAME, atInfo.getJwt()))
+                            .cookie(new Cookie(REFRESH_TOKEN_COOKIE_NAME, rtInfo.getJwt())))
+                    .andExpect(status().is(responseCode.getHttpStatus().value()))
                     .andExpect(jsonPath("$.errorCode").value(responseCode.getCode()));
         }
     }

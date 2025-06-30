@@ -1,6 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.global.auth.oauth2;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.SocialLoginUser;
+import com.BaGulBaGul.BaGulBaGul.global.auth.service.AuthTokenService;
 import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtProvider;
 import com.BaGulBaGul.BaGulBaGul.global.auth.oauth2.dto.ApplicationOAuth2User;
 import com.BaGulBaGul.BaGulBaGul.global.auth.oauth2.dto.OAuth2JoinTokenSubject;
@@ -22,7 +23,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
     private final SocialLoginUserRepository socialUserRepository;
     private final JwtProvider jwtProvider;
-    private final JwtCookieService jwtCookieService;
+    private final AuthTokenService authTokenService;
 
     @Value("${spring.security.oauth2.client.front_join_redirect_url}")
     private String FRONT_JOIN_REDIRECT_URL;
@@ -59,11 +60,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         else{
             Long userId = socialLoginUser.getUser().getId();
             //토큰 발급
-            String accessToken = jwtProvider.createAccessToken(userId).getJwt();
-            String refreshToken = jwtProvider.createRefreshToken(userId).getJwt();
-            //쿠키 저장
-            jwtCookieService.setAccessToken(response, accessToken);
-            jwtCookieService.setRefreshToken(response, refreshToken);
+            authTokenService.issueToken(response, userId);
             //로그인 성공 처리 페이지로 리다이렉트
             response.sendRedirect(
                     FRONT_LOGIN_REDIRECT_URL

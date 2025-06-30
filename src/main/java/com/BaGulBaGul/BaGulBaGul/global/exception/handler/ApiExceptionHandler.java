@@ -6,6 +6,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.exception.PostNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.exception.RecruitmentNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.report.exception.DuplicateReportException;
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.ExpiredRefreshTokenException;
+import com.BaGulBaGul.BaGulBaGul.global.auth.exception.InvalidAccessTokenException;
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.JoinTokenExpiredException;
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.JoinTokenValidationException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.exception.DuplicateUsernameException;
@@ -233,6 +234,13 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     )
     public ResponseEntity<Object> invalidRefreshToken(RefreshTokenException e, WebRequest webRequest) {
         return handleExceptionInternal(e, ResponseCode.UNAUTHORIZED, webRequest);
+    }
+    //유효하지 않은 AT
+    @ExceptionHandler(
+            InvalidAccessTokenException.class
+    )
+    public ResponseEntity<Object> invalidAccessToken(InvalidAccessTokenException e, WebRequest webRequest) {
+        return handleExceptionInternal(e, ResponseCode.FORBIDDEN, webRequest);
     }
 
     /************************

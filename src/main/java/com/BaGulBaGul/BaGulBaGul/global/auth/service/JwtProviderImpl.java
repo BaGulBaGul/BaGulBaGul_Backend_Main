@@ -146,6 +146,9 @@ public class JwtProviderImpl implements JwtProvider {
 
     @Override
     public AccessTokenInfo parseAccessToken(String accessToken) {
+        if(accessToken == null) {
+            throw new InvalidAccessTokenException();
+        }
         Claims claims = null;
         try {
             claims = Jwts.parser()
@@ -160,6 +163,7 @@ public class JwtProviderImpl implements JwtProvider {
         Long userId = Long.parseLong(claims.getSubject());
 
         return AccessTokenInfo.builder()
+                .jwt(accessToken)
                 .jti(claims.getId())
                 .issuedAt(claims.getIssuedAt())
                 .expireAt(claims.getExpiration())
@@ -185,6 +189,7 @@ public class JwtProviderImpl implements JwtProvider {
         Long userId = Long.parseLong(claims.getSubject());
 
         return AccessTokenInfo.builder()
+                .jwt(accessToken)
                 .jti(claims.getId())
                 .issuedAt(claims.getIssuedAt())
                 .expireAt(claims.getExpiration())

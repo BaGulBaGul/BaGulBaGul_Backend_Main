@@ -21,7 +21,9 @@ public class JWTInfo {
 
 //    protected <C extends JWTInfo, T extends JWTInfoBuilder<C, T>> T mapBuilder(T builder) {
     protected <T extends JWTInfoBuilder> T mapBuilder(T builder) {
-        return (T) builder.jti(jti)
+        return (T) builder
+                .jwt(jwt)
+                .jti(jti)
                 .issuedAt(issuedAt)
                 .expireAt(expireAt)
                 .subject(subject);

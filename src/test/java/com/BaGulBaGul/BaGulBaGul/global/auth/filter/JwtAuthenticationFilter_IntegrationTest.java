@@ -1,5 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.global.auth.filter;
 
+import static org.junit.Assert.assertThrows;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -9,14 +11,23 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.sampledata.UserSample;
 import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserJoinService;
 import com.BaGulBaGul.BaGulBaGul.extension.AllTestContainerExtension;
+import com.BaGulBaGul.BaGulBaGul.global.auth.exception.InvalidAccessTokenException;
 import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtProvider;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
 import com.BaGulBaGul.BaGulBaGul.global.response.ResponseCode;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.SignatureException;
+import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.UUID;
 import javax.servlet.http.Cookie;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -67,6 +78,7 @@ class JwtAuthenticationFilter_IntegrationTest {
     void setup(WebApplicationContext ctx) {
         mvc = MockMvcBuilders.webAppContextSetup(ctx)
                 .apply(springSecurity())
+                .defaultRequest(get("/").with(csrf()))
                 .build();
     }
 
@@ -137,24 +149,36 @@ class JwtAuthenticationFilter_IntegrationTest {
         User user = userJoinService.registerUser(UserSample.NORMAL_USER_REGISTER_REQUEST);
         Long userId = user.getId();
         String accessToken = jwtProvider.createAccessToken(userId).getJwt();
-        //서명 마지막 문자만 변조
-        String b64urlChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
-                "abcdefghijklmnopqrstuvwxyz" +
-                "0123456789" +
-                "-_";
-        char last = accessToken.charAt(accessToken.length() - 1);
-        char newLast = b64urlChars
-                .chars()
-                .mapToObj(c -> (char) c)
-                .filter(c -> c != last)    // 기존 문자와 다르게
-                .findFirst()
-                .orElseThrow();
-        accessToken = accessToken.substring(0, accessToken.length() - 1) + newLast;
+        //서명 변조
+        accessToken = tamperSignature(accessToken);
 
         //when
         mvc.perform(get(SECURE_PATH)
                         .cookie(new Cookie(ACCESS_TOKEN_COOKIE_NAME, accessToken)))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.errorCode").value(ResponseCode.UNAUTHORIZED.getCode()));
+    }
+
+    private static String tamperSignature(String jwt) {
+        String[] parts = jwt.split("\\.");
+        if (parts.length != 3) {
+            throw new IllegalArgumentException("유효한 JWT가 아닙니다: " + jwt);
+        }
+
+        // URL-safe Base64 디코더/인코더 (패딩 없이)
+        Base64.Decoder urlDecoder = Base64.getUrlDecoder();
+        Base64.Encoder urlEncoder = Base64.getUrlEncoder().withoutPadding();
+
+        // 서명 부분 디코딩
+        byte[] sigBytes = urlDecoder.decode(parts[2]);
+
+        // 맨 앞 바이트의 최하위 비트를 뒤집어 무조건 변경
+        sigBytes[0] ^= 0x01;
+
+        // 다시 URL-safe Base64 인코딩 (패딩 없이)
+        String tamperedSig = urlEncoder.encodeToString(sigBytes);
+
+        // 변조된 JWT 재조합
+        return parts[0] + "." + parts[1] + "." + tamperedSig;
     }
 }
