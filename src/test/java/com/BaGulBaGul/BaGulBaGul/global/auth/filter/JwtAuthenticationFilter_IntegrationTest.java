@@ -108,7 +108,7 @@ class JwtAuthenticationFilter_IntegrationTest {
     @Transactional
     void shouldOk_WhenNeedAuthenticate_WhenOfferNormalAT() throws Exception {
         //given
-        User user = userJoinService.registerUser(UserSample.NORMAL_USER_REGISTER_REQUEST);
+        User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
         Long userId = user.getId();
         String accessToken = jwtProvider.createAccessToken(userId).getJwt();
 
@@ -123,7 +123,7 @@ class JwtAuthenticationFilter_IntegrationTest {
     @Transactional
     void shouldResponseAUTH_EXPIRED_ACCESS_TOKEN_WhenNeedAuthenticate_WhenOfferTamperedAT() throws Exception {
         //given
-        User user = userJoinService.registerUser(UserSample.NORMAL_USER_REGISTER_REQUEST);
+        User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
         Long userId = user.getId();
         Date now = new Date();
         Calendar calendar = Calendar.getInstance();
@@ -146,7 +146,7 @@ class JwtAuthenticationFilter_IntegrationTest {
     @Transactional
     void shouldResponseUNAUTHORIZED_WhenNeedAuthenticate_WhenOfferTamperedAT() throws Exception {
         //given
-        User user = userJoinService.registerUser(UserSample.NORMAL_USER_REGISTER_REQUEST);
+        User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
         Long userId = user.getId();
         String accessToken = jwtProvider.createAccessToken(userId).getJwt();
         //서명 변조

@@ -20,7 +20,7 @@ class EventModifyRequest_UnitTest {
         @Test
         @DisplayName("카테고리 개수가 한계를 넘는 경우 예외")
         void shouldThrowConstraintViolationException_WhenCategoryCountOver() {
-            EventModifyRequest eventModifyRequest = EventSample.getNormalModifyRequest();
+            EventModifyRequest eventModifyRequest = EventSample.getNormalModifyRequest(null);
             List<String> categories = new ArrayList<>(
                     Collections.nCopies(EventSample.CATEGORY_MAX_COUNT + 1, "a"));
             eventModifyRequest.setCategories(categories);

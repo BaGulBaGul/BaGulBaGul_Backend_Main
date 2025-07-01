@@ -1,49 +1,58 @@
-package com.BaGulBaGul.BaGulBaGul.domain.user.dto;
+package com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset;
 
-import com.BaGulBaGul.BaGulBaGul.domain.user.User;
-import io.swagger.annotations.ApiModelProperty;
 import java.util.regex.Pattern;
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.validator.internal.constraintvalidators.bv.EmailValidator;
 import org.openapitools.jackson.nullable.JsonNullable;
 
 @Setter
 @Getter
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
 public class UserModifyRequest {
-    @ApiModelProperty(value = "이메일")
-    @Email(message = "이메일 형식이 아닙니다.")
+
     @Builder.Default
     JsonNullable<String> email = JsonNullable.undefined();
 
-    @ApiModelProperty(value = "프로필 상태 메세지")
     @Builder.Default
     JsonNullable<String> profileMessage = JsonNullable.undefined();
 
-    @ApiModelProperty(value = "프로필 이미지의 resource id")
     @Builder.Default
     JsonNullable<Long> imageResourceId = JsonNullable.undefined();
 
-    @ApiModelProperty(value = "유저명")
     @Builder.Default
     JsonNullable<String> username = JsonNullable.undefined();
 
-    private static Pattern USERNAME_PATTERN = Pattern.compile("^[가-힣a-zA-Z]{2,12}$");
+    private static final Pattern USERNAME_PATTERN = Pattern.compile("^[가-힣a-zA-Z]{2,12}$");
+    private static final EmailValidator EMAIL_VALIDATOR = new EmailValidator();
 
     @AssertTrue(message = "유저명은 2이상 12이하의 영어, 한글 문자여야 합니다.")
     public boolean isUsernameValid() {
         if(username.isPresent()) {
-            if(username == null) {
+            String usernameContent = username.get();
+            //null 비허용
+            if(usernameContent == null) {
                 return false;
             }
-            return USERNAME_PATTERN.matcher(username.get()).matches();
+            return USERNAME_PATTERN.matcher(usernameContent).matches();
+        }
+        return true;
+    }
+
+    @AssertTrue(message = "이메일 형식이 아닙니다.")
+    public boolean isEmailValid() {
+        if(email.isPresent()) {
+            String emailContent = email.get();
+            //null 허용
+            if(emailContent == null) {
+                return true;
+            }
+            return !emailContent.isBlank() && EMAIL_VALIDATOR.isValid(emailContent, null);
         }
         return true;
     }
