@@ -173,6 +173,9 @@ public class JwtProviderImpl implements JwtProvider {
 
     @Override
     public AccessTokenInfo parseAccessTokenIfExpired(String accessToken) throws InvalidAccessTokenException {
+        if(accessToken == null) {
+            throw new InvalidAccessTokenException();
+        }
         Claims claims = null;
         try {
             claims = Jwts.parser()
@@ -198,7 +201,37 @@ public class JwtProviderImpl implements JwtProvider {
     }
 
     @Override
+    public AccessTokenInfo parseAccessTokenIgnoreExpiration(String accessToken) throws InvalidAccessTokenException {
+        if(accessToken == null) {
+            throw new InvalidAccessTokenException();
+        }
+        Claims claims = null;
+        try {
+            claims = Jwts.parser()
+                    .setSigningKey(secretKey)
+                    .parseClaimsJws(accessToken)
+                    .getBody();
+        } catch (ExpiredJwtException ex) {
+            claims = ex.getClaims();
+        } catch (JwtException ex) {
+            throw new InvalidAccessTokenException();
+        }
+        Long userId = Long.parseLong(claims.getSubject());
+
+        return AccessTokenInfo.builder()
+                .jwt(accessToken)
+                .jti(claims.getId())
+                .issuedAt(claims.getIssuedAt())
+                .expireAt(claims.getExpiration())
+                .userId(userId)
+                .build();
+    }
+
+    @Override
     public RefreshTokenInfo parseRefreshToken(String refreshToken) {
+        if(refreshToken == null) {
+            throw new InvalidAccessTokenException();
+        }
         Claims claims = null;
         try {
             claims = Jwts.parser()

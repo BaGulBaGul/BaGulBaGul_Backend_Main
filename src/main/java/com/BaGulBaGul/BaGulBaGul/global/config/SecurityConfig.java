@@ -64,6 +64,7 @@ public class SecurityConfig {
 
                 //auth 비로그인 허용
                 .antMatchers(HttpMethod.POST, "/api/auth/refresh").permitAll()
+                .antMatchers(HttpMethod.POST, "/api/auth/logout").permitAll()
 
                 //상태 체크 비로그인 허용
                 .antMatchers(HttpMethod.GET, "/").permitAll()

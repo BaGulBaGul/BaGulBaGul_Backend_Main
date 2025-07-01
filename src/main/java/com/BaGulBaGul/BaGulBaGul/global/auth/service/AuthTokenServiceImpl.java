@@ -2,6 +2,7 @@ package com.BaGulBaGul.BaGulBaGul.global.auth.service;
 
 import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AccessTokenInfo;
 import com.BaGulBaGul.BaGulBaGul.global.auth.dto.RefreshTokenInfo;
+import com.BaGulBaGul.BaGulBaGul.global.auth.exception.ExpiredAccessTokenException;
 import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
 import com.BaGulBaGul.BaGulBaGul.global.response.ResponseCode;
 import javax.servlet.http.HttpServletRequest;
@@ -31,7 +32,15 @@ public class AuthTokenServiceImpl implements AuthTokenService {
     }
 
     @Override
-    public void deleteToken(HttpServletResponse response) {
+    public void deleteToken(HttpServletRequest request, HttpServletResponse response) {
+        //AT 추출
+        String accessToken = jwtCookieService.getAccessToken(request);
+        AccessTokenInfo parsedAccessTokenInfo = jwtProvider.parseAccessTokenIgnoreExpiration(accessToken);
+
+        //db에서 삭제
+        jwtStorageService.delete(parsedAccessTokenInfo);
+
+        //쿠키 삭제
         jwtCookieService.deleteAccessToken(response);
         jwtCookieService.deleteRefreshToken(response);
     }

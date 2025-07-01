@@ -1,6 +1,9 @@
 package com.BaGulBaGul.BaGulBaGul.global.auth.controller;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -30,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -49,7 +53,7 @@ class UserAuthController_IntegrationTest {
     @Autowired
     JwtProvider jwtProvider;
 
-    @Autowired
+    @SpyBean
     JwtStorageService jwtStorageService;
 
     @Autowired
@@ -79,8 +83,86 @@ class UserAuthController_IntegrationTest {
     }
 
     @Nested
+    @DisplayName("로그아웃 테스트")
+    class LogoutTest {
+
+        private static final String path = "/api/auth/logout";
+
+        @Test
+        @DisplayName("정상 AT 테스트")
+        void shouldOk_WhenNormalAt() throws Exception {
+            //given
+            Long userId = 1L;
+            AccessTokenInfo atInfo = jwtProvider.createAccessToken(userId);
+            RefreshTokenInfo rtInfo = jwtProvider.createRefreshToken(userId);
+
+            jwtStorageService.save(atInfo, rtInfo);
+
+            //when then
+            ResponseCode responseCode = ResponseCode.SUCCESS;
+            mvc.perform(post(path)
+                            .cookie(new Cookie(ACCESS_TOKEN_COOKIE_NAME, atInfo.getJwt())))
+                    .andExpect(status().is(responseCode.getHttpStatus().value()))
+                    .andExpect(jsonPath("$.errorCode").value(responseCode.getCode()))
+                    .andExpectAll(
+                            cookie().exists(ACCESS_TOKEN_COOKIE_NAME),
+                            cookie().path(ACCESS_TOKEN_COOKIE_NAME, "/"),
+                            cookie().maxAge(ACCESS_TOKEN_COOKIE_NAME, 0))
+                    .andExpectAll(
+                            cookie().exists(REFRESH_TOKEN_COOKIE_NAME),
+                            cookie().path(REFRESH_TOKEN_COOKIE_NAME, "/api/auth/refresh"),
+                            cookie().maxAge(REFRESH_TOKEN_COOKIE_NAME, 0));
+
+            verify(jwtStorageService, times(1)).delete(any());
+        }
+
+        @Test
+        @DisplayName("만료된 AT 테스트")
+        void shouldOk_WhenExpiredAt() throws Exception {
+            //given
+            Long userId = 1L;
+            Date expiredDate = getExpiredDate();
+            AccessTokenInfo atInfo = jwtProvider.createAccessToken(userId, expiredDate, expiredDate);
+            RefreshTokenInfo rtInfo = jwtProvider.createRefreshToken(userId);
+
+            jwtStorageService.save(atInfo, rtInfo);
+
+            //when then
+            ResponseCode responseCode = ResponseCode.SUCCESS;
+            mvc.perform(post(path)
+                            .cookie(new Cookie(ACCESS_TOKEN_COOKIE_NAME, atInfo.getJwt())))
+                    .andExpect(status().is(responseCode.getHttpStatus().value()))
+                    .andExpect(jsonPath("$.errorCode").value(responseCode.getCode()))
+                    .andExpectAll(
+                            cookie().exists(ACCESS_TOKEN_COOKIE_NAME),
+                            cookie().path(ACCESS_TOKEN_COOKIE_NAME, "/"),
+                            cookie().maxAge(ACCESS_TOKEN_COOKIE_NAME, 0))
+                    .andExpectAll(
+                            cookie().exists(REFRESH_TOKEN_COOKIE_NAME),
+                            cookie().path(REFRESH_TOKEN_COOKIE_NAME, "/api/auth/refresh"),
+                            cookie().maxAge(REFRESH_TOKEN_COOKIE_NAME, 0));
+
+            verify(jwtStorageService, times(1)).delete(any());
+        }
+
+
+        @Test
+        @DisplayName("AT가 없을 때 테스트")
+        void should401_WhenNoAt() throws Exception {
+            //when then
+            ResponseCode responseCode = ResponseCode.FORBIDDEN;
+            mvc.perform(post(path))
+                    .andExpect(status().is(responseCode.getHttpStatus().value()))
+                    .andExpect(jsonPath("$.errorCode").value(responseCode.getCode()));
+        }
+    }
+
+    @Nested
     @DisplayName("인증 토큰 재발급 테스트")
     class RefreshTokenTest {
+
+        private static final String path = "/api/auth/refresh";
+
         @Test
         @DisplayName("정상 AT, 정상 RT => 403 FORBIDDEN")
         void shouldRefresh_WhenNormalATNormalRT() throws Exception {
@@ -96,7 +178,7 @@ class UserAuthController_IntegrationTest {
 
             //when then
             ResponseCode responseCode = ResponseCode.FORBIDDEN;
-            mvc.perform(post("/api/auth/refresh")
+            mvc.perform(post(path)
                             .cookie(new Cookie(ACCESS_TOKEN_COOKIE_NAME, atInfo.getJwt()))
                             .cookie(new Cookie(REFRESH_TOKEN_COOKIE_NAME, rtInfo.getJwt())))
                     .andExpect(status().is(responseCode.getHttpStatus().value()))
@@ -108,10 +190,7 @@ class UserAuthController_IntegrationTest {
         void shouldRefresh_WhenExpiredATNormalRT() throws Exception {
             //given
             Long userId = 1L;
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(new Date());
-            calendar.add(Calendar.MINUTE, -10);
-            Date expiredDate = calendar.getTime();
+            Date expiredDate = getExpiredDate();
 
             AccessTokenInfo atInfo = jwtProvider.createAccessToken(userId, expiredDate, expiredDate);
             RefreshTokenInfo rtInfo = jwtProvider.createRefreshToken(userId);
@@ -123,7 +202,7 @@ class UserAuthController_IntegrationTest {
 
             //when then
             ResponseCode responseCode = ResponseCode.SUCCESS;
-            mvc.perform(post("/api/auth/refresh")
+            mvc.perform(post(path)
                             .cookie(new Cookie(ACCESS_TOKEN_COOKIE_NAME, atInfo.getJwt()))
                             .cookie(new Cookie(REFRESH_TOKEN_COOKIE_NAME, rtInfo.getJwt())))
                     .andExpect(status().is(responseCode.getHttpStatus().value()))
@@ -144,17 +223,14 @@ class UserAuthController_IntegrationTest {
         void shouldNotRefresh_WhenNormalATExpiredRT() throws Exception {
             //given
             Long userId = 1L;
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(new Date());
-            calendar.add(Calendar.MINUTE, -10);
-            Date expiredDate = calendar.getTime();
+            Date expiredDate = getExpiredDate();
 
             AccessTokenInfo atInfo = jwtProvider.createAccessToken(userId);
             RefreshTokenInfo rtInfo = jwtProvider.createRefreshToken(userId, expiredDate, expiredDate);
 
             //when then
             ResponseCode responseCode = ResponseCode.FORBIDDEN;
-            mvc.perform(post("/api/auth/refresh")
+            mvc.perform(post(path)
                             .cookie(new Cookie(ACCESS_TOKEN_COOKIE_NAME, atInfo.getJwt()))
                             .cookie(new Cookie(REFRESH_TOKEN_COOKIE_NAME, rtInfo.getJwt())))
                     .andExpect(status().is(responseCode.getHttpStatus().value()))
@@ -167,17 +243,14 @@ class UserAuthController_IntegrationTest {
         void shouldNotRefresh_WhenExpiredATExpiredRT() throws Exception {
             //given
             Long userId = 1L;
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(new Date());
-            calendar.add(Calendar.MINUTE, -10);
-            Date expiredDate = calendar.getTime();
+            Date expiredDate = getExpiredDate();
 
             AccessTokenInfo atInfo = jwtProvider.createAccessToken(userId, expiredDate, expiredDate);
             RefreshTokenInfo rtInfo = jwtProvider.createRefreshToken(userId, expiredDate, expiredDate);
 
             //when
             ResponseCode responseCode = ResponseCode.AUTH_EXPIRED_REFRESH_TOKEN;
-            ResultActions perform = mvc.perform(post("/api/auth/refresh")
+            ResultActions perform = mvc.perform(post(path)
                     .cookie(new Cookie(ACCESS_TOKEN_COOKIE_NAME, atInfo.getJwt()))
                     .cookie(new Cookie(REFRESH_TOKEN_COOKIE_NAME, rtInfo.getJwt())));
 
@@ -191,10 +264,7 @@ class UserAuthController_IntegrationTest {
         void shouldNotRefresh_WhenExpiredATUsedRT() throws Exception {
             //given
             Long userId = 1L;
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(new Date());
-            calendar.add(Calendar.MINUTE, -10);
-            Date expiredDate = calendar.getTime();
+            Date expiredDate = getExpiredDate();
 
             AccessTokenInfo atInfo = jwtProvider.createAccessToken(userId, expiredDate, expiredDate);
             RefreshTokenInfo rtInfo = jwtProvider.createRefreshToken(userId);
@@ -208,11 +278,18 @@ class UserAuthController_IntegrationTest {
 
             //when then
             ResponseCode responseCode = ResponseCode.FORBIDDEN;
-            mvc.perform(post("/api/auth/refresh")
+            mvc.perform(post(path)
                             .cookie(new Cookie(ACCESS_TOKEN_COOKIE_NAME, atInfo.getJwt()))
                             .cookie(new Cookie(REFRESH_TOKEN_COOKIE_NAME, rtInfo.getJwt())))
                     .andExpect(status().is(responseCode.getHttpStatus().value()))
                     .andExpect(jsonPath("$.errorCode").value(responseCode.getCode()));
         }
+    }
+
+    private Date getExpiredDate() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.add(Calendar.MINUTE, -10);
+        return calendar.getTime();
     }
 }

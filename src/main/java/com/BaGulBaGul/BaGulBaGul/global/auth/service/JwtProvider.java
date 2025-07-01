@@ -40,5 +40,6 @@ public interface JwtProvider {
      * @return 만료되었다면 AT정보, 만료되지 않았다면 null
      */
     AccessTokenInfo parseAccessTokenIfExpired(String accessToken) throws InvalidAccessTokenException;
+    AccessTokenInfo parseAccessTokenIgnoreExpiration(String accessToken) throws InvalidAccessTokenException;
     RefreshTokenInfo parseRefreshToken(String refreshToken) throws ExpiredRefreshTokenException, InvalidRefreshTokenException;
 }

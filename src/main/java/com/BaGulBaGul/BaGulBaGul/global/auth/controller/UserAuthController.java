@@ -6,6 +6,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public interface UserAuthController {
-    ApiResponse<Object> logout(HttpServletResponse response);
+    ApiResponse<Object> logout(HttpServletRequest request, HttpServletResponse response);
     ApiResponse<Object> refresh(HttpServletRequest request, HttpServletResponse response);
 }

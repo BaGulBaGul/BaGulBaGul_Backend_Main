@@ -32,12 +32,12 @@ public class UserAuthControllerImpl implements UserAuthController {
     private final AuthTokenService authTokenService;
 
     @Override
-    @GetMapping("/api/user/logout")
+    @PostMapping("/api/auth/logout")
     @Operation(summary = "로그아웃 요청",
             description = "로그아웃 요청"
     )
-    public ApiResponse<Object> logout(HttpServletResponse response) {
-        authTokenService.deleteToken(response);
+    public ApiResponse<Object> logout(HttpServletRequest request, HttpServletResponse response) {
+        authTokenService.deleteToken(request, response);
         return ApiResponse.of(null);
     }
 
