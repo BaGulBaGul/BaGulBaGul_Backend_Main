@@ -18,6 +18,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.sampledata.AdminManageEventHostUser
 import com.BaGulBaGul.BaGulBaGul.domain.user.sampledata.SocialLoginUserSample;
 import com.BaGulBaGul.BaGulBaGul.domain.user.sampledata.UserSample;
 import com.BaGulBaGul.BaGulBaGul.extension.AllTestContainerExtension;
+import com.BaGulBaGul.BaGulBaGul.global.auth.dto.OAuth2JoinTokenInfo;
 import com.BaGulBaGul.BaGulBaGul.global.auth.oauth2.constant.OAuth2Provider;
 import com.BaGulBaGul.BaGulBaGul.global.auth.oauth2.dto.OAuth2JoinTokenSubject;
 import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtProvider;
@@ -183,13 +184,13 @@ public class UserJoinService_IntegrationTest {
                     .getNormalSocialLoginUserJoinRequest();
             String socialLoginUserId = "xxxx";
             OAuth2Provider oauthProvider = OAuth2Provider.kakao;
-            String oAuth2JoinToken = jwtProvider.createOAuth2JoinToken(
+            OAuth2JoinTokenInfo oAuth2JoinTokenInfo = jwtProvider.createOAuth2JoinToken(
                     OAuth2JoinTokenSubject.builder()
                             .socialLoginId(socialLoginUserId)
                             .oAuth2Provider(oauthProvider)
                             .build()
             );
-            socialLoginUserJoinRequest.setJoinToken(oAuth2JoinToken);
+            socialLoginUserJoinRequest.setJoinToken(oAuth2JoinTokenInfo.getJwt());
             //when
             SocialLoginUser socialLoginUser = userJoinService.registerSocialLoginUser(socialLoginUserJoinRequest);
             //then
@@ -210,13 +211,13 @@ public class UserJoinService_IntegrationTest {
                     .getNormalSocialLoginUserJoinRequest();
             String socialLoginUserId = "xxxx";
             OAuth2Provider oauthProvider = OAuth2Provider.kakao;
-            String oAuth2JoinToken = jwtProvider.createOAuth2JoinToken(
+            OAuth2JoinTokenInfo oAuth2JoinTokenInfo = jwtProvider.createOAuth2JoinToken(
                     OAuth2JoinTokenSubject.builder()
                             .socialLoginId(socialLoginUserId)
                             .oAuth2Provider(oauthProvider)
                             .build()
             );
-            socialLoginUserJoinRequest.setJoinToken(oAuth2JoinToken);
+            socialLoginUserJoinRequest.setJoinToken(oAuth2JoinTokenInfo.getJwt());
             SocialLoginUser socialLoginUser = userJoinService.registerSocialLoginUser(
                     socialLoginUserJoinRequest
             );

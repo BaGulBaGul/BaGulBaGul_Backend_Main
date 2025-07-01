@@ -50,8 +50,9 @@ public class UserJoinControllerImpl implements UserJoinController {
 
         SocialLoginUser user = userJoinService.registerSocialLoginUser(socialLoginUserJoinRequest);
 
-        jwtCookieService.setAccessToken(response, jwtProvider.createAccessToken(user.getUser().getId()));
-        jwtCookieService.setRefreshToken(response, jwtProvider.createRefreshToken(user.getUser().getId()));
+        jwtCookieService.setAccessToken(response, jwtProvider.createAccessToken(user.getUser().getId()).getJwt());
+        jwtCookieService.setRefreshToken(response, jwtProvider.createRefreshToken(user.getUser().getId()).getJwt());
+
         return ApiResponse.of(null);
     }
 

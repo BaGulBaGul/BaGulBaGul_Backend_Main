@@ -1,7 +1,8 @@
 package com.BaGulBaGul.BaGulBaGul.global.auth.filter;
 
-import com.BaGulBaGul.BaGulBaGul.global.auth.exception.AccessTokenException;
-import com.BaGulBaGul.BaGulBaGul.global.auth.exception.RefreshTokenException;
+import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AccessTokenInfo;
+import com.BaGulBaGul.BaGulBaGul.global.auth.exception.ExpiredAccessTokenException;
+import com.BaGulBaGul.BaGulBaGul.global.auth.exception.InvalidAccessTokenException;
 import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtProvider;
 import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtCookieService;
 import java.io.IOException;
@@ -26,6 +27,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtProvider jwtProvider;
     private final JwtCookieService jwtCookieService;
 
+
+    public static final String ACCESS_TOKEN_EXPIRE_MARK = "AT_EXPIRED";
+    public static final String ACCESS_TOKEN_INVALID_MARK = "AT_INVALID";
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
@@ -34,40 +39,33 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     /*
-     * Cookie에 있는 Access Token을 검증 후 userId를 추출해서 인증 처리
-     * 만약 AccessToken이 만료되었다면 RefreshToken을 검증 후 토큰을 재발급
-     * 만약 RefreshToken도 만료되었다면 인증 실패
+     * Cookie에 있는 AT(AccessToken)를 검증 후 SecurityContext에 유저 정보를 넣는다.
+     * AT가 만료되었다면 ExpiredAccessTokenException
+     * 잘못된 토큰이라면 InvalidAccessTokenException
      */
-    private void authenticate(HttpServletRequest request, HttpServletResponse response) {
+    private void authenticate(HttpServletRequest request, HttpServletResponse response)
+        throws ExpiredAccessTokenException, InvalidAccessTokenException {
+
         //AccessToken 추출
         String accessToken = jwtCookieService.getAccessToken(request);
-
-        //AccessToken 검증 후 userId 추출 시도
-        Long userId;
-        try {
-            userId = jwtProvider.getUserIdFromAccessToken(accessToken);
+        if(accessToken == null) {
+            return;
         }
-        //userId가 없다면 RefreshToken 검증 후 AccessToken, RefreshToken 재발급 시도
-        catch (AccessTokenException ae) {
-            String refreshToken = jwtCookieService.getRefreshToken(request);
-            //RefreshToken 검증 후 userId 추출 시도
-            try {
-                userId = jwtProvider.getUserIdFromRefreshToken(refreshToken);
-            }
-            //RefreshToken도 없다면 인증 실패
-            catch (RefreshTokenException re) {
-                return;
-            }
 
-            //검증 성공, 토큰 재발급
-            accessToken = jwtProvider.createAccessToken(userId);
-            refreshToken = jwtProvider.createRefreshToken(userId);
-            //재발급한 토큰을 응답 쿠키에 저장
-            jwtCookieService.setAccessToken(response, accessToken);
-            jwtCookieService.setRefreshToken(response, refreshToken);
+        //AccessToken 검증 후 정보를 파싱
+        AccessTokenInfo parsedAccessTokenInfo;
+        try {
+            parsedAccessTokenInfo = jwtProvider.parseAccessToken(accessToken);
+        } catch (ExpiredAccessTokenException e) {
+            request.setAttribute(ACCESS_TOKEN_EXPIRE_MARK, true);
+            return;
+        } catch (InvalidAccessTokenException e) {
+            request.setAttribute(ACCESS_TOKEN_INVALID_MARK, true);
+            return;
         }
 
         //인증 처리를 위해 security context설정
+        Long userId = parsedAccessTokenInfo.getUserId();
         AbstractAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                 userId,
                 null,

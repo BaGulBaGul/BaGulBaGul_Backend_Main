@@ -15,6 +15,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.ExceptionTranslationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.filter.CorsFilter;
 
 @Configuration
@@ -34,10 +36,13 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.cors().and().csrf().disable()
-                .httpBasic().disable()
+        http.cors().and()
+                //Double-Submit Cookie를 이용한 csrf 방어 적용
+                .csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).and()
+                //세션 x
                 .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션x
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .httpBasic().disable()
                 .authorizeRequests()
                 //recruitment 로그인 필요
                 .antMatchers(HttpMethod.GET, "/api/event/recruitment/*/ismylike").authenticated()
@@ -57,6 +62,10 @@ public class SecurityConfig {
                 //ranking 비로그인 허용
                 .antMatchers(HttpMethod.GET, "/api/ranking/**").permitAll()
 
+                //auth 비로그인 허용
+                .antMatchers(HttpMethod.POST, "/api/auth/refresh").permitAll()
+                .antMatchers(HttpMethod.POST, "/api/auth/logout").permitAll()
+
                 //상태 체크 비로그인 허용
                 .antMatchers(HttpMethod.GET, "/").permitAll()
 
@@ -64,7 +73,8 @@ public class SecurityConfig {
                 .anyRequest().authenticated();
 
                 // JWT 로그인 필터
-                http.addFilterAfter(jwtAuthenticationFilter, CorsFilter.class);
+//                http.addFilterAfter(jwtAuthenticationFilter, CorsFilter.class);
+                http.addFilterAfter(jwtAuthenticationFilter, ExceptionTranslationFilter.class);
                 // 로그인 예외 처리 EntryPoint
                 http.exceptionHandling().authenticationEntryPoint(authenticationEntryPoint);
                 // OAuth2 서비스, 헨들러 등록
