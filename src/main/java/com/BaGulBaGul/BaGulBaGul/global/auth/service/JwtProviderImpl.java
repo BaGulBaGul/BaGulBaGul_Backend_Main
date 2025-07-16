@@ -1,9 +1,12 @@
 package com.BaGulBaGul.BaGulBaGul.global.auth.service;
 
+import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserRoleService;
 import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AccessTokenInfo;
+import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AccessTokenSubject;
 import com.BaGulBaGul.BaGulBaGul.global.auth.dto.JWTInfo;
 import com.BaGulBaGul.BaGulBaGul.global.auth.dto.OAuth2JoinTokenInfo;
 import com.BaGulBaGul.BaGulBaGul.global.auth.dto.RefreshTokenInfo;
+import com.BaGulBaGul.BaGulBaGul.global.auth.dto.RefreshTokenSubject;
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.ExpiredAccessTokenException;
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.ExpiredRefreshTokenException;
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.InvalidAccessTokenException;
@@ -14,46 +17,50 @@ import com.BaGulBaGul.BaGulBaGul.global.auth.exception.JoinTokenSerializeExcepti
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.JoinTokenValidationException;
 import com.BaGulBaGul.BaGulBaGul.global.auth.oauth2.dto.OAuth2JoinTokenSubject;
 import com.BaGulBaGul.BaGulBaGul.global.config.JsonConfig;
+import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
+import com.BaGulBaGul.BaGulBaGul.global.response.ResponseCode;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.*;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
+import javax.annotation.PostConstruct;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import lombok.Builder;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
+@Service
+@RequiredArgsConstructor
 public class JwtProviderImpl implements JwtProvider {
+
+    @Value("${jwt.secret_key}")
+    private String SECRET_KEY_STRING;
+
+    private final String SECRET_KEY_ALGORITHM = "HmacSHA512";
+
+    @Value("${jwt.issuer}")
+    private String ISSUER;
+
+    @Value("${user.login.access_token_expire_minute}")
+    private int ACCESS_TOKEN_EXPIRE_MINUTE;
+
+    @Value("${user.login.refresh_token_expire_minute}")
+    private int REFRESH_TOKEN_EXPIRE_MINUTE;
+
+    @Value("${user.join.oauth_join_token_expire_minute}")
+    private int OAUTH_JOIN_TOKEN_EXPIRE_MINUTE;
 
     private static final ObjectMapper objectMapper = JsonConfig.getObjectMapper();
 
-    private final String SECRET_KEY_STRING;
-    private final String SECRET_KEY_ALGORITHM;
-
-    private final String ISSUER;
-    private final int ACCESS_TOKEN_EXPIRE_MINUTE;
-    private final int REFRESH_TOKEN_EXPIRE_MINUTE;
-    private final int OAUTH_JOIN_TOKEN_EXPIRE_MINUTE;
-
     private SecretKey secretKey;
 
-    @Builder
-    private JwtProviderImpl(
-            String SECRET_KEY_STRING,
-            String SECRET_KEY_ALGORITHM,
-            String ISSUER,
-            int ACCESS_TOKEN_EXPIRE_MINUTE,
-            int REFRESH_TOKEN_EXPIRE_MINUTE,
-            int OAUTH_JOIN_TOKEN_EXPIRE_MINUTE
-    ) {
-        this.SECRET_KEY_STRING = SECRET_KEY_STRING;
-        this.SECRET_KEY_ALGORITHM = SECRET_KEY_ALGORITHM;
-        this.ISSUER = ISSUER;
-        this.ACCESS_TOKEN_EXPIRE_MINUTE = ACCESS_TOKEN_EXPIRE_MINUTE;
-        this.REFRESH_TOKEN_EXPIRE_MINUTE = REFRESH_TOKEN_EXPIRE_MINUTE;
-        this.OAUTH_JOIN_TOKEN_EXPIRE_MINUTE = OAUTH_JOIN_TOKEN_EXPIRE_MINUTE;
+    @PostConstruct
+    private void init() {
         byte[] decodedKey = SECRET_KEY_STRING.getBytes();
         this.secretKey = new SecretKeySpec(decodedKey, 0, decodedKey.length, SECRET_KEY_ALGORITHM);
     }
@@ -61,42 +68,42 @@ public class JwtProviderImpl implements JwtProvider {
     @Override
     public AccessTokenInfo createAccessToken(Long userId) {
         return AccessTokenInfo.from(
-                createToken(userId.toString(), ACCESS_TOKEN_EXPIRE_MINUTE),
+                createToken(createAccessTokenSubjectString(userId), ACCESS_TOKEN_EXPIRE_MINUTE),
                 userId);
     }
 
     @Override
     public AccessTokenInfo createAccessToken(Long userId, Date issuedAt) {
         return AccessTokenInfo.from(
-                createToken(userId.toString(), issuedAt, ACCESS_TOKEN_EXPIRE_MINUTE),
+                createToken(createAccessTokenSubjectString(userId), issuedAt, ACCESS_TOKEN_EXPIRE_MINUTE),
                 userId);
     }
 
     @Override
     public AccessTokenInfo createAccessToken(Long userId, Date issuedAt, Date expireAt) {
         return AccessTokenInfo.from(
-                createToken(userId.toString(), issuedAt, expireAt),
+                createToken(createAccessTokenSubjectString(userId), issuedAt, expireAt),
                 userId);
     }
 
     @Override
     public RefreshTokenInfo createRefreshToken(Long userId) {
         return RefreshTokenInfo.from(
-                createToken(userId.toString(), REFRESH_TOKEN_EXPIRE_MINUTE),
+                createToken(createRefreshTokenSubjectString(userId), REFRESH_TOKEN_EXPIRE_MINUTE),
                 userId);
     }
 
     @Override
     public RefreshTokenInfo createRefreshToken(Long userId, Date issuedAt) {
         return RefreshTokenInfo.from(
-                createToken(userId.toString(), issuedAt, REFRESH_TOKEN_EXPIRE_MINUTE),
+                createToken(createRefreshTokenSubjectString(userId), issuedAt, REFRESH_TOKEN_EXPIRE_MINUTE),
                 userId);
     }
 
     @Override
     public RefreshTokenInfo createRefreshToken(Long userId, Date issuedAt, Date expireAt) {
         return RefreshTokenInfo.from(
-                createToken(userId.toString(), issuedAt, expireAt),
+                createToken(createRefreshTokenSubjectString(userId), issuedAt, expireAt),
                 userId);
     }
 
@@ -160,15 +167,7 @@ public class JwtProviderImpl implements JwtProvider {
         } catch (JwtException ex) {
             throw new InvalidAccessTokenException();
         }
-        Long userId = Long.parseLong(claims.getSubject());
-
-        return AccessTokenInfo.builder()
-                .jwt(accessToken)
-                .jti(claims.getId())
-                .issuedAt(claims.getIssuedAt())
-                .expireAt(claims.getExpiration())
-                .userId(userId)
-                .build();
+        return createAccessTokenInfo(accessToken, claims);
     }
 
     @Override
@@ -189,15 +188,7 @@ public class JwtProviderImpl implements JwtProvider {
         } catch (JwtException ex) {
             throw new InvalidAccessTokenException();
         }
-        Long userId = Long.parseLong(claims.getSubject());
-
-        return AccessTokenInfo.builder()
-                .jwt(accessToken)
-                .jti(claims.getId())
-                .issuedAt(claims.getIssuedAt())
-                .expireAt(claims.getExpiration())
-                .userId(userId)
-                .build();
+        return createAccessTokenInfo(accessToken, claims);
     }
 
     @Override
@@ -216,15 +207,7 @@ public class JwtProviderImpl implements JwtProvider {
         } catch (JwtException ex) {
             throw new InvalidAccessTokenException();
         }
-        Long userId = Long.parseLong(claims.getSubject());
-
-        return AccessTokenInfo.builder()
-                .jwt(accessToken)
-                .jti(claims.getId())
-                .issuedAt(claims.getIssuedAt())
-                .expireAt(claims.getExpiration())
-                .userId(userId)
-                .build();
+        return createAccessTokenInfo(accessToken, claims);
     }
 
     @Override
@@ -243,13 +226,29 @@ public class JwtProviderImpl implements JwtProvider {
         } catch (JwtException ex) {
             throw new InvalidRefreshTokenException();
         }
-        Long userId = Long.parseLong(claims.getSubject());
+        return createRefreshTokenInfo(refreshToken, claims);
+    }
+
+    private AccessTokenInfo createAccessTokenInfo(String accessToken, Claims claims) {
+        AccessTokenSubject accessTokenSubject = parseAccessTokenSubjectString(claims.getSubject());
+
+        return AccessTokenInfo.builder()
+                .jwt(accessToken)
+                .jti(claims.getId())
+                .issuedAt(claims.getIssuedAt())
+                .expireAt(claims.getExpiration())
+                .userId(accessTokenSubject.getUserId())
+                .build();
+    }
+
+    private RefreshTokenInfo createRefreshTokenInfo(String refreshToken, Claims claims) {
+        RefreshTokenSubject refreshTokenSubject = parseRefreshTokenSubjectString(claims.getSubject());
 
         return RefreshTokenInfo.builder()
                 .jti(claims.getId())
                 .issuedAt(claims.getIssuedAt())
                 .expireAt(claims.getExpiration())
-                .userId(userId)
+                .userId(refreshTokenSubject.getUserId())
                 .build();
     }
 
@@ -283,5 +282,49 @@ public class JwtProviderImpl implements JwtProvider {
                 .issuedAt(issuedAt)
                 .expireAt(expireAt)
                 .build();
+    }
+
+    private String createAccessTokenSubjectString(Long userId) {
+        try {
+            return objectMapper.writeValueAsString(createAccessTokenSubject(userId));
+        } catch (JsonProcessingException e) {
+            throw new GeneralException(ResponseCode.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private AccessTokenSubject createAccessTokenSubject(Long userId) {
+        return AccessTokenSubject.builder()
+                .userId(userId)
+                .build();
+    }
+
+    private AccessTokenSubject parseAccessTokenSubjectString(String accessTokenSubjectString) {
+        try {
+            return objectMapper.readValue(accessTokenSubjectString, AccessTokenSubject.class);
+        } catch (JsonProcessingException e) {
+            throw new GeneralException(ResponseCode.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private String createRefreshTokenSubjectString(Long userId) {
+        try {
+            return objectMapper.writeValueAsString(createRefreshTokenSubject(userId));
+        } catch (JsonProcessingException e) {
+            throw new GeneralException(ResponseCode.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private RefreshTokenSubject createRefreshTokenSubject(Long userId) {
+        return RefreshTokenSubject.builder()
+                .userId(userId)
+                .build();
+    }
+
+    private RefreshTokenSubject parseRefreshTokenSubjectString(String refreshTokenSubjectString) {
+        try {
+            return objectMapper.readValue(refreshTokenSubjectString, RefreshTokenSubject.class);
+        } catch (JsonProcessingException e) {
+            throw new GeneralException(ResponseCode.INTERNAL_SERVER_ERROR);
+        }
     }
 }
