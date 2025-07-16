@@ -2,7 +2,9 @@ package com.BaGulBaGul.BaGulBaGul.domain.user.dto.api.request;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.SocialLoginUserJoinRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.UserRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.global.auth.Role;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.List;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -32,12 +34,13 @@ public class SocialLoginUserJoinApiRequest {
     String email;
 
 
-    public SocialLoginUserJoinRequest toSocialLoginUserJoinRequest() {
+    public SocialLoginUserJoinRequest toSocialLoginUserJoinRequest(List<String> roles) {
         return SocialLoginUserJoinRequest.builder()
                 .joinToken(joinToken)
                 .userRegisterRequest(UserRegisterRequest.builder()
                         .nickname(nickname)
                         .email(email)
+                        .roles(roles)
                         .build())
                 .build();
     }

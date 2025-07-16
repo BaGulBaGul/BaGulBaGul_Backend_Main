@@ -8,8 +8,11 @@ import com.BaGulBaGul.BaGulBaGul.global.auth.Role;
 import com.BaGulBaGul.BaGulBaGul.global.auth.RolePermission;
 import com.BaGulBaGul.BaGulBaGul.global.auth.RolePermission.RolePermissionId;
 import com.BaGulBaGul.BaGulBaGul.global.auth.constant.PermissionType;
+import com.BaGulBaGul.BaGulBaGul.global.auth.dto.RoleRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.global.auth.repository.RolePermissionRepository;
 import com.BaGulBaGul.BaGulBaGul.global.auth.repository.RoleRepository;
+import com.BaGulBaGul.BaGulBaGul.global.auth.sampledata.RoleSample;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -44,6 +47,9 @@ class PermissionServiceImpl_IntegrationTest {
     PermissionServiceImpl permissionService;
 
     @Autowired
+    RoleService roleService;
+
+    @Autowired
     RoleRepository roleRepository;
 
     @Autowired
@@ -55,6 +61,8 @@ class PermissionServiceImpl_IntegrationTest {
     @Autowired
     PlatformTransactionManager platformTransactionManager;
 
+    List<String> addedTestRoleNames = new ArrayList<>();
+
     @AfterEach
     void tearDown() {
         Set<String> keys = redisTemplate.keys("*");
@@ -63,7 +71,10 @@ class PermissionServiceImpl_IntegrationTest {
         txTemplate.executeWithoutResult(new Consumer<TransactionStatus>() {
             @Override
             public void accept(TransactionStatus transactionStatus) {
-                roleRepository.deleteAll();
+                for(String roleName : addedTestRoleNames) {
+                    roleRepository.deleteById(roleName);
+                }
+                addedTestRoleNames.clear();
             }
         });
     }
@@ -72,13 +83,10 @@ class PermissionServiceImpl_IntegrationTest {
     @DisplayName("역할의 권한을 추가")
     void addTest() {
         //given
-        String roleName = "testRole";
+        String roleName = createRole(RoleSample.getNormalRoleRegisterRequest());
+
         PermissionType permissionType = PermissionType.MANAGE_EVENT;
-        roleRepository.save(
-                Role.builder()
-                        .name(roleName)
-                        .build()
-        );
+        permissionService.addPermission(roleName, permissionType);
 
         //when
         permissionService.addPermission(roleName, permissionType);
@@ -102,13 +110,9 @@ class PermissionServiceImpl_IntegrationTest {
     @DisplayName("역할의 권한을 중복되게 추가")
     void addTestWhenDuplicate() {
         //given
-        String roleName = "testRole";
+        String roleName = createRole(RoleSample.getNormalRoleRegisterRequest());
+
         PermissionType permissionType = PermissionType.MANAGE_EVENT;
-        roleRepository.save(
-                Role.builder()
-                        .name(roleName)
-                        .build()
-        );
         permissionService.addPermission(roleName, permissionType);
 
         //when
@@ -133,13 +137,9 @@ class PermissionServiceImpl_IntegrationTest {
     @DisplayName("역할의 권한을 삭제")
     void deleteTest() {
         //given
-        String roleName = "testRole";
+        String roleName = createRole(RoleSample.getNormalRoleRegisterRequest());
+
         PermissionType permissionType = PermissionType.MANAGE_EVENT;
-        roleRepository.save(
-                Role.builder()
-                        .name(roleName)
-                        .build()
-        );
         permissionService.addPermission(roleName, permissionType);
 
         //when
@@ -164,13 +164,10 @@ class PermissionServiceImpl_IntegrationTest {
     @DisplayName("역할의 권한을 없는데 삭제")
     void deleteWhenNotExistTest() {
         //given
-        String roleName = "testRole";
+        String roleName = createRole(RoleSample.getNormalRoleRegisterRequest());
+
         PermissionType permissionType = PermissionType.MANAGE_EVENT;
-        roleRepository.save(
-                Role.builder()
-                        .name(roleName)
-                        .build()
-        );
+        permissionService.addPermission(roleName, permissionType);
 
         //when
         permissionService.deletePermission(roleName, permissionType);
@@ -195,15 +192,10 @@ class PermissionServiceImpl_IntegrationTest {
     @DisplayName("역할의 권한을 변경")
     void changeTest() {
         //given
-        String roleName = "testRole";
-        roleRepository.save(
-                Role.builder()
-                        .name(roleName)
-                        .build()
-        );
+        String roleName = createRole(RoleSample.getNormalRoleRegisterRequest());
+
         Set<PermissionType> basePermissions = Set.of(PermissionType.MANAGE_EVENT, PermissionType.MANAGE_RECRUITMENT);
-        permissionService.addPermissions(roleName,
-                basePermissions);
+        permissionService.addPermissions(roleName, basePermissions);
 
         //when
         Set<PermissionType> newPermissions = Set.of(PermissionType.MANAGE_EVENT, PermissionType.MANAGE_USER);
@@ -229,5 +221,12 @@ class PermissionServiceImpl_IntegrationTest {
                     }
                     return true;
                 });
+    }
+
+    private String createRole(RoleRegisterRequest roleRegisterRequest) {
+        Role role = roleService.createRole(roleRegisterRequest);
+        String roleName = role.getName();
+        addedTestRoleNames.add(roleName);
+        return roleName;
     }
 }

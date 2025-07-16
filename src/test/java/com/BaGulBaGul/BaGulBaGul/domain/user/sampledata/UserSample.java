@@ -2,6 +2,8 @@ package com.BaGulBaGul.BaGulBaGul.domain.user.sampledata;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.UserModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.UserRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.global.auth.constant.GeneralRoleType;
+import java.util.List;
 import org.openapitools.jackson.nullable.JsonNullable;
 
 public abstract class UserSample {
@@ -28,6 +30,7 @@ public abstract class UserSample {
         return UserRegisterRequest.builder()
                 .nickname(NORMAL_USERNAME)
                 .email(NORMAL_EMAIL)
+                .roles(List.of(GeneralRoleType.USER.name()))
                 .build();
     }
 
@@ -43,6 +46,7 @@ public abstract class UserSample {
         return UserRegisterRequest.builder()
                 .nickname(NORMAL_USERNAME2)
                 .email(NORMAL_EMAIL2)
+                .roles(List.of(GeneralRoleType.USER.name()))
                 .build();
     }
 
@@ -58,6 +62,7 @@ public abstract class UserSample {
         return UserRegisterRequest.builder()
                 .nickname(NORMAL_USERNAME3)
                 .email(NORMAL_EMAIL3)
+                .roles(List.of(GeneralRoleType.USER.name()))
                 .build();
     }
 
@@ -73,6 +78,7 @@ public abstract class UserSample {
         return UserRegisterRequest.builder()
                 .nickname(UNNORMAL_USERNAME)
                 .email(UNNORMAL_EMAIL)
+                .roles(List.of(GeneralRoleType.USER.name()))
                 .build();
     }
 

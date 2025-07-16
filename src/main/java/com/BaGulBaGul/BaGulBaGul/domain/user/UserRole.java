@@ -11,16 +11,23 @@ import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
+@Builder
 @Entity
 @IdClass(UserRoleId.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 public class UserRole {
     @EqualsAndHashCode
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class UserRoleId implements Serializable {
         private Long user;
         private String role;
