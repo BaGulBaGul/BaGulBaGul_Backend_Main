@@ -3,6 +3,7 @@ package com.BaGulBaGul.BaGulBaGul.domain.alarm.controller;
 import com.BaGulBaGul.BaGulBaGul.domain.alarm.dto.api.AlarmPageResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.alarm.dto.api.GetAlarmStatusResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.alarm.service.AlarmService;
+import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AuthenticatedUserInfo;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,9 +32,10 @@ public class AlarmControllerImpl implements AlarmController {
             description = "로그인 필수."
     )
     public ApiResponse<Page<AlarmPageResponse>> getAlarmPageByTime(
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo,
             Pageable pageable
     ) {
+        Long userId = authenticatedUserInfo.getUserId();
         return ApiResponse.of(
                 alarmService.getAlarmPageByTime(userId, pageable)
         );
@@ -45,9 +47,10 @@ public class AlarmControllerImpl implements AlarmController {
             description = "로그인 필수."
     )
     public ApiResponse<Object> checkAlarm(
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo,
             @PathVariable(name="alarmId") Long alarmId
     ) {
+        Long userId = authenticatedUserInfo.getUserId();
         alarmService.checkAlarm(userId, alarmId);
         return ApiResponse.of(
                 null
@@ -60,9 +63,10 @@ public class AlarmControllerImpl implements AlarmController {
             description = "로그인 필수."
     )
     public ApiResponse<Object> deleteAlarm(
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo,
             @PathVariable(name="alarmId") Long alarmId
     ) {
+        Long userId = authenticatedUserInfo.getUserId();
         alarmService.deleteAlarm(userId, alarmId);
         return ApiResponse.of(
                 null
@@ -74,7 +78,8 @@ public class AlarmControllerImpl implements AlarmController {
     @Operation(summary = "유저의 모든 알람을 삭제한다",
             description = "로그인 필수."
     )
-    public ApiResponse<Object> deleteAllAlarm(@AuthenticationPrincipal Long userId) {
+    public ApiResponse<Object> deleteAllAlarm(@AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo) {
+        Long userId = authenticatedUserInfo.getUserId();
         alarmService.deleteAllAlarm(userId);
         return ApiResponse.of(
                 null
@@ -87,8 +92,9 @@ public class AlarmControllerImpl implements AlarmController {
             description = "로그인 필수. 총 알람 개수, 체크하지 않은 알람 등의 정보를 조회"
     )
     public ApiResponse<GetAlarmStatusResponse> getAlarmStatus(
-            @AuthenticationPrincipal Long userId
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo
     ) {
+        Long userId = authenticatedUserInfo.getUserId();
         return ApiResponse.of(
                 alarmService.getAlarmStatus(userId)
         );

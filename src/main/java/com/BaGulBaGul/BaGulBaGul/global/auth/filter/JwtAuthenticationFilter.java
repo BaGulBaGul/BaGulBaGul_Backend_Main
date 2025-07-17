@@ -1,11 +1,14 @@
 package com.BaGulBaGul.BaGulBaGul.global.auth.filter;
 
 import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AccessTokenInfo;
+import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AuthenticatedUserInfo;
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.ExpiredAccessTokenException;
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.InvalidAccessTokenException;
 import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtProvider;
 import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtCookieService;
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -14,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -66,10 +70,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         //인증 처리를 위해 security context설정
         Long userId = parsedAccessTokenInfo.getUserId();
+        List<String> roles = parsedAccessTokenInfo.getRoles().stream()
+                .map(s -> "ROLE_" + s)
+                .collect(Collectors.toList());
+        AuthenticatedUserInfo authenticatedUserInfo = AuthenticatedUserInfo.builder()
+                .userId(userId)
+                .roles(roles)
+                .build();
         AbstractAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                userId,
+                authenticatedUserInfo,
                 null,
-                AuthorityUtils.NO_AUTHORITIES
+                AuthorityUtils.createAuthorityList(roles.toArray(String[]::new))
         );
         SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
         securityContext.setAuthentication(authenticationToken);

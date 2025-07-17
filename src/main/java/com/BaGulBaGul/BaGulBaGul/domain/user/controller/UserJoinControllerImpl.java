@@ -3,6 +3,7 @@ package com.BaGulBaGul.BaGulBaGul.domain.user.controller;
 import com.BaGulBaGul.BaGulBaGul.domain.user.SocialLoginUser;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.SocialLoginUserJoinRequest;
 import com.BaGulBaGul.BaGulBaGul.global.auth.constant.GeneralRoleType;
+import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AuthenticatedUserInfo;
 import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtCookieService;
 import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtProvider;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.api.response.CheckDuplicateUsernameApiResponse;
@@ -67,9 +68,10 @@ public class UserJoinControllerImpl implements UserJoinController {
             description = "회원탈퇴 후 인증 토큰 쿠키 삭제"
     )
     public ApiResponse<Object> deleteUser(
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo,
             HttpServletResponse response
     ) {
+        Long userId = authenticatedUserInfo.getUserId();
         userJoinService.deleteUser(userId);
         jwtCookieService.deleteAccessToken(response);
         jwtCookieService.deleteRefreshToken(response);

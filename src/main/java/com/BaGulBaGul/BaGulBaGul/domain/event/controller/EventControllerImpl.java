@@ -22,6 +22,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.IsMyLikeResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.LikeCountResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
+import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AuthenticatedUserInfo;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
 import com.BaGulBaGul.BaGulBaGul.global.validation.ValidationUtil;
 import io.swagger.annotations.Api;
@@ -98,9 +99,10 @@ public class EventControllerImpl implements EventController {
                     + "생성한 이벤트 id 반환"
     )
     public ApiResponse<EventIdApiResponse> registerEvent(
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo,
             @RequestBody EventRegisterApiRequest eventRegisterApiRequest
     ) {
+        Long userId = authenticatedUserInfo.getUserId();
         //이벤트 등록 요청 변환 후 검증
         EventRegisterRequest eventRegisterRequest = eventRegisterApiRequest.toEventRegisterRequest();
         ValidationUtil.validate(eventRegisterRequest);
@@ -117,12 +119,12 @@ public class EventControllerImpl implements EventController {
     )
     public ApiResponse<Object> modifyEvent(
             @PathVariable(name="eventId") Long eventId,
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo,
             @RequestBody EventModifyApiRequest eventModifyApiRequest
     ) {
         EventModifyRequest eventModifyRequest = eventModifyApiRequest.toEventModifyRequest();
         ValidationUtil.validate(eventModifyRequest);
-        eventService.modifyEvent(eventId, userId, eventModifyRequest);
+        eventService.modifyEvent(eventId, authenticatedUserInfo.getUserId(), eventModifyRequest);
         return ApiResponse.of(null);
     }
 
@@ -133,8 +135,9 @@ public class EventControllerImpl implements EventController {
     )
     public ApiResponse<Object> deleteEvent(
             @PathVariable(name="eventId") Long eventId,
-            @AuthenticationPrincipal Long userId
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo
     ) {
+        Long userId = authenticatedUserInfo.getUserId();
         eventService.deleteEvent(eventId, userId);
         return ApiResponse.of(null);
     }
@@ -148,8 +151,9 @@ public class EventControllerImpl implements EventController {
     )
     public ApiResponse<LikeCountResponse> addLike(
             @PathVariable(name="eventId") Long eventId,
-            @AuthenticationPrincipal Long userId
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo
     ) {
+        Long userId = authenticatedUserInfo.getUserId();
         try {
             eventService.addLike(eventId, userId);
         } catch (DuplicateLikeException duplicateLikeException) {
@@ -169,8 +173,9 @@ public class EventControllerImpl implements EventController {
     )
     public ApiResponse<LikeCountResponse> deleteLike(
             @PathVariable(name="eventId") Long eventId,
-            @AuthenticationPrincipal Long userId
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo
     ) {
+        Long userId = authenticatedUserInfo.getUserId();
         try {
             eventService.deleteLike(eventId, userId);
         } catch (LikeNotExistException likeNotExistException) {
@@ -190,8 +195,9 @@ public class EventControllerImpl implements EventController {
     )
     public ApiResponse<IsMyLikeResponse> isMyLike(
             @PathVariable(name="eventId") Long eventId,
-            @AuthenticationPrincipal Long userId
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo
     ) {
+        Long userId = authenticatedUserInfo.getUserId();
         return ApiResponse.of(
                 new IsMyLikeResponse(eventService.isMyLike(eventId, userId))
         );
@@ -205,12 +211,14 @@ public class EventControllerImpl implements EventController {
                     + "페이징 지원"
     )
     public ApiResponse<Page<GetLikeEventApiResponse>> getMyLike(
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo,
             GetLikeEventApiRequest getLikeEventApiRequest,
             Pageable pageable
     ) {
+        Long userId = authenticatedUserInfo.getUserId();
         GetLikeEventRequest getLikeEventRequest = getLikeEventApiRequest.toGetLikeEventRequest();
-        Page<GetLikeEventResponse> myLikeEvents = eventService.getMyLikeEvent(getLikeEventRequest, userId, pageable);
+        Page<GetLikeEventResponse> myLikeEvents = eventService
+                .getMyLikeEvent(getLikeEventRequest, userId, pageable);
         Page<GetLikeEventApiResponse> responses = myLikeEvents.map(GetLikeEventApiResponse::from);
         return ApiResponse.of(responses);
     }
