@@ -27,7 +27,7 @@ public class UserRoleServiceImpl implements UserRoleService {
 
     @Override
     public List<String> getAllRole(Long userId) {
-        User user = userRepository.findUserWithRoles(userId);
+        User user = userRepository.findUserWithRoles(userId).orElseThrow(UserNotFoundException::new);
         return user.getUserRoles().stream()
                 .map(UserRole::getRole)
                 .map(role -> role.getName())

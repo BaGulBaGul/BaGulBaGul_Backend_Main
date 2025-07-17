@@ -12,6 +12,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.BaGulBaGul.BaGulBaGul.domain.user.User;
+import com.BaGulBaGul.BaGulBaGul.domain.user.sampledata.UserSample;
+import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserJoinService;
 import com.BaGulBaGul.BaGulBaGul.extension.AllTestContainerExtension;
 import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AccessTokenInfo;
 import com.BaGulBaGul.BaGulBaGul.global.auth.dto.RefreshTokenInfo;
@@ -39,6 +42,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 @ExtendWith(MockitoExtension.class)
@@ -58,6 +62,9 @@ class UserAuthController_IntegrationTest {
 
     @Autowired
     RedisTemplate<String, String> redisTemplate;
+
+    @Autowired
+    UserJoinService userJoinService;
 
     @Value("${user.login.access_token_cookie_name}")
     private String ACCESS_TOKEN_COOKIE_NAME;
@@ -90,9 +97,11 @@ class UserAuthController_IntegrationTest {
 
         @Test
         @DisplayName("정상 AT 테스트")
+        @Transactional
         void shouldOk_WhenNormalAt() throws Exception {
             //given
-            Long userId = 1L;
+            User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
+            Long userId = user.getId();
             AccessTokenInfo atInfo = jwtProvider.createAccessToken(userId);
             RefreshTokenInfo rtInfo = jwtProvider.createRefreshToken(userId);
 
@@ -118,9 +127,11 @@ class UserAuthController_IntegrationTest {
 
         @Test
         @DisplayName("만료된 AT 테스트")
+        @Transactional
         void shouldOk_WhenExpiredAt() throws Exception {
             //given
-            Long userId = 1L;
+            User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
+            Long userId = user.getId();
             Date expiredDate = getExpiredDate();
             AccessTokenInfo atInfo = jwtProvider.createAccessToken(userId, expiredDate, expiredDate);
             RefreshTokenInfo rtInfo = jwtProvider.createRefreshToken(userId);
@@ -165,9 +176,11 @@ class UserAuthController_IntegrationTest {
 
         @Test
         @DisplayName("정상 AT, 정상 RT => 403 FORBIDDEN")
+        @Transactional
         void shouldRefresh_WhenNormalATNormalRT() throws Exception {
             //given
-            Long userId = 1L;
+            User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
+            Long userId = user.getId();
             AccessTokenInfo atInfo = jwtProvider.createAccessToken(userId);
             RefreshTokenInfo rtInfo = jwtProvider.createRefreshToken(userId);
 
@@ -187,9 +200,11 @@ class UserAuthController_IntegrationTest {
 
         @Test
         @DisplayName("만료된 AT, 정상 RT => 200 SUCCESS")
+        @Transactional
         void shouldRefresh_WhenExpiredATNormalRT() throws Exception {
             //given
-            Long userId = 1L;
+            User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
+            Long userId = user.getId();
             Date expiredDate = getExpiredDate();
 
             AccessTokenInfo atInfo = jwtProvider.createAccessToken(userId, expiredDate, expiredDate);
@@ -220,9 +235,11 @@ class UserAuthController_IntegrationTest {
 
         @Test
         @DisplayName("정상 AT, 만료된 RT => 403 FORBIDDEN")
+        @Transactional
         void shouldNotRefresh_WhenNormalATExpiredRT() throws Exception {
             //given
-            Long userId = 1L;
+            User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
+            Long userId = user.getId();
             Date expiredDate = getExpiredDate();
 
             AccessTokenInfo atInfo = jwtProvider.createAccessToken(userId);
@@ -240,9 +257,11 @@ class UserAuthController_IntegrationTest {
 
         @Test
         @DisplayName("만료된 AT, 만료된 RT => 401 AUTH_EXPIRED_REFRESH_TOKEN")
+        @Transactional
         void shouldNotRefresh_WhenExpiredATExpiredRT() throws Exception {
             //given
-            Long userId = 1L;
+            User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
+            Long userId = user.getId();
             Date expiredDate = getExpiredDate();
 
             AccessTokenInfo atInfo = jwtProvider.createAccessToken(userId, expiredDate, expiredDate);
@@ -261,9 +280,11 @@ class UserAuthController_IntegrationTest {
 
         @Test
         @DisplayName("만료된 AT, 사용한 RT => 403 FORBIDDEN")
+        @Transactional
         void shouldNotRefresh_WhenExpiredATUsedRT() throws Exception {
             //given
-            Long userId = 1L;
+            User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
+            Long userId = user.getId();
             Date expiredDate = getExpiredDate();
 
             AccessTokenInfo atInfo = jwtProvider.createAccessToken(userId, expiredDate, expiredDate);

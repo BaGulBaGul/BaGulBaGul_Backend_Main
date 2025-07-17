@@ -59,6 +59,8 @@ public class JwtProviderImpl implements JwtProvider {
 
     private SecretKey secretKey;
 
+    private final UserRoleService userRoleService;
+
     @PostConstruct
     private void init() {
         byte[] decodedKey = SECRET_KEY_STRING.getBytes();
@@ -67,44 +69,56 @@ public class JwtProviderImpl implements JwtProvider {
     
     @Override
     public AccessTokenInfo createAccessToken(Long userId) {
+        AccessTokenSubject accessTokenSubject = createAccessTokenSubject(userId);
+        String accessTokenSubjectString = createAccessTokenSubjectString(accessTokenSubject);
         return AccessTokenInfo.from(
-                createToken(createAccessTokenSubjectString(userId), ACCESS_TOKEN_EXPIRE_MINUTE),
-                userId);
+                createToken(accessTokenSubjectString, ACCESS_TOKEN_EXPIRE_MINUTE),
+                accessTokenSubject);
     }
 
     @Override
     public AccessTokenInfo createAccessToken(Long userId, Date issuedAt) {
+        AccessTokenSubject accessTokenSubject = createAccessTokenSubject(userId);
+        String accessTokenSubjectString = createAccessTokenSubjectString(accessTokenSubject);
         return AccessTokenInfo.from(
-                createToken(createAccessTokenSubjectString(userId), issuedAt, ACCESS_TOKEN_EXPIRE_MINUTE),
-                userId);
+                createToken(accessTokenSubjectString, issuedAt, ACCESS_TOKEN_EXPIRE_MINUTE),
+                accessTokenSubject);
     }
 
     @Override
     public AccessTokenInfo createAccessToken(Long userId, Date issuedAt, Date expireAt) {
+        AccessTokenSubject accessTokenSubject = createAccessTokenSubject(userId);
+        String accessTokenSubjectString = createAccessTokenSubjectString(accessTokenSubject);
         return AccessTokenInfo.from(
-                createToken(createAccessTokenSubjectString(userId), issuedAt, expireAt),
-                userId);
+                createToken(accessTokenSubjectString, issuedAt, expireAt),
+                accessTokenSubject);
     }
 
     @Override
     public RefreshTokenInfo createRefreshToken(Long userId) {
+        RefreshTokenSubject refreshTokenSubject = createRefreshTokenSubject(userId);
+        String refreshTokenSubjectString = createRefreshTokenSubjectString(refreshTokenSubject);
         return RefreshTokenInfo.from(
-                createToken(createRefreshTokenSubjectString(userId), REFRESH_TOKEN_EXPIRE_MINUTE),
-                userId);
+                createToken(refreshTokenSubjectString, REFRESH_TOKEN_EXPIRE_MINUTE),
+                refreshTokenSubject);
     }
 
     @Override
     public RefreshTokenInfo createRefreshToken(Long userId, Date issuedAt) {
+        RefreshTokenSubject refreshTokenSubject = createRefreshTokenSubject(userId);
+        String refreshTokenSubjectString = createRefreshTokenSubjectString(refreshTokenSubject);
         return RefreshTokenInfo.from(
-                createToken(createRefreshTokenSubjectString(userId), issuedAt, REFRESH_TOKEN_EXPIRE_MINUTE),
-                userId);
+                createToken(refreshTokenSubjectString, issuedAt, REFRESH_TOKEN_EXPIRE_MINUTE),
+                refreshTokenSubject);
     }
 
     @Override
     public RefreshTokenInfo createRefreshToken(Long userId, Date issuedAt, Date expireAt) {
+        RefreshTokenSubject refreshTokenSubject = createRefreshTokenSubject(userId);
+        String refreshTokenSubjectString = createRefreshTokenSubjectString(refreshTokenSubject);
         return RefreshTokenInfo.from(
-                createToken(createRefreshTokenSubjectString(userId), issuedAt, expireAt),
-                userId);
+                createToken(refreshTokenSubjectString, issuedAt, expireAt),
+                refreshTokenSubject);
     }
 
     @Override
@@ -231,25 +245,32 @@ public class JwtProviderImpl implements JwtProvider {
 
     private AccessTokenInfo createAccessTokenInfo(String accessToken, Claims claims) {
         AccessTokenSubject accessTokenSubject = parseAccessTokenSubjectString(claims.getSubject());
-
-        return AccessTokenInfo.builder()
+        JWTInfo jwtInfo = JWTInfo.builder()
                 .jwt(accessToken)
                 .jti(claims.getId())
+                .subject(claims.getSubject())
                 .issuedAt(claims.getIssuedAt())
                 .expireAt(claims.getExpiration())
-                .userId(accessTokenSubject.getUserId())
                 .build();
+        return AccessTokenInfo.from(
+                jwtInfo,
+                accessTokenSubject
+        );
     }
 
     private RefreshTokenInfo createRefreshTokenInfo(String refreshToken, Claims claims) {
         RefreshTokenSubject refreshTokenSubject = parseRefreshTokenSubjectString(claims.getSubject());
-
-        return RefreshTokenInfo.builder()
+        JWTInfo jwtInfo = JWTInfo.builder()
+                .jwt(refreshToken)
                 .jti(claims.getId())
+                .subject(claims.getSubject())
                 .issuedAt(claims.getIssuedAt())
                 .expireAt(claims.getExpiration())
-                .userId(refreshTokenSubject.getUserId())
                 .build();
+        return RefreshTokenInfo.from(
+                jwtInfo,
+                refreshTokenSubject
+        );
     }
 
     private JWTInfo createToken(String subject, int expireMinute) {
@@ -284,17 +305,19 @@ public class JwtProviderImpl implements JwtProvider {
                 .build();
     }
 
-    private String createAccessTokenSubjectString(Long userId) {
+    private String createAccessTokenSubjectString(AccessTokenSubject accessTokenSubject) {
         try {
-            return objectMapper.writeValueAsString(createAccessTokenSubject(userId));
+            return objectMapper.writeValueAsString(accessTokenSubject);
         } catch (JsonProcessingException e) {
             throw new GeneralException(ResponseCode.INTERNAL_SERVER_ERROR);
         }
     }
 
     private AccessTokenSubject createAccessTokenSubject(Long userId) {
+        List<String> roles = userRoleService.getAllRole(userId);
         return AccessTokenSubject.builder()
                 .userId(userId)
+                .roles(roles)
                 .build();
     }
 
@@ -306,9 +329,9 @@ public class JwtProviderImpl implements JwtProvider {
         }
     }
 
-    private String createRefreshTokenSubjectString(Long userId) {
+    private String createRefreshTokenSubjectString(RefreshTokenSubject refreshTokenSubject) {
         try {
-            return objectMapper.writeValueAsString(createRefreshTokenSubject(userId));
+            return objectMapper.writeValueAsString(refreshTokenSubject);
         } catch (JsonProcessingException e) {
             throw new GeneralException(ResponseCode.INTERNAL_SERVER_ERROR);
         }

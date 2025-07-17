@@ -1,6 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.global.auth.dto;
 
 import java.util.Date;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,13 +15,15 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 public class AccessTokenInfo extends JWTInfo {
     Long userId;
+    List<String> roles;
 
     public static AccessTokenInfo from(
             JWTInfo jwtInfo,
-            Long userId
+            AccessTokenSubject accessTokenSubject
     ) {
         return jwtInfo.mapBuilder(AccessTokenInfo.builder())
-                .userId(userId)
+                .userId(accessTokenSubject.getUserId())
+                .roles(accessTokenSubject.getRoles())
                 .build();
     }
 }

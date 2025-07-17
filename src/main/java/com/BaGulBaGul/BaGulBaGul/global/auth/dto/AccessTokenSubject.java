@@ -14,4 +14,5 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 public class AccessTokenSubject {
     private Long userId;
+    private List<String> roles;
 }

@@ -1,6 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user.repository;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -10,5 +11,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByNicknameIgnoreCase(String nickname);
 
     @Query("SELECT u FROM User u LEFT JOIN FETCH u.userRoles WHERE u.id=:userId")
-    User findUserWithRoles(@Param("userId") Long userId);
+    Optional<User> findUserWithRoles(@Param("userId") Long userId);
 }
