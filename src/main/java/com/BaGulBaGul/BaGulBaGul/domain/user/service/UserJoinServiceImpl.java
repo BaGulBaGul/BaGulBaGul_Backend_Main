@@ -5,10 +5,14 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.SocialLoginUser;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.alarm.UserAlarmStatus;
 import com.BaGulBaGul.BaGulBaGul.domain.alarm.repository.UserAlarmStatusRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.user.UserRole;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.AdminManageEventHostUserRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.SocialLoginUserJoinRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.UserRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.AdminManageEventHostUserRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserRoleRepository;
+import com.BaGulBaGul.BaGulBaGul.global.auth.Role;
+import com.BaGulBaGul.BaGulBaGul.global.auth.repository.RoleRepository;
 import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtProvider;
 import com.BaGulBaGul.BaGulBaGul.domain.user.exception.DuplicateUsernameException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.exception.UserNotFoundException;
@@ -31,6 +35,7 @@ public class UserJoinServiceImpl implements UserJoinService {
     private final UserAlarmStatusRepository userAlarmStatusRepository;
 
     private final UserImageService userImageService;
+    private final UserRoleService userRoleService;
 
     @Override
     @Transactional
@@ -72,12 +77,13 @@ public class UserJoinServiceImpl implements UserJoinService {
                 .email(userRegisterRequest.getEmail())
                 .build();
         try {
-            userRepository.save(user);
+            user = userRepository.save(user);
         } catch (DataIntegrityViolationException e) {
             if(DuplicateUsernameException.check(e)) {
                 throw new DuplicateUsernameException();
             }
         }
+        //알람 테이블 설정
         userAlarmStatusRepository.save(
                 UserAlarmStatus.builder()
                         .user(user)
@@ -85,6 +91,10 @@ public class UserJoinServiceImpl implements UserJoinService {
                         .uncheckedAlarmCount(0L)
                         .build()
         );
+        //역할 설정
+        if(userRegisterRequest.getRoles() != null) {
+            userRoleService.addRoles(user.getId(), userRegisterRequest.getRoles());
+        }
         return user;
     }
 

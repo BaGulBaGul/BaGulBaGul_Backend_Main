@@ -87,11 +87,7 @@ class JwtAuthenticationFilter_IntegrationTest {
     @Transactional
     void shouldOk_WhenNotNeedAuthenticate_WhenNotOfferAT() throws Exception {
         //given
-        Long userId = 1L;
-        String accessToken = jwtProvider.createAccessToken(userId).getJwt();
-
-        mvc.perform(get(NORMAL_PATH)
-                        .cookie(new Cookie(ACCESS_TOKEN_COOKIE_NAME, accessToken)))
+        mvc.perform(get(NORMAL_PATH))
                 .andExpect(status().isOk());
     }
 
@@ -99,7 +95,12 @@ class JwtAuthenticationFilter_IntegrationTest {
     @DisplayName("인증이 필요 없는 api에 정상 access token => 200")
     @Transactional
     void shouldOk_WhenNotNeedAuthenticate_WhenOfferNormalAT() throws Exception {
-        mvc.perform(get(NORMAL_PATH))
+        User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
+        Long userId = user.getId();
+        String accessToken = jwtProvider.createAccessToken(userId).getJwt();
+
+        mvc.perform(get(NORMAL_PATH)
+                        .cookie(new Cookie(ACCESS_TOKEN_COOKIE_NAME, accessToken)))
                 .andExpect(status().isOk());
     }
 

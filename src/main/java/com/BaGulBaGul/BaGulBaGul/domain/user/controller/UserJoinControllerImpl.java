@@ -2,6 +2,8 @@ package com.BaGulBaGul.BaGulBaGul.domain.user.controller;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.SocialLoginUser;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.SocialLoginUserJoinRequest;
+import com.BaGulBaGul.BaGulBaGul.global.auth.constant.GeneralRoleType;
+import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AuthenticatedUserInfo;
 import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtCookieService;
 import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtProvider;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.api.response.CheckDuplicateUsernameApiResponse;
@@ -11,6 +13,8 @@ import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
 import com.BaGulBaGul.BaGulBaGul.global.validation.ValidationUtil;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
+import java.util.ArrayList;
+import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +37,8 @@ public class UserJoinControllerImpl implements UserJoinController {
     private final JwtCookieService jwtCookieService;
     private final JwtProvider jwtProvider;
 
+    private static final List<String> normalUserRoles = List.of(GeneralRoleType.USER.name());
+
     @Override
     @PostMapping("/social")
     @Operation(summary = "소셜 로그인 유저 회원가입 요청",
@@ -45,7 +51,7 @@ public class UserJoinControllerImpl implements UserJoinController {
             HttpServletResponse response
     ) {
         SocialLoginUserJoinRequest socialLoginUserJoinRequest = socialLoginUserJoinApiRequest
-                .toSocialLoginUserJoinRequest();
+                .toSocialLoginUserJoinRequest(normalUserRoles);
         ValidationUtil.validate(socialLoginUserJoinRequest);
 
         SocialLoginUser user = userJoinService.registerSocialLoginUser(socialLoginUserJoinRequest);
@@ -62,9 +68,10 @@ public class UserJoinControllerImpl implements UserJoinController {
             description = "회원탈퇴 후 인증 토큰 쿠키 삭제"
     )
     public ApiResponse<Object> deleteUser(
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo,
             HttpServletResponse response
     ) {
+        Long userId = authenticatedUserInfo.getUserId();
         userJoinService.deleteUser(userId);
         jwtCookieService.deleteAccessToken(response);
         jwtCookieService.deleteRefreshToken(response);

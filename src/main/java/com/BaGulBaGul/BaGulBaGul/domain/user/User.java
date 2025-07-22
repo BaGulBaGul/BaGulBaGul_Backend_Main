@@ -1,7 +1,13 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user;
 
 import com.BaGulBaGul.BaGulBaGul.domain.base.BaseTimeEntity;
+import com.BaGulBaGul.BaGulBaGul.global.auth.Role;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
+import javax.persistence.FetchType;
 import javax.persistence.GenerationType;
+import javax.persistence.OneToMany;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,7 +21,7 @@ import lombok.Setter;
 
 
 @Getter
-@Entity(name = "user")
+@Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseTimeEntity {
     @Id
@@ -39,6 +45,9 @@ public class User extends BaseTimeEntity {
     @Column(name="image_uri")
     String imageURI;
 
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    Set<UserRole> userRoles = new HashSet<>();
+
     @Builder
     public User(
             String email,
@@ -50,5 +59,9 @@ public class User extends BaseTimeEntity {
         this.nickname = nickName;
         this.profileMessage = profileMessage;
         this.imageURI = imageURI;
+    }
+
+    public Set<Role> getRoles() {
+        return userRoles.stream().map(UserRole::getRole).collect(Collectors.toSet());
     }
 }

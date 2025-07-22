@@ -16,10 +16,10 @@ public class RefreshTokenInfo extends JWTInfo {
 
     public static RefreshTokenInfo from(
             JWTInfo jwtInfo,
-            Long userId
+            RefreshTokenSubject refreshTokenSubject
     ) {
         return jwtInfo.mapBuilder(RefreshTokenInfo.builder())
-                .userId(userId)
+                .userId(refreshTokenSubject.getUserId())
                 .build();
     }
 }

@@ -2,6 +2,9 @@ package com.BaGulBaGul.BaGulBaGul.global.auth.service;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
+import com.BaGulBaGul.BaGulBaGul.domain.user.User;
+import com.BaGulBaGul.BaGulBaGul.domain.user.sampledata.UserSample;
+import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserJoinService;
 import com.BaGulBaGul.BaGulBaGul.extension.AllTestContainerExtension;
 import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AccessTokenInfo;
 import com.BaGulBaGul.BaGulBaGul.global.auth.dto.RefreshTokenInfo;
@@ -17,6 +20,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(AllTestContainerExtension.class)
@@ -32,6 +36,9 @@ class JwtStorageServiceRedisImpl_IntegrationTest {
     JwtProvider jwtProvider;
 
     @Autowired
+    UserJoinService userJoinService;
+
+    @Autowired
     RedisTemplate<String, String> redisTemplate;
 
     @AfterEach
@@ -42,9 +49,11 @@ class JwtStorageServiceRedisImpl_IntegrationTest {
 
     @Test
     @DisplayName("저장 테스트")
+    @Transactional
     void testSave() {
         //given
-        Long userId = 1L;
+        User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
+        Long userId = user.getId();
         AccessTokenInfo atInfo = jwtProvider.createAccessToken(userId);
         RefreshTokenInfo rtInfo = jwtProvider.createRefreshToken(userId);
 
@@ -58,9 +67,11 @@ class JwtStorageServiceRedisImpl_IntegrationTest {
 
     @Test
     @DisplayName("조회 후 삭제 테스트(값이 있을 때)")
+    @Transactional
     void testGetAndDelete_whenKeyExists() {
         //given
-        Long userId = 1L;
+        User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
+        Long userId = user.getId();
         AccessTokenInfo atInfo = jwtProvider.createAccessToken(userId);
         RefreshTokenInfo rtInfo = jwtProvider.createRefreshToken(userId);
         jwtStorageService.save(atInfo, rtInfo);
@@ -76,9 +87,11 @@ class JwtStorageServiceRedisImpl_IntegrationTest {
 
     @Test
     @DisplayName("조회 후 삭제 테스트(값이 없을 때)")
+    @Transactional
     void testGetAndDelete_whenKeyNotExists() {
         //given
-        Long userId = 1L;
+        User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
+        Long userId = user.getId();
         AccessTokenInfo atInfo = jwtProvider.createAccessToken(userId);
         RefreshTokenInfo rtInfo = jwtProvider.createRefreshToken(userId);
 
@@ -91,9 +104,11 @@ class JwtStorageServiceRedisImpl_IntegrationTest {
 
     @Test
     @DisplayName("삭제 테스트")
+    @Transactional
     void testDelete() {
         //given
-        Long userId = 1L;
+        User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
+        Long userId = user.getId();
         AccessTokenInfo atInfo = jwtProvider.createAccessToken(userId);
         RefreshTokenInfo rtInfo = jwtProvider.createRefreshToken(userId);
         jwtStorageService.save(atInfo, rtInfo);

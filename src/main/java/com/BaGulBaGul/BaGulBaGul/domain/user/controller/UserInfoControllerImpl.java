@@ -5,6 +5,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.dto.api.response.OtherUserInfoApiRe
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.api.request.UserModifyApiRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.UserModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserInfoService;
+import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AuthenticatedUserInfo;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
 import com.BaGulBaGul.BaGulBaGul.global.validation.ValidationUtil;
 import io.swagger.annotations.Api;
@@ -33,8 +34,9 @@ public class UserInfoControllerImpl implements UserInfoController {
             description = "로그인 필수. 인증 토큰을 기반으로 유저 정보를 반환."
     )
     public ApiResponse<MyUserInfoApiResponse> getMyUserInfo(
-            @AuthenticationPrincipal Long userId
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo
     ) {
+        Long userId = authenticatedUserInfo.getUserId();
         return ApiResponse.of(
                 MyUserInfoApiResponse.from(userInfoService.getMyUserInfo(userId))
         );
@@ -46,9 +48,10 @@ public class UserInfoControllerImpl implements UserInfoController {
             description = "로그인 필수. 유저 정보 수정"
     )
     public ApiResponse<Object> modifyMyUserInfo(
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo,
             @RequestBody UserModifyApiRequest userModifyApiRequest
     ) {
+        Long userId = authenticatedUserInfo.getUserId();
         UserModifyRequest userModifyRequest = userModifyApiRequest.toUserModifyRequest();
         ValidationUtil.validate(userModifyRequest);
         userInfoService.modifyUserInfo(userModifyRequest, userId);

@@ -1,5 +1,8 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset;
 
+import com.BaGulBaGul.BaGulBaGul.global.auth.Role;
+import java.util.ArrayList;
+import java.util.List;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -23,4 +26,6 @@ public class UserRegisterRequest {
     @Email(message = "이메일 형식이 아닙니다.")
     @Size(min = 1, message = "이메일은 빈 문자열일 수 없습니다")
     String email;
+
+    List<String> roles;
 }

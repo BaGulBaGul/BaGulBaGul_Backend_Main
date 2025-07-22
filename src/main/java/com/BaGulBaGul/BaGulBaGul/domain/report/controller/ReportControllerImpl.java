@@ -6,6 +6,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.report.dto.api.request.EventReportRegist
 import com.BaGulBaGul.BaGulBaGul.domain.report.dto.api.request.RecruitmentReportRegisterAPIRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.report.dto.api.response.ReportRegisterApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.report.service.ReportService;
+import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AuthenticatedUserInfo;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,9 +32,10 @@ public class ReportControllerImpl implements ReportController {
             description = "로그인 필수, 중복신고불가"
     )
     public ApiResponse<ReportRegisterApiResponse> registerEventReport(
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo,
             @Valid @RequestBody EventReportRegisterAPIRequest eventReportRegisterAPIRequest
     ) {
+        Long userId = authenticatedUserInfo.getUserId();
         Long eventId = eventReportRegisterAPIRequest.getEventId();
         Long reportId = reportService.registerEventReport(
                 eventId,
@@ -50,9 +52,10 @@ public class ReportControllerImpl implements ReportController {
             description = "로그인 필수, 중복신고불가"
     )
     public ApiResponse<ReportRegisterApiResponse> registerRecruitmentReport(
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo,
             @Valid @RequestBody RecruitmentReportRegisterAPIRequest recruitmentReportRegisterAPIRequest
     ) {
+        Long userId = authenticatedUserInfo.getUserId();
         Long recruitmentId = recruitmentReportRegisterAPIRequest.getRecruitmentId();
         Long reportId = reportService.registerRecruitmentReport(
                 recruitmentId,
@@ -69,9 +72,10 @@ public class ReportControllerImpl implements ReportController {
             description = "로그인 필수, 중복신고불가"
     )
     public ApiResponse<ReportRegisterApiResponse> registerCommentReport(
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo,
             @Valid @RequestBody CommentReportRegisterAPIRequest commentReportRegisterAPIRequest
     ) {
+        Long userId = authenticatedUserInfo.getUserId();
         Long postCommentId = commentReportRegisterAPIRequest.getCommentId();
         Long reportId = reportService.registerPostCommentReport(
                 postCommentId,
@@ -88,9 +92,10 @@ public class ReportControllerImpl implements ReportController {
             description = "로그인 필수, 중복신고불가"
     )
     public ApiResponse<ReportRegisterApiResponse> registerCommentChildReport(
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo,
             @Valid @RequestBody CommentChildReportRegisterAPIRequest commentChildReportRegisterAPIRequest
     ) {
+        Long userId = authenticatedUserInfo.getUserId();
         Long postCommentChildId = commentChildReportRegisterAPIRequest.getCommentChildId();
         Long reportId = reportService.registerPostCommentChildReport(
                 postCommentChildId,
