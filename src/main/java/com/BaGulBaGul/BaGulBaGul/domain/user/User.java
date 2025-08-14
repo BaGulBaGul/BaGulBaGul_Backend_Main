@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import javax.persistence.FetchType;
 import javax.persistence.GenerationType;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -47,6 +48,14 @@ public class User extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     Set<UserRole> userRoles = new HashSet<>();
+
+    @Setter
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
+    SocialLoginUser socialLoginUser;
+
+    @Setter
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
+    PasswordLoginUser passwordLoginUser;
 
     @Builder
     public User(

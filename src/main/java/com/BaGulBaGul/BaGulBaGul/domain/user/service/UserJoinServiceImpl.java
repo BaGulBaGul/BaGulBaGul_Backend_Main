@@ -1,6 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user.service;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.AdminManageEventHostUser;
+import com.BaGulBaGul.BaGulBaGul.domain.user.PasswordLoginUser;
 import com.BaGulBaGul.BaGulBaGul.domain.user.SocialLoginUser;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.alarm.UserAlarmStatus;
@@ -10,6 +11,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.AdminManageEven
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.SocialLoginUserJoinRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.UserRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.AdminManageEventHostUserRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.user.repository.PasswordLoginUserRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserRoleRepository;
 import com.BaGulBaGul.BaGulBaGul.global.auth.Role;
 import com.BaGulBaGul.BaGulBaGul.global.auth.repository.RoleRepository;
@@ -36,6 +38,7 @@ public class UserJoinServiceImpl implements UserJoinService {
 
     private final UserImageService userImageService;
     private final UserRoleService userRoleService;
+    private final PasswordLoginUserService passwordLoginUserService;
 
     @Override
     @Transactional
@@ -51,7 +54,8 @@ public class UserJoinServiceImpl implements UserJoinService {
                 .provider(oAuth2JoinTokenSubject.getOAuth2Provider())
                 .user(user)
                 .build();
-        socialLoginUserRepository.save(socialLoginUser);
+        socialLoginUser = socialLoginUserRepository.save(socialLoginUser);
+        user.setSocialLoginUser(socialLoginUser);
         return socialLoginUser;
     }
 
@@ -101,11 +105,21 @@ public class UserJoinServiceImpl implements UserJoinService {
     @Override
     @Transactional
     public void deleteUser(Long userId) {
-        //유저 이미지 삭제
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
+        //유저 이미지 삭제
         userImageService.setImage(user, null);
         //소셜로그인 정보 삭제
-        socialLoginUserRepository.deleteByUserId(userId);
+        SocialLoginUser socialLoginUser = user.getSocialLoginUser();
+        if(socialLoginUser != null) {
+            socialLoginUserRepository.deleteByUserId(userId);
+        }
+        //password login user 정보 삭제
+        PasswordLoginUser passwordLoginUser = user.getPasswordLoginUser();
+        if(passwordLoginUser != null) {
+            passwordLoginUserService.deletePasswordLoginUser(passwordLoginUser.getLoginId());
+        }
+        //역할 삭제는 on delete cascade
+
         //유저 정보 삭제
         userRepository.deleteById(userId);
     }

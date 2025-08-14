@@ -6,15 +6,19 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.AdminManageEventHostUser;
+import com.BaGulBaGul.BaGulBaGul.domain.user.PasswordLoginUser;
 import com.BaGulBaGul.BaGulBaGul.domain.user.SocialLoginUser;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.PasswordLoginUserRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.SocialLoginUserJoinRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.UserRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.exception.DuplicateUsernameException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.AdminManageEventHostUserRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.user.repository.PasswordLoginUserRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.SocialLoginUserRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.sampledata.AdminManageEventHostUserSample;
+import com.BaGulBaGul.BaGulBaGul.domain.user.sampledata.PasswordLoginUserSample;
 import com.BaGulBaGul.BaGulBaGul.domain.user.sampledata.SocialLoginUserSample;
 import com.BaGulBaGul.BaGulBaGul.domain.user.sampledata.UserSample;
 import com.BaGulBaGul.BaGulBaGul.extension.AllTestContainerExtension;
@@ -43,7 +47,13 @@ public class UserJoinService_IntegrationTest {
     UserJoinService userJoinService;
 
     @Autowired
+    PasswordLoginUserService passwordLoginUserService;
+
+    @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    PasswordLoginUserRepository passwordLoginUserRepository;
 
     @Autowired
     AdminManageEventHostUserRepository adminManageEventHostUserRepository;
@@ -119,13 +129,34 @@ public class UserJoinService_IntegrationTest {
         @Test
         @DisplayName("정상 삭제")
         @Transactional
-        void shouldOK() {
+        void deleteNormalUserTest() {
             //given
             User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
             //when
             userJoinService.deleteUser(user.getId());
             //then
             User findUser = userRepository.findById(user.getId()).orElse(null);
+            assertThat(findUser).isNull();
+        }
+
+        @Test
+        @DisplayName("패스워드 로그인 유저 삭제")
+        @Transactional
+        void deleteNormalPasswordLoginUserTest() {
+            //given
+            PasswordLoginUserRegisterRequest normalPasswordLoginUserRegisterRequest = PasswordLoginUserSample.getNormalPasswordLoginUserRegisterRequest();
+            UserRegisterRequest userRegisterRequest = UserSample.getNormalUserRegisterRequest();
+            User user = userJoinService.registerUser(userRegisterRequest);
+            PasswordLoginUser passwordLoginUser = passwordLoginUserService.registerPasswordLoginUser(
+                    normalPasswordLoginUserRegisterRequest,
+                    user
+            );
+            //when
+            user = passwordLoginUser.getUser();
+            userJoinService.deleteUser(user.getId());
+            //then
+            User findUser = userRepository.findById(user.getId()).orElse(null);
+
             assertThat(findUser).isNull();
         }
     }

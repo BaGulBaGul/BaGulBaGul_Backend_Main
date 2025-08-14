@@ -5,6 +5,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
@@ -26,7 +27,7 @@ public class SocialLoginUser {
     OAuth2Provider provider;
 
     @JoinColumn(name = "user_id")
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     User user;
 
     @Builder
