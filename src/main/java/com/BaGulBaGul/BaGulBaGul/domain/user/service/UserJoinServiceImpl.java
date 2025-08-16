@@ -6,15 +6,10 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.SocialLoginUser;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.alarm.UserAlarmStatus;
 import com.BaGulBaGul.BaGulBaGul.domain.alarm.repository.UserAlarmStatusRepository;
-import com.BaGulBaGul.BaGulBaGul.domain.user.UserRole;
-import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.AdminManageEventHostUserRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.AdminManageEventHostUserJoinRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.SocialLoginUserJoinRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.UserRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.AdminManageEventHostUserRepository;
-import com.BaGulBaGul.BaGulBaGul.domain.user.repository.PasswordLoginUserRepository;
-import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserRoleRepository;
-import com.BaGulBaGul.BaGulBaGul.global.auth.Role;
-import com.BaGulBaGul.BaGulBaGul.global.auth.repository.RoleRepository;
 import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtProvider;
 import com.BaGulBaGul.BaGulBaGul.domain.user.exception.DuplicateUsernameException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.exception.UserNotFoundException;
@@ -39,30 +34,21 @@ public class UserJoinServiceImpl implements UserJoinService {
     private final UserImageService userImageService;
     private final UserRoleService userRoleService;
     private final PasswordLoginUserService passwordLoginUserService;
+    private final SocialLoginUserService socialLoginUserService;
 
     @Override
     @Transactional
-    public SocialLoginUser registerSocialLoginUser(SocialLoginUserJoinRequest socialLoginUserJoinRequest) {
+    public SocialLoginUser joinSocialLoginUser(SocialLoginUserJoinRequest socialLoginUserJoinRequest) {
         String joinToken = socialLoginUserJoinRequest.getJoinToken();
-        //joinToken에서 OAuth2JoinTokenSubject 추출.
-        OAuth2JoinTokenSubject oAuth2JoinTokenSubject = jwtProvider.getOAuth2JoinTokenSubject(joinToken);
-        //유저 생성
         User user = registerUser(socialLoginUserJoinRequest.getUserRegisterRequest());
-        //소셜 유저 생성
-        SocialLoginUser socialLoginUser = SocialLoginUser.builder()
-                .id(oAuth2JoinTokenSubject.getSocialLoginId())
-                .provider(oAuth2JoinTokenSubject.getOAuth2Provider())
-                .user(user)
-                .build();
-        socialLoginUser = socialLoginUserRepository.save(socialLoginUser);
-        user.setSocialLoginUser(socialLoginUser);
+        SocialLoginUser socialLoginUser = socialLoginUserService.registerSocialLoginUser(user, joinToken);
         return socialLoginUser;
     }
 
     @Override
     @Transactional
-    public AdminManageEventHostUser registerAdminManageEventHostUser(
-            AdminManageEventHostUserRegisterRequest eventHostUserRegisterRequest
+    public AdminManageEventHostUser joinAdminManageEventHostUser(
+            AdminManageEventHostUserJoinRequest eventHostUserRegisterRequest
     ) {
         User user = registerUser(eventHostUserRegisterRequest.getUserRegisterRequest());
         AdminManageEventHostUser adminManageEventHostUser = adminManageEventHostUserRepository.save(
@@ -111,7 +97,7 @@ public class UserJoinServiceImpl implements UserJoinService {
         //소셜로그인 정보 삭제
         SocialLoginUser socialLoginUser = user.getSocialLoginUser();
         if(socialLoginUser != null) {
-            socialLoginUserRepository.deleteByUserId(userId);
+            socialLoginUserService.deleteSocialLoginUser(socialLoginUser.getId());
         }
         //password login user 정보 삭제
         PasswordLoginUser passwordLoginUser = user.getPasswordLoginUser();

@@ -223,7 +223,7 @@ public class UserJoinService_IntegrationTest {
             );
             socialLoginUserJoinRequest.setJoinToken(oAuth2JoinTokenInfo.getJwt());
             //when
-            SocialLoginUser socialLoginUser = userJoinService.registerSocialLoginUser(socialLoginUserJoinRequest);
+            SocialLoginUser socialLoginUser = userJoinService.joinSocialLoginUser(socialLoginUserJoinRequest);
             //then
             assertThat(socialLoginUser.getId()).isEqualTo(socialLoginUserId);
             assertThat(socialLoginUser.getProvider()).isEqualTo(oauthProvider);
@@ -249,7 +249,7 @@ public class UserJoinService_IntegrationTest {
                             .build()
             );
             socialLoginUserJoinRequest.setJoinToken(oAuth2JoinTokenInfo.getJwt());
-            SocialLoginUser socialLoginUser = userJoinService.registerSocialLoginUser(
+            SocialLoginUser socialLoginUser = userJoinService.joinSocialLoginUser(
                     socialLoginUserJoinRequest
             );
             Long userId = socialLoginUser.getUser().getId();
@@ -273,7 +273,7 @@ public class UserJoinService_IntegrationTest {
         @Transactional
         void shouldOk() {
             //given when
-            AdminManageEventHostUser adminManageEventHostUser = userJoinService.registerAdminManageEventHostUser(
+            AdminManageEventHostUser adminManageEventHostUser = userJoinService.joinAdminManageEventHostUser(
                     AdminManageEventHostUserSample.getNormalAdminManageEventHostUserRegisterRequest()
             );
             //then
@@ -295,7 +295,7 @@ public class UserJoinService_IntegrationTest {
         @Transactional
         void shouldOk() {
             //given
-            AdminManageEventHostUser adminManageEventHostUser = userJoinService.registerAdminManageEventHostUser(
+            AdminManageEventHostUser adminManageEventHostUser = userJoinService.joinAdminManageEventHostUser(
                     AdminManageEventHostUserSample.getNormalAdminManageEventHostUserRegisterRequest()
             );
             Long adminManageEventHostUserId = adminManageEventHostUser.getId();

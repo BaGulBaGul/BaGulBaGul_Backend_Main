@@ -10,7 +10,7 @@ import lombok.Setter;
 @Getter
 @Builder
 @AllArgsConstructor
-public class AdminManageEventHostUserRegisterRequest {
+public class AdminManageEventHostUserJoinRequest {
     @Valid
     UserRegisterRequest userRegisterRequest;
 }
