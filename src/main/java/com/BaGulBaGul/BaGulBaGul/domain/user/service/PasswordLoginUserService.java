@@ -7,6 +7,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.UserRegisterReq
 
 public interface PasswordLoginUserService {
     PasswordLoginUser findPasswordLoginUser(String loginId, String loginPassword);
+    PasswordLoginUser findPasswordLoginUser(String loginId, String loginPassword, String roleName);
     PasswordLoginUser registerPasswordLoginUser(
             PasswordLoginUserRegisterRequest passwordLoginUserRegisterRequest,
             User user

@@ -6,6 +6,9 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.PasswordLoginUs
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.UserRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.exception.UserNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.PasswordLoginUserRepository;
+import com.BaGulBaGul.BaGulBaGul.global.auth.Role;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,6 +28,18 @@ public class PasswordLoginUserServiceImpl implements PasswordLoginUserService {
                 .orElseThrow(UserNotFoundException::new);
         //비밀번호가 일치하지 않으면 예외
         if(!passwordEncoder.matches(loginPassword, passwordLoginUser.getEncodedLoginPassword())) {
+            throw new UserNotFoundException();
+        }
+        return passwordLoginUser;
+    }
+
+    @Override
+    @Transactional
+    public PasswordLoginUser findPasswordLoginUser(String loginId, String loginPassword, String roleName) {
+        PasswordLoginUser passwordLoginUser = findPasswordLoginUser(loginId, loginPassword);
+        Set<String> roleNames = passwordLoginUser.getUser().getRoles().stream().map(Role::getName).collect(Collectors.toSet());
+        //역할을 포함하지 않으면 예외
+        if(!roleNames.contains(roleName)){
             throw new UserNotFoundException();
         }
         return passwordLoginUser;

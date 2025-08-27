@@ -1,5 +1,8 @@
 package com.BaGulBaGul.BaGulBaGul.global.auth.controller;
 
+import com.BaGulBaGul.BaGulBaGul.domain.user.PasswordLoginUser;
+import com.BaGulBaGul.BaGulBaGul.domain.user.service.PasswordLoginUserService;
+import com.BaGulBaGul.BaGulBaGul.global.auth.constant.GeneralRoleType;
 import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AccessTokenInfo;
 import com.BaGulBaGul.BaGulBaGul.global.auth.dto.RefreshTokenInfo;
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.ExpiredAccessTokenException;
@@ -26,10 +29,21 @@ import org.springframework.web.bind.annotation.RestController;
 @Api(tags = "유저 인증")
 public class UserAuthControllerImpl implements UserAuthController {
 
-    private final JwtCookieService jwtCookieService;
-    private final JwtProvider jwtProvider;
-    private final JwtStorageService jwtStorageService;
     private final AuthTokenService authTokenService;
+    private final PasswordLoginUserService passwordLoginUserService;
+
+    @Override
+    @PostMapping("/api/auth/login/password")
+    @Operation(summary = "패스워드 로그인 요청",
+            description = "패스워드 로그인 요청"
+    )
+    public ApiResponse<Object> passwordLogin(String loginId, String loginPw, HttpServletResponse response) {
+        PasswordLoginUser passwordLoginUser = passwordLoginUserService.findPasswordLoginUser(loginId, loginPw);
+        Long userId = passwordLoginUser.getUser().getId();
+        //토큰 발급
+        authTokenService.issueToken(response, userId);
+        return ApiResponse.of(null);
+    }
 
     @Override
     @PostMapping("/api/auth/logout")
