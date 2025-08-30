@@ -10,6 +10,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.Category;
 import com.BaGulBaGul.BaGulBaGul.domain.event.Event;
 import com.BaGulBaGul.BaGulBaGul.domain.event.EventCategory;
 import com.BaGulBaGul.BaGulBaGul.domain.event.applicationevent.NewEventLikeApplicationEvent;
+import com.BaGulBaGul.BaGulBaGul.domain.event.constant.EventType;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventConditionalRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.EventDetailInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.EventDetailResponse;
@@ -34,8 +35,13 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.exception.UserNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.AdminManageEventHostUserRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserRepository;
+import com.BaGulBaGul.BaGulBaGul.global.auth.Role;
+import com.BaGulBaGul.BaGulBaGul.global.auth.constant.PermissionType;
+import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AuthenticatedUserInfo;
+import com.BaGulBaGul.BaGulBaGul.global.auth.service.PermissionService;
 import com.BaGulBaGul.BaGulBaGul.global.exception.NoPermissionException;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -56,6 +62,7 @@ public class EventServiceImpl implements EventService {
     private final CategoryRepository categoryRepository;
 
     private final PostService postService;
+    private final PermissionService permissionService;
 
     private final ApplicationEventPublisher applicationEventPublisher;
 
@@ -130,9 +137,14 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public Long registerEvent(Long userId, EventRegisterRequest eventRegisterRequest) {
+    public Long registerEvent(AuthenticatedUserInfo authenticatedUserInfo, EventRegisterRequest eventRegisterRequest) {
+        Long userId = authenticatedUserInfo.getUserId();
+
         //작성자 조회
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
+        //생성 권한 확인
+        checkCreatePermission(authenticatedUserInfo, eventRegisterRequest.getType());
+
         //주최자 조회
         User eventHostUser = null;
         if(eventRegisterRequest.getEventHostUserId() != null) {
@@ -169,7 +181,8 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public void modifyEvent(Long eventId, Long userId, EventModifyRequest eventModifyRequest) {
+    public void modifyEvent(AuthenticatedUserInfo authenticatedUserInfo, Long eventId, EventModifyRequest eventModifyRequest) {
+        Long userId = authenticatedUserInfo.getUserId();
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException());
 
         //삭제된 이벤트
@@ -178,7 +191,7 @@ public class EventServiceImpl implements EventService {
         }
 
         //요청한 유저가 작성자가 아닐 경우 수정 권한 없음
-        checkWritePermission(userId, event);
+        checkModifyPermission(userId, event);
 
         //patch 방식으로 eventModifyRequest에서 null이 아닌 모든 필드를 변경
         //post관련은 postService에 위임
@@ -235,7 +248,8 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public void deleteEvent(Long eventId, Long userId) {
+    public void deleteEvent(AuthenticatedUserInfo authenticatedUserInfo, Long eventId) {
+        Long userId = authenticatedUserInfo.getUserId();
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException());
 
         //삭제된 이벤트
@@ -244,7 +258,7 @@ public class EventServiceImpl implements EventService {
         }
 
         //요청한 유저가 작성자가 아닐 경우 수정 권한 없음
-        checkWritePermission(userId, event);
+        checkModifyPermission(userId, event);
 
         event.setDeleted(true);
     }
@@ -319,11 +333,33 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    //어떤 유저의 어떤 이벤트에 대한 쓰기 권한을 확인
-    public void checkWritePermission(Long userId, Event event) throws NoPermissionException {
+    //어떤 유저의 어떤 이벤트에 대한 수정 권한을 확인
+    public void checkModifyPermission(Long userId, Event event) throws NoPermissionException {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         //게시글에 대한 권한 확인에 위임
         postService.checkWritePermission(event.getPost(), user);
+    }
+
+    @Override
+    public void checkCreatePermission(AuthenticatedUserInfo authenticatedUserInfo, EventType type) throws NoPermissionException {
+        List<String> roles = authenticatedUserInfo.getRoles();
+        //이벤트 타입 별 권한 확인
+        if(
+                type == EventType.PARTY
+        ) {
+            return;
+        } else if(
+                type == EventType.FESTIVAL &&
+                permissionService.checkPermission(roles, PermissionType.WRITE_EVENT_FESTIVAL)
+        ) {
+            return;
+        } else if(
+                type == EventType.LOCAL_EVENT &&
+                permissionService.checkPermission(roles, PermissionType.WRITE_EVENT_LOCAL_EVENT)
+        ) {
+            return;
+        }
+        throw new NoPermissionException();
     }
 
     private EventSimpleInfo getEventSimpleInfo(Event event) {

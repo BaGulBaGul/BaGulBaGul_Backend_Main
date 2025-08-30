@@ -1,6 +1,8 @@
 package com.BaGulBaGul.BaGulBaGul.domain.event.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
@@ -9,6 +11,7 @@ import static org.mockito.Mockito.verify;
 
 import com.BaGulBaGul.BaGulBaGul.domain.event.Event;
 import com.BaGulBaGul.BaGulBaGul.domain.event.EventTestUtils;
+import com.BaGulBaGul.BaGulBaGul.domain.event.constant.EventType;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.EventDetailResponse;
@@ -21,6 +24,9 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserJoinService;
 import com.BaGulBaGul.BaGulBaGul.domain.user.sampledata.UserSample;
 import com.BaGulBaGul.BaGulBaGul.extension.AllTestContainerExtension;
+import com.BaGulBaGul.BaGulBaGul.global.auth.constant.GeneralRoleType;
+import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AuthenticatedUserInfo;
+import com.BaGulBaGul.BaGulBaGul.global.exception.NoPermissionException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,6 +36,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -66,11 +74,6 @@ class EventService_IntegrationTest {
     @Nested
     @DisplayName("이벤트 등록 테스트")
     class EventRegisterTest {
-        @BeforeEach
-        void init() {
-            doNothing().when(eventService).checkWritePermission(any(), any());
-
-        }
 
         @Test
         @DisplayName("정상 등록")
@@ -78,11 +81,15 @@ class EventService_IntegrationTest {
         void shouldOK() {
             //given
             User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
+            AuthenticatedUserInfo authenticatedUserInfo = AuthenticatedUserInfo.builder()
+                    .userId(user.getId())
+                    .roles(List.of(GeneralRoleType.EVENT_HOST.name()))
+                    .build();
             User eventHostUser = userJoinService.registerUser(UserSample.getNormal2UserRegisterRequest());
             EventRegisterRequest eventRegisterRequest = EventSample.getNormalRegisterRequest(eventHostUser.getId());
 
             //when
-            Long eventId = eventService.registerEvent(user.getId(), eventRegisterRequest);
+            Long eventId = eventService.registerEvent(authenticatedUserInfo, eventRegisterRequest);
             Event event = eventRepository.findById(eventId).orElse(null);
 
             //then
@@ -101,6 +108,39 @@ class EventService_IntegrationTest {
             assertThat(event.getEndDate()).isEqualTo(eventRegisterRequest.getPeriodRegisterRequest().getEndDate());
             verify(postService, times(1)).registerPost(eq(user), any());
         }
+
+        @ParameterizedTest
+        @EnumSource(value = EventType.class)
+        @DisplayName("이벤트 작성 권한이 없다면 거부하고, 있다면 허용해야 한다.")
+        @Transactional
+        void shouldRefuseAndAllowByPermission(EventType eventType) {
+            //given
+            //일반 USER 권한을 가진 유저
+            User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
+            AuthenticatedUserInfo authenticatedUserInfo = AuthenticatedUserInfo.builder()
+                    .userId(user.getId())
+                    .roles(List.of(GeneralRoleType.USER.name()))
+                    .build();
+            User eventHostUser = userJoinService.registerUser(UserSample.getNormal2UserRegisterRequest());
+            EventRegisterRequest eventRegisterRequest = EventSample.getNormalRegisterRequest(eventHostUser.getId());
+            //이벤트 타입만 변경
+            eventRegisterRequest.setType(eventType);
+
+            //when
+            //then
+            //FESTIVAL, LOCAL_EVENT는 권한이 필요
+            if(eventType == EventType.FESTIVAL || eventType == EventType.LOCAL_EVENT) {
+                assertThrows(NoPermissionException.class, () -> {
+                    eventService.registerEvent(authenticatedUserInfo, eventRegisterRequest);
+                });
+            }
+            //PARTY는 권한이 필요없음
+            else {
+                assertDoesNotThrow(() -> {
+                    eventService.registerEvent(authenticatedUserInfo, eventRegisterRequest);
+                });
+            }
+        }
     }
 
     @Nested
@@ -110,7 +150,7 @@ class EventService_IntegrationTest {
         @BeforeEach
         void init() {
             //쓰기 권한 확인 무효화
-            doNothing().when(eventService).checkWritePermission(any(), any());
+            doNothing().when(eventService).checkModifyPermission(any(), any());
         }
 
         @Test
@@ -119,15 +159,19 @@ class EventService_IntegrationTest {
         void shouldChangeAll() {
             //given
             User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
+            AuthenticatedUserInfo authenticatedUserInfo = AuthenticatedUserInfo.builder()
+                    .userId(user.getId())
+                    .roles(List.of(GeneralRoleType.EVENT_HOST.name()))
+                    .build();
             User eventHostUser = userJoinService.registerUser(UserSample.getNormal2UserRegisterRequest());
             User eventHostUser2 = userJoinService.registerUser(UserSample.getNormal3UserRegisterRequest());
             EventRegisterRequest eventRegisterRequest = EventSample.getNormalRegisterRequest(eventHostUser.getId());
             EventModifyRequest eventModifyRequest = EventSample.getNormal2ModifyRequest(eventHostUser2.getId());
             eventModifyRequest.getPostModifyRequest().setImageIds(List.of(1L));
-            Long eventId = eventService.registerEvent(user.getId(), eventRegisterRequest);
+            Long eventId = eventService.registerEvent(authenticatedUserInfo, eventRegisterRequest);
 
             //when
-            eventService.modifyEvent(eventId, user.getId(), eventModifyRequest);
+            eventService.modifyEvent(authenticatedUserInfo, eventId, eventModifyRequest);
             entityManager.flush();
             entityManager.clear();
             Event event = eventRepository.findById(eventId).orElse(null);
@@ -168,14 +212,18 @@ class EventService_IntegrationTest {
         void shouldChangeNothing() {
             //given
             User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
+            AuthenticatedUserInfo authenticatedUserInfo = AuthenticatedUserInfo.builder()
+                    .userId(user.getId())
+                    .roles(List.of(GeneralRoleType.EVENT_HOST.name()))
+                    .build();
             User eventHostUser = userJoinService.registerUser(UserSample.getNormal2UserRegisterRequest());
 
             EventRegisterRequest eventRegisterRequest = EventSample.getNormalRegisterRequest(eventHostUser.getId());
             EventModifyRequest eventModifyRequest = EventModifyRequest.builder().build();
-            Long eventId = eventService.registerEvent(user.getId(), eventRegisterRequest);
+            Long eventId = eventService.registerEvent(authenticatedUserInfo, eventRegisterRequest);
 
             //when
-            eventService.modifyEvent(eventId, user.getId(), eventModifyRequest);
+            eventService.modifyEvent(authenticatedUserInfo, eventId, eventModifyRequest);
             entityManager.flush();
             entityManager.clear();
             Event event = eventRepository.findById(eventId).orElse(null);
@@ -216,10 +264,14 @@ class EventService_IntegrationTest {
         void readSingleEventDetailTest() {
             //given
             User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
+            AuthenticatedUserInfo authenticatedUserInfo = AuthenticatedUserInfo.builder()
+                    .userId(user.getId())
+                    .roles(List.of(GeneralRoleType.EVENT_HOST.name()))
+                    .build();
             User eventHostUser = userJoinService.registerUser(UserSample.getNormal2UserRegisterRequest());
             EventRegisterRequest eventRegisterRequest = EventSample.getNormalRegisterRequest(eventHostUser.getId());
             Long eventId = eventService.registerEvent(
-                    user.getId(),
+                    authenticatedUserInfo,
                     eventRegisterRequest
             );
             //when
@@ -237,6 +289,10 @@ class EventService_IntegrationTest {
         void readManyEventSimpleTest() {
             //given
             User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
+            AuthenticatedUserInfo authenticatedUserInfo = AuthenticatedUserInfo.builder()
+                    .userId(user.getId())
+                    .roles(List.of(GeneralRoleType.EVENT_HOST.name()))
+                    .build();
             User eventHostUser = userJoinService.registerUser(UserSample.getNormal2UserRegisterRequest());
             List<Long> eventIds = new ArrayList<>();
 
@@ -244,7 +300,7 @@ class EventService_IntegrationTest {
             EventRegisterRequest eventRegisterRequest = EventSample.getNormalRegisterRequest(eventHostUser.getId());
             for(int i = 0; i < eventCount; i++) {
                 Long eventId = eventService.registerEvent(
-                        user.getId(),
+                        authenticatedUserInfo,
                         eventRegisterRequest
                 );
                 eventIds.add(eventId);

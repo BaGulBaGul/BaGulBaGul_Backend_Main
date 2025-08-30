@@ -107,7 +107,7 @@ public class EventControllerImpl implements EventController {
         EventRegisterRequest eventRegisterRequest = eventRegisterApiRequest.toEventRegisterRequest();
         ValidationUtil.validate(eventRegisterRequest);
         //이벤트 등록
-        Long eventId = eventService.registerEvent(userId, eventRegisterRequest);
+        Long eventId = eventService.registerEvent(authenticatedUserInfo, eventRegisterRequest);
         return ApiResponse.of(new EventIdApiResponse(eventId));
     }
 
@@ -124,7 +124,7 @@ public class EventControllerImpl implements EventController {
     ) {
         EventModifyRequest eventModifyRequest = eventModifyApiRequest.toEventModifyRequest();
         ValidationUtil.validate(eventModifyRequest);
-        eventService.modifyEvent(eventId, authenticatedUserInfo.getUserId(), eventModifyRequest);
+        eventService.modifyEvent(authenticatedUserInfo, authenticatedUserInfo.getUserId(), eventModifyRequest);
         return ApiResponse.of(null);
     }
 
@@ -138,7 +138,7 @@ public class EventControllerImpl implements EventController {
             @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo
     ) {
         Long userId = authenticatedUserInfo.getUserId();
-        eventService.deleteEvent(eventId, userId);
+        eventService.deleteEvent(authenticatedUserInfo, userId);
         return ApiResponse.of(null);
     }
 

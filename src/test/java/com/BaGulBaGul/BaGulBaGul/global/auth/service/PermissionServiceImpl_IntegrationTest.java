@@ -80,13 +80,42 @@ class PermissionServiceImpl_IntegrationTest {
     }
 
     @Test
+    @DisplayName("여러 역할의 권한을 확인")
+    void checkMultipleRolePermissionTest() {
+        //given
+        String roleName = createRole(RoleSample.getNormalRoleRegisterRequest());
+        String roleName2 = createRole(RoleSample.getNormal2RoleRegisterRequest());
+        String roleName3 = createRole(RoleSample.getNormal3RoleRegisterRequest());
+
+        PermissionType permissionType1 = PermissionType.MANAGE_EVENT;
+        permissionService.addPermission(roleName, permissionType1);
+
+        PermissionType permissionType2 = PermissionType.MANAGE_USER;
+        permissionService.addPermission(roleName, permissionType2);
+
+        //when
+        List<String> roleNames = List.of(roleName, roleName2, roleName3);
+        await().atMost(20, TimeUnit.SECONDS)
+                .pollInterval(200, TimeUnit.MILLISECONDS)
+                .until(() -> {
+
+                    if(permissionService.checkPermission(roleNames, permissionType1) &&
+                            permissionService.checkPermission(roleNames, permissionType2)
+                    ) {
+                        return true;
+                    }
+                    return false;
+                });
+
+    }
+
+    @Test
     @DisplayName("역할의 권한을 추가")
     void addTest() {
         //given
         String roleName = createRole(RoleSample.getNormalRoleRegisterRequest());
 
         PermissionType permissionType = PermissionType.MANAGE_EVENT;
-        permissionService.addPermission(roleName, permissionType);
 
         //when
         permissionService.addPermission(roleName, permissionType);

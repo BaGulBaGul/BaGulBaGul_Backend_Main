@@ -23,6 +23,9 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.sampledata.AdminManageEventHostUser
 import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserJoinService;
 import com.BaGulBaGul.BaGulBaGul.domain.user.sampledata.UserSample;
 import com.BaGulBaGul.BaGulBaGul.extension.AllTestContainerExtension;
+import com.BaGulBaGul.BaGulBaGul.global.auth.constant.GeneralRoleType;
+import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AuthenticatedUserInfo;
+import java.util.List;
 import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -78,9 +81,13 @@ class RecruitmentService_IntegrationTest {
         void shouldOK() {
             //given
             User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
+            AuthenticatedUserInfo authenticatedUserInfo = AuthenticatedUserInfo.builder()
+                    .userId(user.getId())
+                    .roles(List.of(GeneralRoleType.EVENT_HOST.name()))
+                    .build();
             User eventHostUser = userJoinService.registerUser(UserSample.getNormal2UserRegisterRequest());
             Long eventId = eventService.registerEvent(
-                    user.getId(),
+                    authenticatedUserInfo,
                     EventSample.getNormalRegisterRequest(eventHostUser.getId())
             );
 
@@ -124,9 +131,13 @@ class RecruitmentService_IntegrationTest {
         void shouldChangeAll() {
             //given
             User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
+            AuthenticatedUserInfo authenticatedUserInfo = AuthenticatedUserInfo.builder()
+                    .userId(user.getId())
+                    .roles(List.of(GeneralRoleType.EVENT_HOST.name()))
+                    .build();
             User eventHostUser = userJoinService.registerUser(UserSample.getNormal2UserRegisterRequest());
             Long eventId = eventService.registerEvent(
-                    user.getId(),
+                    authenticatedUserInfo,
                     EventSample.getNormalRegisterRequest(eventHostUser.getId())
             );
 
@@ -166,9 +177,13 @@ class RecruitmentService_IntegrationTest {
         void shouldChangeNothing() {
             //given
             User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
+            AuthenticatedUserInfo authenticatedUserInfo = AuthenticatedUserInfo.builder()
+                    .userId(user.getId())
+                    .roles(List.of(GeneralRoleType.EVENT_HOST.name()))
+                    .build();
             User eventHostUser = userJoinService.registerUser(UserSample.getNormal2UserRegisterRequest());
             Long eventId = eventService.registerEvent(
-                    user.getId(),
+                    authenticatedUserInfo,
                     EventSample.getNormalRegisterRequest(eventHostUser.getId())
             );
 

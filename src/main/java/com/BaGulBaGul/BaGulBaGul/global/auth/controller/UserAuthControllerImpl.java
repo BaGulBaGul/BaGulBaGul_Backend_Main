@@ -22,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -37,7 +38,11 @@ public class UserAuthControllerImpl implements UserAuthController {
     @Operation(summary = "패스워드 로그인 요청",
             description = "패스워드 로그인 요청"
     )
-    public ApiResponse<Object> passwordLogin(String loginId, String loginPw, HttpServletResponse response) {
+    public ApiResponse<Object> passwordLogin(
+            @RequestBody String loginId,
+            @RequestBody String loginPw,
+            HttpServletResponse response
+    ) {
         PasswordLoginUser passwordLoginUser = passwordLoginUserService.findPasswordLoginUser(loginId, loginPw);
         Long userId = passwordLoginUser.getUser().getId();
         //토큰 발급

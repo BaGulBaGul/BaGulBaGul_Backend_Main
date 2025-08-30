@@ -23,6 +23,8 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.UserRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserJoinService;
+import com.BaGulBaGul.BaGulBaGul.global.auth.constant.GeneralRoleType;
+import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AuthenticatedUserInfo;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -162,7 +164,10 @@ public class InitDummyDB implements ApplicationListener<ApplicationReadyEvent> {
 
             //이벤트 등록
             Long eventId = eventService.registerEvent(
-                    writer.getId(),
+                    AuthenticatedUserInfo.builder()
+                            .userId(writer.getId())
+                            .roles(List.of(GeneralRoleType.ADMIN.name()))
+                            .build(),
                     EventRegisterRequest.builder()
                             .type(type)
 

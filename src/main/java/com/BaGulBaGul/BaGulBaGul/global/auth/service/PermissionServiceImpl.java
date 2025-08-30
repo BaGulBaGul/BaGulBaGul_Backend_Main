@@ -73,6 +73,20 @@ public class PermissionServiceImpl implements PermissionService {
         return permissionTypes.contains(permissionType);
     }
 
+    @Override
+    public boolean checkPermission(Collection<String> roleNames, PermissionType permissionType) {
+        for(String roleName : roleNames) {
+            Set<PermissionType> permissionTypes = rolePermissionCacheMap.get(roleName);
+            if (permissionTypes == null) {
+                continue;
+            }
+            if(permissionTypes.contains(permissionType)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     @Override
     @Transactional

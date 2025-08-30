@@ -2,6 +2,7 @@ package com.BaGulBaGul.BaGulBaGul.global.auth.service;
 
 import com.BaGulBaGul.BaGulBaGul.global.auth.constant.PermissionType;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 public interface PermissionService {
@@ -10,6 +11,11 @@ public interface PermissionService {
      * 어떤 역할이 어떤 권한을 가지고 있는지 확인
      */
     boolean checkPermission(String roleName, PermissionType permissionType);
+
+    /**
+     * 어떤 역할이 어떤 권한을 가지고 있는지 확인
+     */
+    boolean checkPermission(Collection<String> roleNames, PermissionType permissionType);
 
     /**
      * 어떤 역할에 어떤 권한을 추가
