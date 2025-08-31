@@ -89,6 +89,19 @@ public class PermissionServiceImpl implements PermissionService {
 
 
     @Override
+    public Set<PermissionType> getPermissionsByRoles(Collection<String> roleNames) {
+        Set<PermissionType> permissions = new HashSet<>();
+        for(String roleName : roleNames) {
+            Set<PermissionType> cachedPermissions = rolePermissionCacheMap.get(roleName);
+            if (cachedPermissions != null) {
+                permissions.addAll(cachedPermissions);
+            }
+        }
+        return permissions;
+    }
+
+
+    @Override
     @Transactional
     public void addPermission(String roleName, PermissionType permissionType) {
         Role role = roleRepository.findById(roleName).orElseThrow(RoleNotFoundException::new);

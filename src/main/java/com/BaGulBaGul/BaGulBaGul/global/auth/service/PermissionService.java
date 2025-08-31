@@ -35,4 +35,9 @@ public interface PermissionService {
     void deletePermissions(String roleName, Collection<PermissionType> permissionTypes);
 
     void changePermission(String roleName, Collection<PermissionType> newPermissions);
+
+    /**
+     * 여러 역할에 부여된 모든 권한들을 조회
+     */
+    Set<PermissionType> getPermissionsByRoles(Collection<String> roleNames);
 }

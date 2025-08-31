@@ -1,5 +1,6 @@
 package com.BaGulBaGul.BaGulBaGul.global.auth;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.persistence.CascadeType;
@@ -23,8 +24,9 @@ public class Role {
     @Id @Column(name = "role_name")
     String name;
 
+    @Builder.Default
     @OneToMany(mappedBy = "role", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    Set<RolePermission> rolePermissions;
+    Set<RolePermission> rolePermissions = new HashSet<>();
 
     public Set<Permission> getPermissions() {
         return rolePermissions.stream().map(RolePermission::getPermission).collect(Collectors.toSet());
