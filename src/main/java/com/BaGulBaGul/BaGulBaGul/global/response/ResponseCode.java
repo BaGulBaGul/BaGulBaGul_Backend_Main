@@ -22,6 +22,8 @@ public class ResponseCode {
     //EVENT
     public static final ResponseCode EVENT_NOT_FOUND = new ResponseCode("E00000", HttpStatus.OK, "이벤트가 존재하지 않습니다");
     public static final ResponseCode EVENT_CATEGORY_NOT_EXIST = new ResponseCode("E00001", HttpStatus.OK, "존재하지 않는 카테고리입니다");
+    public static final ResponseCode EVENT_CATEGORY_EXISTS = new ResponseCode("E00002", HttpStatus.BAD_REQUEST, "이미 존재하는 이벤트 카테고리입니다.");
+    
     //RECRUITMENT
     public static final ResponseCode RECRUITMENT_NOT_FOUND = new ResponseCode("R00000", HttpStatus.OK, "모집글이 존재하지 않습니다");
     //POST

@@ -1,5 +1,6 @@
 package com.BaGulBaGul.BaGulBaGul.global.exception.handler;
 
+import com.BaGulBaGul.BaGulBaGul.domain.event.exception.CategoryNameExistsException;
 import com.BaGulBaGul.BaGulBaGul.domain.event.exception.CategoryNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.event.exception.EventNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.PostNotFoundException;
@@ -24,6 +25,8 @@ import javax.validation.ConstraintViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+
 import org.springframework.transaction.TransactionSystemException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
@@ -54,6 +57,12 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> noPermission(Exception e, WebRequest request) {
         return handleExceptionInternal(e, ResponseCode.FORBIDDEN, request);
     }
+    //@PreAuthorize 등 mvc단에서 처리해야 할 AccessDeniedException
+    @ExceptionHandler(value = AccessDeniedException.class)
+    public ResponseEntity<Object> accessDenied(Exception e, WebRequest request) {
+        return handleExceptionInternal(e, ResponseCode.FORBIDDEN, request);
+    }
+    
 
     //검증 예외에서 메세지를 추출하도록 재정의
     //쿼리 파라메터의 @Valid 검증
@@ -137,6 +146,11 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = CategoryNotFoundException.class)
     public ResponseEntity<Object> categoryNotFound(CategoryNotFoundException e, WebRequest webRequest) {
         return handleExceptionInternal(e, ResponseCode.EVENT_CATEGORY_NOT_EXIST, webRequest);
+    }
+    //이벤트 카테고리 이름이 이미 존재함
+    @ExceptionHandler(value = CategoryNameExistsException.class)
+    public ResponseEntity<Object> categoryNameExists(CategoryNameExistsException e, WebRequest webRequest) {
+        return handleExceptionInternal(e, ResponseCode.EVENT_CATEGORY_EXISTS, webRequest);
     }
 
     /************************
