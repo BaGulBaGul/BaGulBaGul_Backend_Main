@@ -17,6 +17,8 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response.EventDetailApiRes
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response.EventIdApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response.EventPageApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response.GetLikeEventApiResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response.EventCategoryApiResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.event.service.CategoryService;
 import com.BaGulBaGul.BaGulBaGul.domain.event.service.EventService;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.IsMyLikeResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.LikeCountResponse;
@@ -27,6 +29,8 @@ import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
 import com.BaGulBaGul.BaGulBaGul.global.validation.ValidationUtil;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -41,6 +45,7 @@ import org.springframework.web.bind.annotation.*;
 public class EventControllerImpl implements EventController {
 
     private final EventService eventService;
+    private final CategoryService categoryService;
     private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
@@ -221,5 +226,15 @@ public class EventControllerImpl implements EventController {
                 .getMyLikeEvent(getLikeEventRequest, userId, pageable);
         Page<GetLikeEventApiResponse> responses = myLikeEvents.map(GetLikeEventApiResponse::from);
         return ApiResponse.of(responses);
+    }
+
+    @Override
+    @GetMapping("/categories")
+    @Operation(summary = "모든 카테고리 조회", description = "모든 카테고리를 조회합니다.")
+    public ApiResponse<List<EventCategoryApiResponse>> getAllCategories() {
+        List<EventCategoryApiResponse> eventCategoryResponses = categoryService.getAllCategories().stream()
+                .map(EventCategoryApiResponse::of)
+                .collect(Collectors.toList());
+        return ApiResponse.of(eventCategoryResponses);
     }
 }

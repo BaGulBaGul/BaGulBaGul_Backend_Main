@@ -4,6 +4,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.request.EventModifyApiRequ
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.request.EventPageApiRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.request.EventRegisterApiRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.request.GetLikeEventApiRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response.EventCategoryApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response.EventDetailApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response.EventIdApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response.EventPageApiResponse;
@@ -12,6 +13,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.IsMyLikeResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.LikeCountResponse;
 import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AuthenticatedUserInfo;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -53,4 +55,5 @@ public interface EventController {
             GetLikeEventApiRequest getLikeEventApiRequest,
             Pageable pageable
     );
+    ApiResponse<List<EventCategoryApiResponse>> getAllCategories();
 }
