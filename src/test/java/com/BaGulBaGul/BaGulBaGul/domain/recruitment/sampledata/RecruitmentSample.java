@@ -4,6 +4,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.common.dto.request.ParticipantStatusRegi
 import com.BaGulBaGul.BaGulBaGul.domain.common.dto.request.PeriodRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.common.sampledata.ParticipantStatusSample;
 import com.BaGulBaGul.BaGulBaGul.domain.common.sampledata.PeriodSample;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.request.PostRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.sampledata.PostSample;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.Recruitment;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.constant.RecruitmentState;
@@ -32,6 +33,7 @@ public class RecruitmentSample {
     public static RecruitmentRegisterRequest getNormalRegisterRequest() {
         return RecruitmentRegisterRequest
                 .builder()
+                .postRegisterRequest(PostSample.getNormalRegisterRequest())
                 .periodRegisterRequest(PeriodSample.getNormalRegisterRequest())
                 .participantStatusRegisterRequest(ParticipantStatusSample.getNormalRegisterRequest())
                 .build();

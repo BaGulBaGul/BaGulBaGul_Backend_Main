@@ -104,10 +104,6 @@ public class PostCommentServiceImpl implements PostCommentService {
     public void modifyPostComment(Long postCommentId, Long userId, PostCommentModifyRequest postCommentModifyRequest) {
         //엔티티 로드 & 검증
         PostComment postComment = postCommentRepository.findById(postCommentId).orElseThrow(() -> new PostCommentNotFoundException());
-        //수정할 권한이 있는지
-        if(!userId.equals(postComment.getUser().getId())) {
-            throw new NoPermissionException();
-        }
         // 수정
         if(postCommentModifyRequest.getContent() != null) {
             postComment.setContent(postCommentModifyRequest.getContent());
@@ -119,10 +115,6 @@ public class PostCommentServiceImpl implements PostCommentService {
     public void deletePostComment(Long postCommentId, Long userId) {
         //엔티티 로드 & 검증
         PostComment postComment = postCommentRepository.findById(postCommentId).orElseThrow(() -> new PostCommentNotFoundException());
-        //삭제할 권한이 있는지
-        if(!userId.equals(postComment.getUser().getId())) {
-            throw new NoPermissionException();
-        }
         //대댓글과 연결된 좋아요 전부 삭제
         postCommentChildLikeRepository.deleteAllByPostComment(postComment);
         //연결된 대댓글 전부 삭제
@@ -189,10 +181,7 @@ public class PostCommentServiceImpl implements PostCommentService {
     ) {
         //엔티티 로드 & 검증
         PostCommentChild postCommentChild = postCommentChildRepository.findById(postCommentChildId).orElseThrow(() -> new PostCommentChildNotFoundException());
-        //수정할 권한이 있는지
-        if(!userId.equals(postCommentChild.getUser().getId())) {
-            throw new NoPermissionException();
-        }
+
         //내용 수정
         if(postCommentChildModifyRequest.getContent() != null) {
             postCommentChild.setContent(postCommentChildModifyRequest.getContent());
@@ -210,10 +199,6 @@ public class PostCommentServiceImpl implements PostCommentService {
     public void deletePostCommentChild(Long postCommentChildId, Long userId) {
         //엔티티 로드 & 검증
         PostCommentChild postCommentChild = postCommentChildRepository.findById(postCommentChildId).orElseThrow(() -> new PostCommentChildNotFoundException());
-        //삭제할 권한이 있는지
-        if(!userId.equals(postCommentChild.getUser().getId())) {
-            throw new NoPermissionException();
-        }
         //대댓글과 연결된 좋아요 삭제
         postCommentChildLikeRepository.deleteAllByPostCommentChild(postCommentChild);
         //대댓글 삭제

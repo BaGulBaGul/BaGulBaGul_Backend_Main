@@ -116,7 +116,7 @@ public class RecruitmentControllerImpl implements RecruitmentController {
                 .toRecruitmentRegisterRequest();
         ValidationUtil.validate(recruitmentRegisterRequest);
         //모집글 생성
-        Long id = recruitmentService.registerRecruitment(eventId, userId, recruitmentRegisterRequest);
+        Long id = recruitmentService.registerRecruitment(authenticatedUserInfo, eventId, recruitmentRegisterRequest);
         return ApiResponse.of(new RecruitmentIdApiResponse(id));
     }
 
@@ -137,7 +137,7 @@ public class RecruitmentControllerImpl implements RecruitmentController {
                 .toRecruitmentModifyRequest();
         ValidationUtil.validate(recruitmentModifyRequest);
         //모집글 수정
-        recruitmentService.modifyRecruitment(recruitmentId, userId, recruitmentModifyRequest);
+        recruitmentService.modifyRecruitment(authenticatedUserInfo, recruitmentId, recruitmentModifyRequest);
         return ApiResponse.of(null);
     }
 
@@ -151,7 +151,7 @@ public class RecruitmentControllerImpl implements RecruitmentController {
             @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo
     ) {
         Long userId = authenticatedUserInfo.getUserId();
-        recruitmentService.deleteRecruitment(recruitmentId, userId);
+        recruitmentService.deleteRecruitment(authenticatedUserInfo, recruitmentId);
         return ApiResponse.of(null);
     }
 

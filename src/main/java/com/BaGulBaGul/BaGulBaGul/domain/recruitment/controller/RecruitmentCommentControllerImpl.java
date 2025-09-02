@@ -106,10 +106,9 @@ public class RecruitmentCommentControllerImpl implements RecruitmentCommentContr
             @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo,
             @RequestBody @Valid PostCommentRegisterRequest postCommentRegisterRequest
     ) {
-        Long userId = authenticatedUserInfo.getUserId();
         Long commentId = recruitmentCommentService.registerComment(
+                authenticatedUserInfo,
                 recruitmentId,
-                userId,
                 postCommentRegisterRequest);
         return ApiResponse.of(
                 new PostCommentRegisterResponse(commentId)
@@ -127,8 +126,7 @@ public class RecruitmentCommentControllerImpl implements RecruitmentCommentContr
             @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo,
             @RequestBody PostCommentModifyRequest postCommentModifyRequest
     ) {
-        Long userId = authenticatedUserInfo.getUserId();
-        recruitmentCommentService.modifyComment(commentId, userId, postCommentModifyRequest);
+        recruitmentCommentService.modifyComment(authenticatedUserInfo, commentId, postCommentModifyRequest);
         return ApiResponse.of(null);
     }
 
@@ -141,8 +139,7 @@ public class RecruitmentCommentControllerImpl implements RecruitmentCommentContr
             @PathVariable(name = "commentId") Long commentId,
             @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo
     ) {
-        Long userId = authenticatedUserInfo.getUserId();
-        recruitmentCommentService.deleteComment(commentId, userId);
+        recruitmentCommentService.deleteComment(authenticatedUserInfo, commentId);
         return ApiResponse.of(null);
     }
 
@@ -157,10 +154,9 @@ public class RecruitmentCommentControllerImpl implements RecruitmentCommentContr
             @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo,
             @RequestBody @Valid PostCommentChildRegisterRequest postCommentChildRegisterRequest
     ) {
-        Long userId = authenticatedUserInfo.getUserId();
         Long commentChildId = recruitmentCommentService.registerCommentChild(
+                authenticatedUserInfo,
                 commentId,
-                userId,
                 postCommentChildRegisterRequest);
         return ApiResponse.of(
                 new PostCommentChildRegisterResponse(commentChildId)
@@ -178,10 +174,9 @@ public class RecruitmentCommentControllerImpl implements RecruitmentCommentContr
             @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo,
             @RequestBody PostCommentChildModifyRequest postCommentChildModifyRequest
     ) {
-        Long userId = authenticatedUserInfo.getUserId();
         recruitmentCommentService.modifyCommentChild(
+                authenticatedUserInfo,
                 commentChildId,
-                userId,
                 postCommentChildModifyRequest);
         return ApiResponse.of(null);
     }
@@ -195,8 +190,7 @@ public class RecruitmentCommentControllerImpl implements RecruitmentCommentContr
             @PathVariable(name = "commentChildId") Long commentChildId,
             @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo
     ) {
-        Long userId = authenticatedUserInfo.getUserId();
-        recruitmentCommentService.deleteCommentChild(commentChildId, userId);
+        recruitmentCommentService.deleteCommentChild(authenticatedUserInfo, commentChildId);
         return ApiResponse.of(null);
     }
 
@@ -227,7 +221,7 @@ public class RecruitmentCommentControllerImpl implements RecruitmentCommentContr
     @Override
     @DeleteMapping("/comment/{commentId}/like")
     @Operation(summary = "댓글 좋아요 삭제",
-            description = "로그인 필요\n"
+            description = "로그인 필요\n" 
                     + "삭제할 좋아요가 없다면 무시됨"
     )
     public ApiResponse<LikeCountResponse> deleteLikeToComment(
@@ -266,8 +260,8 @@ public class RecruitmentCommentControllerImpl implements RecruitmentCommentContr
     @Override
     @PostMapping("/comment/children/{commentChildId}/like")
     @Operation(summary = "대댓글 좋아요 등록",
-            description = "로그인 필요\n"
-                    + "유저당 한번만 좋아요 등록 가능\n"
+            description = "로그인 필요\n" 
+                    + "유저당 한번만 좋아요 등록 가능\n" 
                     + "이미 좋아요를 눌렀다면 무시됨"
     )
     public ApiResponse<LikeCountResponse> addLikeToCommentChild(
@@ -289,7 +283,7 @@ public class RecruitmentCommentControllerImpl implements RecruitmentCommentContr
     @Override
     @DeleteMapping("/comment/children/{commentChildId}/like")
     @Operation(summary = "대댓글 좋아요 삭제",
-            description = "로그인 필요\n"
+            description = "로그인 필요\n" 
                     + "삭제할 좋아요가 없다면 무시됨"
     )
     public ApiResponse<LikeCountResponse> deleteLikeToCommentChild(

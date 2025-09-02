@@ -57,7 +57,7 @@ public interface EventService {
     void addCategory(Event event, Category category);
 
     //유저에세 이벤트에 대한 수정 권한이 있는지 확인
-    void checkModifyPermission(Long userId, Event event) throws NoPermissionException;
+    void checkModifyPermission(AuthenticatedUserInfo authenticatedUserInfo, Event event) throws NoPermissionException;
     //유저에세 이벤트에 대한 쓰기 권한이 있는지 확인
     void checkCreatePermission(AuthenticatedUserInfo authenticatedUserInfo, EventType type) throws NoPermissionException;
 }

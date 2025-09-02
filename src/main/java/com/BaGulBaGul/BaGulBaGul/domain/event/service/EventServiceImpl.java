@@ -182,7 +182,6 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public void modifyEvent(AuthenticatedUserInfo authenticatedUserInfo, Long eventId, EventModifyRequest eventModifyRequest) {
-        Long userId = authenticatedUserInfo.getUserId();
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException());
 
         //삭제된 이벤트
@@ -191,7 +190,7 @@ public class EventServiceImpl implements EventService {
         }
 
         //요청한 유저가 작성자가 아닐 경우 수정 권한 없음
-        checkModifyPermission(userId, event);
+        checkModifyPermission(authenticatedUserInfo, event);
 
         //patch 방식으로 eventModifyRequest에서 null이 아닌 모든 필드를 변경
         //post관련은 postService에 위임
@@ -249,7 +248,6 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public void deleteEvent(AuthenticatedUserInfo authenticatedUserInfo, Long eventId) {
-        Long userId = authenticatedUserInfo.getUserId();
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException());
 
         //삭제된 이벤트
@@ -258,7 +256,7 @@ public class EventServiceImpl implements EventService {
         }
 
         //요청한 유저가 작성자가 아닐 경우 수정 권한 없음
-        checkModifyPermission(userId, event);
+        checkModifyPermission(authenticatedUserInfo, event);
 
         event.setDeleted(true);
     }
@@ -334,10 +332,18 @@ public class EventServiceImpl implements EventService {
 
     @Override
     //어떤 유저의 어떤 이벤트에 대한 수정 권한을 확인
-    public void checkModifyPermission(Long userId, Event event) throws NoPermissionException {
-        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
-        //게시글에 대한 권한 확인에 위임
-        postService.checkWritePermission(event.getPost(), user);
+    public void checkModifyPermission(AuthenticatedUserInfo authenticatedUserInfo, Event event) throws NoPermissionException {
+        //MANAGE_EVENT 권한이 있다면 허용
+        if(permissionService.checkPermission(authenticatedUserInfo.getRoles(), PermissionType.MANAGE_EVENT)) {
+            return;
+        }
+        //작성자 본인이라면 허용
+        User writer = event.getWriter();
+        if(authenticatedUserInfo.getUserId().equals(writer.getId())) {
+            return;
+        }
+        //그 외에는 권한 없음
+        throw new NoPermissionException();
     }
 
     @Override

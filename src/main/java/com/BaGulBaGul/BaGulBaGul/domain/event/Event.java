@@ -142,4 +142,8 @@ public class Event {
         this.startDate = startDate;
         this.endDate = endDate;
     }
+
+    public User getWriter() {
+        return this.getPost().getUser();
+    }
 }

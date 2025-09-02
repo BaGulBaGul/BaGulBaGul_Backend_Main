@@ -22,6 +22,12 @@ public abstract class UserSample {
     public static final String UNNORMAL_EMAIL = "osm@";
     public static final String UNNORMAL_USERNAME = "o";
 
+    public static final String ADMIN_USERNAME = "admin";
+    public static final String ADMIN_EMAIL = "admin@gmail.com";
+
+    public static final String EVENT_HOST_USERNAME = "eventHost";
+    public static final String EVENT_HOST_EMAIL = "eventHost@gmail.com";
+
 
     //DB
     public static final String CONSTRAINT_UNIQUE_USERNAME = "UK__USER__NICKNAME";
@@ -87,6 +93,22 @@ public abstract class UserSample {
                 .username(JsonNullable.of(UNNORMAL_USERNAME))
                 .profileMessage(JsonNullable.of(NORMAL_PROFILE_MESSAGE))
                 .email(JsonNullable.of(UNNORMAL_EMAIL))
+                .build();
+    }
+
+    public static UserRegisterRequest getAdminUserRegisterRequest() {
+        return UserRegisterRequest.builder()
+                .nickname(ADMIN_USERNAME)
+                .email(ADMIN_EMAIL)
+                .roles(List.of(GeneralRoleType.ADMIN.name()))
+                .build();
+    }
+
+    public static UserRegisterRequest getEventHostUserRegisterRequest() {
+        return UserRegisterRequest.builder()
+                .nickname(EVENT_HOST_USERNAME)
+                .email(EVENT_HOST_EMAIL)
+                .roles(List.of(GeneralRoleType.EVENT_HOST.name()))
                 .build();
     }
 }

@@ -267,6 +267,10 @@ public class InitDummyDB implements ApplicationListener<ApplicationReadyEvent> {
 
             //작성자
             User writer = users.get(rand.nextInt(users.size()));
+            AuthenticatedUserInfo authenticatedUserInfo = AuthenticatedUserInfo.builder()
+                    .userId(writer.getId())
+                    .roles(List.of(GeneralRoleType.ADMIN.name()))
+                    .build();
 
             //기타
             int maxHeadCount = rand.nextInt(100);
@@ -275,8 +279,8 @@ public class InitDummyDB implements ApplicationListener<ApplicationReadyEvent> {
             List<String> tagStr = tagSet.stream().collect(Collectors.toList());
 
             Long recruitmentId = recruitmentService.registerRecruitment(
+                    authenticatedUserInfo,
                     event.getId(),
-                    writer.getId(),
                     RecruitmentRegisterRequest.builder()
                             .periodRegisterRequest(PeriodRegisterRequest.builder()
                                     .startDate(startDate)
@@ -321,10 +325,14 @@ public class InitDummyDB implements ApplicationListener<ApplicationReadyEvent> {
         //댓글
         for (int cnt = 0; cnt < commentCount; cnt++) {
             User writer = users.get(rand.nextInt(users.size()));
+            AuthenticatedUserInfo authenticatedUserInfo = AuthenticatedUserInfo.builder()
+                    .userId(writer.getId())
+                    .roles(List.of(GeneralRoleType.ADMIN.name()))
+                    .build();
             //댓글 생성
             Long postCommentId = eventCommentService.registerComment(
+                    authenticatedUserInfo,
                     eventId,
-                    writer.getId(),
                     PostCommentRegisterRequest.builder()
                             .content("테스트댓글" + cnt)
                             .build()
@@ -354,10 +362,14 @@ public class InitDummyDB implements ApplicationListener<ApplicationReadyEvent> {
         //댓글
         for (int cnt = 0; cnt < commentCount; cnt++) {
             User writer = users.get(rand.nextInt(users.size()));
+            AuthenticatedUserInfo authenticatedUserInfo = AuthenticatedUserInfo.builder()
+                    .userId(writer.getId())
+                    .roles(List.of(GeneralRoleType.ADMIN.name()))
+                    .build();
             //댓글 생성
             Long postCommentId = recruitmentCommentService.registerComment(
+                    authenticatedUserInfo,
                     recruitmentId,
-                    writer.getId(),
                     PostCommentRegisterRequest.builder()
                             .content("테스트댓글" + cnt)
                             .build()
@@ -385,10 +397,14 @@ public class InitDummyDB implements ApplicationListener<ApplicationReadyEvent> {
         Random rand = new Random();
         for(int cnt=0;cnt<commentChildCount;cnt++) {
             User writer = users.get(rand.nextInt(users.size()));
+            AuthenticatedUserInfo authenticatedUserInfo = AuthenticatedUserInfo.builder()
+                    .userId(writer.getId())
+                    .roles(List.of(GeneralRoleType.ADMIN.name()))
+                    .build();
             //대댓글 등록
             Long postCommentChildId = eventCommentService.registerCommentChild(
+                    authenticatedUserInfo,
                     postCommentId,
-                    writer.getId(),
                     PostCommentChildRegisterRequest.builder()
                             .content("테스트대댓글" + cnt)
                             .replyTargetPostCommentChildId(null)
@@ -412,10 +428,14 @@ public class InitDummyDB implements ApplicationListener<ApplicationReadyEvent> {
         Random rand = new Random();
         for(int cnt=0;cnt<commentChildCount;cnt++) {
             User writer = users.get(rand.nextInt(users.size()));
+            AuthenticatedUserInfo authenticatedUserInfo = AuthenticatedUserInfo.builder()
+                    .userId(writer.getId())
+                    .roles(List.of(GeneralRoleType.ADMIN.name()))
+                    .build();
             //대댓글 등록
             Long postCommentChildId = recruitmentCommentService.registerCommentChild(
+                    authenticatedUserInfo,
                     postCommentId,
-                    writer.getId(),
                     PostCommentChildRegisterRequest.builder()
                             .content("테스트대댓글" + cnt)
                             .replyTargetPostCommentChildId(null)

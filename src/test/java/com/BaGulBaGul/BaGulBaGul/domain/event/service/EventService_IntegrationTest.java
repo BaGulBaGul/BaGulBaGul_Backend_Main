@@ -256,6 +256,100 @@ class EventService_IntegrationTest {
     }
 
     @Nested
+    @DisplayName("권한 테스트")
+    class EventPermissionTest {
+        @Test
+        @DisplayName("관리자는 다른 사람의 이벤트를 수정할 수 있다.")
+        @Transactional
+        void given_admin_can_modify_others_event() {
+            //given
+            User writer = userJoinService.registerUser(UserSample.getEventHostUserRegisterRequest());
+            User admin = userJoinService.registerUser(UserSample.getAdminUserRegisterRequest());
+            AuthenticatedUserInfo writerInfo = new AuthenticatedUserInfo(writer.getId(), List.of(GeneralRoleType.EVENT_HOST.name()));
+            AuthenticatedUserInfo adminInfo = new AuthenticatedUserInfo(admin.getId(), List.of(GeneralRoleType.ADMIN.name()));
+
+            EventRegisterRequest eventRegisterRequest = EventSample.getNormalRegisterRequest(writer.getId());
+            Long eventId = eventService.registerEvent(writerInfo, eventRegisterRequest);
+
+            EventModifyRequest eventModifyRequest = EventSample.getNormal2ModifyRequest(writer.getId());
+
+            //when
+            eventService.modifyEvent(adminInfo, eventId, eventModifyRequest);
+
+            //then
+            entityManager.flush();
+            entityManager.clear();
+            Event event = eventRepository.findById(eventId).orElse(null);
+            assertThat(event.getType()).isEqualTo(eventModifyRequest.getType());
+        }
+
+        @Test
+        @DisplayName("관리자는 다른 사람의 이벤트를 삭제할 수 있다.")
+        @Transactional
+        void given_admin_can_delete_others_event() {
+            //given
+            User writer = userJoinService.registerUser(UserSample.getEventHostUserRegisterRequest());
+            User admin = userJoinService.registerUser(UserSample.getAdminUserRegisterRequest());
+            AuthenticatedUserInfo writerInfo = new AuthenticatedUserInfo(writer.getId(), List.of(GeneralRoleType.EVENT_HOST.name()));
+            AuthenticatedUserInfo adminInfo = new AuthenticatedUserInfo(admin.getId(), List.of(GeneralRoleType.ADMIN.name()));
+
+            EventRegisterRequest eventRegisterRequest = EventSample.getNormalRegisterRequest(writer.getId());
+            Long eventId = eventService.registerEvent(writerInfo, eventRegisterRequest);
+
+            //when
+            eventService.deleteEvent(adminInfo, eventId);
+
+            //then
+            entityManager.flush();
+            entityManager.clear();
+            Event event = eventRepository.findById(eventId).orElse(null);
+            assertThat(event.getDeleted()).isTrue();
+        }
+
+        @Test
+        @DisplayName("일반유저는 다른 사람의 이벤트를 수정할 수 없다.")
+        @Transactional
+        void given_normal_user_cannot_modify_others_event() {
+            //given
+            User writer = userJoinService.registerUser(UserSample.getEventHostUserRegisterRequest());
+            User normalUser = userJoinService.registerUser(UserSample.getNormal2UserRegisterRequest());
+            AuthenticatedUserInfo writerInfo = new AuthenticatedUserInfo(writer.getId(), List.of(GeneralRoleType.EVENT_HOST.name()));
+            AuthenticatedUserInfo normalUserInfo = new AuthenticatedUserInfo(normalUser.getId(), List.of(GeneralRoleType.USER.name()));
+
+            EventRegisterRequest eventRegisterRequest = EventSample.getNormalRegisterRequest(writer.getId());
+            Long eventId = eventService.registerEvent(writerInfo, eventRegisterRequest);
+
+            EventModifyRequest eventModifyRequest = EventSample.getNormal2ModifyRequest(writer.getId());
+
+            //when
+            //then
+            assertThrows(NoPermissionException.class, () -> {
+                eventService.modifyEvent(normalUserInfo, eventId, eventModifyRequest);
+            });
+        }
+
+        @Test
+        @DisplayName("일반유저는 다른 사람의 이벤트를 삭제할 수 없다.")
+        @Transactional
+        void given_normal_user_cannot_delete_others_event() {
+            //given
+            User writer = userJoinService.registerUser(UserSample.getEventHostUserRegisterRequest());
+            User normalUser = userJoinService.registerUser(UserSample.getNormal2UserRegisterRequest());
+            AuthenticatedUserInfo writerInfo = new AuthenticatedUserInfo(writer.getId(), List.of(GeneralRoleType.EVENT_HOST.name()));
+            AuthenticatedUserInfo normalUserInfo = new AuthenticatedUserInfo(normalUser.getId(), List.of(GeneralRoleType.USER.name()));
+
+            EventRegisterRequest eventRegisterRequest = EventSample.getNormalRegisterRequest(writer.getId());
+            Long eventId = eventService.registerEvent(writerInfo, eventRegisterRequest);
+
+            //when
+            //then
+            assertThrows(NoPermissionException.class, () -> {
+                eventService.deleteEvent(normalUserInfo, eventId);
+            });
+        }
+    }
+
+    @Nested
     @DisplayName("조회 테스트")
     class EventReadTest {
         @Test

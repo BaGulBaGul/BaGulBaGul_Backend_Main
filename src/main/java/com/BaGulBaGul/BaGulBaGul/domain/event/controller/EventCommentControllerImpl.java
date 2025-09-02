@@ -100,8 +100,7 @@ public class EventCommentControllerImpl implements EventCommentController {
             @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo,
             @RequestBody @Valid PostCommentRegisterRequest postCommentRegisterRequest
     ) {
-        Long userId = authenticatedUserInfo.getUserId();
-        Long commentId = eventCommentService.registerComment(eventId, userId, postCommentRegisterRequest);
+        Long commentId = eventCommentService.registerComment(authenticatedUserInfo, eventId, postCommentRegisterRequest);
         return ApiResponse.of(
                 new PostCommentRegisterResponse(commentId)
         );
@@ -118,8 +117,7 @@ public class EventCommentControllerImpl implements EventCommentController {
             @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo,
             @RequestBody PostCommentModifyRequest postCommentModifyRequest
     ) {
-        Long userId = authenticatedUserInfo.getUserId();
-        eventCommentService.modifyComment(commentId, userId, postCommentModifyRequest);
+        eventCommentService.modifyComment(authenticatedUserInfo, commentId, postCommentModifyRequest);
         return ApiResponse.of(null);
     }
 
@@ -132,8 +130,7 @@ public class EventCommentControllerImpl implements EventCommentController {
             @PathVariable(name = "commentId") Long commentId,
             @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo
     ) {
-        Long userId = authenticatedUserInfo.getUserId();
-        eventCommentService.deleteComment(commentId, userId);
+        eventCommentService.deleteComment(authenticatedUserInfo, commentId);
         return ApiResponse.of(null);
     }
 
@@ -148,10 +145,9 @@ public class EventCommentControllerImpl implements EventCommentController {
             @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo,
             @RequestBody @Valid PostCommentChildRegisterRequest postCommentChildRegisterRequest
     ) {
-        Long userId = authenticatedUserInfo.getUserId();
         Long commentChildId = eventCommentService.registerCommentChild(
+                authenticatedUserInfo,
                 commentId,
-                userId,
                 postCommentChildRegisterRequest);
 
         return ApiResponse.of(
@@ -170,10 +166,9 @@ public class EventCommentControllerImpl implements EventCommentController {
             @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo,
             @RequestBody PostCommentChildModifyRequest postCommentChildModifyRequest
     ) {
-        Long userId = authenticatedUserInfo.getUserId();
         eventCommentService.modifyCommentChild(
+                authenticatedUserInfo,
                 commentChildId,
-                userId,
                 postCommentChildModifyRequest);
         return ApiResponse.of(null);
     }
@@ -187,8 +182,7 @@ public class EventCommentControllerImpl implements EventCommentController {
             @PathVariable(name = "commentChildId") Long commentChildId,
             @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo
     ) {
-        Long userId = authenticatedUserInfo.getUserId();
-        eventCommentService.deleteCommentChild(commentChildId, userId);
+        eventCommentService.deleteCommentChild(authenticatedUserInfo, commentChildId);
         return ApiResponse.of(null);
     }
 

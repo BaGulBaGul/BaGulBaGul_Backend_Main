@@ -1,12 +1,11 @@
 package com.BaGulBaGul.BaGulBaGul.domain.recruitment.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import com.BaGulBaGul.BaGulBaGul.domain.event.sampledata.EventSample;
 import com.BaGulBaGul.BaGulBaGul.domain.event.service.EventService;
@@ -19,15 +18,14 @@ import com.BaGulBaGul.BaGulBaGul.domain.recruitment.repository.RecruitmentReposi
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.sampledata.RecruitmentSample;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserRepository;
-import com.BaGulBaGul.BaGulBaGul.domain.user.sampledata.AdminManageEventHostUserSample;
-import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserJoinService;
 import com.BaGulBaGul.BaGulBaGul.domain.user.sampledata.UserSample;
+import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserJoinService;
 import com.BaGulBaGul.BaGulBaGul.extension.AllTestContainerExtension;
 import com.BaGulBaGul.BaGulBaGul.global.auth.constant.GeneralRoleType;
 import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AuthenticatedUserInfo;
+import com.BaGulBaGul.BaGulBaGul.global.exception.NoPermissionException;
 import java.util.List;
 import javax.persistence.EntityManager;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -35,7 +33,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,7 +49,7 @@ class RecruitmentService_IntegrationTest {
     @Autowired
     EventService eventService;
 
-    @MockBean
+    @SpyBean
     PostService postService;
 
     @Autowired
@@ -69,11 +67,6 @@ class RecruitmentService_IntegrationTest {
     @Nested
     @DisplayName("모집글 등록 테스트")
     class RecruitmentRegisterTest {
-
-        @BeforeEach
-        void init() {
-            when(postService.registerPost(any(), any())).thenReturn(null);
-        }
 
         @Test
         @DisplayName("정상 등록")
@@ -94,7 +87,8 @@ class RecruitmentService_IntegrationTest {
             RecruitmentRegisterRequest recruitmentRegisterRequest = RecruitmentSample.getNormalRegisterRequest();
 
             //when
-            Long recruitmentId = recruitmentService.registerRecruitment(eventId, user.getId(), recruitmentRegisterRequest);
+            Long recruitmentId = recruitmentService.registerRecruitment(authenticatedUserInfo, eventId,
+                    recruitmentRegisterRequest);
             Recruitment recruitment = recruitmentRepository.findById(recruitmentId).orElse(null);
 
             //then
@@ -120,11 +114,6 @@ class RecruitmentService_IntegrationTest {
     @DisplayName("모집글 수정 테스트")
     class RecruitmentModifyTest {
 
-        @BeforeEach
-        void init() {
-            doNothing().when(postService).modifyPost(any(), any());
-        }
-
         @Test
         @DisplayName("전부 수정해야 함")
         @Transactional
@@ -144,10 +133,10 @@ class RecruitmentService_IntegrationTest {
             RecruitmentRegisterRequest recruitmentRegisterRequest = RecruitmentSample.getNormalRegisterRequest();
             RecruitmentModifyRequest recruitmentModifyRequest = RecruitmentSample.getNormal2ModifyRequest();
             Long recruitmentId = recruitmentService.registerRecruitment(
-                    eventId, user.getId(), recruitmentRegisterRequest);
+                    authenticatedUserInfo, eventId, recruitmentRegisterRequest);
 
             //when
-            recruitmentService.modifyRecruitment(recruitmentId, user.getId(), recruitmentModifyRequest);
+            recruitmentService.modifyRecruitment(authenticatedUserInfo, recruitmentId, recruitmentModifyRequest);
             entityManager.flush();
             entityManager.clear();
 
@@ -191,11 +180,11 @@ class RecruitmentService_IntegrationTest {
 
             RecruitmentModifyRequest recruitmentModifyRequest = RecruitmentModifyRequest.builder()
                     .build();
-            Long recruitmentId = recruitmentService.registerRecruitment(eventId,
-                    user.getId(), recruitmentRegisterRequest);
+            Long recruitmentId = recruitmentService.registerRecruitment(authenticatedUserInfo, eventId,
+                    recruitmentRegisterRequest);
 
             //when
-            recruitmentService.modifyRecruitment(recruitmentId, user.getId(), recruitmentModifyRequest);
+            recruitmentService.modifyRecruitment(authenticatedUserInfo, recruitmentId, recruitmentModifyRequest);
             entityManager.flush();
             entityManager.clear();
 
@@ -215,6 +204,99 @@ class RecruitmentService_IntegrationTest {
                     .getPeriodRegisterRequest().getEndDate());
             //게시글 서비스에 수정요청을 보냈는지
             verify(postService, times(1)).modifyPost(any(), any());
+        }
+    }
+    @Nested
+    @DisplayName("권한 테스트")
+    class RecruitmentPermissionTest {
+        @Test
+        @DisplayName("관리자는 다른 사람의 모집글을 수정할 수 있다.")
+        @Transactional
+        void given_admin_can_modify_others_recruitment() {
+            //given
+            User writer = userJoinService.registerUser(UserSample.getEventHostUserRegisterRequest());
+            User admin = userJoinService.registerUser(UserSample.getAdminUserRegisterRequest());
+            AuthenticatedUserInfo writerInfo = new AuthenticatedUserInfo(writer.getId(), List.of(GeneralRoleType.EVENT_HOST.name()));
+            AuthenticatedUserInfo adminInfo = new AuthenticatedUserInfo(admin.getId(), List.of(GeneralRoleType.ADMIN.name()));
+
+            Long eventId = eventService.registerEvent(writerInfo, EventSample.getNormalRegisterRequest(writer.getId()));
+            Long recruitmentId = recruitmentService.registerRecruitment(writerInfo, eventId, RecruitmentSample.getNormalRegisterRequest());
+
+            RecruitmentModifyRequest recruitmentModifyRequest = RecruitmentSample.getNormal2ModifyRequest();
+
+            //when
+            recruitmentService.modifyRecruitment(adminInfo, recruitmentId, recruitmentModifyRequest);
+
+            //then
+            entityManager.flush();
+            entityManager.clear();
+            Recruitment recruitment = recruitmentRepository.findById(recruitmentId).orElse(null);
+            assertThat(recruitment.getMaxHeadCount()).isEqualTo(recruitmentModifyRequest.getParticipantStatusModifyRequest().getMaxHeadCount().get());
+        }
+
+        @Test
+        @DisplayName("관리자는 다른 사람의 모집글을 삭제할 수 있다.")
+        @Transactional
+        void given_admin_can_delete_others_recruitment() {
+            //given
+            User writer = userJoinService.registerUser(UserSample.getEventHostUserRegisterRequest());
+            User admin = userJoinService.registerUser(UserSample.getAdminUserRegisterRequest());
+            AuthenticatedUserInfo writerInfo = new AuthenticatedUserInfo(writer.getId(), List.of(GeneralRoleType.EVENT_HOST.name()));
+            AuthenticatedUserInfo adminInfo = new AuthenticatedUserInfo(admin.getId(), List.of(GeneralRoleType.ADMIN.name()));
+
+            Long eventId = eventService.registerEvent(writerInfo, EventSample.getNormalRegisterRequest(writer.getId()));
+            Long recruitmentId = recruitmentService.registerRecruitment(writerInfo, eventId, RecruitmentSample.getNormalRegisterRequest());
+
+            //when
+            recruitmentService.deleteRecruitment(adminInfo, recruitmentId);
+
+            //then
+            entityManager.flush();
+            entityManager.clear();
+            Recruitment recruitment = recruitmentRepository.findById(recruitmentId).orElse(null);
+            assertThat(recruitment.getDeleted()).isTrue();
+        }
+
+        @Test
+        @DisplayName("일반유저는 다른 사람의 모집글을 수정할 수 없다.")
+        @Transactional
+        void given_normal_user_cannot_modify_others_recruitment() {
+            //given
+            User writer = userJoinService.registerUser(UserSample.getEventHostUserRegisterRequest());
+            User normalUser = userJoinService.registerUser(UserSample.getNormal2UserRegisterRequest());
+            AuthenticatedUserInfo writerInfo = new AuthenticatedUserInfo(writer.getId(), List.of(GeneralRoleType.EVENT_HOST.name()));
+            AuthenticatedUserInfo normalUserInfo = new AuthenticatedUserInfo(normalUser.getId(), List.of(GeneralRoleType.USER.name()));
+
+            Long eventId = eventService.registerEvent(writerInfo, EventSample.getNormalRegisterRequest(writer.getId()));
+            Long recruitmentId = recruitmentService.registerRecruitment(writerInfo, eventId, RecruitmentSample.getNormalRegisterRequest());
+
+            RecruitmentModifyRequest recruitmentModifyRequest = RecruitmentSample.getNormal2ModifyRequest();
+
+            //when
+            //then
+            assertThrows(NoPermissionException.class, () -> {
+                recruitmentService.modifyRecruitment(normalUserInfo, recruitmentId, recruitmentModifyRequest);
+            });
+        }
+
+        @Test
+        @DisplayName("일반유저는 다른 사람의 모집글을 삭제할 수 없다.")
+        @Transactional
+        void given_normal_user_cannot_delete_others_recruitment() {
+            //given
+            User writer = userJoinService.registerUser(UserSample.getEventHostUserRegisterRequest());
+            User normalUser = userJoinService.registerUser(UserSample.getNormal2UserRegisterRequest());
+            AuthenticatedUserInfo writerInfo = new AuthenticatedUserInfo(writer.getId(), List.of(GeneralRoleType.EVENT_HOST.name()));
+            AuthenticatedUserInfo normalUserInfo = new AuthenticatedUserInfo(normalUser.getId(), List.of(GeneralRoleType.USER.name()));
+
+            Long eventId = eventService.registerEvent(writerInfo, EventSample.getNormalRegisterRequest(writer.getId()));
+            Long recruitmentId = recruitmentService.registerRecruitment(writerInfo, eventId, RecruitmentSample.getNormalRegisterRequest());
+
+            //when
+            //then
+            assertThrows(NoPermissionException.class, () -> {
+                recruitmentService.deleteRecruitment(normalUserInfo, recruitmentId);
+            });
         }
     }
 }

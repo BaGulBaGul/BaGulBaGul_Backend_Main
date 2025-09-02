@@ -18,6 +18,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostLikeRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
+import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AuthenticatedUserInfo;
 import com.BaGulBaGul.BaGulBaGul.global.exception.NoPermissionException;
 import com.BaGulBaGul.BaGulBaGul.domain.upload.service.ResourceService;
 import java.util.ArrayList;
@@ -189,16 +190,6 @@ public class PostServiceImpl implements PostService {
     public boolean existsLike(Post post, User user) {
         return postLikeRepository.existsByPostAndUser(post, user);
     }
-
-    @Override
-    public void checkWritePermission(Post post, User user) throws NoPermissionException {
-        //작성자인지 확인
-        if(user.getId().equals(post.getUser().getId())) {
-            return;
-        }
-        throw new NoPermissionException();
-    }
-
     private List<String> splitTags(String tags) {
         List<String> splittedTags = tags.equals("") ?
                 new ArrayList<>() :
