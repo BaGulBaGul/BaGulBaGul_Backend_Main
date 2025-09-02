@@ -1,4 +1,4 @@
-package com.BaGulBaGul.BaGulBaGul.domain.admin.dto.api.request;
+package com.BaGulBaGul.BaGulBaGul.domain.admin.dto.api.event.request;
 
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.CategoryRegisterRequest;
 import io.swagger.annotations.ApiModelProperty;

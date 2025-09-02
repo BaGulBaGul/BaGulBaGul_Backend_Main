@@ -1,7 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.domain.event.controller;
 
-import com.BaGulBaGul.BaGulBaGul.domain.admin.dto.api.request.CategoryRegisterApiRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.admin.dto.api.request.CategoryUpdateApiRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.admin.dto.api.event.request.CategoryRegisterApiRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.admin.dto.api.event.request.CategoryUpdateApiRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.Category;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.CategoryRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.repository.CategoryRepository;
