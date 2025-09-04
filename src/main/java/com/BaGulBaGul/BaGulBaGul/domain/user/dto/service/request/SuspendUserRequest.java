@@ -22,7 +22,7 @@ public class SuspendUserRequest {
     @Future
     private LocalDateTime endDate;
 
-    @AssertTrue(message = "endDate must be truncated to the hour")
+    @AssertTrue(message = "정지 종료 시각의 최소 단위는 시간입니다. 분 이하의 단위가 포함되어서는 안됩니다.")
     private boolean isEndDateTruncated() {
         if (endDate == null) {
             return true;

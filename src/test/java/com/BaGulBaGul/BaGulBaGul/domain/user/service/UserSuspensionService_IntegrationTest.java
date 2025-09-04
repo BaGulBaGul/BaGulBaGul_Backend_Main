@@ -97,25 +97,7 @@ public class UserSuspensionService_IntegrationTest {
         assertThat(status.getReason()).isEqualTo(reason2);
         assertThat(status.getEndDate()).isEqualTo(endDate2);
     }
-
     @Test
-    @DisplayName("정지 종료일이 과거이면 예외가 발생한다.")
-    @Transactional
-    void should_throw_InvalidSuspensionUpdateException_when_endDateInPast() {
-        //given
-        User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
-        User admin = userJoinService.registerUser(UserSample.getAdminUserRegisterRequest());
-        String reason = "test reason";
-        LocalDateTime endDate = LocalDateTime.now().truncatedTo(ChronoUnit.HOURS).minusDays(7);
-
-        //when
-        //then
-        assertThrows(InvalidSuspensionRequestException.class, () -> {
-            userSuspensionService.suspendUser(admin.getId(), user.getId(), new SuspendUserRequest(reason, endDate));
-        });
-    }
-
-        @Test
     @DisplayName("유저의 정지를 해제한다.")
     @Transactional
     void test_liftSuspension_ifSuspended() {

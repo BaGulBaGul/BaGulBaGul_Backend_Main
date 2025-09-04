@@ -1,4 +1,4 @@
-package com.BaGulBaGul.BaGulBaGul.domain.admin.controller;
+package com.BaGulBaGul.BaGulBaGul.domain.admin.event.controller;
 
 import com.BaGulBaGul.BaGulBaGul.domain.admin.event.dto.api.request.CategoryRegisterApiRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.admin.event.dto.api.request.CategoryUpdateApiRequest;
@@ -81,8 +81,7 @@ class CategoryAdminController_IntegrationTest {
 
 
     private String getAdminToken() {
-        User admin = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
-        userRoleService.addRole(admin.getId(), GeneralRoleType.ADMIN.name());
+        User admin = userJoinService.registerUser(UserSample.getAdminUserRegisterRequest());
         return jwtProvider.createAccessToken(admin.getId()).getJwt();
     }
 

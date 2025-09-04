@@ -30,11 +30,7 @@ public class UserSuspensionServiceImpl implements UserSuspensionService {
     @Transactional
     public void suspendUser(Long adminId, Long userId, SuspendUserRequest suspendUserRequest) {
 
-        //정지일이 현재 이전이라면 예외.
         LocalDateTime currentTime = LocalDateTime.now();
-        if(suspendUserRequest.getEndDate().isBefore(currentTime)) {
-            throw new InvalidSuspensionRequestException();
-        }
 
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         User admin = userRepository.findById(adminId).orElseThrow(UserNotFoundException::new);

@@ -6,6 +6,8 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.exception.EventNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.PostNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.exception.RecruitmentNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.report.exception.DuplicateReportException;
+import com.BaGulBaGul.BaGulBaGul.domain.user.exception.InvalidSuspensionRequestException;
+import com.BaGulBaGul.BaGulBaGul.domain.user.exception.UserNotSuspendedException;
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.ExpiredRefreshTokenException;
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.InvalidAccessTokenException;
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.JoinTokenExpiredException;
@@ -255,6 +257,17 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     )
     public ResponseEntity<Object> invalidAccessToken(InvalidAccessTokenException e, WebRequest webRequest) {
         return handleExceptionInternal(e, ResponseCode.FORBIDDEN, webRequest);
+    }
+
+    /************************
+     *  관리자 - 유저
+     ************************/
+    //유저가 정지된 상태가 아님
+    @ExceptionHandler(
+            UserNotSuspendedException.class
+    )
+    public ResponseEntity<Object> userNotSuspended(UserNotSuspendedException e, WebRequest webRequest) {
+        return handleExceptionInternal(e, ResponseCode.ADMIN_USER_NOT_SUSPENDED, webRequest);
     }
 
     /************************
