@@ -1,4 +1,4 @@
-package com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset;
+package com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request;
 
 import com.BaGulBaGul.BaGulBaGul.global.auth.Role;
 import java.util.ArrayList;

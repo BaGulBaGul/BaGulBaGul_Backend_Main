@@ -1,4 +1,4 @@
-package com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset;
+package com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request;
 
 import javax.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -10,7 +10,7 @@ import lombok.Setter;
 @Getter
 @Builder
 @AllArgsConstructor
-public class AdminManageEventHostUserModifyRequest {
+public class AdminManageEventHostUserJoinRequest {
     @Valid
-    UserModifyRequest userModifyRequest;
+    UserRegisterRequest userRegisterRequest;
 }

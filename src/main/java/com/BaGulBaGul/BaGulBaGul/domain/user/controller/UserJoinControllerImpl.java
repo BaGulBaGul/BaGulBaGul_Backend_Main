@@ -1,7 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user.controller;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.SocialLoginUser;
-import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.SocialLoginUserJoinRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.SocialLoginUserJoinRequest;
 import com.BaGulBaGul.BaGulBaGul.global.auth.constant.GeneralRoleType;
 import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AuthenticatedUserInfo;
 import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtCookieService;

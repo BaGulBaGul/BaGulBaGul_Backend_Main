@@ -1,9 +1,9 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user.sampledata;
 
-import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.AdminManageEventHostUserModifyRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.AdminManageEventHostUserJoinRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.UserModifyRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.UserRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.AdminManageEventHostUserModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.AdminManageEventHostUserJoinRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.UserModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.UserRegisterRequest;
 import org.openapitools.jackson.nullable.JsonNullable;
 
 public class AdminManageEventHostUserSample {

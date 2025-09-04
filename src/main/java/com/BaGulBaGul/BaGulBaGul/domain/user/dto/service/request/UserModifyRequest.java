@@ -1,4 +1,4 @@
-package com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset;
+package com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request;
 
 import java.util.regex.Pattern;
 import javax.validation.constraints.AssertTrue;

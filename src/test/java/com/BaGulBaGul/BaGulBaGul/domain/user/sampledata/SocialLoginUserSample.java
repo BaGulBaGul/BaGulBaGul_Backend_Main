@@ -1,6 +1,6 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user.sampledata;
 
-import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.SocialLoginUserJoinRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.SocialLoginUserJoinRequest;
 
 public class SocialLoginUserSample {
     public static final String NORMAL_JOIN_TOKEN = "xxx";

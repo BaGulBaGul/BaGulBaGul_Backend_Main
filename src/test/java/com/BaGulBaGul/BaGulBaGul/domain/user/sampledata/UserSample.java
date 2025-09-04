@@ -1,7 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user.sampledata;
 
-import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.UserModifyRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.UserRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.UserModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.UserRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.global.auth.constant.GeneralRoleType;
 import java.util.List;
 import org.openapitools.jackson.nullable.JsonNullable;

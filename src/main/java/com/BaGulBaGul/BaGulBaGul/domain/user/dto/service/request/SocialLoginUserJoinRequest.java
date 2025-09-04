@@ -1,4 +1,4 @@
-package com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset;
+package com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
