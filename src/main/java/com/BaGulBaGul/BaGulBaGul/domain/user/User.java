@@ -46,6 +46,10 @@ public class User extends BaseTimeEntity {
     @Column(name="image_uri")
     String imageURI;
 
+    @Setter
+    @Column(name = "is_suspended", nullable = false)
+    private boolean isSuspended = false;
+
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     Set<UserRole> userRoles = new HashSet<>();
 
