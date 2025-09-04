@@ -29,8 +29,7 @@ public class UserSuspensionAdminController {
     @PostMapping("/{userId}")
     @Operation(summary = "사용자 정지", description = "사용자를 정지합니다. "
             + "이미 정지된 사용자일 경우 기한을 수정합니다. "
-            + "정지 종료시각은 현재보다 이전일 수 없습니다."
-            + "정지 종료시각의 최소 단위는 시간입니다. 분 단위 이하면 예외")
+            + "정지 종료시각은 현재보다 이전일 수 없습니다.")
     public ApiResponse<Void> suspendUser(
             @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo,
             @PathVariable Long userId,

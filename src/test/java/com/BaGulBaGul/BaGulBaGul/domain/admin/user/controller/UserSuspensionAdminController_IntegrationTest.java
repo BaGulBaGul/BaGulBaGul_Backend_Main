@@ -102,7 +102,7 @@ public class UserSuspensionAdminController_IntegrationTest {
         User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
         SuspendUserApiRequest request = new SuspendUserApiRequest(
                 "test reason",
-                LocalDateTime.now().truncatedTo(ChronoUnit.HOURS).plusDays(7)
+                LocalDateTime.now().plusDays(7).withNano(0)
         );
 
         //when
@@ -123,30 +123,6 @@ public class UserSuspensionAdminController_IntegrationTest {
     }
 
     @Test
-    @DisplayName("endDate가 시간 단위로 잘려있지 않으면 400에러가 발생한다.")
-    void suspendUser_fail_if_endDate_not_truncated() throws Exception {
-        //given
-        String adminToken = getAdminToken();
-        User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
-        LocalDateTime endDate = LocalDateTime.now().plusDays(7);
-        endDate = endDate.withMinute(1);
-        SuspendUserApiRequest request = new SuspendUserApiRequest(
-                "test reason",
-                endDate
-        );
-
-        //when
-        //then
-        mockMvc.perform(post("/api/admin/user/suspension/{userId}", user.getId())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request))
-                .cookie(new Cookie(ACCESS_TOKEN_COOKIE_NAME, adminToken)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errorCode").value(ResponseCode.BAD_REQUEST.getCode()))
-                .andDo(print());
-    }
-
-    @Test
     @DisplayName("관리자가 아닌 유저가 정지를 요청하면 403에러가 발생한다.")
     void suspendUser_fail_if_not_admin() throws Exception {
         //given
@@ -156,7 +132,7 @@ public class UserSuspensionAdminController_IntegrationTest {
 
         SuspendUserApiRequest request = new SuspendUserApiRequest(
                 "test reason",
-                LocalDateTime.now().truncatedTo(ChronoUnit.HOURS).plusDays(7)
+                LocalDateTime.now().plusDays(7).withNano(0)
         );
 
         //when
@@ -175,7 +151,8 @@ public class UserSuspensionAdminController_IntegrationTest {
         //given
         String adminToken = getAdminToken();
         User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
-        userSuspensionService.suspendUser(user.getId(), user.getId(), new SuspendUserRequest("test reason", LocalDateTime.now().truncatedTo(ChronoUnit.HOURS).plusDays(7)));
+        userSuspensionService.suspendUser(user.getId(), user.getId(), new SuspendUserRequest("test reason",
+                LocalDateTime.now().plusDays(7).withNano(0)));
         LiftUserSuspensionApiRequest request = new LiftUserSuspensionApiRequest("lift reason");
 
         //when
