@@ -12,6 +12,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.exception.UserNotSuspendedException
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserSuspensionLogRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserSuspensionStatusRepository;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,7 +44,7 @@ public class UserSuspensionServiceImpl implements UserSuspensionService {
         }
 
         //이미 정지된 상태라면 업데이트
-        if (user.isSuspended()) {
+        if (isUserSuspended(userId)) {
             userSuspensionLogRepository.save(
                     new UserSuspensionLog(user, suspendUserRequest.getReason(), currentTime, suspendUserRequest.getEndDate(), admin, UserSuspensionActionType.UPDATE)
             );
@@ -68,7 +69,7 @@ public class UserSuspensionServiceImpl implements UserSuspensionService {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         User admin = userRepository.findById(adminId).orElseThrow(UserNotFoundException::new);
 
-        if (!user.isSuspended()) {
+        if (!isUserSuspended(userId)) {
             throw new UserNotSuspendedException();
         }
 
@@ -87,9 +88,26 @@ public class UserSuspensionServiceImpl implements UserSuspensionService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public boolean isUserSuspended(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
-        return user.isSuspended();
+        //현재 정지 상태가 아니라면 false 반환
+        if(!user.isSuspended()) {
+            return false;
+        }
+        //정지 상태 검색
+        UserSuspensionStatus userSuspensionStatus = userSuspensionStatusRepository.findById(userId)
+                .orElseThrow(() -> new IllegalStateException("User is suspended but has no suspension status"));
+        //현재 시간이 정지 기한 이전이라면 true 반환
+        if(LocalDateTime.now().isBefore(userSuspensionStatus.getEndDate())) {
+            return true;
+        }
+        //현재 정지 상태이면서 현재 시간이 정지 기한을 넘겼다면 정지 플래그를 해제
+        else {
+            user.setSuspended(false);
+            userSuspensionStatus.setEndDate(null);
+            userSuspensionStatus.setReason(null);
+            return false;
+        }
     }
 }

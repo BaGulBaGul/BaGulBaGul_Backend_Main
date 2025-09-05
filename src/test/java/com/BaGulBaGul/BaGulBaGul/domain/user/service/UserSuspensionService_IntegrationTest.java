@@ -140,4 +140,72 @@ public class UserSuspensionService_IntegrationTest {
             userSuspensionService.liftSuspension(admin.getId(), user.getId(), new LiftUserSuspensionRequest(liftReason));
         });
     }
+
+    @Test
+    @DisplayName("정지되지 않은 유저의 정지 상태를 확인한다.")
+    @Transactional
+    void test_isUserSuspended_ifNotSuspended() {
+        //given
+        User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
+
+        //when
+        boolean isSuspended = userSuspensionService.isUserSuspended(user.getId());
+
+        //then
+        assertThat(isSuspended).isFalse();
+    }
+
+    @Test
+    @DisplayName("현재 정지 중인 유저의 정지 상태를 확인한다.")
+    @Transactional
+    void test_isUserSuspended_ifCurrentlySuspended() {
+        //given
+        User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
+        User admin = userJoinService.registerUser(UserSample.getAdminUserRegisterRequest());
+        String reason = "test reason";
+        LocalDateTime endDate = LocalDateTime.now().plusDays(7);
+        userSuspensionService.suspendUser(admin.getId(), user.getId(), new SuspendUserRequest(reason, endDate));
+
+        em.flush();
+        em.clear();
+
+        //when
+        boolean isSuspended = userSuspensionService.isUserSuspended(user.getId());
+
+        //then
+        assertThat(isSuspended).isTrue();
+        User checkedUser = userRepository.findById(user.getId()).get();
+        assertThat(checkedUser.isSuspended()).isTrue();
+    }
+
+    @Test
+    @DisplayName("정지가 만료된 유저의 정지 상태를 확인한다")
+    @Transactional
+    void test_isUserSuspended_ifSuspensionExpired() {
+        //given
+        User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
+        User admin = userJoinService.registerUser(UserSample.getAdminUserRegisterRequest());
+        String reason = "test reason";
+        LocalDateTime endDate = LocalDateTime.now().minusDays(1); // 과거 날짜로 설정
+        userSuspensionService.suspendUser(admin.getId(), user.getId(), new SuspendUserRequest(reason, endDate));
+
+        em.flush();
+        em.clear();
+
+        //when
+        boolean isSuspended = userSuspensionService.isUserSuspended(user.getId());
+
+        //then
+        assertThat(isSuspended).isFalse();
+
+        em.flush();
+        em.clear();
+
+        User checkedUser = userRepository.findById(user.getId()).get();
+        assertThat(checkedUser.isSuspended()).isFalse();
+
+        UserSuspensionStatus status = userSuspensionStatusRepository.findById(user.getId()).get();
+        assertThat(status.getEndDate()).isNull();
+        assertThat(status.getReason()).isNull();
+    }
 }

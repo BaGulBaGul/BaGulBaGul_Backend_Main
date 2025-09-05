@@ -77,4 +77,13 @@ public class User extends BaseTimeEntity {
     public Set<Role> getRoles() {
         return userRoles.stream().map(UserRole::getRole).collect(Collectors.toSet());
     }
+
+    /**
+     * 유저 정지 여부에 대한 플래그.
+     * 정지 만료일이 지났는지 확인해서 업데이트해야 하므로 이 플래그를 외부에서 직접 사용하지 마세요.
+     * 대신 UserSuspensionService를 이용하세요
+     */
+    public boolean isSuspended() {
+        return isSuspended;
+    }
 }
