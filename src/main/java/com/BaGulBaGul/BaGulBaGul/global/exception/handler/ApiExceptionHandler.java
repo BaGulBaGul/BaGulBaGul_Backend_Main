@@ -6,8 +6,8 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.exception.EventNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.PostNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.exception.RecruitmentNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.report.exception.DuplicateReportException;
-import com.BaGulBaGul.BaGulBaGul.domain.user.exception.InvalidSuspensionRequestException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.exception.UserNotSuspendedException;
+import com.BaGulBaGul.BaGulBaGul.global.auth.exception.AccountSuspendedException;
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.ExpiredRefreshTokenException;
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.InvalidAccessTokenException;
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.JoinTokenExpiredException;
@@ -257,6 +257,13 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     )
     public ResponseEntity<Object> invalidAccessToken(InvalidAccessTokenException e, WebRequest webRequest) {
         return handleExceptionInternal(e, ResponseCode.FORBIDDEN, webRequest);
+    }
+    //정지된 유저의 토큰 발급(로그인, 토큰 재발급) 시도
+    @ExceptionHandler(
+            AccountSuspendedException.class
+    )
+    public ResponseEntity<Object> authRequestBySupendedUser(AccountSuspendedException e, WebRequest webRequest) {
+        return handleExceptionInternal(e, ResponseCode.AUTH_SUSPENDED_USER, webRequest);
     }
 
     /************************

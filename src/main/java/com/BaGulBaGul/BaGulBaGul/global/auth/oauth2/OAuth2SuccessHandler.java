@@ -1,6 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.global.auth.oauth2;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.SocialLoginUser;
+import com.BaGulBaGul.BaGulBaGul.global.auth.exception.AccountSuspendedException;
 import com.BaGulBaGul.BaGulBaGul.global.auth.service.AuthTokenService;
 import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtProvider;
 import com.BaGulBaGul.BaGulBaGul.global.auth.oauth2.dto.ApplicationOAuth2User;
@@ -31,6 +32,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     @Value("${spring.security.oauth2.client.front_login_redirect_url}")
     private String FRONT_LOGIN_REDIRECT_URL;
 
+    @Value("${spring.security.oauth2.client.front_suspended_user_redirect_url}")
+    private String FRONT_SUSPENDED_USER_REDIRECT_URL;
+
     private final String JOIN_TOKEN_PARAM_NAME = "join_token";
 
 
@@ -60,7 +64,15 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         else{
             Long userId = socialLoginUser.getUser().getId();
             //토큰 발급
-            authTokenService.issueToken(response, userId);
+            try {
+                authTokenService.issueToken(response, userId);
+            } catch (AccountSuspendedException e) {
+                //정지된 유저는 계정 정지 처리 페이지로 리다이렉트
+                response.sendRedirect(
+                        FRONT_SUSPENDED_USER_REDIRECT_URL
+                );
+                return;
+            }
             //로그인 성공 처리 페이지로 리다이렉트
             response.sendRedirect(
                     FRONT_LOGIN_REDIRECT_URL
