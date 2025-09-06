@@ -4,7 +4,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.UserSuspensionStatus;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.LiftUserSuspensionRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.SuspendUserRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.user.exception.InvalidSuspensionRequestException;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.response.UserSuspensionStatusResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.user.exception.UserNotSuspendedException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserSuspensionStatusRepository;
@@ -144,36 +144,41 @@ public class UserSuspensionService_IntegrationTest {
     @Test
     @DisplayName("정지되지 않은 유저의 정지 상태를 확인한다.")
     @Transactional
-    void test_isUserSuspended_ifNotSuspended() {
+    void test_getUserSuspensionStatus_ifNotSuspended() {
         //given
         User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
 
         //when
-        boolean isSuspended = userSuspensionService.isUserSuspended(user.getId());
+        UserSuspensionStatusResponse result = userSuspensionService.getUserSuspensionStatus(user.getId());
 
         //then
-        assertThat(isSuspended).isFalse();
+        assertThat(result.isSuspended()).isFalse();
+        assertThat(result.getReason()).isNull();
+        assertThat(result.getEndDate()).isNull();
     }
 
     @Test
     @DisplayName("현재 정지 중인 유저의 정지 상태를 확인한다.")
     @Transactional
-    void test_isUserSuspended_ifCurrentlySuspended() {
+    void test_getUserSuspensionStatus_ifCurrentlySuspended() {
         //given
         User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
         User admin = userJoinService.registerUser(UserSample.getAdminUserRegisterRequest());
         String reason = "test reason";
-        LocalDateTime endDate = LocalDateTime.now().plusDays(7);
+        LocalDateTime endDate = LocalDateTime.now().plusDays(7).withNano(0);
         userSuspensionService.suspendUser(admin.getId(), user.getId(), new SuspendUserRequest(reason, endDate));
 
         em.flush();
         em.clear();
 
         //when
-        boolean isSuspended = userSuspensionService.isUserSuspended(user.getId());
+        UserSuspensionStatusResponse result = userSuspensionService.getUserSuspensionStatus(user.getId());
 
         //then
-        assertThat(isSuspended).isTrue();
+        assertThat(result.isSuspended()).isTrue();
+        assertThat(result.getReason()).isEqualTo(reason);
+        assertThat(result.getEndDate()).isEqualTo(endDate);
+
         User checkedUser = userRepository.findById(user.getId()).get();
         assertThat(checkedUser.isSuspended()).isTrue();
     }
@@ -181,7 +186,7 @@ public class UserSuspensionService_IntegrationTest {
     @Test
     @DisplayName("정지가 만료된 유저의 정지 상태를 확인한다")
     @Transactional
-    void test_isUserSuspended_ifSuspensionExpired() {
+    void test_getUserSuspensionStatus_ifSuspensionExpired() {
         //given
         User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
         User admin = userJoinService.registerUser(UserSample.getAdminUserRegisterRequest());
@@ -193,10 +198,12 @@ public class UserSuspensionService_IntegrationTest {
         em.clear();
 
         //when
-        boolean isSuspended = userSuspensionService.isUserSuspended(user.getId());
+        UserSuspensionStatusResponse result = userSuspensionService.getUserSuspensionStatus(user.getId());
 
         //then
-        assertThat(isSuspended).isFalse();
+        assertThat(result.isSuspended()).isFalse();
+        assertThat(result.getReason()).isNull();
+        assertThat(result.getEndDate()).isNull();
 
         em.flush();
         em.clear();
