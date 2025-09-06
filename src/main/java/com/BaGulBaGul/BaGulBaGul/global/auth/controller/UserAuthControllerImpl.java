@@ -3,6 +3,7 @@ package com.BaGulBaGul.BaGulBaGul.global.auth.controller;
 import com.BaGulBaGul.BaGulBaGul.domain.user.PasswordLoginUser;
 import com.BaGulBaGul.BaGulBaGul.domain.user.service.PasswordLoginUserService;
 import com.BaGulBaGul.BaGulBaGul.global.auth.constant.GeneralRoleType;
+import com.BaGulBaGul.BaGulBaGul.global.auth.dto.LoginApiRequest;
 import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AccessTokenInfo;
 import com.BaGulBaGul.BaGulBaGul.global.auth.dto.RefreshTokenInfo;
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.ExpiredAccessTokenException;
@@ -39,11 +40,10 @@ public class UserAuthControllerImpl implements UserAuthController {
             description = "패스워드 로그인 요청"
     )
     public ApiResponse<Object> passwordLogin(
-            @RequestBody String loginId,
-            @RequestBody String loginPw,
+            @RequestBody LoginApiRequest loginApiRequest,
             HttpServletResponse response
     ) {
-        PasswordLoginUser passwordLoginUser = passwordLoginUserService.findPasswordLoginUser(loginId, loginPw);
+        PasswordLoginUser passwordLoginUser = passwordLoginUserService.findPasswordLoginUser(loginApiRequest.getLoginId(), loginApiRequest.getLoginPw());
         Long userId = passwordLoginUser.getUser().getId();
         //토큰 발급
         authTokenService.issueToken(response, userId);
