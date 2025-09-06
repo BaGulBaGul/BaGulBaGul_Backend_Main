@@ -180,7 +180,9 @@ class UserAuthController_IntegrationTest {
             User admin = userJoinService.registerUser(adminRegisterRequest);
 
             //정지 요청 생성
-            SuspendUserRequest suspendUserRequest = new SuspendUserRequest("test", LocalDateTime.now().plusDays(1));
+            LocalDateTime endDate = LocalDateTime.now().plusDays(1).withNano(0);
+            String reason = "test";
+            SuspendUserRequest suspendUserRequest = new SuspendUserRequest(reason, endDate);
             //정지
             userSuspensionService.suspendUser(admin.getId(), user.getId(), suspendUserRequest);
             //로그인 요청 생성
@@ -195,7 +197,9 @@ class UserAuthController_IntegrationTest {
             //then
             ResponseCode responseCode = ResponseCode.AUTH_SUSPENDED_USER;
             resultActions.andExpect(status().is(responseCode.getHttpStatus().value()))
-                    .andExpect(jsonPath("$.errorCode").value(responseCode.getCode()));
+                    .andExpect(jsonPath("$.errorCode").value(responseCode.getCode()))
+                    .andExpect(jsonPath("$.data.endDate").value(endDate.toString()))
+                    .andExpect(jsonPath("$.data.reason").value(reason));
         }
     }
 
@@ -428,7 +432,9 @@ class UserAuthController_IntegrationTest {
             User admin = userJoinService.registerUser(adminRegisterRequest);
 
             //정지 요청 생성
-            SuspendUserRequest suspendUserRequest = new SuspendUserRequest("test", LocalDateTime.now().plusDays(1));
+            LocalDateTime endDate = LocalDateTime.now().plusDays(1).withNano(0);
+            String reason = "test";
+            SuspendUserRequest suspendUserRequest = new SuspendUserRequest(reason, endDate);
             //정지
             userSuspensionService.suspendUser(admin.getId(), user.getId(), suspendUserRequest);
 
@@ -447,7 +453,9 @@ class UserAuthController_IntegrationTest {
             //then
             ResponseCode responseCode = ResponseCode.AUTH_SUSPENDED_USER;
             resultActions.andExpect(status().is(responseCode.getHttpStatus().value()))
-                    .andExpect(jsonPath("$.errorCode").value(responseCode.getCode()));
+                    .andExpect(jsonPath("$.errorCode").value(responseCode.getCode()))
+                    .andExpect(jsonPath("$.data.endDate").value(endDate.toString()))
+                    .andExpect(jsonPath("$.data.reason").value(reason));
         }
     }
 

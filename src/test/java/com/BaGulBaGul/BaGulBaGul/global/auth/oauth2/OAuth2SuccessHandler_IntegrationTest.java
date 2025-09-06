@@ -1,13 +1,14 @@
 package com.BaGulBaGul.BaGulBaGul.global.auth.oauth2;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
-import com.BaGulBaGul.BaGulBaGul.domain.user.SocialLoginUser;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.SuspendUserRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.SocialLoginUserRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.sampledata.UserSample;
+import com.BaGulBaGul.BaGulBaGul.domain.user.service.SocialLoginUserService;
 import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserJoinService;
 import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserSuspensionService;
 import com.BaGulBaGul.BaGulBaGul.extension.AllTestContainerExtension;
@@ -15,16 +16,21 @@ import com.BaGulBaGul.BaGulBaGul.global.auth.oauth2.constant.OAuth2Provider;
 import com.BaGulBaGul.BaGulBaGul.global.auth.oauth2.dto.ApplicationOAuth2User;
 import com.BaGulBaGul.BaGulBaGul.global.auth.oauth2.dto.OAuth2JoinTokenSubject;
 import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtProvider;
+import java.net.URI;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
-import org.junit.jupiter.api.BeforeEach;
-import com.BaGulBaGul.BaGulBaGul.domain.user.service.SocialLoginUserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,7 +38,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(AllTestContainerExtension.class)
@@ -89,7 +94,22 @@ public class OAuth2SuccessHandler_IntegrationTest {
         oAuth2SuccessHandler.onAuthenticationSuccess(request, response, authentication);
 
         //then
-        verify(response).sendRedirect(org.mockito.ArgumentMatchers.startsWith(FRONT_JOIN_REDIRECT_URL));
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        verify(response).sendRedirect(captor.capture());
+        String redirectUrl = captor.getValue();
+
+        assertThat(redirectUrl).startsWith(FRONT_JOIN_REDIRECT_URL);
+
+        URI uri = new URI(redirectUrl);
+        String query = uri.getQuery();
+        assertThat(query).isNotNull();
+
+        Map<String, String> queryParams = Arrays.stream(query.split("&"))
+                .map(s -> s.split("="))
+                .collect(Collectors.toMap(a -> a[0], a -> a.length > 1 ? a[1] : ""));
+
+        assertThat(queryParams).containsKey("join_token");
+        assertThat(queryParams.get("join_token")).isNotBlank();
     }
 
     @Test
@@ -97,7 +117,6 @@ public class OAuth2SuccessHandler_IntegrationTest {
     @Transactional
     void test_onAuthenticationSuccess_ifExistingUser() throws Exception {
         //given
-
         ApplicationOAuth2User oAuth2User = new TestApplicationOAuth2User("existing_user_social_id", OAuth2Provider.kakao);
         Authentication authentication = new UsernamePasswordAuthenticationToken(oAuth2User, null,
                 oAuth2User.getAuthorities());
@@ -106,7 +125,7 @@ public class OAuth2SuccessHandler_IntegrationTest {
         String socialLoginId = oAuth2User.getSocialLoginId();
         OAuth2JoinTokenSubject oAuth2JoinTokenSubject = OAuth2JoinTokenSubject.builder()
                 .socialLoginId(socialLoginId)
-                .oAuth2Provider(OAuth2Provider.kakao)
+                .oAuth2Provider(oAuth2User.getOAuthProvider())
                 .build();
         String joinToken = jwtProvider.createOAuth2JoinToken(oAuth2JoinTokenSubject).getJwt();
         socialLoginUserService.registerSocialLoginUser(user, joinToken);
@@ -139,7 +158,7 @@ public class OAuth2SuccessHandler_IntegrationTest {
         String socialLoginId = oAuth2User.getSocialLoginId();
         OAuth2JoinTokenSubject oAuth2JoinTokenSubject = OAuth2JoinTokenSubject.builder()
                 .socialLoginId(socialLoginId)
-                .oAuth2Provider(OAuth2Provider.kakao)
+                .oAuth2Provider(oAuth2User.getOAuthProvider())
                 .build();
         String joinToken = jwtProvider.createOAuth2JoinToken(oAuth2JoinTokenSubject).getJwt();
         socialLoginUserService.registerSocialLoginUser(user, joinToken);
@@ -147,7 +166,7 @@ public class OAuth2SuccessHandler_IntegrationTest {
         // 유저 정지
         User admin = userJoinService.registerUser(UserSample.getAdminUserRegisterRequest());
         String reason = "test reason";
-        LocalDateTime endDate = LocalDateTime.now().plusDays(7);
+        LocalDateTime endDate = LocalDateTime.now().plusDays(7).withNano(0);
         userSuspensionService.suspendUser(admin.getId(), user.getId(), new SuspendUserRequest(reason, endDate));
 
         em.flush();
@@ -161,6 +180,23 @@ public class OAuth2SuccessHandler_IntegrationTest {
         oAuth2SuccessHandler.onAuthenticationSuccess(request, response, authentication);
 
         //then
-        verify(response).sendRedirect(FRONT_SUSPENDED_USER_REDIRECT_URL);
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        verify(response).sendRedirect(captor.capture());
+        String redirectUrl = captor.getValue();
+
+        assertThat(redirectUrl).startsWith(FRONT_SUSPENDED_USER_REDIRECT_URL);
+
+        URI uri = new URI(redirectUrl);
+        String query = uri.getQuery();
+        assertThat(query).isNotNull();
+
+        Map<String, String> queryParams = Arrays.stream(query.split("&"))
+                .map(s -> s.split("="))
+                .collect(Collectors.toMap(a -> a[0], a -> a.length > 1 ? URLDecoder.decode(a[1], StandardCharsets.UTF_8) : ""));
+
+        assertThat(queryParams).containsKey("endDate");
+        assertThat(queryParams.get("endDate")).isEqualTo(endDate.toString());
+        assertThat(queryParams).containsKey("reason");
+        assertThat(queryParams.get("reason")).isEqualTo(reason);
     }
 }

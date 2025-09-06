@@ -8,10 +8,14 @@ import com.BaGulBaGul.BaGulBaGul.global.auth.oauth2.dto.ApplicationOAuth2User;
 import com.BaGulBaGul.BaGulBaGul.global.auth.oauth2.dto.OAuth2JoinTokenSubject;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.SocialLoginUserRepository;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtCookieService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -36,6 +40,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     private String FRONT_SUSPENDED_USER_REDIRECT_URL;
 
     private final String JOIN_TOKEN_PARAM_NAME = "join_token";
+    private final String SUSPEND_END_DATE_PARAM_NAME = "endDate";
+    private final String SUSPEND_REASON_PARAM_NAME = "reason";
 
 
 
@@ -69,7 +75,10 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
             } catch (AccountSuspendedException e) {
                 //정지된 유저는 계정 정지 처리 페이지로 리다이렉트
                 response.sendRedirect(
-                        FRONT_SUSPENDED_USER_REDIRECT_URL
+                        composeQueryParam(
+                                FRONT_SUSPENDED_USER_REDIRECT_URL,
+                                Map.of(SUSPEND_END_DATE_PARAM_NAME, e.getEndDate().toString(), SUSPEND_REASON_PARAM_NAME, e.getReason())
+                        )
                 );
                 return;
             }
@@ -81,6 +90,18 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     }
 
     private String composeQueryParam(String url, String paramName, String value) {
-        return url + "?" + paramName + "=" + value;
+        return url + "?" + paramName + "=" + URLEncoder.encode(value, StandardCharsets.UTF_8);
+    }
+
+    private String composeQueryParam(String url, Map<String, String> params) {
+        String paramsString = params.entrySet().stream().map(entry -> {
+            return entry.getKey() + "=" + URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8);
+        }).collect(Collectors.joining("&"));
+
+        if(paramsString.isEmpty()) {
+            return url;
+        }
+
+        return url + "?" + paramsString;
     }
 }

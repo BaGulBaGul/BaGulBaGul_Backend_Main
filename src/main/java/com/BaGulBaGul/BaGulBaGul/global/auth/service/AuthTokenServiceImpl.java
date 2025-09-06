@@ -27,7 +27,7 @@ public class AuthTokenServiceImpl implements AuthTokenService {
         //정지된 유저라면 예외
         UserSuspensionStatusResponse userSuspensionStatus = userSuspensionService.getUserSuspensionStatus(userId);
         if (userSuspensionStatus.isSuspended()) {
-            throw new AccountSuspendedException();
+            throw new AccountSuspendedException(userSuspensionStatus.getEndDate(), userSuspensionStatus.getReason());
         }
         //토큰 발급
         AccessTokenInfo atInfo = jwtProvider.createAccessToken(userId);

@@ -42,7 +42,7 @@ public class ResponseCode {
     //AUTH
     public static final ResponseCode AUTH_EXPIRED_ACCESS_TOKEN = new ResponseCode("AUTH00000", HttpStatus.UNAUTHORIZED, "AccessToken 만료");
     public static final ResponseCode AUTH_EXPIRED_REFRESH_TOKEN = new ResponseCode("AUTH00001", HttpStatus.UNAUTHORIZED, "RefreshToken 만료");
-    public static final ResponseCode AUTH_SUSPENDED_USER = new ResponseCode("AUTH00002", HttpStatus.FORBIDDEN, "정지된 유저입니다. ");
+    public static final ResponseCode AUTH_SUSPENDED_USER = new ResponseCode("AUTH00002", HttpStatus.FORBIDDEN, "정지된 유저입니다.");
 
     //ADMIN
     //USER SUSPEND

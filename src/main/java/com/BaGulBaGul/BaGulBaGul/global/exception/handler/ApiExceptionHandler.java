@@ -17,6 +17,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.exception.UserNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.RefreshTokenException;
 import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
 import com.BaGulBaGul.BaGulBaGul.global.exception.NoPermissionException;
+import com.BaGulBaGul.BaGulBaGul.global.exception.handler.dto.AuthBySuspendedUserResponse;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
 import com.BaGulBaGul.BaGulBaGul.global.response.ResponseCode;
 import com.BaGulBaGul.BaGulBaGul.domain.upload.exception.NotImageException;
@@ -263,7 +264,8 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
             AccountSuspendedException.class
     )
     public ResponseEntity<Object> authRequestBySupendedUser(AccountSuspendedException e, WebRequest webRequest) {
-        return handleExceptionInternal(e, ResponseCode.AUTH_SUSPENDED_USER, webRequest);
+        AuthBySuspendedUserResponse data = new AuthBySuspendedUserResponse(e.getEndDate(), e.getReason());
+        return handleExceptionInternal(e, ResponseCode.AUTH_SUSPENDED_USER, data, webRequest);
     }
 
     /************************
@@ -291,14 +293,22 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleExceptionInternal(
             Exception ex, ResponseCode responseCode, WebRequest request
     ) {
-        return handleExceptionInternal(ex, responseCode, HttpHeaders.EMPTY, responseCode.getHttpStatus(), request);
+        return handleExceptionInternal(ex, responseCode, null, HttpHeaders.EMPTY, responseCode.getHttpStatus(), request);
     }
 
-    protected ResponseEntity<Object> handleExceptionInternal(Exception ex, ResponseCode responseCode, HttpHeaders headers,
-                                                             HttpStatus status, WebRequest request) {
+    protected ResponseEntity<Object> handleExceptionInternal(
+            Exception ex, ResponseCode responseCode, Object data, WebRequest request
+    ) {
+        return handleExceptionInternal(ex,  responseCode, data, HttpHeaders.EMPTY, responseCode.getHttpStatus(), request);
+    }
+
+    protected ResponseEntity<Object> handleExceptionInternal(
+            Exception ex, ResponseCode responseCode, Object data,
+            HttpHeaders headers, HttpStatus status, WebRequest request
+    ) {
         return super.handleExceptionInternal(
                 ex,
-                ApiResponse.of(null, responseCode),
+                ApiResponse.of(data, responseCode),
                 headers,
                 status,
                 request
