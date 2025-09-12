@@ -61,6 +61,10 @@ public class User extends BaseTimeEntity {
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     PasswordLoginUser passwordLoginUser;
 
+    @Setter
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
+    UserSuspensionStatus userSuspensionStatus;
+
     @Builder
     public User(
             String email,

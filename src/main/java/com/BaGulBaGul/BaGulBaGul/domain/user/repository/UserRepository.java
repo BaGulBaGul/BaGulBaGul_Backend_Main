@@ -1,6 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user.repository;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -12,4 +13,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT u FROM User u LEFT JOIN FETCH u.userRoles WHERE u.id=:userId")
     Optional<User> findUserWithRoles(@Param("userId") Long userId);
+
+    @Query(
+            "SELECT u FROM User u "
+                    + "LEFT JOIN FETCH u.userRoles "
+                    + "LEFT JOIN FETCH u.userSuspensionStatus "
+                    + "WHERE u.id in :userIds"
+    )
+    List<User> findUserWithRolesAndSuspensionStatusByIds(@Param("userIds") List<Long> userIds);
 }
