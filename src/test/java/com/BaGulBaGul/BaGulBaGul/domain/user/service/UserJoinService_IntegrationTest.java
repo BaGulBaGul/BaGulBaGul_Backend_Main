@@ -212,7 +212,7 @@ public class UserJoinService_IntegrationTest {
         void shouldOk() {
             //given
             SocialLoginUserJoinRequest socialLoginUserJoinRequest = SocialLoginUserSample
-                    .getNormalSocialLoginUserJoinRequest();
+                    .getMockSocialLoginUserJoinRequest();
             String socialLoginUserId = "xxxx";
             OAuth2Provider oauthProvider = OAuth2Provider.kakao;
             OAuth2JoinTokenInfo oAuth2JoinTokenInfo = jwtProvider.createOAuth2JoinToken(
@@ -221,6 +221,8 @@ public class UserJoinService_IntegrationTest {
                             .oAuth2Provider(oauthProvider)
                             .build()
             );
+
+
             socialLoginUserJoinRequest.setJoinToken(oAuth2JoinTokenInfo.getJwt());
             //when
             SocialLoginUser socialLoginUser = userJoinService.joinSocialLoginUser(socialLoginUserJoinRequest);
@@ -239,7 +241,7 @@ public class UserJoinService_IntegrationTest {
         void shouldOk() {
             //given
             SocialLoginUserJoinRequest socialLoginUserJoinRequest = SocialLoginUserSample
-                    .getNormalSocialLoginUserJoinRequest();
+                    .getMockSocialLoginUserJoinRequest();
             String socialLoginUserId = "xxxx";
             OAuth2Provider oauthProvider = OAuth2Provider.kakao;
             OAuth2JoinTokenInfo oAuth2JoinTokenInfo = jwtProvider.createOAuth2JoinToken(

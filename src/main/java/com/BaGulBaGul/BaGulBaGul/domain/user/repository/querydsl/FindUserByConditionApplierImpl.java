@@ -5,6 +5,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 import com.BaGulBaGul.BaGulBaGul.domain.event.QEvent;
 import com.BaGulBaGul.BaGulBaGul.domain.user.QUser;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.UserSearchRequest;
+import com.BaGulBaGul.BaGulBaGul.global.auth.constant.UserSubType;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
@@ -39,6 +40,18 @@ public class FindUserByConditionApplierImpl implements FindUserByConditionApplie
         //가입일이 탐색 종료일 이전
         if(userSearchRequest.getJoinDateSearchEnd() != null) {
             query.where(user.createdAt.before(userSearchRequest.getJoinDateSearchEnd()));
+        }
+        //서브 타입 조건
+        if(userSearchRequest.getSubTypes() != null) {
+            for(UserSubType userSubType : userSearchRequest.getSubTypes()) {
+                if(userSubType == UserSubType.SOCIAL_LOGIN_USER) {
+                    query.join(user.socialLoginUser);
+                } else if(userSubType == UserSubType.PASSWORD_LOGIN_USER) {
+                    query.join(user.passwordLoginUser);
+                } else if(userSubType == UserSubType.ADMIN_MANAGE_EVENT_HOST_USER) {
+                    query.join(user.adminManageEventHostUser);
+                }
+            }
         }
         return query;
     }

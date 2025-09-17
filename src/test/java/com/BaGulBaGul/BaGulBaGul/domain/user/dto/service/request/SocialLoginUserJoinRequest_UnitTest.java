@@ -19,7 +19,7 @@ public class SocialLoginUserJoinRequest_UnitTest {
         @DisplayName("정상 동작")
         void shouldOk() {
             SocialLoginUserJoinRequest socialLoginUserJoinRequest = SocialLoginUserSample
-                    .getNormalSocialLoginUserJoinRequest();
+                    .getMockSocialLoginUserJoinRequest();
             assertDoesNotThrow(() -> ValidationUtil.validate(socialLoginUserJoinRequest));
         }
 
@@ -27,7 +27,7 @@ public class SocialLoginUserJoinRequest_UnitTest {
         @DisplayName("내부 dto를 검증하는지 테스트")
         void shouldThrowConstraintViolationException_whenInnerDtoIsInvalid() {
             SocialLoginUserJoinRequest socialLoginUserJoinRequest = SocialLoginUserSample
-                    .getNormalSocialLoginUserJoinRequest();
+                    .getMockSocialLoginUserJoinRequest();
             socialLoginUserJoinRequest.setUserRegisterRequest(UserSample.getUnNormalUserRegisterRequest());
             assertThatThrownBy(() -> ValidationUtil.validate(socialLoginUserJoinRequest))
                     .isInstanceOf(ConstraintViolationException.class);
@@ -37,7 +37,7 @@ public class SocialLoginUserJoinRequest_UnitTest {
         @DisplayName("jointoken이 null이면 예외")
         void shouldThrowConstraintViolationException_whenJoinTokenIsNull() {
             SocialLoginUserJoinRequest socialLoginUserJoinRequest = SocialLoginUserSample
-                    .getNormalSocialLoginUserJoinRequest();
+                    .getMockSocialLoginUserJoinRequest();
             socialLoginUserJoinRequest.setJoinToken(null);
             assertThatThrownBy(() -> ValidationUtil.validate(socialLoginUserJoinRequest))
                     .isInstanceOf(ConstraintViolationException.class);

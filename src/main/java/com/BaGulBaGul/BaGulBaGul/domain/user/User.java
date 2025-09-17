@@ -63,6 +63,10 @@ public class User extends BaseTimeEntity {
 
     @Setter
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
+    AdminManageEventHostUser adminManageEventHostUser;
+
+    @Setter
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     UserSuspensionStatus userSuspensionStatus;
 
     @Builder
