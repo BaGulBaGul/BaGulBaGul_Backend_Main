@@ -8,6 +8,7 @@ import com.BaGulBaGul.BaGulBaGul.global.auth.oauth2.dto.OAuth2JoinTokenSubject;
 import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -17,6 +18,7 @@ public class SocialLoginUserServiceImpl implements SocialLoginUserService {
     private final JwtProvider jwtProvider;
 
     @Override
+    @Transactional
     public SocialLoginUser registerSocialLoginUser(User user, String joinToken) {
         //joinToken에서 OAuth2JoinTokenSubject 추출.
         OAuth2JoinTokenSubject oAuth2JoinTokenSubject = jwtProvider.getOAuth2JoinTokenSubject(joinToken);
@@ -28,6 +30,7 @@ public class SocialLoginUserServiceImpl implements SocialLoginUserService {
     }
 
     @Override
+    @Transactional
     public SocialLoginUser registerSocialLoginUser(User user, OAuth2Provider oAuthProvider, String oAuthId) {
         //소셜 유저 생성
         SocialLoginUser socialLoginUser = SocialLoginUser.builder()
@@ -41,7 +44,8 @@ public class SocialLoginUserServiceImpl implements SocialLoginUserService {
     }
 
     @Override
-    public void deleteSocialLoginUser(String socialLoginUserId) {
+    @Transactional
+    public void deRegisterSocialLoginUser(String socialLoginUserId) {
         socialLoginUserRepository.deleteById(socialLoginUserId);
     }
 }

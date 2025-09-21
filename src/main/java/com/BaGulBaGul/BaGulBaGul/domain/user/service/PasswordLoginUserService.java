@@ -11,5 +11,5 @@ public interface PasswordLoginUserService {
             PasswordLoginUserRegisterRequest passwordLoginUserRegisterRequest,
             User user
     );
-    void deletePasswordLoginUser(String loginId);
+    void deRegisterPasswordLoginUser(String loginId);
 }

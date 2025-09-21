@@ -9,23 +9,32 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.AdminManageEventHostUser;
 import com.BaGulBaGul.BaGulBaGul.domain.user.PasswordLoginUser;
 import com.BaGulBaGul.BaGulBaGul.domain.user.SocialLoginUser;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
+import com.BaGulBaGul.BaGulBaGul.domain.user.UserRole;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.PasswordLoginUserRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.SocialLoginUserJoinRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.UserRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.exception.DuplicateUsernameException;
+import com.BaGulBaGul.BaGulBaGul.domain.user.exception.UserNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.AdminManageEventHostUserRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.PasswordLoginUserRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.SocialLoginUserRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserRoleRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.sampledata.AdminManageEventHostUserSample;
 import com.BaGulBaGul.BaGulBaGul.domain.user.sampledata.PasswordLoginUserSample;
 import com.BaGulBaGul.BaGulBaGul.domain.user.sampledata.SocialLoginUserSample;
 import com.BaGulBaGul.BaGulBaGul.domain.user.sampledata.UserSample;
 import com.BaGulBaGul.BaGulBaGul.extension.AllTestContainerExtension;
+import com.BaGulBaGul.BaGulBaGul.global.auth.Role;
+import com.BaGulBaGul.BaGulBaGul.global.auth.constant.GeneralRoleType;
 import com.BaGulBaGul.BaGulBaGul.global.auth.dto.OAuth2JoinTokenInfo;
+import com.BaGulBaGul.BaGulBaGul.global.auth.exception.RoleNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.global.auth.oauth2.constant.OAuth2Provider;
 import com.BaGulBaGul.BaGulBaGul.global.auth.oauth2.dto.OAuth2JoinTokenSubject;
+import com.BaGulBaGul.BaGulBaGul.global.auth.repository.RoleRepository;
 import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtProvider;
+import java.util.List;
+import java.util.Optional;
 import javax.persistence.EntityManager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -132,8 +141,12 @@ public class UserJoinService_IntegrationTest {
         void deleteNormalUserTest() {
             //given
             User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
+            entityManager.flush();
+            entityManager.clear();
             //when
             userJoinService.deleteUser(user.getId());
+            entityManager.flush();
+            entityManager.clear();
             //then
             User findUser = userRepository.findById(user.getId()).orElse(null);
             assertThat(findUser).isNull();
@@ -151,12 +164,21 @@ public class UserJoinService_IntegrationTest {
                     normalPasswordLoginUserRegisterRequest,
                     user
             );
+            entityManager.flush();
+            entityManager.clear();
+
             //when
             user = passwordLoginUser.getUser();
             userJoinService.deleteUser(user.getId());
+            entityManager.flush();
+            entityManager.clear();
+
             //then
+            PasswordLoginUser findPasswordLoginUser = passwordLoginUserRepository.findById(
+                    normalPasswordLoginUserRegisterRequest.getLoginId()).orElse(null);
             User findUser = userRepository.findById(user.getId()).orElse(null);
 
+            assertThat(findPasswordLoginUser).isNull();
             assertThat(findUser).isNull();
         }
     }
@@ -254,10 +276,14 @@ public class UserJoinService_IntegrationTest {
             SocialLoginUser socialLoginUser = userJoinService.joinSocialLoginUser(
                     socialLoginUserJoinRequest
             );
-            Long userId = socialLoginUser.getUser().getId();
-            //when
-            userJoinService.deleteUser(userId);
+            entityManager.flush();
+            entityManager.clear();
 
+            //when
+            Long userId = socialLoginUser.getUser().getId();
+            userJoinService.deleteUser(userId);
+            entityManager.flush();
+            entityManager.clear();
 
             //then
             User findUser = userRepository.findById(userId).orElse(null);
@@ -302,9 +328,13 @@ public class UserJoinService_IntegrationTest {
             );
             Long adminManageEventHostUserId = adminManageEventHostUser.getId();
             Long userId = adminManageEventHostUser.getUser().getId();
+            entityManager.flush();
+            entityManager.clear();
 
             //when
             userJoinService.deleteAdminManageEventHostUser(adminManageEventHostUserId);
+            entityManager.flush();
+            entityManager.clear();
 
             //then
             User findUser = userRepository.findById(userId).orElse(null);

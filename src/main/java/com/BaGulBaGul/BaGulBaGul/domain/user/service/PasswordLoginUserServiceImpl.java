@@ -65,7 +65,7 @@ public class PasswordLoginUserServiceImpl implements PasswordLoginUserService {
 
     @Override
     @Transactional
-    public void deletePasswordLoginUser(String loginId) {
+    public void deRegisterPasswordLoginUser(String loginId) {
         passwordLoginUserRepository.deleteById(loginId);
     }
 }

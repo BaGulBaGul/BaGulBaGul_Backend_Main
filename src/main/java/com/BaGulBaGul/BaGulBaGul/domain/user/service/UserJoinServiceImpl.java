@@ -34,6 +34,7 @@ public class UserJoinServiceImpl implements UserJoinService {
     private final UserRoleService userRoleService;
     private final PasswordLoginUserService passwordLoginUserService;
     private final SocialLoginUserService socialLoginUserService;
+    private final AdminManageEventHostUserService adminManageEventHostUserService;
 
     @Override
     @Transactional
@@ -96,15 +97,19 @@ public class UserJoinServiceImpl implements UserJoinService {
         //소셜로그인 정보 삭제
         SocialLoginUser socialLoginUser = user.getSocialLoginUser();
         if(socialLoginUser != null) {
-            socialLoginUserService.deleteSocialLoginUser(socialLoginUser.getId());
+            socialLoginUserService.deRegisterSocialLoginUser(socialLoginUser.getId());
         }
         //password login user 정보 삭제
         PasswordLoginUser passwordLoginUser = user.getPasswordLoginUser();
         if(passwordLoginUser != null) {
-            passwordLoginUserService.deletePasswordLoginUser(passwordLoginUser.getLoginId());
+            passwordLoginUserService.deRegisterPasswordLoginUser(passwordLoginUser.getLoginId());
+        }
+        //AdminManageEventHostUser 정보 삭제
+        AdminManageEventHostUser adminManageEventHostUser = user.getAdminManageEventHostUser();
+        if(adminManageEventHostUser != null) {
+            adminManageEventHostUserService.deRegisterAdminManageEventHostUser(adminManageEventHostUser.getId());
         }
         //역할 삭제는 on delete cascade
-
         //유저 정보 삭제
         userRepository.deleteById(userId);
     }
@@ -114,7 +119,6 @@ public class UserJoinServiceImpl implements UserJoinService {
     public void deleteAdminManageEventHostUser(Long adminManageEventHostUserId) {
         AdminManageEventHostUser adminManageEventHostUser = adminManageEventHostUserRepository
                 .findById(adminManageEventHostUserId).orElseThrow(UserNotFoundException::new);
-        adminManageEventHostUserRepository.deleteById(adminManageEventHostUserId);
         deleteUser(adminManageEventHostUser.getUser().getId());
     }
 

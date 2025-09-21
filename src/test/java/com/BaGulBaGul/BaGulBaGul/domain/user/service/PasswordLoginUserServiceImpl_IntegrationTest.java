@@ -67,7 +67,7 @@ class PasswordLoginUserServiceImpl_IntegrationTest {
                 user
         );
         //when
-        passwordLoginUserService.deletePasswordLoginUser(passwordLoginUser.getLoginId());
+        passwordLoginUserService.deRegisterPasswordLoginUser(passwordLoginUser.getLoginId());
         //then
         PasswordLoginUser findResult = passwordLoginUserRepository.findById(passwordLoginUser.getLoginId())
                 .orElse(null);
