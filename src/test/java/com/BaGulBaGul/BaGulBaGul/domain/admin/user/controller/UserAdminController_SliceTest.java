@@ -3,7 +3,6 @@ package com.BaGulBaGul.BaGulBaGul.domain.admin.user.controller;
 import com.BaGulBaGul.BaGulBaGul.domain.admin.user.dto.service.response.UserSearchByAdminResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.admin.user.service.UserAdminService;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.UserSearchRequest;
-import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-class UserAdminController_IntegrationTest {
+class UserAdminController_SliceTest {
 
     @Autowired
     MockMvc mockMvc;

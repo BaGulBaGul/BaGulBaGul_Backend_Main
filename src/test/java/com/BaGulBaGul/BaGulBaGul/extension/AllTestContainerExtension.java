@@ -11,22 +11,32 @@ public class AllTestContainerExtension implements BeforeAllCallback {
 
     static private final MysqlTestContainerExtension mysql = new MysqlTestContainerExtension();
     static private final RedisTestContainerExtension redis = new RedisTestContainerExtension();
+    static private final String USE_FLAG_NAME = "test.use_testcontainers";
 
     @Override
     public void beforeAll(ExtensionContext context) throws Exception {
-        if(!checkUseFlag(context)) {
+        if(!checkUseFlag()) {
             return;
         }
         mysql.beforeAll(context);
         redis.beforeAll(context);
     }
 
-    private boolean checkUseFlag(ExtensionContext context) {
-        ApplicationContext applicationContext = SpringExtension.getApplicationContext(context);
-        Environment environment = applicationContext.getEnvironment();
+    private boolean checkUseFlag() {
+        String property = System.getProperty(USE_FLAG_NAME);
+        if(property != null && property.equals("true")) {
+            return true;
+        } else if(property != null) {
+            return false;
+        }
 
-        // Environment 객체에서 프로퍼티 값을 읽어옵니다.
-        // 값이 없을 경우 기본값으로 true를 사용합니다.
-        return environment.getProperty("test.use_testcontainers", Boolean.class, true);
+        String getenv = System.getenv(USE_FLAG_NAME);
+        if(getenv != null && getenv.equals("true")) {
+            return true;
+        } else if(getenv != null) {
+            return false;
+        }
+
+        return true;
     }
 }

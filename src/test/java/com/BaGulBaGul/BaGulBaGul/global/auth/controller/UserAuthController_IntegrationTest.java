@@ -30,6 +30,7 @@ import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtStorageService;
 import com.BaGulBaGul.BaGulBaGul.global.response.ResponseCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Set;
@@ -197,9 +198,12 @@ class UserAuthController_IntegrationTest {
             //then
             ResponseCode responseCode = ResponseCode.AUTH_SUSPENDED_USER;
             resultActions.andExpect(status().is(responseCode.getHttpStatus().value()))
-                    .andExpect(jsonPath("$.errorCode").value(responseCode.getCode()))
-                    .andExpect(jsonPath("$.data.endDate").value(endDate.toString()))
-                    .andExpect(jsonPath("$.data.reason").value(reason));
+                    .andExpect(jsonPath("$.errorCode")
+                            .value(responseCode.getCode()))
+                    .andExpect(jsonPath("$.data.endDate")
+                            .value(endDate.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
+                    .andExpect(jsonPath("$.data.reason")
+                            .value(reason));
         }
     }
 
@@ -453,9 +457,12 @@ class UserAuthController_IntegrationTest {
             //then
             ResponseCode responseCode = ResponseCode.AUTH_SUSPENDED_USER;
             resultActions.andExpect(status().is(responseCode.getHttpStatus().value()))
-                    .andExpect(jsonPath("$.errorCode").value(responseCode.getCode()))
-                    .andExpect(jsonPath("$.data.endDate").value(endDate.toString()))
-                    .andExpect(jsonPath("$.data.reason").value(reason));
+                    .andExpect(jsonPath("$.errorCode")
+                            .value(responseCode.getCode()))
+                    .andExpect(jsonPath("$.data.endDate")
+                            .value(endDate.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
+                    .andExpect(jsonPath("$.data.reason")
+                            .value(reason));
         }
     }
 
