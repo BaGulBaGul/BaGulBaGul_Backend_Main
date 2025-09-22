@@ -1,0 +1,35 @@
+package com.BaGulBaGul.BaGulBaGul.domain.admin.user.dto.api.request;
+
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.AdminManageEventHostUserJoinRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.UserRegisterRequest;
+import io.swagger.annotations.ApiModelProperty;
+import java.util.Arrays;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class AMEHUserRegisterApiRequest {
+
+    @ApiModelProperty(value = "닉네임", required = true)
+    private String nickname;
+
+    @ApiModelProperty(value = "이메일", required = true)
+    private String email;
+
+    public AdminManageEventHostUserJoinRequest toServiceRequest() {
+        return new AdminManageEventHostUserJoinRequest(
+                UserRegisterRequest.builder()
+                        .nickname(nickname)
+                        .email(email)
+                        .roles(Arrays.asList("EVENT_HOST"))
+                        .build()
+        );
+    }
+}
