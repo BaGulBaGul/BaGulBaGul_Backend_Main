@@ -45,15 +45,19 @@ CREATE TABLE report_status (
     CONSTRAINT FK__REPORT_STATUS__EVENT_ID
         FOREIGN KEY (event_id)
         REFERENCES event (event_id),
+--        ON DELETE CASCADE,
     CONSTRAINT FK__REPORT_STATUS__RECRUITMENT_ID
         FOREIGN KEY (recruitment_id)
         REFERENCES recruitment (recruitment_id),
+--        ON DELETE CASCADE,
     CONSTRAINT FK__REPORT_STATUS__POST_COMMENT_ID
         FOREIGN KEY (post_comment_id)
         REFERENCES post_comment (post_comment_id),
+--        ON DELETE CASCADE,
     CONSTRAINT FK__REPORT_STATUS__POST_COMMENT_CHILD_ID
         FOREIGN KEY (post_comment_child_id)
         REFERENCES post_comment_child (post_comment_child_id),
+--        ON DELETE CASCADE,
 
     -- UNIQUE
     UNIQUE INDEX `UK__REPORT_STATUS__ACTIVE_EVENT_ID` (`active_event_id` ASC) VISIBLE,
@@ -68,3 +72,4 @@ ALTER TABLE report
     ADD CONSTRAINT FK__report__report_status_id
         FOREIGN KEY (report_status_id)
         REFERENCES report_status (report_status_id);
+--        ON DELETE CASCADE;

@@ -1,6 +1,6 @@
 package com.BaGulBaGul.BaGulBaGul.domain.report.service;
 
-import com.BaGulBaGul.BaGulBaGul.domain.report.dto.ReportRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.report.dto.service.request.ReportRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.report.exception.DuplicateReportException;
 
 public interface ReportService {

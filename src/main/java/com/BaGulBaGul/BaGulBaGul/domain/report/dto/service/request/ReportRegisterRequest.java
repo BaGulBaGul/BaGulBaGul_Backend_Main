@@ -1,4 +1,4 @@
-package com.BaGulBaGul.BaGulBaGul.domain.report.dto;
+package com.BaGulBaGul.BaGulBaGul.domain.report.dto.service.request;
 
 import com.BaGulBaGul.BaGulBaGul.domain.report.constant.ReportType;
 import lombok.AllArgsConstructor;

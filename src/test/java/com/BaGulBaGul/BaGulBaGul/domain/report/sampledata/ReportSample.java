@@ -1,7 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.domain.report.sampledata;
 
 import com.BaGulBaGul.BaGulBaGul.domain.report.constant.ReportType;
-import com.BaGulBaGul.BaGulBaGul.domain.report.dto.ReportRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.report.dto.service.request.ReportRegisterRequest;
 
 public class ReportSample {
     public static final ReportType NORMAL_REPORT_TYPE = ReportType.OFFENSIVE_CONTENT;
