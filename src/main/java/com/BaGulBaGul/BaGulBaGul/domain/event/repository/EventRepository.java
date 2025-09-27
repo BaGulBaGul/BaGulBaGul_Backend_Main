@@ -15,6 +15,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface EventRepository extends JpaRepository<Event, Long>, FindEventByCondition {
+
+    @Query(value = "SELECT e FROM Event e WHERE e.id = :id and e.deleted = false")
+    Optional<Event> findByIdIfNotDeleted(@Param(value = "id") Long eventId);
+
     @EntityGraph(attributePaths = {"post.user", "categories.category"})
     Optional<Event> findWithPostAndUserAndCategoryById(Long eventId);
 

@@ -12,10 +12,12 @@ import static org.mockito.Mockito.verify;
 import com.BaGulBaGul.BaGulBaGul.domain.event.Event;
 import com.BaGulBaGul.BaGulBaGul.domain.event.EventTestUtils;
 import com.BaGulBaGul.BaGulBaGul.domain.event.constant.EventType;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventConditionalRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.EventDetailResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.EventSimpleResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.event.exception.EventNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.event.repository.EventRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.event.sampledata.EventSample;
 import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostImageService;
@@ -43,6 +45,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -408,6 +413,60 @@ class EventService_IntegrationTest {
                         eventDetailResponse
                 );
             }
+        }
+        @Test
+        @DisplayName("삭제된 이벤트 단일 상세 조회 테스트")
+        @Transactional
+        void readSingleEventDetail_deleted() {
+            //given
+            User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
+            AuthenticatedUserInfo authenticatedUserInfo = AuthenticatedUserInfo.builder()
+                    .userId(user.getId())
+                    .roles(List.of(GeneralRoleType.EVENT_HOST.name()))
+                    .build();
+            User eventHostUser = userJoinService.registerUser(UserSample.getNormal2UserRegisterRequest());
+            EventRegisterRequest eventRegisterRequest = EventSample.getNormalRegisterRequest(eventHostUser.getId());
+            Long eventId = eventService.registerEvent(
+                    authenticatedUserInfo,
+                    eventRegisterRequest
+            );
+            eventService.deleteEvent(authenticatedUserInfo, eventId);
+            entityManager.flush();
+            entityManager.clear();
+
+            //when
+            //then
+            assertThrows(EventNotFoundException.class, () -> {
+                eventService.getEventDetailById(eventId);
+            });
+        }
+
+        @Test
+        @DisplayName("이벤트 페이지 조회 - 삭제된 이벤트는 보이지 않아야 함")
+        @Transactional
+        void getEventPageByCondition_deleted() {
+            //given
+            User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
+            AuthenticatedUserInfo authenticatedUserInfo = AuthenticatedUserInfo.builder()
+                    .userId(user.getId())
+                    .roles(List.of(GeneralRoleType.EVENT_HOST.name()))
+                    .build();
+            User eventHostUser = userJoinService.registerUser(UserSample.getNormal2UserRegisterRequest());
+            EventRegisterRequest eventRegisterRequest1 = EventSample.getNormalRegisterRequest(eventHostUser.getId());
+            Long eventId1 = eventService.registerEvent(authenticatedUserInfo, eventRegisterRequest1);
+            EventRegisterRequest eventRegisterRequest2 = EventSample.getNormal2RegisterRequest(eventHostUser.getId());
+            Long eventId2 = eventService.registerEvent(authenticatedUserInfo, eventRegisterRequest2);
+
+            eventService.deleteEvent(authenticatedUserInfo, eventId2);
+            entityManager.flush();
+            entityManager.clear();
+
+            //when
+            Page<EventSimpleResponse> page = eventService.getEventPageByCondition(new EventConditionalRequest(), PageRequest.of(0, 10));
+
+            //then
+            assertThat(page.getContent().size()).isEqualTo(1);
+            assertThat(page.getContent().get(0).getEvent().getEventId()).isEqualTo(eventId1);
         }
     }
 }

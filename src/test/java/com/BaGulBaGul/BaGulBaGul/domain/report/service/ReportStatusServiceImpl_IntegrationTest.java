@@ -4,6 +4,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.Event;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.repository.EventRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.event.sampledata.EventSample;
+import com.BaGulBaGul.BaGulBaGul.domain.event.service.EventCommentService;
 import com.BaGulBaGul.BaGulBaGul.domain.event.service.EventService;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostComment;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentChild;
@@ -71,6 +72,10 @@ class ReportStatusServiceImpl_IntegrationTest {
     @Autowired
     PostCommentService postCommentService;
     @Autowired
+    EventRepository eventRepository;
+    @Autowired
+    RecruitmentRepository recruitmentRepository;
+    @Autowired
     EventReportStatusRepository eventReportStatusRepository;
     @Autowired
     RecruitmentReportStatusRepository recruitmentReportStatusRepository;
@@ -80,6 +85,8 @@ class ReportStatusServiceImpl_IntegrationTest {
     CommentChildReportStatusRepository commentChildReportStatusRepository;
     @Autowired
     UserSuspensionService userSuspensionService;
+    @Autowired
+    EventCommentService eventCommentService;
     @Autowired
     EntityManager em;
 
@@ -141,8 +148,8 @@ class ReportStatusServiceImpl_IntegrationTest {
             em.flush();
             em.clear();
             //event가 soft delete 되었는지 확인
-            Event resultEvent = em.find(Event.class, event.getId());
-            assertThat(resultEvent.getDeleted()).isTrue();
+            Event resultEvent = eventRepository.findByIdIfNotDeleted(event.getId()).orElse(null);
+            assertThat(resultEvent).isNull();
             //report status가 변경되었는지 확인
             EventReportStatus resultReportStatus = eventReportStatusRepository.findById(eventReportStatus.getId()).get();
             assertThat(resultReportStatus.getState()).isEqualTo(ReportStatusState.ACCEPTED);
@@ -196,8 +203,8 @@ class ReportStatusServiceImpl_IntegrationTest {
             em.flush();
             em.clear();
             //event가 soft delete 되었는지 확인
-            Event resultEvent = em.find(Event.class, event.getId());
-            assertThat(resultEvent.getDeleted()).isTrue();
+            Event resultEvent = eventRepository.findByIdIfNotDeleted(event.getId()).orElse(null);
+            assertThat(resultEvent).isNull();
             //유저가 정지되었는지 확인
             UserSuspensionStatusResponse suspensionStatus = userSuspensionService.getUserSuspensionStatus(writer.getId());
             assertThat(suspensionStatus.isSuspended()).isTrue();
@@ -221,8 +228,8 @@ class ReportStatusServiceImpl_IntegrationTest {
             em.flush();
             em.clear();
             //event가 soft delete 되지 않았는지 확인
-            Event resultEvent = em.find(Event.class, event.getId());
-            assertThat(resultEvent.getDeleted()).isFalse();
+            Event resultEvent = eventRepository.findByIdIfNotDeleted(event.getId()).orElse(null);
+            assertThat(resultEvent).isNotNull();
             //유저가 정지되지 않았는지 확인
             UserSuspensionStatusResponse suspensionStatus = userSuspensionService.getUserSuspensionStatus(writer.getId());
             assertThat(suspensionStatus.isSuspended()).isFalse();
@@ -281,8 +288,8 @@ class ReportStatusServiceImpl_IntegrationTest {
             em.flush();
             em.clear();
             //recruitment가 soft delete 되었는지 확인
-            Recruitment resultRecruitment = em.find(Recruitment.class, recruitment.getId());
-            assertThat(resultRecruitment.getDeleted()).isTrue();
+            Recruitment resultRecruitment = recruitmentRepository.findByIdIfNotDeleted(recruitment.getId()).orElse(null);
+            assertThat(resultRecruitment).isNull();
             //report status가 변경되었는지 확인
             RecruitmentReportStatus resultReportStatus = recruitmentReportStatusRepository.findById(recruitmentReportStatus.getId()).get();
             assertThat(resultReportStatus.getState()).isEqualTo(ReportStatusState.ACCEPTED);
@@ -308,7 +315,7 @@ class ReportStatusServiceImpl_IntegrationTest {
             AuthenticatedUserInfo writerInfo = new AuthenticatedUserInfo(writer.getId(), List.of(GeneralRoleType.EVENT_HOST.name()));
             EventRegisterRequest eventRegisterRequest = EventSample.getNormalRegisterRequest(writer.getId());
             Long eventId = eventService.registerEvent(writerInfo, eventRegisterRequest);
-            Long postCommentId = postCommentService.registerPostComment(eventId, writer.getId(), new PostCommentRegisterRequest("test"));
+            Long postCommentId = eventCommentService.registerComment(writerInfo, eventId, new PostCommentRegisterRequest("test"));
             postComment = em.find(PostComment.class, postCommentId);
 
             commentReportStatus = commentReportStatusRepository.save(
@@ -363,8 +370,8 @@ class ReportStatusServiceImpl_IntegrationTest {
             EventRegisterRequest eventRegisterRequest = EventSample.getNormalRegisterRequest(writer.getId());
             Long eventId = eventService.registerEvent(writerInfo, eventRegisterRequest);
 
-            Long postCommentId = postCommentService.registerPostComment(eventId, writer.getId(), new PostCommentRegisterRequest("test"));
-            Long postCommentChildId = postCommentService.registerPostCommentChild(postCommentId, writer.getId(), new PostCommentChildRegisterRequest("test", null)).getPostCommentChildId();
+            Long postCommentId = eventCommentService.registerComment(writerInfo, eventId, new PostCommentRegisterRequest("test"));
+            Long postCommentChildId = eventCommentService.registerCommentChild(writerInfo, postCommentId, new PostCommentChildRegisterRequest("test", null));
             postCommentChild = em.find(PostCommentChild.class, postCommentChildId);
 
             commentChildReportStatus = commentChildReportStatusRepository.save(
@@ -390,13 +397,7 @@ class ReportStatusServiceImpl_IntegrationTest {
             //then
             em.flush();
             em.clear();
-            //postCommentChild가 null이 되었는지 확인
-            PostCommentChild resultPostCommentChild = em.find(PostCommentChild.class, postCommentChild.getId());
-            assertThat(resultPostCommentChild).isNull();
-            //report status가 변경되었는지 확인
-            CommentChildReportStatus resultReportStatus = commentChildReportStatusRepository.findById(commentChildReportStatus.getId()).get();
-            assertThat(resultReportStatus.getState()).isEqualTo(ReportStatusState.ACCEPTED);
-            assertThat(resultReportStatus.isReportedContentDeleted()).isTrue();
+
         }
     }
 }

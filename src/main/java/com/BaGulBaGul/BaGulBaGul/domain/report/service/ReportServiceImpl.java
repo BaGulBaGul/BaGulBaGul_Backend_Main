@@ -119,7 +119,7 @@ public class ReportServiceImpl implements ReportService {
     @Override
     @Transactional
     public Long registerPostCommentReport(Long postCommentId, ReportRegisterRequest reportRegisterRequest) throws DuplicateReportException {
-        PostComment postComment = postCommentRepository.findById(postCommentId)
+        PostComment postComment = postCommentRepository.findByIdIfNotDeleted(postCommentId)
                 .orElseThrow(PostCommentNotFoundException::new);
         User postCommentWriter = postComment.getUser();
 
@@ -145,7 +145,7 @@ public class ReportServiceImpl implements ReportService {
     @Override
     @Transactional
     public Long registerPostCommentChildReport(Long postCommentChildId, ReportRegisterRequest reportRegisterRequest) throws DuplicateReportException {
-        PostCommentChild postCommentChild = postCommentChildRepository.findById(postCommentChildId).orElseThrow(
+        PostCommentChild postCommentChild = postCommentChildRepository.findByIdIfNotDeleted(postCommentChildId).orElseThrow(
                 PostCommentChildNotFoundException::new);
         User postCommentChildWriter = postCommentChild.getUser();
 

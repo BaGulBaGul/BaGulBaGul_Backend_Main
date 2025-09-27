@@ -15,6 +15,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface RecruitmentRepository extends JpaRepository<Recruitment, Long>, FindRecruitmentByCondition {
+
+    @Query("SELECT rc FROM Recruitment rc WHERE rc.id = id and rc.deleted = false")
+    Optional<Recruitment> findByIdIfNotDeleted(@Param(value = "id") Long recruitmentId);
+
     @EntityGraph(attributePaths = {"post.user"})
     Optional<Recruitment> findWithPostAndUserById(Long recruitmentId);
 

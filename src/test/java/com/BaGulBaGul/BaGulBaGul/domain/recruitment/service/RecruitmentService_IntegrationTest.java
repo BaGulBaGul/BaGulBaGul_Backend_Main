@@ -12,8 +12,11 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.service.EventService;
 import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostService;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.Recruitment;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.constant.RecruitmentState;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.request.RecruitmentConditionalRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.request.RecruitmentModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.request.RecruitmentRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.response.RecruitmentSimpleResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.exception.RecruitmentNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.repository.RecruitmentRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.sampledata.RecruitmentSample;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
@@ -26,6 +29,7 @@ import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AuthenticatedUserInfo;
 import com.BaGulBaGul.BaGulBaGul.global.exception.NoPermissionException;
 import java.util.List;
 import javax.persistence.EntityManager;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -34,6 +38,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -297,6 +304,67 @@ class RecruitmentService_IntegrationTest {
             assertThrows(NoPermissionException.class, () -> {
                 recruitmentService.deleteRecruitment(normalUserInfo, recruitmentId);
             });
+        }
+    }
+
+    @Nested
+    @DisplayName("조회 테스트")
+    class RecruitmentReadTest {
+
+        User user;
+        AuthenticatedUserInfo authenticatedUserInfo;
+        Long eventId;
+
+        @BeforeEach
+        void setUp() {
+            user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
+            authenticatedUserInfo = AuthenticatedUserInfo.builder()
+                    .userId(user.getId())
+                    .roles(List.of(GeneralRoleType.EVENT_HOST.name()))
+                    .build();
+            User eventHostUser = userJoinService.registerUser(UserSample.getNormal2UserRegisterRequest());
+            eventId = eventService.registerEvent(
+                    authenticatedUserInfo,
+                    EventSample.getNormalRegisterRequest(eventHostUser.getId())
+            );
+        }
+
+        @Test
+        @DisplayName("삭제된 모집글 단일 상세 조회 테스트")
+        @Transactional
+        void getRecruitmentDetailById_deleted() {
+            //given
+            RecruitmentRegisterRequest recruitmentRegisterRequest = RecruitmentSample.getNormalRegisterRequest();
+            Long recruitmentId = recruitmentService.registerRecruitment(authenticatedUserInfo, eventId, recruitmentRegisterRequest);
+            recruitmentService.deleteRecruitment(authenticatedUserInfo, recruitmentId);
+            entityManager.flush();
+            entityManager.clear();
+            //when
+            //then
+            assertThrows(RecruitmentNotFoundException.class, () -> {
+                recruitmentService.getRecruitmentDetailById(recruitmentId);
+            });
+        }
+
+        @Test
+        @DisplayName("모집글 페이지 조회 - 삭제된 모집글은 보이지 않아야 함")
+        @Transactional
+        void getRecruitmentPageByCondition_deleted() {
+            //given
+            RecruitmentRegisterRequest recruitmentRegisterRequest1 = RecruitmentSample.getNormalRegisterRequest();
+            Long recruitmentId1 = recruitmentService.registerRecruitment(authenticatedUserInfo, eventId, recruitmentRegisterRequest1);
+            RecruitmentRegisterRequest recruitmentRegisterRequest2 = RecruitmentSample.getNormalRegisterRequest();
+            Long recruitmentId2 = recruitmentService.registerRecruitment(authenticatedUserInfo, eventId, recruitmentRegisterRequest2);
+
+            recruitmentService.deleteRecruitment(authenticatedUserInfo, recruitmentId2);
+
+            //when
+            Page<RecruitmentSimpleResponse> page = recruitmentService.getRecruitmentPageByCondition(
+                    new RecruitmentConditionalRequest(), PageRequest.of(0, 10));
+
+            //then
+            assertThat(page.getContent().size()).isEqualTo(1);
+            assertThat(page.getContent().get(0).getRecruitment().getRecruitmentId()).isEqualTo(recruitmentId1);
         }
     }
 }

@@ -104,7 +104,8 @@ public class RecruitmentCommentServiceImpl implements RecruitmentCommentService 
             Long commentId,
             PostCommentModifyRequest postCommentModifyRequest
     ) {
-        PostComment postComment = postCommentRepository.findById(commentId).orElseThrow(PostCommentNotFoundException::new);
+        PostComment postComment = postCommentRepository.findByIdIfNotDeleted(commentId)
+                .orElseThrow(PostCommentNotFoundException::new);
         checkModifyPermission(authenticatedUserInfo, postComment);
         postCommentService.modifyPostComment(commentId, authenticatedUserInfo.getUserId(), postCommentModifyRequest);
     }
@@ -114,7 +115,8 @@ public class RecruitmentCommentServiceImpl implements RecruitmentCommentService 
             AuthenticatedUserInfo authenticatedUserInfo,
             Long commentId
     ) {
-        PostComment postComment = postCommentRepository.findById(commentId).orElseThrow(PostCommentNotFoundException::new);
+        PostComment postComment = postCommentRepository.findByIdIfNotDeleted(commentId)
+                .orElseThrow(PostCommentNotFoundException::new);
         checkModifyPermission(authenticatedUserInfo, postComment);
         postCommentService.deletePostComment(commentId, authenticatedUserInfo.getUserId());
     }
@@ -144,7 +146,7 @@ public class RecruitmentCommentServiceImpl implements RecruitmentCommentService 
             Long commentChildId,
             PostCommentChildModifyRequest postCommentChildModifyRequest
     ) {
-        PostCommentChild postCommentChild = postCommentChildRepository.findById(commentChildId).orElseThrow(PostCommentChildNotFoundException::new);
+        PostCommentChild postCommentChild = postCommentChildRepository.findByIdIfNotDeleted(commentChildId).orElseThrow(PostCommentChildNotFoundException::new);
         checkModifyPermission(authenticatedUserInfo, postCommentChild);
         postCommentService.modifyPostCommentChild(commentChildId, authenticatedUserInfo.getUserId(), postCommentChildModifyRequest);
     }
@@ -154,7 +156,7 @@ public class RecruitmentCommentServiceImpl implements RecruitmentCommentService 
             AuthenticatedUserInfo authenticatedUserInfo,
             Long commentChildId
     ) {
-        PostCommentChild postCommentChild = postCommentChildRepository.findById(commentChildId).orElseThrow(PostCommentChildNotFoundException::new);
+        PostCommentChild postCommentChild = postCommentChildRepository.findByIdIfNotDeleted(commentChildId).orElseThrow(PostCommentChildNotFoundException::new);
         checkModifyPermission(authenticatedUserInfo, postCommentChild);
         postCommentService.deletePostCommentChild(commentChildId, authenticatedUserInfo.getUserId());
     }
@@ -226,7 +228,8 @@ public class RecruitmentCommentServiceImpl implements RecruitmentCommentService 
     @Override
     @Transactional
     public Long getRecruitmentIdFromCommentId(Long commentId) {
-        PostComment postComment = postCommentRepository.findById(commentId).orElseThrow(PostCommentNotFoundException::new);
+        PostComment postComment = postCommentRepository.findByIdIfNotDeleted(commentId)
+                .orElseThrow(PostCommentNotFoundException::new);
         Recruitment recruitment = recruitmentRepository.findByPost(postComment.getPost());
         if(recruitment == null) {
             throw new RecruitmentNotFoundException();

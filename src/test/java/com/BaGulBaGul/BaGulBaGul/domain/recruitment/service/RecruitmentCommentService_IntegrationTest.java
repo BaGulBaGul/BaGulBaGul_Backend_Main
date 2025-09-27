@@ -9,6 +9,8 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentChildMod
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentChildRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.GetPostCommentChildPageResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.GetPostCommentPageResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentChildRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.request.RecruitmentRegisterRequest;
@@ -20,6 +22,7 @@ import com.BaGulBaGul.BaGulBaGul.extension.AllTestContainerExtension;
 import com.BaGulBaGul.BaGulBaGul.global.auth.constant.GeneralRoleType;
 import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AuthenticatedUserInfo;
 import com.BaGulBaGul.BaGulBaGul.global.exception.NoPermissionException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -28,6 +31,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.openapitools.jackson.nullable.JsonNullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -83,7 +88,7 @@ public class RecruitmentCommentService_IntegrationTest {
         //then
         em.flush();
         em.clear();
-        PostComment postComment = postCommentRepository.findById(commentId).orElse(null);
+        PostComment postComment = postCommentRepository.findByIdIfNotDeleted(commentId).orElse(null);
         assertThat(postComment.getContent()).isEqualTo(postCommentModifyRequest.getContent());
     }
 
@@ -109,7 +114,7 @@ public class RecruitmentCommentService_IntegrationTest {
         //then
         em.flush();
         em.clear();
-        PostComment postComment = postCommentRepository.findById(commentId).orElse(null);
+        PostComment postComment = postCommentRepository.findByIdIfNotDeleted(commentId).orElse(null);
         assertThat(postComment).isNull();
     }
 
@@ -141,7 +146,7 @@ public class RecruitmentCommentService_IntegrationTest {
         //then
         em.flush();
         em.clear();
-        PostCommentChild postCommentChild = postCommentChildRepository.findById(childCommentId).orElse(null);
+        PostCommentChild postCommentChild = postCommentChildRepository.findByIdIfNotDeleted(childCommentId).orElse(null);
         assertThat(postCommentChild.getContent()).isEqualTo(postCommentChildModifyRequest.getContent());
     }
 
@@ -170,7 +175,7 @@ public class RecruitmentCommentService_IntegrationTest {
         //then
         em.flush();
         em.clear();
-        PostCommentChild postCommentChild = postCommentChildRepository.findById(childCommentId).orElse(null);
+        PostCommentChild postCommentChild = postCommentChildRepository.findByIdIfNotDeleted(childCommentId).orElse(null);
         assertThat(postCommentChild).isNull();
     }
 
@@ -298,7 +303,7 @@ public class RecruitmentCommentService_IntegrationTest {
         //then
         em.flush();
         em.clear();
-        PostComment postComment = postCommentRepository.findById(commentId).orElse(null);
+        PostComment postComment = postCommentRepository.findByIdIfNotDeleted(commentId).orElse(null);
         assertThat(postComment.getContent()).isEqualTo(postCommentModifyRequest.getContent());
     }
 
@@ -322,7 +327,7 @@ public class RecruitmentCommentService_IntegrationTest {
         //then
         em.flush();
         em.clear();
-        PostComment postComment = postCommentRepository.findById(commentId).orElse(null);
+        PostComment postComment = postCommentRepository.findByIdIfNotDeleted(commentId).orElse(null);
         assertThat(postComment).isNull();
     }
 
@@ -351,7 +356,7 @@ public class RecruitmentCommentService_IntegrationTest {
         //then
         em.flush();
         em.clear();
-        PostCommentChild postCommentChild = postCommentChildRepository.findById(childCommentId).orElse(null);
+        PostCommentChild postCommentChild = postCommentChildRepository.findByIdIfNotDeleted(childCommentId).orElse(null);
         assertThat(postCommentChild.getContent()).isEqualTo(postCommentChildModifyRequest.getContent());
     }
 
@@ -378,7 +383,67 @@ public class RecruitmentCommentService_IntegrationTest {
         //then
         em.flush();
         em.clear();
-        PostCommentChild postCommentChild = postCommentChildRepository.findById(childCommentId).orElse(null);
+        PostCommentChild postCommentChild = postCommentChildRepository.findByIdIfNotDeleted(childCommentId).orElse(null);
         assertThat(postCommentChild).isNull();
+    }
+
+    @Nested
+    @DisplayName("조회 테스트")
+    class RecruitmentCommentReadTest {
+
+        User user, user2;
+        AuthenticatedUserInfo authenticatedUserInfo, authenticatedUserInfo2;
+        Long eventId;
+        Long recruitmentId;
+
+        @BeforeEach
+        void setUp() {
+            user = userJoinService.registerUser(UserSample.getEventHostUserRegisterRequest());
+            authenticatedUserInfo = new AuthenticatedUserInfo(user.getId(), List.of(GeneralRoleType.EVENT_HOST.name()));
+            user2 = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
+            authenticatedUserInfo2 = new AuthenticatedUserInfo(user2.getId(), List.of(GeneralRoleType.USER.name()));
+
+            eventId = eventService.registerEvent(authenticatedUserInfo, EventSample.getNormalRegisterRequest(user.getId()));
+            recruitmentId = recruitmentService.registerRecruitment(authenticatedUserInfo, eventId, RecruitmentSample.getNormalRegisterRequest());
+        }
+
+        @Test
+        @DisplayName("댓글 페이징 조회 - 삭제된 댓글은 보이지 않아야 함")
+        @Transactional
+        void getRecruitmentCommentPage_deleted() {
+            //given
+            Long commentId1 = recruitmentCommentService.registerComment(authenticatedUserInfo, recruitmentId, new PostCommentRegisterRequest("test1"));
+            Long commentId2 = recruitmentCommentService.registerComment(authenticatedUserInfo2, recruitmentId, new PostCommentRegisterRequest("test2"));
+            recruitmentCommentService.deleteComment(authenticatedUserInfo2, commentId2);
+
+            //when
+            Page<GetPostCommentPageResponse> page = recruitmentCommentService.getRecruitmentCommentPage(recruitmentId, user.getId(), Pageable.unpaged());
+            em.flush();
+            em.clear();
+
+            //then
+            assertThat(page.getContent().size()).isEqualTo(1);
+            assertThat(page.getContent().get(0).getCommentId()).isEqualTo(commentId1);
+        }
+
+        @Test
+        @DisplayName("대댓글 페이징 조회 - 삭제된 대댓글은 보이지 않아야 함")
+        @Transactional
+        void getRecruitmentCommentChildPage_deleted() {
+            //given
+            Long commentId = recruitmentCommentService.registerComment(authenticatedUserInfo, recruitmentId, new PostCommentRegisterRequest("test"));
+            Long childCommentId1 = recruitmentCommentService.registerCommentChild(authenticatedUserInfo2, commentId, new PostCommentChildRegisterRequest("test_child1", null));
+            Long childCommentId2 = recruitmentCommentService.registerCommentChild(authenticatedUserInfo, commentId, new PostCommentChildRegisterRequest("test_child2", null));
+            recruitmentCommentService.deleteCommentChild(authenticatedUserInfo, childCommentId2);
+
+            //when
+            Page<GetPostCommentChildPageResponse> page = recruitmentCommentService.getRecruitmentCommentChildPage(commentId, user.getId(), Pageable.unpaged());
+            em.flush();
+            em.clear();
+
+            //then
+            assertThat(page.getContent().size()).isEqualTo(1);
+            assertThat(page.getContent().get(0).getCommentChildId()).isEqualTo(childCommentId1);
+        }
     }
 }

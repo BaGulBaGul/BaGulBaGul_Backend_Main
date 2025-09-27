@@ -6,6 +6,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.GetPostCommentPage
 import java.util.List;
 
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.PostCommentDetailResponse;
+import java.util.Optional;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -13,6 +14,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface PostCommentRepository extends JpaRepository<PostComment, Long> {
+    @Query(value = "SELECT pc FROM PostComment pc WHERE pc.id = :id and pc.deletedAt IS NULL")
+    Optional<PostComment> findByIdIfNotDeleted(@Param("id") Long postCommentId);
+
     @Query(
             value = "SELECT new com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.PostCommentDetailResponse( "
                         + "pc.id, "
@@ -31,8 +35,12 @@ public interface PostCommentRepository extends JpaRepository<PostComment, Long> 
     PostCommentDetailResponse getPostCommentDetail(@Param("postCommentId") Long postCommentId);
 
     @Modifying
-    @Query(value = "DELETE FROM PostComment pc WHERE pc.post = :post")
+    @Query(value = "UPDATE PostComment pc SET pc.deletedAt = CURRENT_TIMESTAMP WHERE pc.post = :post")
     void deleteAllByPost(@Param("post") Post post);
+
+    @Modifying
+    @Query(value = "DELETE FROM PostComment pc WHERE pc.post = :post")
+    void deleteAllHardByPost(@Param("post") Post post);
 
     @Query(
             value = "SELECT new com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.GetPostCommentPageResponse( "

@@ -104,7 +104,7 @@ public class EventCommentServiceImpl implements EventCommentService {
             Long commentId,
             PostCommentModifyRequest postCommentModifyRequest
     ) {
-        PostComment postComment = postCommentRepository.findById(commentId)
+        PostComment postComment = postCommentRepository.findByIdIfNotDeleted(commentId)
                 .orElseThrow(PostCommentNotFoundException::new);
         checkCommentModifyPermission(authenticatedUserInfo, postComment);
         postCommentService.modifyPostComment(commentId, authenticatedUserInfo.getUserId(), postCommentModifyRequest);
@@ -115,7 +115,7 @@ public class EventCommentServiceImpl implements EventCommentService {
             AuthenticatedUserInfo authenticatedUserInfo,
             Long commentId
     ) {
-        PostComment postComment = postCommentRepository.findById(commentId)
+        PostComment postComment = postCommentRepository.findByIdIfNotDeleted(commentId)
                 .orElseThrow(PostCommentNotFoundException::new);
         checkCommentModifyPermission(authenticatedUserInfo, postComment);
         postCommentService.deletePostComment(commentId, authenticatedUserInfo.getUserId());
@@ -147,7 +147,7 @@ public class EventCommentServiceImpl implements EventCommentService {
             Long commentChildId,
             PostCommentChildModifyRequest postCommentChildModifyRequest
     ) {
-        PostCommentChild postCommentChild = postCommentChildRepository.findById(commentChildId)
+        PostCommentChild postCommentChild = postCommentChildRepository.findByIdIfNotDeleted(commentChildId)
                 .orElseThrow(PostCommentChildNotFoundException::new);
         checkCommentChildModifyPermission(authenticatedUserInfo, postCommentChild);
         postCommentService.modifyPostCommentChild(commentChildId, authenticatedUserInfo.getUserId(), postCommentChildModifyRequest);
@@ -158,7 +158,7 @@ public class EventCommentServiceImpl implements EventCommentService {
             AuthenticatedUserInfo authenticatedUserInfo,
             Long commentChildId
     ) {
-        PostCommentChild postCommentChild = postCommentChildRepository.findById(commentChildId)
+        PostCommentChild postCommentChild = postCommentChildRepository.findByIdIfNotDeleted(commentChildId)
                 .orElseThrow(PostCommentChildNotFoundException::new);
         checkCommentChildModifyPermission(authenticatedUserInfo, postCommentChild);
         postCommentService.deletePostCommentChild(commentChildId, authenticatedUserInfo.getUserId());
@@ -231,7 +231,7 @@ public class EventCommentServiceImpl implements EventCommentService {
     @Override
     @Transactional
     public Long getEventIdFromCommentId(Long commentId) {
-        PostComment postComment = postCommentRepository.findById(commentId).orElseThrow(PostCommentNotFoundException::new);
+        PostComment postComment = postCommentRepository.findByIdIfNotDeleted(commentId).orElseThrow(PostCommentNotFoundException::new);
         Event event = eventRepository.findByPost(postComment.getPost());
         if(event == null) {
             throw new EventNotFoundException();

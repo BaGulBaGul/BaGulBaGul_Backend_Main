@@ -56,6 +56,7 @@ public class ReportStatusServiceImpl implements ReportStatusService {
             reportStatusState = ReportStatusState.ACCEPTED;
         }
         // ReportStatus의 진행 상태를 변경
+        reportStatus = reportStatusRepository.findById(reportStatusId).orElseThrow(ReportStatusNotExistException::new);
         reportStatus.setState(reportStatusState);
     }
 
@@ -77,6 +78,8 @@ public class ReportStatusServiceImpl implements ReportStatusService {
         }
         // 플래그 설정
         reportStatus.setReportedContentDeleted(true);
+        // 중간에 jpql에 의해 영속화가 풀릴 수 있으므로 명시적 merge
+        reportStatusRepository.save(reportStatus);
     }
 
     private void handleSuspendUser(

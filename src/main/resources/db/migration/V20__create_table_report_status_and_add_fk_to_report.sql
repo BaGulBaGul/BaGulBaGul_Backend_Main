@@ -27,16 +27,16 @@ CREATE TABLE report_status (
     -- 활성화 된 신고 상태를 게시물 당 1개로 제한하기 위한 칼럼. UNIQUE와 함께 쓰인다
     active_event_id BIGINT GENERATED ALWAYS AS (
         CASE WHEN dtype = 'Event' and state = 'PROCEEDING' THEN event_id ELSE NULL END
-    ) STORED,
+    ) VIRTUAL,
     active_recruitment_id BIGINT GENERATED ALWAYS AS (
         CASE WHEN dtype = 'Recruitment' and state = 'PROCEEDING' THEN recruitment_id ELSE NULL END
-    ) STORED,
+    ) VIRTUAL,
     active_post_comment_id BIGINT GENERATED ALWAYS AS (
         CASE WHEN dtype = 'Comment' and state = 'PROCEEDING' THEN post_comment_id ELSE NULL END
-    ) STORED,
+    ) VIRTUAL,
     active_post_comment_child_id BIGINT GENERATED ALWAYS AS (
         CASE WHEN dtype = 'CommentChild' and state = 'PROCEEDING' THEN post_comment_child_id ELSE NULL END
-    ) STORED,
+    ) VIRTUAL,
 
     -- PK
     PRIMARY KEY (report_status_id),
@@ -44,20 +44,20 @@ CREATE TABLE report_status (
     -- FK
     CONSTRAINT FK__REPORT_STATUS__EVENT_ID
         FOREIGN KEY (event_id)
-        REFERENCES event (event_id),
---        ON DELETE CASCADE,
+        REFERENCES event (event_id)
+        ON DELETE CASCADE,
     CONSTRAINT FK__REPORT_STATUS__RECRUITMENT_ID
         FOREIGN KEY (recruitment_id)
-        REFERENCES recruitment (recruitment_id),
---        ON DELETE CASCADE,
+        REFERENCES recruitment (recruitment_id)
+        ON DELETE CASCADE,
     CONSTRAINT FK__REPORT_STATUS__POST_COMMENT_ID
         FOREIGN KEY (post_comment_id)
-        REFERENCES post_comment (post_comment_id),
---        ON DELETE CASCADE,
+        REFERENCES post_comment (post_comment_id)
+        ON DELETE CASCADE,
     CONSTRAINT FK__REPORT_STATUS__POST_COMMENT_CHILD_ID
         FOREIGN KEY (post_comment_child_id)
-        REFERENCES post_comment_child (post_comment_child_id),
---        ON DELETE CASCADE,
+        REFERENCES post_comment_child (post_comment_child_id)
+        ON DELETE CASCADE,
 
     -- UNIQUE
     UNIQUE INDEX `UK__REPORT_STATUS__ACTIVE_EVENT_ID` (`active_event_id` ASC) VISIBLE,
@@ -71,5 +71,5 @@ ALTER TABLE report
     ADD COLUMN report_status_id BIGINT,
     ADD CONSTRAINT FK__report__report_status_id
         FOREIGN KEY (report_status_id)
-        REFERENCES report_status (report_status_id);
---        ON DELETE CASCADE;
+        REFERENCES report_status (report_status_id)
+        ON DELETE CASCADE;
