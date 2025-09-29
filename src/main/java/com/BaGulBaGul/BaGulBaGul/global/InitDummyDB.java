@@ -9,6 +9,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.repository.EventRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.event.service.EventCommentService;
 import com.BaGulBaGul.BaGulBaGul.domain.event.service.EventService;
 import com.BaGulBaGul.BaGulBaGul.domain.event.constant.EventType;
+import com.BaGulBaGul.BaGulBaGul.domain.post.constant.PostType;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentChildRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.request.PostRegisterRequest;
@@ -179,6 +180,7 @@ public class InitDummyDB implements ApplicationListener<ApplicationReadyEvent> {
                                             .content(content)
                                             .tags(tagList)
                                             .imageIds(null)
+                                            .type(PostType.Event)
                                             .build()
                             )
                             .locationRegisterRequest(
@@ -294,6 +296,7 @@ public class InitDummyDB implements ApplicationListener<ApplicationReadyEvent> {
                                     .content(content)
                                     .tags(tagStr)
                                     .imageIds(null)
+                                    .type(PostType.Recruitment)
                                     .build())
                             .build()
             );

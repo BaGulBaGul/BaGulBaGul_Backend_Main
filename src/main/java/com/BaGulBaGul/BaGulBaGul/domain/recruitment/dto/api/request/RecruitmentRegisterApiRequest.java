@@ -2,6 +2,7 @@ package com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.api.request;
 
 import com.BaGulBaGul.BaGulBaGul.domain.common.dto.request.ParticipantStatusRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.common.dto.request.PeriodRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.constant.PostType;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.request.PostRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.request.RecruitmentRegisterRequest;
 import io.swagger.annotations.ApiModelProperty;
@@ -65,6 +66,7 @@ public class RecruitmentRegisterApiRequest {
                         .content(content)
                         .tags(tags)
                         .imageIds(imageIds)
+                        .type(PostType.Recruitment)
                         .build())
                 .build();
     }

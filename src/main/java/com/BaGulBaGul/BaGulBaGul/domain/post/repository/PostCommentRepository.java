@@ -89,6 +89,8 @@ public interface PostCommentRepository extends JpaRepository<PostComment, Long> 
             Pageable pageable
     );
 
+
+
     @Query("SELECT count(*) FROM PostComment pc WHERE pc.post.id = :postId")
     Long getPostCommentPageWithMyLikeCount (
             @Param("postId") Long postId

@@ -117,6 +117,7 @@ public class PostServiceImpl implements PostService {
                 .likeCount(0)
                 .commentCount(0)
                 .views(0)
+                .type(postRegisterRequest.getType())
                 .build();
         //post 생성
         postRepository.save(post);
