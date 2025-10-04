@@ -13,6 +13,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.response.Recruit
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.response.RecruitmentSimpleResponse;
 import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AuthenticatedUserInfo;
 import com.BaGulBaGul.BaGulBaGul.global.exception.NoPermissionException;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -20,7 +21,10 @@ public interface RecruitmentService {
 
     RecruitmentSimpleInfo getRecruitmentSimpleInfoById(Long recruitmentId);
     RecruitmentDetailInfo getRecruitmentDetailInfoById(Long recruitmentId);
-    RecruitmentDetailResponse getRecruitmentDetailById(Long recruitmentId);
+    RecruitmentDetailResponse getRecruitmentDetailResponseById(Long recruitmentId);
+    RecruitmentSimpleResponse getRecruitmentSimpleResponseById(Long recruitmentId);
+    List<RecruitmentSimpleResponse> getRecruitmentSimpleResponseByIdsWithFetch(List<Long> recruitmentIds);
+    List<Recruitment> fetchForRecruitmentSimpleResponse(List<Long> recruitmentIds);
     Page<RecruitmentSimpleResponse> getRecruitmentPageByCondition(RecruitmentConditionalRequest recruitmentConditionalRequest, Pageable pageable);
     Page<GetLikeRecruitmentResponse> getMyLikeRecruitment(Long userId, Pageable pageable);
     Long registerRecruitment(AuthenticatedUserInfo authenticatedUserInfo, Long eventId, RecruitmentRegisterRequest recruitmentRegisterRequest);

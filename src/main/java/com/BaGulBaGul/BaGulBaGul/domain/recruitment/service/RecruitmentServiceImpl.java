@@ -32,6 +32,7 @@ import com.BaGulBaGul.BaGulBaGul.global.auth.constant.PermissionType;
 import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AuthenticatedUserInfo;
 import com.BaGulBaGul.BaGulBaGul.global.auth.service.PermissionService;
 import com.BaGulBaGul.BaGulBaGul.global.exception.NoPermissionException;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -86,7 +87,7 @@ public class RecruitmentServiceImpl implements RecruitmentService {
 
     @Override
     @Transactional
-    public RecruitmentDetailResponse getRecruitmentDetailById(Long recruitmentId) {
+    public RecruitmentDetailResponse getRecruitmentDetailResponseById(Long recruitmentId) {
         Recruitment recruitment = recruitmentRepository.findWithPostAndUserById(recruitmentId).orElseThrow(() -> new RecruitmentNotFoundException());
 
         //삭제된 모집글은 제외
@@ -108,6 +109,31 @@ public class RecruitmentServiceImpl implements RecruitmentService {
     }
 
     @Override
+    public RecruitmentSimpleResponse getRecruitmentSimpleResponseById(Long recruitmentId) {
+        Recruitment recruitment = recruitmentRepository.findById(recruitmentId).orElseThrow(() -> new RecruitmentNotFoundException());
+        return RecruitmentSimpleResponse.builder()
+                .recruitment(getRecruitmentSimpleInfoById(recruitmentId))
+                .post(postService.getPostSimpleInfo(recruitment.getPost().getId()))
+                .build();
+    }
+
+    @Override
+    public List<RecruitmentSimpleResponse> getRecruitmentSimpleResponseByIdsWithFetch(List<Long> recruitmentIds) {
+        fetchForRecruitmentSimpleResponse(recruitmentIds);
+        return recruitmentIds.stream()
+                .map(this::getRecruitmentSimpleResponseById)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Recruitment> fetchForRecruitmentSimpleResponse(List<Long> recruitmentIds) {
+        if(recruitmentIds == null || recruitmentIds.size() == 0) {
+            return Collections.emptyList();
+        }
+        return recruitmentRepository.findWithPostAndUserByIds(recruitmentIds);
+    }
+
+    @Override
     @Transactional
     public Page<RecruitmentSimpleResponse> getRecruitmentPageByCondition(
             RecruitmentConditionalRequest recruitmentConditionalRequest, Pageable pageable
@@ -118,18 +144,8 @@ public class RecruitmentServiceImpl implements RecruitmentService {
                 pageable
         );
 
-        //fetch join 수행
-        recruitmentRepository.findWithPostAndUserByIds(pageResult.getRecruitmentIds());
-
         //응답 dto에 정보를 담는다
-        List<RecruitmentSimpleResponse> content = pageResult.getRecruitmentIds()
-                .stream()
-                .map(id -> recruitmentRepository.findById(id))
-                .map(recruitment -> RecruitmentSimpleResponse.builder()
-                        .recruitment(getRecruitmentSimpleInfoById(recruitment.get().getId()))
-                        .post(postService.getPostSimpleInfo(recruitment.get().getPost().getId()))
-                        .build()
-                ).collect(Collectors.toList());
+        List<RecruitmentSimpleResponse> content = getRecruitmentSimpleResponseByIdsWithFetch(pageResult.getRecruitmentIds());
 
         //최종 페이지 객체를 만들고 반환
         return new PageImpl<>(content, pageable, pageResult.getTotalCount());

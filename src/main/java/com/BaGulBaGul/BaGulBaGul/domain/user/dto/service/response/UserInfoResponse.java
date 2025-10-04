@@ -1,5 +1,6 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.response;
 
+import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,5 +27,15 @@ public class UserInfoResponse {
                 .email(email)
                 .profileMessage(profileMessage)
                 .imageURI(imageURI);
+    }
+
+    public static UserInfoResponse from(User user) {
+        return UserInfoResponse.builder()
+                .id(user.getId())
+                .nickname(user.getNickname())
+                .email(user.getEmail())
+                .profileMessage(user.getProfileMessage())
+                .imageURI(user.getImageURI())
+                .build();
     }
 }

@@ -40,7 +40,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -342,7 +341,7 @@ class RecruitmentService_IntegrationTest {
             //when
             //then
             assertThrows(RecruitmentNotFoundException.class, () -> {
-                recruitmentService.getRecruitmentDetailById(recruitmentId);
+                recruitmentService.getRecruitmentDetailResponseById(recruitmentId);
             });
         }
 

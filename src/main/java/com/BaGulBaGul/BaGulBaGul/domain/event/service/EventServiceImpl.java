@@ -40,7 +40,10 @@ import com.BaGulBaGul.BaGulBaGul.global.auth.constant.PermissionType;
 import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AuthenticatedUserInfo;
 import com.BaGulBaGul.BaGulBaGul.global.auth.service.PermissionService;
 import com.BaGulBaGul.BaGulBaGul.global.exception.NoPermissionException;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -91,6 +94,16 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
+    public EventSimpleResponse getEventSimpleById(Long eventId) {
+        Event event = eventRepository.findById(eventId).orElseThrow(EventNotFoundException::new);
+        return EventSimpleResponse.builder()
+                .event(getEventSimpleInfo(event))
+                .post(postService.getPostSimpleInfo(event.getPost().getId()))
+                .build();
+    }
+
+    @Override
+    @Transactional
     public Page<EventSimpleResponse> getEventPageByCondition(
             EventConditionalRequest eventConditionalRequest,
             Pageable pageable
@@ -107,16 +120,27 @@ public class EventServiceImpl implements EventService {
     @Transactional
     public List<EventSimpleResponse> getEventSimpleResponseByIds(List<Long> eventIds) {
         //필요한 정보를 fetch join
-        eventRepository.findWithPostAndUserAndCategoriesByIds(eventIds);
+        fetchForEventSimpleResponse(eventIds);
+        return getEventSimpleResponseByIdsWithoutFetch(eventIds);
+    }
+
+    @Override
+    public List<EventSimpleResponse> getEventSimpleResponseByIdsWithoutFetch(List<Long> eventIds) {
         //페이지 조회한 ids를 순서대로 EventSimpleResponse로 변환
         List<EventSimpleResponse> eventSimpleResponses = eventIds
                 .stream()
-                .map(eventRepository::findById)
-                .map(event -> new EventSimpleResponse(
-                        getEventSimpleInfo(event.get()),
-                        postService.getPostSimpleInfo(event.get().getPost().getId())))
+                .map(this::getEventSimpleById)
                 .collect(Collectors.toList());
         return eventSimpleResponses;
+    }
+
+    @Override
+    @Transactional
+    public List<Event> fetchForEventSimpleResponse(List<Long> eventIds) {
+        if(eventIds == null || eventIds.size() == 0) {
+            return Collections.emptyList();
+        }
+        return eventRepository.findWithPostAndUserAndCategoriesByIds(eventIds);
     }
 
     @Override

@@ -28,6 +28,9 @@ public class ReportStatus extends BaseTimeEntity {
     @Column(name = "report_status_id")
     private Long id;
 
+    @Column(name = "dtype", insertable = false, updatable = false)
+    private String dType;
+
     //처리 상태(진행중, 수락됨, 취소됨)
     @Setter
     @Column(name = "state")
@@ -76,6 +79,5 @@ public class ReportStatus extends BaseTimeEntity {
         this.defamatoryReportCount = 0;
         this.ectReportCount = 0;
         this.reportedContentDeleted = false;
-        this.reportedContentWriterSuspended = false;
     }
 }

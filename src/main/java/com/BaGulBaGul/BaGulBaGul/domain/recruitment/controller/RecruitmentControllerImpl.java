@@ -1,6 +1,5 @@
 package com.BaGulBaGul.BaGulBaGul.domain.recruitment.controller;
 
-import com.BaGulBaGul.BaGulBaGul.domain.event.applicationevent.QueryEventDetailByUserApplicationEvent;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.LikeCountResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
@@ -58,7 +57,7 @@ public class RecruitmentControllerImpl implements RecruitmentController {
             @PathVariable(name="recruitmentId") Long recruitmentId
     ) {
         //모집글 상세조회
-        RecruitmentDetailResponse recruitmentDetailResponse = recruitmentService.getRecruitmentDetailById(recruitmentId);
+        RecruitmentDetailResponse recruitmentDetailResponse = recruitmentService.getRecruitmentDetailResponseById(recruitmentId);
         //모집글을 유저가 상세조회 했을 경우에 대한 이벤트 발행
         applicationEventPublisher.publishEvent(
                 new QueryRecruitmentDetailByUserApplicationEvent(recruitmentDetailResponse)

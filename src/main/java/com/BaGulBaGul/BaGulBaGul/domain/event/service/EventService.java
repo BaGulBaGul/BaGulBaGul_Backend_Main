@@ -22,11 +22,14 @@ public interface EventService {
 
     //연결된 자원 등을 포함한 이벤트의 모든 정보인 EventDetailResponse를 반환
     EventDetailResponse getEventDetailById(Long eventId);
+    EventSimpleResponse getEventSimpleById(Long eventId);
 
     //조건에 맞는 모든 이벤트에 대한 EventSimpleResponse를 Page로 반환
     Page<EventSimpleResponse> getEventPageByCondition(EventConditionalRequest eventConditionalRequest, Pageable pageable);
     //순서를 유지한 채로 eventIds의 모든 이벤트에 대한 EventSimpleResponse를 반환
     List<EventSimpleResponse> getEventSimpleResponseByIds(List<Long> eventIds);
+    List<EventSimpleResponse> getEventSimpleResponseByIdsWithoutFetch(List<Long> eventIds);
+    List<Event> fetchForEventSimpleResponse(List<Long> eventIds);
 
     //유저가 좋아요를 누른 이벤트를 페이지로 반환
     Page<GetLikeEventResponse> getMyLikeEvent(GetLikeEventRequest getLikeEventRequest, Long userId, Pageable pageable);

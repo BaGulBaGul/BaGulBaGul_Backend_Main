@@ -12,6 +12,8 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentRegister
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.GetPostCommentChildPageResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.GetPostCommentPageResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.PostCommentDetailResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.response.PostCommentChildInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.response.PostCommentInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.response.RegisterPostCommentChildResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
@@ -26,6 +28,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.exception.UserNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserInfoService;
 import com.BaGulBaGul.BaGulBaGul.global.exception.NoPermissionException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -47,12 +50,15 @@ public class PostCommentServiceImpl implements PostCommentService {
     private final PostCommentLikeRepository postCommentLikeRepository;
     private final PostCommentChildLikeRepository postCommentChildLikeRepository;
 
+    private final UserInfoService userInfoService;
+
     @Override
     public PostCommentDetailResponse getPostCommentDetail(Long postCommentId) {
         return postCommentRepository.getPostCommentDetail(postCommentId);
     }
 
     @Override
+    @Transactional
     public Page<GetPostCommentPageResponse> getPostCommentPage(Long postId, Long requestUserId, Pageable pageable) {
         //repo에서 Page를 바로 받아오면 count query에서는 requestUserId를 쓰지 않아서 Could not locate named parameter예외 발생
         List<GetPostCommentPageResponse> result;
@@ -68,6 +74,7 @@ public class PostCommentServiceImpl implements PostCommentService {
     }
 
     @Override
+    @Transactional
     public Page<GetPostCommentChildPageResponse> getPostCommentChildPage(Long postCommentId, Long requestUserId, Pageable pageable) {
         List<GetPostCommentChildPageResponse> result;
         if(requestUserId == null) {
@@ -78,6 +85,36 @@ public class PostCommentServiceImpl implements PostCommentService {
         }
         Long count = postCommentChildRepository.getPostCommentChildPageCount(postCommentId);
         return new PageImpl(result, pageable, count);
+    }
+
+    @Override
+    @Transactional
+    public PostCommentInfo getPostCommentInfo(Long postCommentId) {
+        PostComment postComment = postCommentRepository.findById(postCommentId)
+                .orElseThrow(PostCommentNotFoundException::new);
+        return PostCommentInfo.builder()
+                .commentId(postCommentId)
+                .content(postComment.getContent())
+                .commentChildCount(postComment.getCommentChildCount())
+                .likeCount(postComment.getLikeCount())
+                .createdAt(postComment.getCreatedAt())
+                .writerInfo(userInfoService.getUserInfo(postComment.getUser().getId()))
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public PostCommentChildInfo getPostCommentChildInfo(Long postCommentChildId) {
+        PostCommentChild postCommentChild = postCommentChildRepository.findById(postCommentChildId)
+                .orElseThrow(PostCommentChildNotFoundException::new);
+        return PostCommentChildInfo.builder()
+                .commentChildId(postCommentChildId)
+                .commentId(postCommentChild.getPostComment().getId())
+                .content(postCommentChild.getContent())
+                .likeCount(postCommentChild.getLikeCount())
+                .createdAt(postCommentChild.getCreatedAt())
+                .writerInfo(userInfoService.getUserInfo(postCommentChild.getUser().getId()))
+                .build();
     }
 
     @Override

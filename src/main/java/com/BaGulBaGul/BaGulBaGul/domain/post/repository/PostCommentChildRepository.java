@@ -17,6 +17,29 @@ public interface PostCommentChildRepository extends JpaRepository<PostCommentChi
     @Query(value = "SELECT pch FROM PostCommentChild pch WHERE pch.id = :id and pch.deletedAt IS NULL")
     Optional<PostCommentChild> findByIdIfNotDeleted(@Param("id") Long postCommentChildId);
 
+    @Query(value = "SELECT pch "
+            + "FROM PostCommentChild pch "
+                + "JOIN FETCH pch.user pchu "
+                + "JOIN FETCH pch.postComment pc "
+                    + "JOIN FETCH pc.post p "
+                        + "LEFT JOIN FETCH p.event e "
+                        + "LEFT JOIN FETCH p.event e "
+                        + "LEFT JOIN FETCH e.categories ec "
+                        + "LEFT JOIN FETCH ec.category c "
+            + "WHERE pch.id IN :ids"
+    )
+    List<PostCommentChild> findWithCommentChildWriterAndCommentAndPostAndEventByIds(@Param("ids") List<Long> postCommentChildIds);
+
+    @Query(value = "SELECT pch "
+            + "FROM PostCommentChild pch "
+                + "JOIN FETCH pch.user pchu "
+                + "JOIN FETCH pch.postComment pc "
+                + "JOIN FETCH pc.post p "
+            + "WHERE pch.id IN :ids"
+    )
+    List<PostCommentChild> findWithCommentChildWriterAndCommentAndPostByIds(@Param("ids") List<Long> postCommentChildIds);
+
+
     @Modifying
     @Query(value =
             "UPDATE PostCommentChild pch "

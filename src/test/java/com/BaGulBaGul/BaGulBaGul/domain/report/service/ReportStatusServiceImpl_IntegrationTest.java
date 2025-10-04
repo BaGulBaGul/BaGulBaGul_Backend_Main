@@ -10,8 +10,6 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.PostComment;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentChild;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentChildRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentRegisterRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentChildRepository;
-import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostCommentService;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.Recruitment;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.request.RecruitmentRegisterRequest;
@@ -22,8 +20,13 @@ import com.BaGulBaGul.BaGulBaGul.domain.report.CommentChildReportStatus;
 import com.BaGulBaGul.BaGulBaGul.domain.report.CommentReportStatus;
 import com.BaGulBaGul.BaGulBaGul.domain.report.EventReportStatus;
 import com.BaGulBaGul.BaGulBaGul.domain.report.RecruitmentReportStatus;
+import com.BaGulBaGul.BaGulBaGul.domain.report.ReportStatus;
 import com.BaGulBaGul.BaGulBaGul.domain.report.constant.ReportStatusState;
 import com.BaGulBaGul.BaGulBaGul.domain.report.dto.service.request.CompleteReportStatusRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.report.ReportTestUtils;
+import com.BaGulBaGul.BaGulBaGul.domain.report.constant.ReportContentType;
+import com.BaGulBaGul.BaGulBaGul.domain.report.dto.service.request.FindReportStatusByConditionRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.report.dto.service.response.FindReportStatusByConditionResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.report.exception.ReportStatusNotExistException;
 import com.BaGulBaGul.BaGulBaGul.domain.report.repository.CommentChildReportStatusRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.report.repository.CommentReportStatusRepository;
@@ -48,6 +51,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -398,6 +405,185 @@ class ReportStatusServiceImpl_IntegrationTest {
             em.flush();
             em.clear();
 
+        }
+    }
+
+    @Nested
+    @DisplayName("신고 상태 검색 테스트")
+    class FindReportStatusByConditionTest {
+        User admin;
+        User writer;
+        Event event;
+        Recruitment recruitment;
+        PostComment postComment;
+        PostCommentChild postCommentChild;
+        EventReportStatus eventReportStatus;
+        RecruitmentReportStatus recruitmentReportStatus;
+        CommentReportStatus commentReportStatus;
+        CommentChildReportStatus commentChildReportStatus;
+
+        @BeforeEach
+        void init() {
+            admin = userJoinService.registerUser(UserSample.getAdminUserRegisterRequest());
+            writer = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
+            AuthenticatedUserInfo writerInfo = new AuthenticatedUserInfo(writer.getId(), List.of(GeneralRoleType.EVENT_HOST.name()));
+
+            //이벤트
+            EventRegisterRequest eventRegisterRequest = EventSample.getNormalRegisterRequest(writer.getId());
+            Long eventId = eventService.registerEvent(writerInfo, eventRegisterRequest);
+            event = em.find(Event.class, eventId);
+
+            eventReportStatus = eventReportStatusRepository.save(
+                    EventReportStatus.builder()
+                            .event(event)
+                            .build()
+            );
+            LocalDateTime createdAt = LocalDateTime.now().minusDays(4);
+            eventReportStatus.setCreatedAt(createdAt);
+
+            //모집
+            RecruitmentRegisterRequest recruitmentRegisterRequest = RecruitmentSample.getNormalRegisterRequest();
+            Long recruitmentId = recruitmentService.registerRecruitment(writerInfo, eventId, recruitmentRegisterRequest);
+            recruitment = em.find(Recruitment.class, recruitmentId);
+            recruitmentReportStatus = recruitmentReportStatusRepository.save(
+                    RecruitmentReportStatus.builder()
+                            .recruitment(recruitment)
+                            .build()
+            );
+            recruitmentReportStatus.setCreatedAt(createdAt.plusDays(1));
+
+            //댓글
+            Long postCommentId = eventCommentService.registerComment(writerInfo, eventId, new PostCommentRegisterRequest("test"));
+            postComment = em.find(PostComment.class, postCommentId);
+            commentReportStatus = commentReportStatusRepository.save(
+                    CommentReportStatus.builder()
+                            .postComment(postComment)
+                            .build()
+            );
+
+            //대댓글
+            Long postCommentChildId = eventCommentService.registerCommentChild(writerInfo, postCommentId, new PostCommentChildRegisterRequest("test", null));
+            postCommentChild = em.find(PostCommentChild.class, postCommentChildId);
+            commentChildReportStatus = commentChildReportStatusRepository.save(
+                    CommentChildReportStatus.builder()
+                            .postCommentChild(postCommentChild)
+                            .build()
+            );
+
+            em.flush();
+            em.clear();
+        }
+
+        @Test
+        @DisplayName("조건 없이 검색")
+        void findAll() {
+            //given
+            FindReportStatusByConditionRequest condition = FindReportStatusByConditionRequest.builder().build();
+            Pageable pageable = PageRequest.of(0, 10);
+
+            //when
+            Page<FindReportStatusByConditionResponse> result = reportStatusService.findReportStatusByCondition(condition, pageable);
+
+            //then
+            assertThat(result.getTotalElements()).isEqualTo(4);
+            assertThat(result.getContent().size()).isEqualTo(4);
+            //id순으로 정렬되므로 역순으로 검사
+            EventReportStatus finalEventReportStatus = em.find(EventReportStatus.class, eventReportStatus.getId());
+            RecruitmentReportStatus finalRecruitmentReportStatus = em.find(RecruitmentReportStatus.class, recruitmentReportStatus.getId());
+            CommentReportStatus finalCommentReportStatus = em.find(CommentReportStatus.class, commentReportStatus.getId());
+            CommentChildReportStatus finalCommentChildReportStatus = em.find(CommentChildReportStatus.class, commentChildReportStatus.getId());
+            ReportTestUtils.assertFindReportStatusByConditionResponse(result.getContent().get(0), finalEventReportStatus);
+            ReportTestUtils.assertFindReportStatusByConditionResponse(result.getContent().get(1), finalRecruitmentReportStatus);
+            ReportTestUtils.assertFindReportStatusByConditionResponse(result.getContent().get(2), finalCommentReportStatus);
+            ReportTestUtils.assertFindReportStatusByConditionResponse(result.getContent().get(3), finalCommentChildReportStatus);
+        }
+
+        @Test
+        @DisplayName("처리 상태로 검색(진행중)")
+        void findByState() {
+            //given
+            FindReportStatusByConditionRequest condition = FindReportStatusByConditionRequest.builder()
+                    .reportStatusState(ReportStatusState.PROCEEDING)
+                    .build();
+            Pageable pageable = PageRequest.of(0, 10);
+
+            //when
+            Page<FindReportStatusByConditionResponse> result = reportStatusService.findReportStatusByCondition(condition, pageable);
+
+            //then
+            assertThat(result.getTotalElements()).isEqualTo(4);
+            assertThat(result.getContent().size()).isEqualTo(4);
+            EventReportStatus finalEventReportStatus = em.find(EventReportStatus.class, eventReportStatus.getId());
+            RecruitmentReportStatus finalRecruitmentReportStatus = em.find(RecruitmentReportStatus.class, recruitmentReportStatus.getId());
+            CommentReportStatus finalCommentReportStatus = em.find(CommentReportStatus.class, commentReportStatus.getId());
+            CommentChildReportStatus finalCommentChildReportStatus = em.find(CommentChildReportStatus.class, commentChildReportStatus.getId());
+            ReportTestUtils.assertFindReportStatusByConditionResponse(result.getContent().get(0), finalEventReportStatus);
+            ReportTestUtils.assertFindReportStatusByConditionResponse(result.getContent().get(1), finalRecruitmentReportStatus);
+            ReportTestUtils.assertFindReportStatusByConditionResponse(result.getContent().get(2), finalCommentReportStatus);
+            ReportTestUtils.assertFindReportStatusByConditionResponse(result.getContent().get(3), finalCommentChildReportStatus);
+        }
+
+        @Test
+        @DisplayName("컨텐츠 타입으로 검색(이벤트, 모집글)")
+        void findByContentType_EventAndRecruitment() {
+            //given
+            FindReportStatusByConditionRequest condition = FindReportStatusByConditionRequest.builder()
+                    .reportContentTypes(List.of(ReportContentType.Event, ReportContentType.Recruitment))
+                    .build();
+            Pageable pageable = PageRequest.of(0, 10);
+
+            //when
+            Page<FindReportStatusByConditionResponse> result = reportStatusService.findReportStatusByCondition(condition, pageable);
+
+            //then
+            assertThat(result.getTotalElements()).isEqualTo(2);
+            assertThat(result.getContent().size()).isEqualTo(2);
+            EventReportStatus finalEventReportStatus = em.find(EventReportStatus.class, eventReportStatus.getId());
+            RecruitmentReportStatus finalRecruitmentReportStatus = em.find(RecruitmentReportStatus.class, recruitmentReportStatus.getId());
+            ReportTestUtils.assertFindReportStatusByConditionResponse(result.getContent().get(0), finalEventReportStatus);
+            ReportTestUtils.assertFindReportStatusByConditionResponse(result.getContent().get(1), finalRecruitmentReportStatus);
+        }
+
+        @Test
+        @DisplayName("컨텐츠 타입으로 검색(댓글, 대댓글)")
+        void findByContentType_CommentAndCommentChild() {
+            //given
+            FindReportStatusByConditionRequest condition = FindReportStatusByConditionRequest.builder()
+                    .reportContentTypes(List.of(ReportContentType.Comment, ReportContentType.CommentChild))
+                    .build();
+            Pageable pageable = PageRequest.of(0, 10);
+
+            //when
+            Page<FindReportStatusByConditionResponse> result = reportStatusService.findReportStatusByCondition(condition, pageable);
+
+            //then
+            assertThat(result.getTotalElements()).isEqualTo(2);
+            assertThat(result.getContent().size()).isEqualTo(2);
+            CommentReportStatus finalCommentReportStatus = em.find(CommentReportStatus.class, commentReportStatus.getId());
+            CommentChildReportStatus finalCommentChildReportStatus = em.find(CommentChildReportStatus.class, commentChildReportStatus.getId());
+            ReportTestUtils.assertFindReportStatusByConditionResponse(result.getContent().get(0), finalCommentReportStatus);
+            ReportTestUtils.assertFindReportStatusByConditionResponse(result.getContent().get(1), finalCommentChildReportStatus);
+        }
+
+        @Test
+        @DisplayName("페이지네이션으로 검색 - 생성일 내림차순")
+        void findByPageable() {
+            //given
+            FindReportStatusByConditionRequest condition = FindReportStatusByConditionRequest.builder().build();
+            Pageable pageable = PageRequest.of(1, 2, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+            //when
+            Page<FindReportStatusByConditionResponse> result = reportStatusService.findReportStatusByCondition(condition, pageable);
+
+            //then
+            assertThat(result.getTotalElements()).isEqualTo(4);
+            assertThat(result.getContent().size()).isEqualTo(2);
+
+            EventReportStatus finalEventReportStatus = em.find(EventReportStatus.class, eventReportStatus.getId());
+            RecruitmentReportStatus finalRecruitmentReportStatus = em.find(RecruitmentReportStatus.class, recruitmentReportStatus.getId());
+
+            ReportTestUtils.assertFindReportStatusByConditionResponse(result.getContent().get(1), finalEventReportStatus);
+            ReportTestUtils.assertFindReportStatusByConditionResponse(result.getContent().get(0), finalRecruitmentReportStatus);
         }
     }
 }

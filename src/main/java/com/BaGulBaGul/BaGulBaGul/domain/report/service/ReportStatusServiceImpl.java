@@ -1,24 +1,53 @@
 package com.BaGulBaGul.BaGulBaGul.domain.report.service;
 
+import com.BaGulBaGul.BaGulBaGul.domain.event.Event;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.EventSimpleResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.event.repository.EventRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.event.service.EventService;
+import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
+import com.BaGulBaGul.BaGulBaGul.domain.post.PostComment;
+import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentChild;
+import com.BaGulBaGul.BaGulBaGul.domain.post.constant.PostType;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.response.PostCommentChildInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.response.PostCommentInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentChildRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostCommentRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostCommentService;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.Recruitment;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.response.RecruitmentSimpleResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.repository.RecruitmentRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.service.RecruitmentService;
 import com.BaGulBaGul.BaGulBaGul.domain.report.CommentChildReportStatus;
 import com.BaGulBaGul.BaGulBaGul.domain.report.CommentReportStatus;
 import com.BaGulBaGul.BaGulBaGul.domain.report.EventReportStatus;
 import com.BaGulBaGul.BaGulBaGul.domain.report.RecruitmentReportStatus;
 import com.BaGulBaGul.BaGulBaGul.domain.report.ReportStatus;
+import com.BaGulBaGul.BaGulBaGul.domain.report.constant.ReportContentType;
 import com.BaGulBaGul.BaGulBaGul.domain.report.constant.ReportStatusState;
 import com.BaGulBaGul.BaGulBaGul.domain.report.dto.service.request.CompleteReportStatusRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.report.dto.service.request.FindReportStatusByConditionRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.report.dto.service.response.FindReportStatusByConditionResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.report.dto.service.response.ReportStatusInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.report.dto.service.response.ReportStatusOriginalContentInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.report.exception.ReportStatusNotExistException;
 import com.BaGulBaGul.BaGulBaGul.domain.report.repository.ReportStatusRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.report.repository.querydsl.FindReportStatusByCondition.ReportStatusIdsWithTotalCountOfPageResult;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.SuspendUserRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserInfoService;
 import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserSuspensionService;
 import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AuthenticatedUserInfo;
-import java.time.LocalDateTime;
+import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
+import com.BaGulBaGul.BaGulBaGul.global.response.ResponseCode;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import javax.swing.text.html.Option;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +61,119 @@ public class ReportStatusServiceImpl implements ReportStatusService {
     private final RecruitmentService recruitmentService;
     private final PostCommentService postCommentService;
     private final UserSuspensionService userSuspensionService;
+    private final PostCommentRepository postCommentRepository;
+    private final PostCommentChildRepository postCommentChildRepository;
+
+    @Override
+    @Transactional
+    public Page<FindReportStatusByConditionResponse> findReportStatusByCondition(
+            FindReportStatusByConditionRequest conditionRequest, Pageable pageable) {
+        ReportStatusIdsWithTotalCountOfPageResult findResult = reportStatusRepository.findReportStatusIdsByConditionAndPageable(
+                conditionRequest, pageable);
+        List<FindReportStatusByConditionResponse> responseContent = getConditionResponseWithFetch(
+                findResult.getReportStatuses());
+        return new PageImpl<>(responseContent, pageable, findResult.getTotalCount());
+    }
+    @Override
+    @Transactional
+    public List<FindReportStatusByConditionResponse> getConditionResponseWithFetch(List<ReportStatus> reportStatuses) {
+        List<Long> eventIds = new ArrayList<>();
+        List<Long> recruitmentIds = new ArrayList<>();
+        List<Long> commentIds = new ArrayList<>();
+        List<Long> commentChildIds = new ArrayList<>();
+
+        for(ReportStatus reportStatus : reportStatuses) {
+            if(reportStatus instanceof EventReportStatus) {
+                eventIds.add(((EventReportStatus) reportStatus).getEvent().getId());
+            } else if(reportStatus instanceof RecruitmentReportStatus) {
+                recruitmentIds.add(((RecruitmentReportStatus) reportStatus).getRecruitment().getId());
+            } else if(reportStatus instanceof CommentReportStatus) {
+                commentIds.add(((CommentReportStatus) reportStatus).getPostComment().getId());
+            } else if(reportStatus instanceof CommentChildReportStatus) {
+                commentChildIds.add(((CommentChildReportStatus) reportStatus).getPostCommentChild().getId());
+            }
+        }
+
+        //댓글 패치 조인
+
+        if(commentIds != null && commentIds.size() > 0) {
+            postCommentRepository.findWithCommentWriterAndPostByIds(commentIds);
+        }
+        //댓글이 속한 게시물의 id를 이벤트나 모집글에 추가
+        eventIds.addAll(
+                commentIds.stream().map(postCommentRepository::getReferenceById).map(PostComment::getPost)
+                        .filter(post -> post.getType()== PostType.Event).map(Post::getEvent).map(Event::getId)
+                        .collect(Collectors.toList())
+        );
+        recruitmentIds.addAll(
+                commentIds.stream().map(postCommentRepository::getReferenceById).map(PostComment::getPost)
+                        .filter(post -> post.getType()== PostType.Recruitment).map(Post::getRecruitment)
+                        .map(Recruitment::getId).collect(Collectors.toList())
+        );
+        //대댓글 패치 조인
+        if(commentChildIds != null && commentChildIds.size() > 0) {
+            postCommentChildRepository.findWithCommentChildWriterAndCommentAndPostByIds(commentChildIds);
+        }
+        //대댓글이 속한 게시물의 id를 이벤트나 모집글에 추가
+        eventIds.addAll(
+                commentChildIds.stream().map(postCommentChildRepository::getReferenceById)
+                        .map(PostCommentChild::getPostComment).map(PostComment::getPost)
+                        .filter(post -> post.getType()== PostType.Event).map(Post::getEvent).map(Event::getId)
+                        .collect(Collectors.toList())
+        );
+        recruitmentIds.addAll(
+                commentChildIds.stream().map(postCommentChildRepository::getReferenceById)
+                        .map(PostCommentChild::getPostComment).map(PostComment::getPost)
+                        .filter(post -> post.getType()== PostType.Recruitment).map(Post::getRecruitment)
+                        .map(Recruitment::getId).collect(Collectors.toList())
+        );
+        //이벤트 패치 조인
+        eventService.fetchForEventSimpleResponse(eventIds);
+        //모집글 패치 조인
+        recruitmentService.fetchForRecruitmentSimpleResponse(recruitmentIds);
+
+        //dto 로 변환
+        List<FindReportStatusByConditionResponse> result = new ArrayList<>();
+        for(ReportStatus reportStatus : reportStatuses) {
+            // 공통 데이터
+            FindReportStatusByConditionResponse response = FindReportStatusByConditionResponse.builder()
+                    .reportStatusInfo(ReportStatusInfo.from(reportStatus))
+                    .build();
+            // 신고 대상 게시물 데이터
+            response.setReportStatusOriginalContentInfo(getReportStatusOriginalContentInfo(reportStatus));
+            // 결과 리스트에 추가
+            result.add(response);
+        }
+
+        return result;
+    }
+
+    private ReportStatusOriginalContentInfo getReportStatusOriginalContentInfo(ReportStatus reportStatus) {
+        ReportStatusOriginalContentInfo result = ReportStatusOriginalContentInfo.builder().build();
+        // 게시물 종류 별 데이터 채우기
+        if(reportStatus instanceof EventReportStatus) {
+            EventReportStatus eventReportStatus = (EventReportStatus) reportStatus;
+            EventSimpleResponse eventSimpleResponse = eventService
+                    .getEventSimpleById(eventReportStatus.getEvent().getId());
+            result.setEventInfo(Optional.of(eventSimpleResponse));
+        } else if(reportStatus instanceof RecruitmentReportStatus) {
+            RecruitmentReportStatus recruitmentReportStatus = (RecruitmentReportStatus) reportStatus;
+            RecruitmentSimpleResponse recruitmentSimpleResponse = recruitmentService
+                    .getRecruitmentSimpleResponseById(recruitmentReportStatus.getRecruitment().getId());
+            result.setRecruitmentInfo(Optional.of(recruitmentSimpleResponse));
+        } else if(reportStatus instanceof CommentReportStatus) {
+            CommentReportStatus commentReportStatus = (CommentReportStatus) reportStatus;
+            PostCommentInfo postCommentInfo = postCommentService
+                    .getPostCommentInfo(commentReportStatus.getPostComment().getId());
+            result.setCommentInfo(Optional.of(postCommentInfo));
+        } else if(reportStatus instanceof CommentChildReportStatus) {
+            CommentChildReportStatus commentChildReportStatus = (CommentChildReportStatus) reportStatus;
+            PostCommentChildInfo postCommentChildInfo = postCommentService.getPostCommentChildInfo(
+                    commentChildReportStatus.getPostCommentChild().getId());
+            result.setCommentChildInfo(Optional.of(postCommentChildInfo));
+        }
+        return result;
+    }
 
     @Override
     @Transactional

@@ -7,6 +7,9 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentRegister
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.GetPostCommentChildPageResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.GetPostCommentPageResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.PostCommentDetailResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.response.PostCommentChildInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.response.PostCommentInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.response.PostSimpleInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.response.RegisterPostCommentChildResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
@@ -17,6 +20,8 @@ public interface PostCommentService {
     PostCommentDetailResponse getPostCommentDetail(Long postCommentId);
     Page<GetPostCommentPageResponse> getPostCommentPage(Long postId, Long requestUserId, Pageable pageable);
     Page<GetPostCommentChildPageResponse> getPostCommentChildPage(Long postCommentId, Long requestUserId, Pageable pageable);
+    PostCommentInfo getPostCommentInfo(Long postCommentId);
+    PostCommentChildInfo getPostCommentChildInfo(Long postCommentChildId);
 
     Long registerPostComment(Long postId, Long userId, PostCommentRegisterRequest postCommentRegisterRequest);
     void modifyPostComment(Long postCommentId, Long userId, PostCommentModifyRequest postCommentModifyRequest);

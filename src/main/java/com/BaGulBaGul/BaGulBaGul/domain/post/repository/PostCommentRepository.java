@@ -14,6 +14,26 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface PostCommentRepository extends JpaRepository<PostComment, Long> {
+
+    @Query(value = "SELECT pc "
+            + "FROM PostComment pc "
+                + "JOIN FETCH pc.user pcu "
+                + "JOIN FETCH pc.post p "
+                    + "LEFT JOIN FETCH p.event e "
+                    + "LEFT JOIN FETCH e.categories ec "
+                    + "LEFT JOIN FETCH ec.category c "
+            + "WHERE pc.id IN :ids"
+    )
+    List<PostComment> findWithCommentWriterAndPostAndEventByIds(@Param("ids") List<Long> postCommentIds);
+
+    @Query(value = "SELECT pc "
+            + "FROM PostComment pc "
+                + "JOIN FETCH pc.user pcu "
+                + "JOIN FETCH pc.post p "
+            + "WHERE pc.id IN :ids"
+    )
+    List<PostComment> findWithCommentWriterAndPostByIds(@Param("ids") List<Long> postCommentIds);
+
     @Query(value = "SELECT pc FROM PostComment pc WHERE pc.id = :id and pc.deletedAt IS NULL")
     Optional<PostComment> findByIdIfNotDeleted(@Param("id") Long postCommentId);
 
