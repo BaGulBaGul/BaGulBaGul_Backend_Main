@@ -400,11 +400,13 @@ class ReportStatusServiceImpl_IntegrationTest {
 
             //when
             reportStatusService.completeReportStatus(adminInfo, commentChildReportStatus.getId(), completeReportStatusRequest);
-
-            //then
             em.flush();
             em.clear();
 
+            //then
+            CommentChildReportStatus resultReportStatus = commentChildReportStatusRepository.findById(commentChildReportStatus.getId()).get();
+            assertThat(resultReportStatus.getState()).isEqualTo(ReportStatusState.ACCEPTED);
+            assertThat(resultReportStatus.isReportedContentDeleted()).isTrue();
         }
     }
 

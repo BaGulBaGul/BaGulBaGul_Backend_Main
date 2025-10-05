@@ -4,13 +4,32 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.EventTestUtils;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostTestUtils;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.RecruitmentTestUtils;
 import com.BaGulBaGul.BaGulBaGul.domain.report.constant.ReportContentType;
+import com.BaGulBaGul.BaGulBaGul.domain.report.constant.ReportStatusState;
 import com.BaGulBaGul.BaGulBaGul.domain.report.dto.service.response.FindReportStatusByConditionResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.report.dto.service.response.ReportInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.report.dto.service.response.ReportStatusInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.report.dto.service.response.ReportStatusOriginalContentInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.user.UserTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ReportTestUtils {
+    public static void assertReportStatus(
+            ReportStatus reportStatus, ReportStatusState reportStatusState,
+            int totalReportCount, int notRelevantReportCount, int offensiveContentReportCount,
+            int defamatoryReportCount, int ectReportCount,
+            boolean isReportedContentDeleted, boolean isReportedContentWriterSuspended
+    ) {
+        assertThat(reportStatus.getState()).isEqualTo(reportStatusState);
+        assertThat(reportStatus.getTotalReportCount()).isEqualTo(totalReportCount);
+        assertThat(reportStatus.getNotRelevantReportCount()).isEqualTo(notRelevantReportCount);
+        assertThat(reportStatus.getOffensiveContentReportCount()).isEqualTo(offensiveContentReportCount);
+        assertThat(reportStatus.getDefamatoryReportCount()).isEqualTo(defamatoryReportCount);
+        assertThat(reportStatus.getEctReportCount()).isEqualTo(ectReportCount);
+        assertThat(reportStatus.isReportedContentDeleted()).isEqualTo(isReportedContentDeleted);
+        assertThat(reportStatus.isReportedContentWriterSuspended()).isEqualTo(isReportedContentWriterSuspended);
+    }
+
     public static void assertReportStatusInfo(ReportStatusInfo reportStatusInfo, ReportStatus reportStatus) {
         assertThat(reportStatusInfo.getReportStatusId()).isEqualTo(reportStatus.getId());
         assertThat(reportStatusInfo.getState()).isEqualTo(reportStatus.getState());
@@ -52,5 +71,15 @@ public class ReportTestUtils {
             assertThat(contentInfo.getCommentChildInfo()).isPresent();
             PostTestUtils.assertPostCommentChildInfo(contentInfo.getCommentChildInfo().get(), commentChildReportStatus.getPostCommentChild());
         }
+    }
+
+    public static void assertReportInfo(ReportInfo reportInfo, Report report) {
+        assertThat(reportInfo.getReportId()).isEqualTo(report.getReportId());
+        assertThat(reportInfo.getReportType()).isEqualTo(report.getReportType());
+        assertThat(reportInfo.isSolved()).isEqualTo(report.isSolved());
+        assertThat(reportInfo.getMessage()).isEqualTo(report.getMessage());
+        UserTestUtils.assertUserInfoResponse(reportInfo.getReportingUserInfo(), report.getReportingUser());
+        UserTestUtils.assertUserInfoResponse(reportInfo.getReportedUserInfo(), report.getReportedUser());
+        assertThat(reportInfo.getReportedAt()).isEqualTo(report.getCreatedAt());
     }
 }

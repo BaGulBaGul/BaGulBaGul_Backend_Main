@@ -21,8 +21,10 @@ import com.BaGulBaGul.BaGulBaGul.domain.report.RecruitmentReport;
 import com.BaGulBaGul.BaGulBaGul.domain.report.RecruitmentReportStatus;
 import com.BaGulBaGul.BaGulBaGul.domain.report.Report;
 import com.BaGulBaGul.BaGulBaGul.domain.report.ReportStatus;
+import com.BaGulBaGul.BaGulBaGul.domain.report.constant.ReportContentType;
 import com.BaGulBaGul.BaGulBaGul.domain.report.constant.ReportStatusState;
 import com.BaGulBaGul.BaGulBaGul.domain.report.dto.service.request.ReportRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.report.dto.service.response.ReportStatusInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.report.exception.DuplicateReportException;
 import com.BaGulBaGul.BaGulBaGul.domain.report.repository.CommentChildReportStatusRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.report.repository.CommentReportStatusRepository;
@@ -50,6 +52,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import com.BaGulBaGul.BaGulBaGul.domain.report.ReportTestUtils;
+import com.BaGulBaGul.BaGulBaGul.domain.report.dto.service.response.ReportInfo;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
@@ -132,7 +140,7 @@ class ReportService_IntegrationTest {
             assertThat(eventReportStatus.getEvent().getId()).isEqualTo(eventId);
             assertThat(eventReportStatus.getActiveEventId()).isEqualTo(eventId);
             // ReportStatus 확인
-            assertReportStatus(
+            ReportTestUtils.assertReportStatus(
                     eventReportStatus, ReportStatusState.PROCEEDING,
                     1, 0, 1, 0, 0,
                     false, false
@@ -189,7 +197,7 @@ class ReportService_IntegrationTest {
             assertThat(eventReportStatus.getEvent().getId()).isEqualTo(eventId);
             assertThat(eventReportStatus.getActiveEventId()).isEqualTo(eventId);
             // ReportStatus 확인
-            assertReportStatus(
+            ReportTestUtils.assertReportStatus(
                     eventReportStatus, ReportStatusState.PROCEEDING,
                     2, 1, 1, 0, 0,
                     false, false
@@ -247,7 +255,7 @@ class ReportService_IntegrationTest {
             assertThat(recruitmentReportStatus.getRecruitment().getId()).isEqualTo(recruitmentId);
             assertThat(recruitmentReportStatus.getActiveRecruitmentId()).isEqualTo(recruitmentId);
             // ReportStatus 확인
-            assertReportStatus(
+            ReportTestUtils.assertReportStatus(
                     recruitmentReportStatus, ReportStatusState.PROCEEDING,
                     1, 0, 1, 0, 0,
                     false, false
@@ -304,7 +312,7 @@ class ReportService_IntegrationTest {
             assertThat(recruitmentReportStatus.getRecruitment().getId()).isEqualTo(recruitmentId);
             assertThat(recruitmentReportStatus.getActiveRecruitmentId()).isEqualTo(recruitmentId);
             // ReportStatus 확인
-            assertReportStatus(
+            ReportTestUtils.assertReportStatus(
                     recruitmentReportStatus, ReportStatusState.PROCEEDING,
                     2, 1, 1, 0, 0,
                     false, false
@@ -362,7 +370,7 @@ class ReportService_IntegrationTest {
             assertThat(commentReportStatus.getPostComment().getId()).isEqualTo(postCommentId);
             assertThat(commentReportStatus.getActivePostCommentId()).isEqualTo(postCommentId);
             // ReportStatus 확인
-            assertReportStatus(
+            ReportTestUtils.assertReportStatus(
                     commentReportStatus, ReportStatusState.PROCEEDING,
                     1, 0, 1, 0, 0,
                     false, false
@@ -419,7 +427,7 @@ class ReportService_IntegrationTest {
             assertThat(commentReportStatus.getPostComment().getId()).isEqualTo(postCommentId);
             assertThat(commentReportStatus.getActivePostCommentId()).isEqualTo(postCommentId);
             // ReportStatus 확인
-            assertReportStatus(
+            ReportTestUtils.assertReportStatus(
                     commentReportStatus, ReportStatusState.PROCEEDING,
                     2, 1, 1, 0, 0,
                     false, false
@@ -483,7 +491,7 @@ class ReportService_IntegrationTest {
             assertThat(commentChildReportStatus.getPostCommentChild().getId()).isEqualTo(postCommentChildId);
             assertThat(commentChildReportStatus.getActivePostCommentChildId()).isEqualTo(postCommentChildId);
             // ReportStatus 확인
-            assertReportStatus(
+            ReportTestUtils.assertReportStatus(
                     commentChildReportStatus, ReportStatusState.PROCEEDING,
                     1, 0, 1, 0, 0,
                     false, false
@@ -540,7 +548,7 @@ class ReportService_IntegrationTest {
             assertThat(commentChildReportStatus.getPostCommentChild().getId()).isEqualTo(postCommentChildId);
             assertThat(commentChildReportStatus.getActivePostCommentChildId()).isEqualTo(postCommentChildId);
             // ReportStatus 확인
-            assertReportStatus(
+            ReportTestUtils.assertReportStatus(
                     commentChildReportStatus, ReportStatusState.PROCEEDING,
                     2, 1, 1, 0, 0,
                     false, false
@@ -548,19 +556,91 @@ class ReportService_IntegrationTest {
         }
     }
 
-    private static void assertReportStatus(
-            ReportStatus reportStatus, ReportStatusState reportStatusState,
-            int totalReportCount, int notRelevantReportCount, int offensiveContentReportCount,
-            int defamatoryReportCount, int ectReportCount,
-            boolean isReportedContentDeleted, boolean isReportedContentWriterSuspended
-    ) {
-        assertThat(reportStatus.getState()).isEqualTo(reportStatusState);
-        assertThat(reportStatus.getTotalReportCount()).isEqualTo(totalReportCount);
-        assertThat(reportStatus.getNotRelevantReportCount()).isEqualTo(notRelevantReportCount);
-        assertThat(reportStatus.getOffensiveContentReportCount()).isEqualTo(offensiveContentReportCount);
-        assertThat(reportStatus.getDefamatoryReportCount()).isEqualTo(defamatoryReportCount);
-        assertThat(reportStatus.getEctReportCount()).isEqualTo(ectReportCount);
-        assertThat(reportStatus.isReportedContentDeleted()).isEqualTo(isReportedContentDeleted);
-        assertThat(reportStatus.isReportedContentWriterSuspended()).isEqualTo(isReportedContentWriterSuspended);
+    @Nested
+    @DisplayName("reportStatusId와 pageable로 Report 정보 페이징 조회")
+    class FindByReportStatusIdAndPageableTest {
+        User reportingUser;
+        User reportingUser2;
+        User reportedUser;
+        Long eventId;
+        ReportRegisterRequest reportRegisterRequest;
+        ReportRegisterRequest reportRegisterRequest2;
+        Long reportId1;
+        Long reportId2;
+        ReportStatus reportStatus;
+
+        @BeforeEach
+        void init() throws InterruptedException {
+            reportingUser = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
+            reportingUser2 = userJoinService.registerUser(UserSample.getNormal2UserRegisterRequest());
+            reportedUser = userJoinService.registerUser(UserSample.getNormal3UserRegisterRequest());
+            AuthenticatedUserInfo reportedUserInfo = new AuthenticatedUserInfo(reportedUser.getId(), List.of(GeneralRoleType.EVENT_HOST.name()));
+
+            EventRegisterRequest eventRegisterRequest = EventSample.getNormalRegisterRequest(reportedUser.getId());
+            eventId = eventService.registerEvent(reportedUserInfo, eventRegisterRequest);
+
+            reportRegisterRequest = ReportSample.getNormalReportRegisterRequest(reportingUser.getId());
+            reportId1 = reportService.registerEventReport(eventId, reportRegisterRequest);
+            Thread.sleep(1);
+            reportRegisterRequest2 = ReportSample.getNormal2ReportRegisterRequest(reportingUser2.getId());
+            reportId2 = reportService.registerEventReport(eventId, reportRegisterRequest2);
+
+            reportStatus = reportRepository.findById(reportId1).get().getReportStatus();
+            em.flush();
+            em.clear();
+        }
+
+        @Test
+        @DisplayName("성공 테스트")
+        void findByReportStatusIdAndPageable_success() {
+            //given
+            Pageable pageable = PageRequest.of(0, 10);
+
+            //when
+            Page<ReportInfo> result = reportService.findByReportStatusIdAndPageable(reportStatus.getId(), pageable);
+
+            //then
+            Report report1 = reportRepository.findById(reportId1).get();
+            Report report2 = reportRepository.findById(reportId2).get();
+            assertThat(result.getTotalElements()).isEqualTo(2);
+            ReportInfo reportInfo1 = result.getContent().get(0);
+            ReportInfo reportInfo2 = result.getContent().get(1);
+            ReportTestUtils.assertReportInfo(reportInfo1, report1);
+            ReportTestUtils.assertReportInfo(reportInfo2, report2);
+        }
+
+        @Test
+        @DisplayName("페이지네이션 및 정렬 테스트")
+        void findByReportStatusIdAndPageable_pagination_and_sort() {
+            //given
+            Pageable pageable = PageRequest.of(0, 1, Sort.by(Sort.Direction.ASC, "createdAt"));
+
+            //when
+            Page<ReportInfo> result = reportService.findByReportStatusIdAndPageable(reportStatus.getId(), pageable);
+
+            //then
+            Report report1 = reportRepository.findById(reportId1).get();
+            assertThat(result.getTotalElements()).isEqualTo(2);
+            assertThat(result.getTotalPages()).isEqualTo(2);
+            assertThat(result.getSize()).isEqualTo(1);
+            assertThat(result.getContent().size()).isEqualTo(1);
+            ReportInfo reportInfo1 = result.getContent().get(0);
+            ReportTestUtils.assertReportInfo(reportInfo1, report1);
+
+            //given
+            pageable = PageRequest.of(1, 1, Sort.by(Sort.Direction.ASC, "createdAt"));
+
+            //when
+            result = reportService.findByReportStatusIdAndPageable(reportStatus.getId(), pageable);
+
+            //then
+            Report report2 = reportRepository.findById(reportId2).get();
+            assertThat(result.getTotalElements()).isEqualTo(2);
+            assertThat(result.getTotalPages()).isEqualTo(2);
+            assertThat(result.getSize()).isEqualTo(1);
+            assertThat(result.getContent().size()).isEqualTo(1);
+            ReportInfo reportInfo2 = result.getContent().get(0);
+            ReportTestUtils.assertReportInfo(reportInfo2, report2);
+        }
     }
 }

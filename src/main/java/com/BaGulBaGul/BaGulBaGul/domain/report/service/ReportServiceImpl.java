@@ -26,7 +26,9 @@ import com.BaGulBaGul.BaGulBaGul.domain.report.Report.ReportBuilder;
 import com.BaGulBaGul.BaGulBaGul.domain.report.ReportStatus;
 import com.BaGulBaGul.BaGulBaGul.domain.report.constant.ReportType;
 import com.BaGulBaGul.BaGulBaGul.domain.report.dto.service.request.ReportRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.report.dto.service.response.ReportInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.report.exception.DuplicateReportException;
+import com.BaGulBaGul.BaGulBaGul.domain.report.exception.ReportStatusNotExistException;
 import com.BaGulBaGul.BaGulBaGul.domain.report.repository.CommentChildReportStatusRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.report.repository.CommentReportStatusRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.report.repository.EventReportStatusRepository;
@@ -41,6 +43,8 @@ import com.BaGulBaGul.BaGulBaGul.global.response.ResponseCode;
 import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,6 +63,15 @@ public class ReportServiceImpl implements ReportService {
     private final CommentReportStatusRepository commentReportStatusRepository;
     private final CommentChildReportStatusRepository commentChildReportStatusRepository;
     private final UserRepository userRepository;
+
+    @Override
+    @Transactional
+    public Page<ReportInfo> findByReportStatusIdAndPageable(Long reportStatusId, Pageable pageable) {
+        ReportStatus reportStatus = reportStatusRepository.findById(reportStatusId)
+                .orElseThrow(ReportStatusNotExistException::new);
+        Page<Report> reportPage = reportRepository.findByReportStatus(reportStatus, pageable);
+        return reportPage.map(ReportInfo::from);
+    }
 
     @Override
     @Transactional(noRollbackFor = DataIntegrityViolationException.class)

@@ -22,7 +22,6 @@ import com.BaGulBaGul.BaGulBaGul.domain.report.CommentReportStatus;
 import com.BaGulBaGul.BaGulBaGul.domain.report.EventReportStatus;
 import com.BaGulBaGul.BaGulBaGul.domain.report.RecruitmentReportStatus;
 import com.BaGulBaGul.BaGulBaGul.domain.report.ReportStatus;
-import com.BaGulBaGul.BaGulBaGul.domain.report.constant.ReportContentType;
 import com.BaGulBaGul.BaGulBaGul.domain.report.constant.ReportStatusState;
 import com.BaGulBaGul.BaGulBaGul.domain.report.dto.service.request.CompleteReportStatusRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.report.dto.service.request.FindReportStatusByConditionRequest;
@@ -34,11 +33,8 @@ import com.BaGulBaGul.BaGulBaGul.domain.report.repository.ReportStatusRepository
 import com.BaGulBaGul.BaGulBaGul.domain.report.repository.querydsl.FindReportStatusByCondition.ReportStatusIdsWithTotalCountOfPageResult;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.SuspendUserRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserInfoService;
 import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserSuspensionService;
 import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AuthenticatedUserInfo;
-import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
-import com.BaGulBaGul.BaGulBaGul.global.response.ResponseCode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -95,7 +91,6 @@ public class ReportStatusServiceImpl implements ReportStatusService {
         }
 
         //댓글 패치 조인
-
         if(commentIds != null && commentIds.size() > 0) {
             postCommentRepository.findWithCommentWriterAndPostByIds(commentIds);
         }
@@ -173,6 +168,29 @@ public class ReportStatusServiceImpl implements ReportStatusService {
             result.setCommentChildInfo(Optional.of(postCommentChildInfo));
         }
         return result;
+    }
+
+    private ReportStatusOriginalContentInfo getReportStatusOriginalContentInfoWithFetch(ReportStatus reportStatus) {
+        if(reportStatus instanceof EventReportStatus) {
+            EventReportStatus eventReportStatus = (EventReportStatus) reportStatus;
+            eventService.fetchForEventSimpleResponse(List.of(eventReportStatus.getEvent().getId()));
+        } else if(reportStatus instanceof RecruitmentReportStatus) {
+            RecruitmentReportStatus recruitmentReportStatus = (RecruitmentReportStatus) reportStatus;
+            recruitmentService.fetchForRecruitmentSimpleResponse(
+                    List.of(recruitmentReportStatus.getRecruitment().getId())
+            );
+        } else if(reportStatus instanceof CommentReportStatus) {
+            CommentReportStatus commentReportStatus = (CommentReportStatus) reportStatus;
+            postCommentRepository.findWithCommentWriterAndPostByIds(
+                    List.of(commentReportStatus.getPostComment().getId())
+            );
+        } else if(reportStatus instanceof CommentChildReportStatus) {
+            CommentChildReportStatus commentChildReportStatus = (CommentChildReportStatus) reportStatus;
+            postCommentChildRepository.findWithCommentChildWriterAndCommentAndPostByIds(
+                    List.of(commentChildReportStatus.getPostCommentChild().getId())
+            );
+        }
+        return getReportStatusOriginalContentInfo(reportStatus);
     }
 
     @Override

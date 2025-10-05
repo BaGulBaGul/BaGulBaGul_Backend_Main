@@ -10,7 +10,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface ReportStatusService {
-
     Page<FindReportStatusByConditionResponse> findReportStatusByCondition(
             FindReportStatusByConditionRequest conditionRequest, Pageable pageable);
     List<FindReportStatusByConditionResponse> getConditionResponseWithFetch(List<ReportStatus> reportStatuses);
