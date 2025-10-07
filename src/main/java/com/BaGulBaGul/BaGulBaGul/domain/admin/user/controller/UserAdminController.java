@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/admin/user")
 @RequiredArgsConstructor
-@Api(tags = "사용자 관리")
+@Api(tags = "관리자 - 사용자 관리")
 @PreAuthorize("hasAuthority('MANAGE_USER')")
 public class UserAdminController {
     private final UserAdminService userAdminService;

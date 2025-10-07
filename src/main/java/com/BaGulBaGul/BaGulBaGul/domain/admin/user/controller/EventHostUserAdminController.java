@@ -34,7 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/admin/user/amehuser")
 @RequiredArgsConstructor
-@Api(tags = "사용자 관리 - 이벤트 호스트 유저 관리")
+@Api(tags = "관리자 - 사용자 관리 - 이벤트 호스트 유저 관리")
 @PreAuthorize("hasAuthority('MANAGE_USER')")
 public class EventHostUserAdminController {
 

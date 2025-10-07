@@ -20,7 +20,7 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping("/api/admin/user/suspension")
 @RequiredArgsConstructor
-@Api(tags = "사용자 정지 관리")
+@Api(tags = "관리자 - 사용자 정지 관리")
 @PreAuthorize("hasAuthority('MANAGE_USER')")
 public class UserSuspensionAdminController {
 
