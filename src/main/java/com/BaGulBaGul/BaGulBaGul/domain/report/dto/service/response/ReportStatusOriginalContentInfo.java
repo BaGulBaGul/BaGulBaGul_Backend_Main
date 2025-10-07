@@ -17,8 +17,12 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReportStatusOriginalContentInfo {
-    private Optional<EventSimpleResponse> eventInfo;
-    private Optional<RecruitmentSimpleResponse> recruitmentInfo;
-    private Optional<PostCommentInfo> commentInfo;
-    private Optional<PostCommentChildInfo> commentChildInfo;
+    @Builder.Default
+    private Optional<EventSimpleResponse> eventInfo = Optional.empty();
+    @Builder.Default
+    private Optional<RecruitmentSimpleResponse> recruitmentInfo = Optional.empty();
+    @Builder.Default
+    private Optional<PostCommentInfo> commentInfo = Optional.empty();
+    @Builder.Default
+    private Optional<PostCommentChildInfo> commentChildInfo = Optional.empty();
 }

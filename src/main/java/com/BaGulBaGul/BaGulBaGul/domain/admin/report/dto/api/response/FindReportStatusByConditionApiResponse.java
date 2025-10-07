@@ -1,14 +1,16 @@
-package com.BaGulBaGul.BaGulBaGul.domain.report.dto.api.response;
+package com.BaGulBaGul.BaGulBaGul.domain.admin.report.dto.api.response;
 
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response.EventPageApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.PostCommentChildApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.PostCommentDetailResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.api.response.RecruitmentPageApiResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.report.dto.api.response.ReportStatusApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.report.dto.service.response.FindReportStatusByConditionResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.report.dto.service.response.ReportStatusInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.report.dto.service.response.ReportStatusOriginalContentInfo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

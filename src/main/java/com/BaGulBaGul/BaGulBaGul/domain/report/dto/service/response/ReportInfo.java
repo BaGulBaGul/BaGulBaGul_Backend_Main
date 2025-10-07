@@ -29,10 +29,14 @@ public class ReportInfo {
     private UserInfoResponse reportingUserInfo;
     private UserInfoResponse reportedUserInfo;
     private LocalDateTime reportedAt;
-    private Optional<Long> eventId;
-    private Optional<Long> recruitmentId;
-    private Optional<Long> commentId;
-    private Optional<Long> commentChildId;
+    @Builder.Default
+    private Optional<Long> eventId = Optional.empty();
+    @Builder.Default
+    private Optional<Long> recruitmentId = Optional.empty();
+    @Builder.Default
+    private Optional<Long> commentId = Optional.empty();
+    @Builder.Default
+    private Optional<Long> commentChildId = Optional.empty();
 
     public static ReportInfo from(Report report) {
         ReportInfo reportInfo = ReportInfo.builder()
