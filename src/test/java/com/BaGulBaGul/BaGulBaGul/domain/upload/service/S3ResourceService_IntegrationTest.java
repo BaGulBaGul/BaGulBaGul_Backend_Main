@@ -27,6 +27,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -38,16 +39,7 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 @SpringBootTest
 @ActiveProfiles("test")
 class S3ResourceService_IntegrationTest {
-    //기존 aws의 @Configuration을 덮어 써야 함. 단순 @MockBean은 작동 안함.
-    //@DirtiesContext를 사용하거나 reset를 이용해 테스트 간 독립성 보장 필요
-    @TestConfiguration
-    static class AmazonS3MockConfig{
-        @Bean
-        public AmazonS3 amazonS3() {
-            return mock(AmazonS3.class);
-        }
-    }
-    @Autowired
+    @MockBean
     AmazonS3 amazonS3;
     @Autowired
     ResourceRepository resourceRepository;
