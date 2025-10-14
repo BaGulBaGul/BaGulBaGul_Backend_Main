@@ -4,6 +4,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.request.EventModifyApiRequ
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.request.EventPageApiRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.request.EventRegisterApiRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.request.GetLikeEventApiRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response.EventBannerApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response.EventCategoryApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response.EventDetailApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response.EventIdApiResponse;
@@ -56,4 +57,5 @@ public interface EventController {
             Pageable pageable
     );
     ApiResponse<List<EventCategoryApiResponse>> getAllCategories();
+    ApiResponse<List<EventBannerApiResponse>> getAllBanners();
 }

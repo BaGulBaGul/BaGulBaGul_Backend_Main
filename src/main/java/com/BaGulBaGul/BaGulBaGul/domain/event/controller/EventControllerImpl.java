@@ -2,7 +2,9 @@ package com.BaGulBaGul.BaGulBaGul.domain.event.controller;
 
 import com.BaGulBaGul.BaGulBaGul.domain.event.applicationevent.QueryEventDetailByUserApplicationEvent;
 import com.BaGulBaGul.BaGulBaGul.domain.event.applicationevent.QueryEventWithConditionByUserApplicationEvent;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response.EventBannerApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventConditionalRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.EventBannerResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.EventDetailResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventRegisterRequest;
@@ -19,6 +21,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response.EventPageApiRespo
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response.GetLikeEventApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response.EventCategoryApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.service.CategoryService;
+import com.BaGulBaGul.BaGulBaGul.domain.event.service.EventBannerService;
 import com.BaGulBaGul.BaGulBaGul.domain.event.service.EventService;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.IsMyLikeResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.LikeCountResponse;
@@ -46,6 +49,7 @@ public class EventControllerImpl implements EventController {
 
     private final EventService eventService;
     private final CategoryService categoryService;
+    private final EventBannerService eventBannerService;
     private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
@@ -236,5 +240,15 @@ public class EventControllerImpl implements EventController {
                 .map(EventCategoryApiResponse::of)
                 .collect(Collectors.toList());
         return ApiResponse.of(eventCategoryResponses);
+    }
+
+    @Override
+    @GetMapping("/banner/")
+    @Operation(summary = "모든 이벤트 배너 조회", description = "모든 이벤트 배너를 조회한다.")
+    public ApiResponse<List<EventBannerApiResponse>> getAllBanners() {
+        List<EventBannerResponse> eventBanners = eventBannerService.getEventBanners();
+        List<EventBannerApiResponse> response = eventBanners.stream().map(EventBannerApiResponse::from)
+                .collect(Collectors.toList());
+        return ApiResponse.of(response);
     }
 }

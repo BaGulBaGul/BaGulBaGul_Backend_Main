@@ -3,6 +3,8 @@ package com.BaGulBaGul.BaGulBaGul.domain.event.service;
 import com.BaGulBaGul.BaGulBaGul.domain.event.Event;
 import com.BaGulBaGul.BaGulBaGul.domain.event.EventBanner;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventBannerModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.EventBannerResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.EventSimpleResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.exception.EventNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.event.repository.EventBannerRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.event.repository.EventRepository;
@@ -13,15 +15,12 @@ import com.BaGulBaGul.BaGulBaGul.domain.upload.service.ResourceService;
 import com.BaGulBaGul.BaGulBaGul.domain.upload.service.TransactionResourceService;
 import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
 import com.BaGulBaGul.BaGulBaGul.global.response.ResponseCode;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +34,32 @@ public class EventBannerServiceImpl implements EventBannerService {
     private final TransactionResourceService transactionResourceService;
     private final EventRepository eventRepository;
     private final ResourceRepository resourceRepository;
+    private final EventService eventService;
+
+    @Override
+    @Transactional
+    public List<EventBannerResponse> getEventBanners() {
+        List<EventBanner> eventBanners = eventBannerRepository.findAllWithResourceAndEventAndPostAndWriter();
+        return eventBanners.stream()
+                .map(eventBanner -> getEventBannerResponse(eventBanner))
+                .collect(Collectors.toList());
+    }
+
+    private EventBannerResponse getEventBannerResponse(EventBanner eventBanner) {
+        String resourceUrl = null;
+        if(eventBanner.getBannerImageResource() != null) {
+            resourceUrl = resourceService.getResourceUrlFromId(eventBanner.getBannerImageResource().getId());
+        }
+        EventSimpleResponse eventSimpleResponse = null;
+        if(eventBanner.getEvent() != null) {
+            eventSimpleResponse = eventService.getEventSimpleById(eventBanner.getEvent().getId());
+        }
+        return EventBannerResponse.builder()
+                .eventBannerId(eventBanner.getId())
+                .eventBannerImageUrl(resourceUrl)
+                .eventSimpleResponse(eventSimpleResponse)
+                .build();
+    }
 
     @Override
     @Transactional

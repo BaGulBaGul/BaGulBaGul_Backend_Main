@@ -3,9 +3,12 @@ package com.BaGulBaGul.BaGulBaGul.domain.event.service;
 
 import com.BaGulBaGul.BaGulBaGul.domain.event.Event;
 import com.BaGulBaGul.BaGulBaGul.domain.event.EventBanner;
+import com.BaGulBaGul.BaGulBaGul.domain.event.EventTestUtils;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventBannerModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.EventBannerResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.repository.EventBannerRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.event.repository.EventRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.event.sampledata.EventSample;
 import com.BaGulBaGul.BaGulBaGul.domain.upload.service.ResourceService;
 import com.BaGulBaGul.BaGulBaGul.domain.upload.service.TransactionResourceService;
@@ -18,11 +21,13 @@ import com.BaGulBaGul.BaGulBaGul.global.auth.constant.GeneralRoleType;
 import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AuthenticatedUserInfo;
 import com.amazonaws.services.s3.AmazonS3;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -40,9 +45,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 
 @ExtendWith(AllTestContainerExtension.class)
@@ -71,40 +78,90 @@ class EventBannerServiceImpl_IntegrationTest {
     EntityManager em;
     @Autowired
     EventBannerRepository eventBannerRepository;
+    @Autowired
+    EventRepository eventRepository;
 
     User user;
     AuthenticatedUserInfo authenticatedUserInfo;
     List<Long> eventIds = new ArrayList<>();
     List<Long> resourceIds = new ArrayList<>();
 
+    @BeforeEach
+    void init() throws IOException {
+        //amazonS3가 mock이여서 NPE발생 가능한 메서드를 대체
+        doReturn("test").when(resourceService).getResourceUrlFromId(any());
+        //유저 생성
+        UserRegisterRequest userRegisterRequest = UserSample.getAdminUserRegisterRequest();
+        user = userJoinService.registerUser(userRegisterRequest);
+        authenticatedUserInfo = AuthenticatedUserInfo.builder()
+                .userId(user.getId())
+                .roles(List.of(GeneralRoleType.ADMIN.name(), GeneralRoleType.EVENT_HOST.name()))
+                .build();
+
+        //이벤트 5개 생성
+        for(int i=0;i<5;i++) {
+            EventRegisterRequest eventRegisterRequest = EventSample.getNormalRegisterRequest(user.getId());
+            Long eventId = eventService.registerEvent(authenticatedUserInfo, eventRegisterRequest);
+            eventIds.add(eventId);
+        }
+        //임시 리소스 5개 생성
+        for(int i=0;i<5;i++) {
+            Long resourceId = resourceService.uploadResource("", new MockMultipartFile("test"+i, ("test"+i+".jpg"), "image/jpeg", "test".getBytes()));
+            resourceIds.add(resourceId);
+        }
+
+        em.flush();
+        em.clear();
+    }
+
+    @Nested
+    @DisplayName("배너 조회 테스트")
+    class GetEventBannersTest {
+        @Test
+        @DisplayName("배너 조회 성공")
+        void getEventBanners_success() {
+            //given
+            Long event1Id = eventIds.get(0);
+            Long event2Id = eventIds.get(1);
+            Long resource1Id = resourceIds.get(0);
+            Long resource2Id = resourceIds.get(1);
+
+            //배너 2개에 연결
+            eventBannerService.setEventBanners(Arrays.asList(
+                    new EventBannerModifyRequest(1L, event1Id, resource1Id),
+                    new EventBannerModifyRequest(2L, event2Id, resource2Id)
+            ));
+            em.flush();
+            em.clear();
+
+            //when
+            List<EventBannerResponse> eventBanners = eventBannerService.getEventBanners();
+
+            //then
+            EventBannerResponse banner1 = eventBanners.stream().filter(b -> b.getEventBannerId() == 1L).findFirst().get();
+            EventBannerResponse banner2 = eventBanners.stream().filter(b -> b.getEventBannerId() == 2L).findFirst().get();
+            EventBannerResponse banner3 = eventBanners.stream().filter(b -> b.getEventBannerId() == 3L).findFirst().get();
+            //초기 배너는 5개이므로 5개가 나와야함
+            assertThat(eventBanners.size()).isEqualTo(5);
+            //1,2번 배너는 연결된 이벤트와 리소스가 존재
+            Event event1 = eventRepository.findById(event1Id).get();
+            EventTestUtils.assertEventSimpleResponse(banner1.getEventSimpleResponse(), event1);
+            assertThat(banner1.getEventBannerImageUrl()).isEqualTo("test");
+            Event event2 = eventRepository.findById(event2Id).get();
+            EventTestUtils.assertEventSimpleResponse(banner2.getEventSimpleResponse(), event2);
+            assertThat(banner2.getEventBannerImageUrl()).isEqualTo("test");
+            //3번 배너는 연결된 이벤트와 리소스가 존재하지 않음
+            assertThat(banner3.getEventSimpleResponse()).isNull();
+            assertThat(banner3.getEventBannerImageUrl()).isNull();
+        }
+    }
+
     @Nested
     @DisplayName("배너 설정 성공 테스트")
     class SetEventBannersSuccessTest {
 
         @BeforeEach
-        void init() throws IOException {
-            //유저 생성
-            UserRegisterRequest userRegisterRequest = UserSample.getAdminUserRegisterRequest();
-            user = userJoinService.registerUser(userRegisterRequest);
-            authenticatedUserInfo = AuthenticatedUserInfo.builder()
-                    .userId(user.getId())
-                    .roles(List.of(GeneralRoleType.ADMIN.name(), GeneralRoleType.EVENT_HOST.name()))
-                    .build();
-
-            //이벤트 5개 생성
-            for(int i=0;i<5;i++) {
-                EventRegisterRequest eventRegisterRequest = EventSample.getNormalRegisterRequest(user.getId());
-                Long eventId = eventService.registerEvent(authenticatedUserInfo, eventRegisterRequest);
-                eventIds.add(eventId);
-            }
-            //임시 리소스 5개 생성
-            for(int i=0;i<5;i++) {
-                Long resourceId = resourceService.uploadResource("", new MockMultipartFile("test"+i, ("test"+i+".jpg"), "image/jpeg", "test".getBytes()));
-                resourceIds.add(resourceId);
-            }
-
-            em.flush();
-            em.clear();
+        void init() {
             reset(amazonS3, transactionResourceService, resourceService);
         }
 
