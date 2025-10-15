@@ -12,11 +12,6 @@ import lombok.Setter;
 @Builder
 @AllArgsConstructor
 public class EventSimpleResponse {
-
-    @ApiModelProperty(value = "이벤트 정보")
     private EventSimpleInfo event;
-
-    @ApiModelProperty(value = "게시글 정보")
     private PostSimpleInfo post;
-
 }

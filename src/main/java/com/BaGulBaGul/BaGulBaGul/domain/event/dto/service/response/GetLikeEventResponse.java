@@ -14,28 +14,13 @@ import lombok.Setter;
 @AllArgsConstructor
 public class GetLikeEventResponse {
 
-    @ApiModelProperty(value = "이벤트 id")
     private Long eventId;
-
-    @ApiModelProperty(value = "게시글 제목")
     private String title;
-
-    @ApiModelProperty(value = "대표이미지 url")
     private String headImageUrl;
-
-    @ApiModelProperty(value = "요약 주소", example = "서울시 영등포구")
     private String abstractLocation;
-
-    @ApiModelProperty(value = "시작 시간")
     private LocalDateTime startDate;
-
-    @ApiModelProperty(value = "종료 시간")
     private LocalDateTime endDate;
-
-    @ApiModelProperty(value = "작성자 id")
     private Long eventWriterId;
-
-    @ApiModelProperty(value = "작성자 프로필 이미지 url")
     private String eventWriterProfileImageUrl;
 
     public static GetLikeEventResponse of(Event event) {

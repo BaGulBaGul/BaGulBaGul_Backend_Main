@@ -1,4 +1,4 @@
-package com.BaGulBaGul.BaGulBaGul.domain.upload.dto;
+package com.BaGulBaGul.BaGulBaGul.domain.upload.dto.api.response;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -12,7 +12,7 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UploadResponse {
+public class UploadApiResponse {
     @ApiModelProperty(value = "resource id")
     private Long resourceId;
     @ApiModelProperty(value = "리소스 접근 경로")

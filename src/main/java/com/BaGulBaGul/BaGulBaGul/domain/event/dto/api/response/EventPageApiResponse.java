@@ -2,6 +2,7 @@ package com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response;
 
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.EventSimpleInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.EventSimpleResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.PostSimpleApiInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.response.PostSimpleInfo;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -16,15 +17,15 @@ import lombok.Setter;
 public class EventPageApiResponse {
 
     @ApiModelProperty(value = "이벤트 정보")
-    private EventSimpleInfo event;
+    private EventSimpleApiInfo event;
 
     @ApiModelProperty(value = "게시글 정보")
-    private PostSimpleInfo post;
+    private PostSimpleApiInfo post;
 
     public static EventPageApiResponse from(EventSimpleResponse eventSimpleResponse) {
         return EventPageApiResponse.builder()
-                .event(eventSimpleResponse.getEvent())
-                .post(eventSimpleResponse.getPost())
+                .event(EventSimpleApiInfo.from(eventSimpleResponse.getEvent()))
+                .post(PostSimpleApiInfo.from(eventSimpleResponse.getPost()))
                 .build();
     }
 }
