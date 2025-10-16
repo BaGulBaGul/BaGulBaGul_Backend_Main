@@ -40,6 +40,7 @@ public interface EventService {
     void modifyEvent(AuthenticatedUserInfo authenticatedUserInfo, Long eventId, EventModifyRequest eventModifyRequest);
     //이벤트 삭제
     void deleteEvent(AuthenticatedUserInfo authenticatedUserInfo, Long eventId);
+    void restoreEvent(AuthenticatedUserInfo authenticatedUserInfo, Long eventId);
 
     //어떤 이벤트의 좋아요 개수를 반환
     int getLikeCount(Long eventId);

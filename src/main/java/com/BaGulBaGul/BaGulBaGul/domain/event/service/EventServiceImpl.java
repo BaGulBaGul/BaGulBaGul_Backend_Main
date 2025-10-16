@@ -287,6 +287,16 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
+    public void restoreEvent(AuthenticatedUserInfo authenticatedUserInfo, Long eventId) {
+        if(!permissionService.checkPermission(authenticatedUserInfo.getRoles(), PermissionType.MANAGE_EVENT)) {
+            throw new NoPermissionException();
+        }
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException());
+        event.setDeleted(false);
+    }
+
+    @Override
+    @Transactional
     public int getLikeCount(Long eventId) {
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException());
         return event.getPost().getLikeCount();

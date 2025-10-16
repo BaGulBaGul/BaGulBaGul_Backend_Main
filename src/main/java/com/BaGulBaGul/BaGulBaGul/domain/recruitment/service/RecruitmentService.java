@@ -30,6 +30,7 @@ public interface RecruitmentService {
     Long registerRecruitment(AuthenticatedUserInfo authenticatedUserInfo, Long eventId, RecruitmentRegisterRequest recruitmentRegisterRequest);
     void modifyRecruitment(AuthenticatedUserInfo authenticatedUserInfo, Long recruitmentId, RecruitmentModifyRequest recruitmentModifyRequest);
     void deleteRecruitment(AuthenticatedUserInfo authenticatedUserInfo, Long recruitmentId);
+    void restoreRecruitment(AuthenticatedUserInfo authenticatedUserInfo, Long recruitmentId);
 
     int getLikeCount(Long recruitmentId);
     void addLike(Long recruitmentId, Long userId) throws DuplicateLikeException;

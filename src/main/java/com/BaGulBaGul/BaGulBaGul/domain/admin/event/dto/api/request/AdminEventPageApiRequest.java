@@ -1,4 +1,4 @@
-package com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.request;
+package com.BaGulBaGul.BaGulBaGul.domain.admin.event.dto.api.request;
 
 import com.BaGulBaGul.BaGulBaGul.domain.event.constant.EventType;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventConditionalRequest;
@@ -16,7 +16,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class EventPageApiRequest {
+public class AdminEventPageApiRequest {
 
     @ApiModelProperty(value = "이벤트 타입 FESTIVAL, LOCAL_EVENT, PARTY 중 하나")
     private EventType type;
@@ -53,6 +53,9 @@ public class EventPageApiRequest {
     @ApiModelProperty(value = "최대 모집 인원")
     private Integer maxHeadCountMax;
 
+    @ApiModelProperty(value = "삭제 여부")
+    private boolean isDeleted;
+
     public EventConditionalRequest toEventConditionalRequest() {
         return EventConditionalRequest.builder()
                 .type(type)
@@ -70,7 +73,7 @@ public class EventPageApiRequest {
                                 .tags(tags)
                                 .build()
                 )
-                .deleted(false)
+                .deleted(isDeleted)
                 .build();
     }
 }

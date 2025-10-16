@@ -247,6 +247,16 @@ public class RecruitmentServiceImpl implements RecruitmentService {
 
     @Override
     @Transactional
+    public void restoreRecruitment(AuthenticatedUserInfo authenticatedUserInfo, Long recruitmentId) {
+        if(!permissionService.checkPermission(authenticatedUserInfo.getRoles(), PermissionType.MANAGE_RECRUITMENT)) {
+            throw new NoPermissionException();
+        }
+        Recruitment recruitment = recruitmentRepository.findById(recruitmentId).orElseThrow(() -> new RecruitmentNotFoundException());
+        recruitment.setDeleted(false);
+    }
+
+    @Override
+    @Transactional
     public int getLikeCount(Long recruitmentId) {
         Recruitment recruitment = recruitmentRepository.findById(recruitmentId).orElseThrow(() -> new RecruitmentNotFoundException());
         return recruitment.getPost().getLikeCount();

@@ -121,7 +121,7 @@ class RecruitmentService_IntegrationTest {
     class RecruitmentModifyTest {
 
         @Test
-        @DisplayName("전부 수정해야 함")
+        @DisplayName("작성한 모집글 수정 - 전부 수정해야 함")
         @Transactional
         void shouldChangeAll() {
             //given
@@ -167,7 +167,7 @@ class RecruitmentService_IntegrationTest {
         }
 
         @Test
-        @DisplayName("아무것도 수정하지 말아야 함")
+        @DisplayName("작성한 모집글 수정 - 아무것도 수정하지 말아야 함")
         @Transactional
         void shouldChangeNothing() {
             //given
@@ -211,10 +211,7 @@ class RecruitmentService_IntegrationTest {
             //게시글 서비스에 수정요청을 보냈는지
             verify(postService, times(1)).modifyPost(any(), any());
         }
-    }
-    @Nested
-    @DisplayName("권한 테스트")
-    class RecruitmentPermissionTest {
+
         @Test
         @DisplayName("관리자는 다른 사람의 모집글을 수정할 수 있다.")
         @Transactional
@@ -241,6 +238,32 @@ class RecruitmentService_IntegrationTest {
         }
 
         @Test
+        @DisplayName("일반유저는 다른 사람의 모집글을 수정할 수 없다.")
+        @Transactional
+        void given_normal_user_cannot_modify_others_recruitment() {
+            //given
+            User writer = userJoinService.registerUser(UserSample.getEventHostUserRegisterRequest());
+            User normalUser = userJoinService.registerUser(UserSample.getNormal2UserRegisterRequest());
+            AuthenticatedUserInfo writerInfo = new AuthenticatedUserInfo(writer.getId(), List.of(GeneralRoleType.EVENT_HOST.name()));
+            AuthenticatedUserInfo normalUserInfo = new AuthenticatedUserInfo(normalUser.getId(), List.of(GeneralRoleType.USER.name()));
+
+            Long eventId = eventService.registerEvent(writerInfo, EventSample.getNormalRegisterRequest(writer.getId()));
+            Long recruitmentId = recruitmentService.registerRecruitment(writerInfo, eventId, RecruitmentSample.getNormalRegisterRequest());
+
+            RecruitmentModifyRequest recruitmentModifyRequest = RecruitmentSample.getNormal2ModifyRequest();
+
+            //when
+            //then
+            assertThrows(NoPermissionException.class, () -> {
+                recruitmentService.modifyRecruitment(normalUserInfo, recruitmentId, recruitmentModifyRequest);
+            });
+        }
+    }
+
+    @Nested
+    @DisplayName("삭제 테스트")
+    class DeleteRecruitmentTest {
+        @Test
         @DisplayName("관리자는 다른 사람의 모집글을 삭제할 수 있다.")
         @Transactional
         void given_admin_can_delete_others_recruitment() {
@@ -264,28 +287,6 @@ class RecruitmentService_IntegrationTest {
         }
 
         @Test
-        @DisplayName("일반유저는 다른 사람의 모집글을 수정할 수 없다.")
-        @Transactional
-        void given_normal_user_cannot_modify_others_recruitment() {
-            //given
-            User writer = userJoinService.registerUser(UserSample.getEventHostUserRegisterRequest());
-            User normalUser = userJoinService.registerUser(UserSample.getNormal2UserRegisterRequest());
-            AuthenticatedUserInfo writerInfo = new AuthenticatedUserInfo(writer.getId(), List.of(GeneralRoleType.EVENT_HOST.name()));
-            AuthenticatedUserInfo normalUserInfo = new AuthenticatedUserInfo(normalUser.getId(), List.of(GeneralRoleType.USER.name()));
-
-            Long eventId = eventService.registerEvent(writerInfo, EventSample.getNormalRegisterRequest(writer.getId()));
-            Long recruitmentId = recruitmentService.registerRecruitment(writerInfo, eventId, RecruitmentSample.getNormalRegisterRequest());
-
-            RecruitmentModifyRequest recruitmentModifyRequest = RecruitmentSample.getNormal2ModifyRequest();
-
-            //when
-            //then
-            assertThrows(NoPermissionException.class, () -> {
-                recruitmentService.modifyRecruitment(normalUserInfo, recruitmentId, recruitmentModifyRequest);
-            });
-        }
-
-        @Test
         @DisplayName("일반유저는 다른 사람의 모집글을 삭제할 수 없다.")
         @Transactional
         void given_normal_user_cannot_delete_others_recruitment() {
@@ -302,6 +303,55 @@ class RecruitmentService_IntegrationTest {
             //then
             assertThrows(NoPermissionException.class, () -> {
                 recruitmentService.deleteRecruitment(normalUserInfo, recruitmentId);
+            });
+        }
+
+        @Test
+        @DisplayName("관리자는 삭제된 모집글을 복구할 수 있다.")
+        @Transactional
+        void given_admin_can_restore_others_recruitment() {
+            //given
+            User writer = userJoinService.registerUser(UserSample.getEventHostUserRegisterRequest());
+            User admin = userJoinService.registerUser(UserSample.getAdminUserRegisterRequest());
+            AuthenticatedUserInfo writerInfo = new AuthenticatedUserInfo(writer.getId(), List.of(GeneralRoleType.EVENT_HOST.name()));
+            AuthenticatedUserInfo adminInfo = new AuthenticatedUserInfo(admin.getId(), List.of(GeneralRoleType.ADMIN.name()));
+
+            Long eventId = eventService.registerEvent(writerInfo, EventSample.getNormalRegisterRequest(writer.getId()));
+            Long recruitmentId = recruitmentService.registerRecruitment(writerInfo, eventId, RecruitmentSample.getNormalRegisterRequest());
+            recruitmentService.deleteRecruitment(writerInfo, recruitmentId);
+            entityManager.flush();
+            entityManager.clear();
+
+            //when
+            recruitmentService.restoreRecruitment(adminInfo, recruitmentId);
+
+            //then
+            entityManager.flush();
+            entityManager.clear();
+            Recruitment recruitment = recruitmentRepository.findById(recruitmentId).orElse(null);
+            assertThat(recruitment.getDeleted()).isFalse();
+        }
+
+        @Test
+        @DisplayName("일반 유저는 삭제된 모집글을 복구할 수 없다.")
+        @Transactional
+        void given_normal_user_cannot_restore_others_recruitment() {
+            //given
+            User writer = userJoinService.registerUser(UserSample.getEventHostUserRegisterRequest());
+            User normalUser = userJoinService.registerUser(UserSample.getNormal2UserRegisterRequest());
+            AuthenticatedUserInfo writerInfo = new AuthenticatedUserInfo(writer.getId(), List.of(GeneralRoleType.EVENT_HOST.name()));
+            AuthenticatedUserInfo normalUserInfo = new AuthenticatedUserInfo(normalUser.getId(), List.of(GeneralRoleType.USER.name()));
+
+            Long eventId = eventService.registerEvent(writerInfo, EventSample.getNormalRegisterRequest(writer.getId()));
+            Long recruitmentId = recruitmentService.registerRecruitment(writerInfo, eventId, RecruitmentSample.getNormalRegisterRequest());
+            recruitmentService.deleteRecruitment(writerInfo, recruitmentId);
+            entityManager.flush();
+            entityManager.clear();
+
+            //when
+            //then
+            assertThrows(NoPermissionException.class, () -> {
+                recruitmentService.restoreRecruitment(normalUserInfo, recruitmentId);
             });
         }
     }
@@ -346,7 +396,30 @@ class RecruitmentService_IntegrationTest {
         }
 
         @Test
-        @DisplayName("모집글 페이지 조회 - 삭제된 모집글은 보이지 않아야 함")
+        @DisplayName("모집글 페이지 조회 - 삭제되지 않은 모집글")
+        @Transactional
+        void getRecruitmentPageByCondition_notDeleted() {
+            //given
+            RecruitmentRegisterRequest recruitmentRegisterRequest1 = RecruitmentSample.getNormalRegisterRequest();
+            Long recruitmentId1 = recruitmentService.registerRecruitment(authenticatedUserInfo, eventId, recruitmentRegisterRequest1);
+            RecruitmentRegisterRequest recruitmentRegisterRequest2 = RecruitmentSample.getNormalRegisterRequest();
+            Long recruitmentId2 = recruitmentService.registerRecruitment(authenticatedUserInfo, eventId, recruitmentRegisterRequest2);
+
+            recruitmentService.deleteRecruitment(authenticatedUserInfo, recruitmentId2);
+
+            //when
+            RecruitmentConditionalRequest recruitmentConditionalRequest = new RecruitmentConditionalRequest();
+            recruitmentConditionalRequest.setDeleted(false);
+            Page<RecruitmentSimpleResponse> page = recruitmentService.getRecruitmentPageByCondition(
+                    recruitmentConditionalRequest, PageRequest.of(0, 10));
+
+            //then
+            assertThat(page.getContent().size()).isEqualTo(1);
+            assertThat(page.getContent().get(0).getRecruitment().getRecruitmentId()).isEqualTo(recruitmentId1);
+        }
+
+        @Test
+        @DisplayName("모집글 페이지 조회 - 삭제된 모집글")
         @Transactional
         void getRecruitmentPageByCondition_deleted() {
             //given
@@ -358,12 +431,14 @@ class RecruitmentService_IntegrationTest {
             recruitmentService.deleteRecruitment(authenticatedUserInfo, recruitmentId2);
 
             //when
+            RecruitmentConditionalRequest recruitmentConditionalRequest = new RecruitmentConditionalRequest();
+            recruitmentConditionalRequest.setDeleted(true);
             Page<RecruitmentSimpleResponse> page = recruitmentService.getRecruitmentPageByCondition(
-                    new RecruitmentConditionalRequest(), PageRequest.of(0, 10));
+                    recruitmentConditionalRequest, PageRequest.of(0, 10));
 
             //then
             assertThat(page.getContent().size()).isEqualTo(1);
-            assertThat(page.getContent().get(0).getRecruitment().getRecruitmentId()).isEqualTo(recruitmentId1);
+            assertThat(page.getContent().get(0).getRecruitment().getRecruitmentId()).isEqualTo(recruitmentId2);
         }
     }
 }

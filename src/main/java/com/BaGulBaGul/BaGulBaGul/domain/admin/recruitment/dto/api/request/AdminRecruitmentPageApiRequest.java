@@ -1,4 +1,4 @@
-package com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.api.request;
+package com.BaGulBaGul.BaGulBaGul.domain.admin.recruitment.dto.api.request;
 
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.request.PostConditionalRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.request.RecruitmentConditionalRequest;
@@ -15,7 +15,7 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RecruitmentPageApiRequest {
+public class AdminRecruitmentPageApiRequest {
 
     @ApiModelProperty(value = "모집글이 속한 이벤트의 id")
     private Long eventId;
@@ -32,6 +32,9 @@ public class RecruitmentPageApiRequest {
     @ApiModelProperty(value = "등록자 닉네임")
     private String username;
 
+    @ApiModelProperty(value = "삭제 여부")
+    private boolean isDeleted;
+
     public RecruitmentConditionalRequest toRecruitmentConditionalRequest() {
         return RecruitmentConditionalRequest.builder()
                 .eventId(eventId)
@@ -41,7 +44,7 @@ public class RecruitmentPageApiRequest {
                         .username(username)
                         .tags(tags)
                         .build())
-                .deleted(false)
+                .deleted(isDeleted)
                 .build();
     }
 }

@@ -86,7 +86,7 @@ public class RecruitmentControllerImpl implements RecruitmentController {
         ValidationUtil.validate(recruitmentConditionalRequest);
         //페이지 조회
         Page<RecruitmentSimpleResponse> recruitmentPageByCondition = recruitmentService.getRecruitmentPageByCondition(
-                recruitmentPageApiRequest.toRecruitmentConditionalRequest(),
+                recruitmentConditionalRequest,
                 pageable
         );
         //모집글을 유저가 조건검색 했을 경우에 대한 이벤트 발행

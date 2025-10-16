@@ -152,14 +152,8 @@ class EventService_IntegrationTest {
     @DisplayName("이벤트 수정 테스트")
     class EventModifyTest {
 
-        @BeforeEach
-        void init() {
-            //쓰기 권한 확인 무효화
-            doNothing().when(eventService).checkModifyPermission(any(), any());
-        }
-
         @Test
-        @DisplayName("전부 변경해야 함")
+        @DisplayName("작성한 이벤트 수정 - 전부 변경해야 함")
         @Transactional
         void shouldChangeAll() {
             //given
@@ -212,7 +206,7 @@ class EventService_IntegrationTest {
         }
 
         @Test
-        @DisplayName("아무것도 변경하지 말아야 함")
+        @DisplayName("작성한 이벤트 수정 - 아무것도 변경하지 말아야 함")
         @Transactional
         void shouldChangeNothing() {
             //given
@@ -258,11 +252,7 @@ class EventService_IntegrationTest {
 
             verify(postService, times(1)).modifyPost(any(), any());
         }
-    }
 
-    @Nested
-    @DisplayName("권한 테스트")
-    class EventPermissionTest {
         @Test
         @DisplayName("관리자는 다른 사람의 이벤트를 수정할 수 있다.")
         @Transactional
@@ -289,6 +279,33 @@ class EventService_IntegrationTest {
         }
 
         @Test
+        @DisplayName("일반유저는 다른 사람의 이벤트를 수정할 수 없다.")
+        @Transactional
+        void given_normal_user_cannot_modify_others_event() {
+            //given
+            User writer = userJoinService.registerUser(UserSample.getEventHostUserRegisterRequest());
+            User normalUser = userJoinService.registerUser(UserSample.getNormal2UserRegisterRequest());
+            AuthenticatedUserInfo writerInfo = new AuthenticatedUserInfo(writer.getId(), List.of(GeneralRoleType.EVENT_HOST.name()));
+            AuthenticatedUserInfo normalUserInfo = new AuthenticatedUserInfo(normalUser.getId(), List.of(GeneralRoleType.USER.name()));
+
+            EventRegisterRequest eventRegisterRequest = EventSample.getNormalRegisterRequest(writer.getId());
+            Long eventId = eventService.registerEvent(writerInfo, eventRegisterRequest);
+
+            EventModifyRequest eventModifyRequest = EventSample.getNormal2ModifyRequest(writer.getId());
+
+            //when
+            //then
+            assertThrows(NoPermissionException.class, () -> {
+                eventService.modifyEvent(normalUserInfo, eventId, eventModifyRequest);
+            });
+        }
+
+    }
+
+    @Nested
+    @DisplayName("삭제 테스트")
+    class DeleteEventTest {
+        @Test
         @DisplayName("관리자는 다른 사람의 이벤트를 삭제할 수 있다.")
         @Transactional
         void given_admin_can_delete_others_event() {
@@ -312,28 +329,6 @@ class EventService_IntegrationTest {
         }
 
         @Test
-        @DisplayName("일반유저는 다른 사람의 이벤트를 수정할 수 없다.")
-        @Transactional
-        void given_normal_user_cannot_modify_others_event() {
-            //given
-            User writer = userJoinService.registerUser(UserSample.getEventHostUserRegisterRequest());
-            User normalUser = userJoinService.registerUser(UserSample.getNormal2UserRegisterRequest());
-            AuthenticatedUserInfo writerInfo = new AuthenticatedUserInfo(writer.getId(), List.of(GeneralRoleType.EVENT_HOST.name()));
-            AuthenticatedUserInfo normalUserInfo = new AuthenticatedUserInfo(normalUser.getId(), List.of(GeneralRoleType.USER.name()));
-
-            EventRegisterRequest eventRegisterRequest = EventSample.getNormalRegisterRequest(writer.getId());
-            Long eventId = eventService.registerEvent(writerInfo, eventRegisterRequest);
-
-            EventModifyRequest eventModifyRequest = EventSample.getNormal2ModifyRequest(writer.getId());
-
-            //when
-            //then
-            assertThrows(NoPermissionException.class, () -> {
-                eventService.modifyEvent(normalUserInfo, eventId, eventModifyRequest);
-            });
-        }
-
-        @Test
         @DisplayName("일반유저는 다른 사람의 이벤트를 삭제할 수 없다.")
         @Transactional
         void given_normal_user_cannot_delete_others_event() {
@@ -350,6 +345,55 @@ class EventService_IntegrationTest {
             //then
             assertThrows(NoPermissionException.class, () -> {
                 eventService.deleteEvent(normalUserInfo, eventId);
+            });
+        }
+
+        @Test
+        @DisplayName("관리자는 삭제된 이벤트를 복구할 수 있다.")
+        @Transactional
+        void given_admin_can_restore_others_event() {
+            //given
+            User writer = userJoinService.registerUser(UserSample.getEventHostUserRegisterRequest());
+            User admin = userJoinService.registerUser(UserSample.getAdminUserRegisterRequest());
+            AuthenticatedUserInfo writerInfo = new AuthenticatedUserInfo(writer.getId(), List.of(GeneralRoleType.EVENT_HOST.name()));
+            AuthenticatedUserInfo adminInfo = new AuthenticatedUserInfo(admin.getId(), List.of(GeneralRoleType.ADMIN.name()));
+
+            EventRegisterRequest eventRegisterRequest = EventSample.getNormalRegisterRequest(writer.getId());
+            Long eventId = eventService.registerEvent(writerInfo, eventRegisterRequest);
+            eventService.deleteEvent(writerInfo, eventId);
+            entityManager.flush();
+            entityManager.clear();
+
+            //when
+            eventService.restoreEvent(adminInfo, eventId);
+            entityManager.flush();
+            entityManager.clear();
+
+            //then
+            Event event = eventRepository.findById(eventId).orElse(null);
+            assertThat(event.getDeleted()).isFalse();
+        }
+
+        @Test
+        @DisplayName("일반 유저는 삭제된 이벤트를 복구할 수 없다.")
+        @Transactional
+        void given_normal_user_cannot_restore_others_event() {
+            //given
+            User writer = userJoinService.registerUser(UserSample.getEventHostUserRegisterRequest());
+            User normalUser = userJoinService.registerUser(UserSample.getNormal2UserRegisterRequest());
+            AuthenticatedUserInfo writerInfo = new AuthenticatedUserInfo(writer.getId(), List.of(GeneralRoleType.EVENT_HOST.name()));
+            AuthenticatedUserInfo normalUserInfo = new AuthenticatedUserInfo(normalUser.getId(), List.of(GeneralRoleType.USER.name()));
+
+            EventRegisterRequest eventRegisterRequest = EventSample.getNormalRegisterRequest(writer.getId());
+            Long eventId = eventService.registerEvent(writerInfo, eventRegisterRequest);
+            eventService.deleteEvent(writerInfo, eventId);
+            entityManager.flush();
+            entityManager.clear();
+
+            //when
+            //then
+            assertThrows(NoPermissionException.class, () -> {
+                eventService.restoreEvent(normalUserInfo, eventId);
             });
         }
     }
@@ -442,7 +486,38 @@ class EventService_IntegrationTest {
         }
 
         @Test
-        @DisplayName("이벤트 페이지 조회 - 삭제된 이벤트는 보이지 않아야 함")
+        @DisplayName("이벤트 페이지 조회 - 삭제되지 않은 이벤트")
+        @Transactional
+        void getEventPageByCondition_notDeleted() {
+            //given
+            User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
+            AuthenticatedUserInfo authenticatedUserInfo = AuthenticatedUserInfo.builder()
+                    .userId(user.getId())
+                    .roles(List.of(GeneralRoleType.EVENT_HOST.name()))
+                    .build();
+            User eventHostUser = userJoinService.registerUser(UserSample.getNormal2UserRegisterRequest());
+            EventRegisterRequest eventRegisterRequest1 = EventSample.getNormalRegisterRequest(eventHostUser.getId());
+            Long eventId1 = eventService.registerEvent(authenticatedUserInfo, eventRegisterRequest1);
+            EventRegisterRequest eventRegisterRequest2 = EventSample.getNormal2RegisterRequest(eventHostUser.getId());
+            Long eventId2 = eventService.registerEvent(authenticatedUserInfo, eventRegisterRequest2);
+
+            eventService.deleteEvent(authenticatedUserInfo, eventId2);
+            entityManager.flush();
+            entityManager.clear();
+
+            //when
+            EventConditionalRequest eventConditionalRequest = new EventConditionalRequest();
+            eventConditionalRequest.setDeleted(false);
+            Page<EventSimpleResponse> page = eventService.getEventPageByCondition(
+                    eventConditionalRequest, PageRequest.of(0, 10));
+
+            //then
+            assertThat(page.getContent().size()).isEqualTo(1);
+            assertThat(page.getContent().get(0).getEvent().getEventId()).isEqualTo(eventId1);
+        }
+
+        @Test
+        @DisplayName("이벤트 페이지 조회 - 삭제된 이벤트")
         @Transactional
         void getEventPageByCondition_deleted() {
             //given
@@ -462,11 +537,14 @@ class EventService_IntegrationTest {
             entityManager.clear();
 
             //when
-            Page<EventSimpleResponse> page = eventService.getEventPageByCondition(new EventConditionalRequest(), PageRequest.of(0, 10));
+            EventConditionalRequest eventConditionalRequest = new EventConditionalRequest();
+            eventConditionalRequest.setDeleted(true);
+            Page<EventSimpleResponse> page = eventService.getEventPageByCondition(
+                    eventConditionalRequest, PageRequest.of(0, 10));
 
             //then
             assertThat(page.getContent().size()).isEqualTo(1);
-            assertThat(page.getContent().get(0).getEvent().getEventId()).isEqualTo(eventId1);
+            assertThat(page.getContent().get(0).getEvent().getEventId()).isEqualTo(eventId2);
         }
     }
 }
