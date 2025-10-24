@@ -18,6 +18,7 @@ import com.BaGulBaGul.BaGulBaGul.global.auth.constant.GeneralRoleType;
 import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AuthenticatedUserInfo;
 import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -53,29 +54,41 @@ class EventRepository_IntegrationTest {
     @Autowired
     private PlatformTransactionManager transactionManager;
 
+    @Autowired
+    private EntityManager em;
+
     @Nested
     @DisplayName("이벤트 조회 테스트")
     class ReadTest {
-        @Test
-        @DisplayName("정상 페이지 조회")
-        @Transactional
-        void normalPageReadTest() {
-            //when
-            int eventCount = 10;
-            User eventHostUser = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
-            AuthenticatedUserInfo authenticatedUserInfo = AuthenticatedUserInfo.builder()
+        private List<Long> eventIds = new ArrayList<>();
+        private int eventCount = 10;
+        private User eventHostUser;
+        private AuthenticatedUserInfo authenticatedUserInfo;
+        @BeforeEach
+        void init() {
+            eventHostUser = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
+            authenticatedUserInfo = AuthenticatedUserInfo.builder()
                     .userId(eventHostUser.getId())
                     .roles(List.of(GeneralRoleType.EVENT_HOST.name()))
                     .build();
             for(int i = 0; i< eventCount; i++) {
                 EventRegisterRequest eventRegisterRequest = EventSample
                         .getNormalRegisterRequest(eventHostUser.getId());
-                eventService.registerEvent(
+                Long eventId = eventService.registerEvent(
                         authenticatedUserInfo,
                         eventRegisterRequest
                 );
+                eventIds.add(eventId);
             }
+            em.flush();
+            em.clear();
+        }
 
+        @Test
+        @DisplayName("정상 페이지 조회")
+        @Transactional
+        void normalPageReadTest() {
+            //given
             //when
             EventIdsWithTotalCountOfPageResult pageResult = eventRepository
                     .getEventIdsByConditionAndPageable(
@@ -91,24 +104,11 @@ class EventRepository_IntegrationTest {
         @DisplayName("삭제된 유저가 작성한 이벤트 페이지 조회")
         @Transactional
         void pageReadWhenDeleteUserTest() {
-            //when
-            int eventCount = 10;
-            User eventHostUser = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
-            AuthenticatedUserInfo authenticatedUserInfo = AuthenticatedUserInfo.builder()
-                    .userId(eventHostUser.getId())
-                    .roles(List.of(GeneralRoleType.EVENT_HOST.name()))
-                    .build();
-            for(int i = 0; i< eventCount; i++) {
-                EventRegisterRequest eventRegisterRequest = EventSample
-                        .getNormalRegisterRequest(eventHostUser.getId());
-                eventService.registerEvent(
-                        authenticatedUserInfo,
-                        eventRegisterRequest
-                );
-            }
-
-            //when
+            //given
             userJoinService.deleteUser(eventHostUser.getId());
+            em.flush();
+            em.clear();
+            //when
             EventIdsWithTotalCountOfPageResult pageResult = eventRepository
                     .getEventIdsByConditionAndPageable(
                             EventConditionalRequest.builder().build(),
@@ -123,36 +123,22 @@ class EventRepository_IntegrationTest {
         @DisplayName("삭제된 이벤트 페이지 조회")
         @Transactional
         void pageReadDeletedEventTest() {
-            //when
-            List<Long> eventIds = new ArrayList<>();
-            int eventCount = 10;
-            User eventHostUser = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
-            AuthenticatedUserInfo authenticatedUserInfo = AuthenticatedUserInfo.builder()
-                    .userId(eventHostUser.getId())
-                    .roles(List.of(GeneralRoleType.EVENT_HOST.name()))
-                    .build();
-            for(int i = 0; i< eventCount; i++) {
-                EventRegisterRequest eventRegisterRequest = EventSample
-                        .getNormalRegisterRequest(eventHostUser.getId());
-                Long eventId = eventService.registerEvent(
-                        authenticatedUserInfo,
-                        eventRegisterRequest
-                );
-                eventIds.add(eventId);
+            //given
+            int deleteCount = eventCount / 2;
+            for(int i = 0; i< deleteCount; i++) {
+                eventService.deleteEvent(authenticatedUserInfo, eventIds.get(i));
             }
-
+            em.flush();
+            em.clear();
             //when
-            for(Long eventId : eventIds) {
-                eventService.deleteEvent(authenticatedUserInfo, eventId);
-            }
             EventIdsWithTotalCountOfPageResult pageResult = eventRepository
                     .getEventIdsByConditionAndPageable(
-                            EventConditionalRequest.builder().build(),
+                            EventConditionalRequest.builder().deleted(true).build(),
                             Pageable.ofSize(eventCount)
                     );
 
             //then
-            assertThat(pageResult.getTotalCount()).isEqualTo(0);
+            assertThat(pageResult.getTotalCount()).isEqualTo(deleteCount);
         }
     }
 }

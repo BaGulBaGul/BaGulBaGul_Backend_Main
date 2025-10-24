@@ -1,7 +1,5 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user.repository.querydsl;
 
-import com.BaGulBaGul.BaGulBaGul.domain.event.QEvent;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventConditionalRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.QUser;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.UserSearchRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserSuspensionService;
@@ -35,7 +33,7 @@ public class FindUserByConditionImpl implements FindUserByCondition {
 
         Long totalCount = getCountQuery(userSearchRequest).fetchFirst();
         return UserIdsWithTotalCount.builder()
-                .eventIds(ids)
+                .userIds(ids)
                 .TotalCount(totalCount)
                 .build();
     }

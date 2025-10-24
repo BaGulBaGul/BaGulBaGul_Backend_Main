@@ -14,7 +14,7 @@ public interface FindUserByCondition {
     @Builder
     @AllArgsConstructor
     class UserIdsWithTotalCount {
-        private List<Long> eventIds;
+        private List<Long> userIds;
         private Long TotalCount;
     }
 

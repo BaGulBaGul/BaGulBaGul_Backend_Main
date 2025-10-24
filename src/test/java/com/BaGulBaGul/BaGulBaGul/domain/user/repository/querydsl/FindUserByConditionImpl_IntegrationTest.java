@@ -1,11 +1,8 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user.repository.querydsl;
 
-import com.BaGulBaGul.BaGulBaGul.domain.user.AdminManageEventHostUser;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
-import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.UserRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.UserSearchRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.AdminManageEventHostUserRepository;
-import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.querydsl.FindUserByCondition.UserIdsWithTotalCount;
 import com.BaGulBaGul.BaGulBaGul.domain.user.sampledata.AdminManageEventHostUserSample;
 import com.BaGulBaGul.BaGulBaGul.domain.user.sampledata.PasswordLoginUserSample;
@@ -19,6 +16,7 @@ import com.BaGulBaGul.BaGulBaGul.global.auth.oauth2.constant.OAuth2Provider;
 import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,9 +71,10 @@ class FindUserByConditionImpl_IntegrationTest {
         UserIdsWithTotalCount result = findUserByCondition.getUserIdsByCondition(request, pageable);
 
         //then
+
         assertThat(result.getTotalCount()).isEqualTo(3);
-        assertThat(result.getEventIds()).hasSize(3);
-        assertThat(result.getEventIds()).contains(user1.getId(), user2.getId(), user3.getId());
+        assertThat(result.getUserIds()).hasSize(3);
+        assertThat(result.getUserIds()).contains(user1.getId(), user2.getId(), user3.getId());
     }
 
     @Test
@@ -93,244 +92,238 @@ class FindUserByConditionImpl_IntegrationTest {
 
         //then
         assertThat(result.getTotalCount()).isEqualTo(1);
-        assertThat(result.getEventIds()).hasSize(1);
-        assertThat(result.getEventIds()).contains(user2.getId());
+        assertThat(result.getUserIds()).hasSize(1);
+        assertThat(result.getUserIds()).contains(user2.getId());
     }
 
-    @Test
-    @DisplayName("가입 시작일로 검색")
-    void getUserIdsByCondition_byJoinDateStart() {
-        //given
-        User user1 = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
-        User user2 = userJoinService.registerUser(UserSample.getNormal2UserRegisterRequest());
-        User user3 = userJoinService.registerUser(UserSample.getNormal3UserRegisterRequest());
-        LocalDateTime searchStartDate = LocalDateTime.now().minusHours(1);
-        em.createNativeQuery("UPDATE user SET created_at = :createdAt WHERE user_id = :userId")
-                .setParameter("createdAt", searchStartDate.minusDays(1))
-                .setParameter("userId", user2.getId())
-                .executeUpdate();
+    @Nested
+    @DisplayName("가입 일시로 검색")
+    class JoinDateSearchTest {
+        User user1;
+        User user2;
+        User user3; 
+        LocalDateTime searchStartDate;
+        LocalDateTime searchEndDate;
 
-        UserSearchRequest request = UserSearchRequest.builder().joinDateSearchStart(searchStartDate).build();
-        Pageable pageable = PageRequest.of(0, 10);
+        @BeforeEach
+        void init() {
+            user1 = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
+            user2 = userJoinService.registerUser(UserSample.getNormal2UserRegisterRequest());
+            user3 = userJoinService.registerUser(UserSample.getNormal3UserRegisterRequest());
+            searchStartDate = LocalDateTime.now().minusHours(3);
+            searchEndDate = searchStartDate.plusHours(6);
+            em.createNativeQuery("UPDATE user SET created_at = :createdAt WHERE user_id = :userId")
+                    .setParameter("createdAt", searchStartDate.minusDays(1))
+                    .setParameter("userId", user1.getId())
+                    .executeUpdate();
+            em.createNativeQuery("UPDATE user SET created_at = :createdAt WHERE user_id = :userId")
+                    .setParameter("createdAt", searchEndDate.plusDays(1))
+                    .setParameter("userId", user3.getId())
+                    .executeUpdate();
+            em.flush();
+            em.clear();
+        }
 
+        @Test
+        @DisplayName("가입 시작일로 검색")
+        void getUserIdsByCondition_byJoinDateStart() {
+            //given
+            //when
+            UserSearchRequest request = UserSearchRequest.builder().joinDateSearchStart(searchStartDate).build();
+            Pageable pageable = PageRequest.of(0, 10);
+            UserIdsWithTotalCount result = findUserByCondition.getUserIdsByCondition(request, pageable);
 
-        //when
-        UserIdsWithTotalCount result = findUserByCondition.getUserIdsByCondition(request, pageable);
+            //then
+            assertThat(result.getTotalCount()).isEqualTo(2);
+            assertThat(result.getUserIds()).hasSize(2);
+            assertThat(result.getUserIds()).contains(user2.getId(), user3.getId());
+        }
 
-        //then
-        assertThat(result.getTotalCount()).isEqualTo(2);
-        assertThat(result.getEventIds()).hasSize(2);
-        assertThat(result.getEventIds()).contains(user1.getId(), user3.getId());
+        @Test
+        @DisplayName("가입 종료일로 검색")
+        void getUserIdsByCondition_byJoinDateEnd() {
+            //given
+            //when
+            UserSearchRequest request = UserSearchRequest.builder().joinDateSearchEnd(searchEndDate).build();
+            Pageable pageable = PageRequest.of(0, 10);
+            UserIdsWithTotalCount result = findUserByCondition.getUserIdsByCondition(request, pageable);
+
+            //then
+            assertThat(result.getTotalCount()).isEqualTo(2);
+            assertThat(result.getUserIds()).hasSize(2);
+            assertThat(result.getUserIds()).contains(user1.getId(), user2.getId());
+        }
+
+        @Test
+        @DisplayName("가입 시작일, 종료일로 검색")
+        void getUserIdsByCondition_byJoinDateStartEnd() {
+            //given
+            UserSearchRequest request = UserSearchRequest.builder()
+                    .joinDateSearchStart(searchStartDate)
+                    .joinDateSearchEnd(searchEndDate)
+                    .build();
+            Pageable pageable = PageRequest.of(0, 10);
+
+            //when
+            UserIdsWithTotalCount result = findUserByCondition.getUserIdsByCondition(request, pageable);
+
+            //then
+            assertThat(result.getTotalCount()).isEqualTo(1);
+            assertThat(result.getUserIds()).hasSize(1);
+            assertThat(result.getUserIds()).contains(user2.getId());
+        }
+
     }
 
-    @Test
-    @DisplayName("가입 종료일로 검색")
-    void getUserIdsByCondition_byJoinDateEnd() {
-        //given
-        User user1 = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
-        User user2 = userJoinService.registerUser(UserSample.getNormal2UserRegisterRequest());
-        User user3 = userJoinService.registerUser(UserSample.getNormal3UserRegisterRequest());
-        LocalDateTime searchEndDate = LocalDateTime.now().plusHours(1);
-        em.createNativeQuery("UPDATE user SET created_at = :createdAt WHERE user_id = :userId")
-                .setParameter("createdAt", searchEndDate.plusDays(1))
-                .setParameter("userId", user2.getId())
-                .executeUpdate();
+    @Nested
+    @DisplayName("페이지네이션, 정렬 테스트")
+    class PaginationAndSortTest {
+        User user1;
+        User user2;
+        User user3;
 
-        UserSearchRequest request = UserSearchRequest.builder().joinDateSearchEnd(searchEndDate).build();
-        Pageable pageable = PageRequest.of(0, 10);
+        @BeforeEach
+        void init() {
+            user1 = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
+            user2 = userJoinService.registerUser(UserSample.getNormal2UserRegisterRequest());
+            user3 = userJoinService.registerUser(UserSample.getNormal3UserRegisterRequest());
+        }
 
+        @Test
+        @DisplayName("페이지네이션 테스트")
+        void getUserIdsByCondition_pagination() {
+            //given
+            //when
+            UserSearchRequest request = UserSearchRequest.builder().build();
+            Pageable pageable = PageRequest.of(0, 2, Sort.by(Sort.Order.asc("id")));
+            Pageable pageable2 = PageRequest.of(1, 2, Sort.by(Sort.Order.asc("id")));
+            UserIdsWithTotalCount result = findUserByCondition.getUserIdsByCondition(request, pageable);
+            UserIdsWithTotalCount result2 = findUserByCondition.getUserIdsByCondition(request, pageable2);
 
-        //when
-        UserIdsWithTotalCount result = findUserByCondition.getUserIdsByCondition(request, pageable);
+            //then
+            assertThat(result.getTotalCount()).isEqualTo(3);
+            assertThat(result.getUserIds()).hasSize(2);
+            assertThat(result.getUserIds().get(0)).isEqualTo(user1.getId());
+            assertThat(result.getUserIds().get(1)).isEqualTo(user2.getId());
+            assertThat(result2.getTotalCount()).isEqualTo(3);
+            assertThat(result2.getUserIds()).hasSize(1);
+            assertThat(result2.getUserIds().get(0)).isEqualTo(user3.getId());
+        }
 
-        //then
-        assertThat(result.getTotalCount()).isEqualTo(2);
-        assertThat(result.getEventIds()).hasSize(2);
-        assertThat(result.getEventIds()).contains(user1.getId(), user3.getId());
+        @Test
+        @DisplayName("ID 내림차순 정렬 테스트")
+        void getUserIdsByCondition_sortByIdDesc() {
+            //given
+            //when
+            UserSearchRequest request = UserSearchRequest.builder().build();
+            Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Order.desc("id")));
+            UserIdsWithTotalCount result = findUserByCondition.getUserIdsByCondition(request, pageable);
+
+            //then
+            assertThat(result.getUserIds()).isEqualTo(Arrays.asList(user3.getId(), user2.getId(), user1.getId()));
+        }
     }
 
-    @Test
-    @DisplayName("가입 시작일, 종료일로 검색")
-    void getUserIdsByCondition_byJoinDateStartEnd() {
-        //given
-        User user1 = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
-        User user2 = userJoinService.registerUser(UserSample.getNormal2UserRegisterRequest());
-        User user3 = userJoinService.registerUser(UserSample.getNormal3UserRegisterRequest());
-        LocalDateTime searchStartDate = LocalDateTime.now().minusHours(3);
-        LocalDateTime searchEndDate = searchStartDate.plusHours(6);
-        em.createNativeQuery("UPDATE user SET created_at = :createdAt WHERE user_id = :userId")
-                .setParameter("createdAt", searchStartDate.minusDays(1))
-                .setParameter("userId", user1.getId())
-                .executeUpdate();
-        em.createNativeQuery("UPDATE user SET created_at = :createdAt WHERE user_id = :userId")
-                .setParameter("createdAt", searchEndDate.plusDays(1))
-                .setParameter("userId", user3.getId())
-                .executeUpdate();
+    @Nested
+    @DisplayName("서브 타입으로 검색")
+    class ConditionBySubTypeTest{
 
-        UserSearchRequest request = UserSearchRequest.builder()
-                .joinDateSearchStart(searchStartDate)
-                .joinDateSearchEnd(searchEndDate)
-                .build();
-        Pageable pageable = PageRequest.of(0, 10);
+        User passwordUser;
+        User socialUser;
+        User adminHostUser;
+        User socialAndPasswordUser;
 
+        @BeforeEach
+        void init() {
+            passwordUser = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
+            passwordLoginUserService.registerPasswordLoginUser(
+                    PasswordLoginUserSample.getNormalPasswordLoginUserRegisterRequest(), passwordUser);
 
-        //when
-        UserIdsWithTotalCount result = findUserByCondition.getUserIdsByCondition(request, pageable);
+            socialUser = userJoinService.registerUser(UserSample.getNormal2UserRegisterRequest());
+            socialLoginUserService.registerSocialLoginUser(socialUser, OAuth2Provider.kakao, "social_id");
 
-        //then
-        assertThat(result.getTotalCount()).isEqualTo(1);
-        assertThat(result.getEventIds()).hasSize(1);
-        assertThat(result.getEventIds()).contains(user2.getId());
-    }
+            adminHostUser = userJoinService.joinAdminManageEventHostUser(
+                    AdminManageEventHostUserSample.getNormalAdminManageEventHostUserRegisterRequest()
+            ).getUser();
 
-    @Test
-    @DisplayName("페이지네이션 테스트")
-    void getUserIdsByCondition_pagination() {
-        //given
-        User user1 = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
-        User user2 = userJoinService.registerUser(UserSample.getNormal2UserRegisterRequest());
-        User user3 = userJoinService.registerUser(UserSample.getNormal3UserRegisterRequest());
-        UserSearchRequest request = UserSearchRequest.builder().build();
-        Pageable pageable = PageRequest.of(0, 2, Sort.by(Sort.Order.asc("id")));
-        Pageable pageable2 = PageRequest.of(1, 2, Sort.by(Sort.Order.asc("id")));
-        //when
-        UserIdsWithTotalCount result = findUserByCondition.getUserIdsByCondition(request, pageable);
-        UserIdsWithTotalCount result2 = findUserByCondition.getUserIdsByCondition(request, pageable2);
+            socialAndPasswordUser = userJoinService.registerUser(UserSample.getNormal3UserRegisterRequest());
+            socialLoginUserService.registerSocialLoginUser(socialAndPasswordUser, OAuth2Provider.kakao, "multi_type_id");
+            passwordLoginUserService.registerPasswordLoginUser(
+                    PasswordLoginUserSample.getNormal2PasswordLoginUserRegisterRequest(), socialAndPasswordUser
+            );
 
-        //then
-        assertThat(result.getTotalCount()).isEqualTo(3);
-        assertThat(result.getEventIds()).hasSize(2);
-        assertThat(result.getEventIds().get(0)).isEqualTo(user1.getId());
-        assertThat(result.getEventIds().get(1)).isEqualTo(user2.getId());
-        assertThat(result2.getTotalCount()).isEqualTo(3);
-        assertThat(result2.getEventIds()).hasSize(1);
-        assertThat(result2.getEventIds().get(0)).isEqualTo(user3.getId());
-    }
+            em.flush();
+            em.clear();
+        }
 
-    @Test
-    @DisplayName("ID 내림차순 정렬 테스트")
-    void getUserIdsByCondition_sortByIdDesc() {
-        //given
-        User user1 = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
-        User user2 = userJoinService.registerUser(UserSample.getNormal2UserRegisterRequest());
-        User user3 = userJoinService.registerUser(UserSample.getNormal3UserRegisterRequest());
-        UserSearchRequest request = UserSearchRequest.builder().build();
-        Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Order.desc("id")));
+        @Test
+        @DisplayName("유저 서브 타입으로 검색 - SOCIAL")
+        void getUserIdsByCondition_bySubTypeSocial() {
+            //given
+            //when
+            UserSearchRequest request = UserSearchRequest.builder()
+                    .subTypes(Collections.singletonList(UserSubType.SOCIAL_LOGIN_USER))
+                    .build();
+            Pageable pageable = PageRequest.of(0, 10);
+            UserIdsWithTotalCount result = findUserByCondition.getUserIdsByCondition(request, pageable);
 
-        //when
-        UserIdsWithTotalCount result = findUserByCondition.getUserIdsByCondition(request, pageable);
+            //then
+            assertThat(result.getTotalCount()).isEqualTo(2);
+            assertThat(result.getUserIds()).hasSize(2);
+            assertThat(result.getUserIds()).contains(socialUser.getId());
+            assertThat(result.getUserIds()).contains(socialAndPasswordUser.getId());
+        }
 
-        //then
-        assertThat(result.getEventIds()).isEqualTo(Arrays.asList(user3.getId(), user2.getId(), user1.getId()));
-    }
+        @Test
+        @DisplayName("유저 서브 타입으로 검색 - PASSWORD")
+        void getUserIdsByCondition_bySubTypePassword() {
+            //given
+            //when
+            UserSearchRequest request = UserSearchRequest.builder()
+                    .subTypes(Collections.singletonList(UserSubType.PASSWORD_LOGIN_USER))
+                    .build();
+            Pageable pageable = PageRequest.of(0, 10);
+            UserIdsWithTotalCount result = findUserByCondition.getUserIdsByCondition(request, pageable);
 
-    @Test
-    @DisplayName("유저 서브 타입으로 검색 - SOCIAL")
-    void getUserIdsByCondition_bySubTypeSocial() {
-        //given
-        User passwordUser = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
-        passwordLoginUserService.registerPasswordLoginUser(
-                PasswordLoginUserSample.getNormalPasswordLoginUserRegisterRequest(), passwordUser);
-        User socialUser = userJoinService.registerUser(UserSample.getNormal2UserRegisterRequest());
-        socialLoginUserService.registerSocialLoginUser(socialUser, OAuth2Provider.kakao, "social_id");
+            //then
+            assertThat(result.getTotalCount()).isEqualTo(2);
+            assertThat(result.getUserIds()).hasSize(2);
+            assertThat(result.getUserIds()).contains(passwordUser.getId());
+            assertThat(result.getUserIds()).contains(socialAndPasswordUser.getId());
+        }
 
+        @Test
+        @DisplayName("유저 서브 타입으로 검색 - ADMIN_MANAGE_EVENT_HOST")
+        void getUserIdsByCondition_bySubTypeAdminHost() {
+            //given
+            //when
+            UserSearchRequest request = UserSearchRequest.builder()
+                    .subTypes(Collections.singletonList(UserSubType.ADMIN_MANAGE_EVENT_HOST_USER))
+                    .build();
+            Pageable pageable = PageRequest.of(0, 10);
+            UserIdsWithTotalCount result = findUserByCondition.getUserIdsByCondition(request, pageable);
 
-        UserSearchRequest request = UserSearchRequest.builder()
-                .subTypes(Collections.singletonList(UserSubType.SOCIAL_LOGIN_USER))
-                .build();
-        Pageable pageable = PageRequest.of(0, 10);
+            //then
+            assertThat(result.getTotalCount()).isEqualTo(1);
+            assertThat(result.getUserIds()).hasSize(1);
+            assertThat(result.getUserIds()).contains(adminHostUser.getId());
+        }
 
-        //when
-        UserIdsWithTotalCount result = findUserByCondition.getUserIdsByCondition(request, pageable);
+        @Test
+        @DisplayName("유저 서브 타입으로 검색 - 다중 선택(AND 조건)")
+        void getUserIdsByCondition_bySubTypeMultiple_AND() {
+            //given
+            //when
+            UserSearchRequest request = UserSearchRequest.builder()
+                    .subTypes(Arrays.asList(UserSubType.SOCIAL_LOGIN_USER, UserSubType.PASSWORD_LOGIN_USER))
+                    .build();
+            Pageable pageable = PageRequest.of(0, 10);
+            UserIdsWithTotalCount result = findUserByCondition.getUserIdsByCondition(request, pageable);
 
-        //then
-        assertThat(result.getTotalCount()).isEqualTo(1);
-        assertThat(result.getEventIds()).hasSize(1);
-        assertThat(result.getEventIds()).contains(socialUser.getId());
-    }
-
-    @Test
-    @DisplayName("유저 서브 타입으로 검색 - PASSWORD")
-    void getUserIdsByCondition_bySubTypePassword() {
-        //given
-        User passwordUser = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
-        passwordLoginUserService.registerPasswordLoginUser(
-                PasswordLoginUserSample.getNormalPasswordLoginUserRegisterRequest(), passwordUser);
-        User socialUser = userJoinService.registerUser(UserSample.getNormal2UserRegisterRequest());
-        socialLoginUserService.registerSocialLoginUser(socialUser, OAuth2Provider.kakao, "social_id");
-
-
-        UserSearchRequest request = UserSearchRequest.builder()
-                .subTypes(Collections.singletonList(UserSubType.PASSWORD_LOGIN_USER))
-                .build();
-        Pageable pageable = PageRequest.of(0, 10);
-
-        //when
-        UserIdsWithTotalCount result = findUserByCondition.getUserIdsByCondition(request, pageable);
-
-        //then
-        assertThat(result.getTotalCount()).isEqualTo(1);
-        assertThat(result.getEventIds()).hasSize(1);
-        assertThat(result.getEventIds()).contains(passwordUser.getId());
-    }
-
-    @Test
-    @DisplayName("유저 서브 타입으로 검색 - ADMIN_MANAGE_EVENT_HOST")
-    void getUserIdsByCondition_bySubTypeAdminHost() {
-        //given
-        User passwordUser = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
-        passwordLoginUserService.registerPasswordLoginUser(
-                PasswordLoginUserSample.getNormalPasswordLoginUserRegisterRequest(), passwordUser);
-        User adminHostUser = userJoinService.joinAdminManageEventHostUser(
-                AdminManageEventHostUserSample.getNormalAdminManageEventHostUserRegisterRequest()
-        ).getUser();
-
-        UserSearchRequest request = UserSearchRequest.builder()
-                .subTypes(Collections.singletonList(UserSubType.ADMIN_MANAGE_EVENT_HOST_USER))
-                .build();
-        Pageable pageable = PageRequest.of(0, 10);
-
-        //when
-        UserIdsWithTotalCount result = findUserByCondition.getUserIdsByCondition(request, pageable);
-
-        //then
-        assertThat(result.getTotalCount()).isEqualTo(1);
-        assertThat(result.getEventIds()).hasSize(1);
-        assertThat(result.getEventIds()).contains(adminHostUser.getId());
-    }
-
-    @Test
-    @DisplayName("유저 서브 타입으로 검색 - 다중 선택(AND 조건)")
-    void getUserIdsByCondition_bySubTypeMultiple_AND() {
-        //given
-        // 1. 소셜로그인만 하는 유저
-        User socialOnlyUser = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
-        socialLoginUserService.registerSocialLoginUser(socialOnlyUser, OAuth2Provider.kakao, "social_only_id");
-
-        // 2. 패스워드 로그인만 하는 유저
-        User passwordOnlyUser = userJoinService.registerUser(UserSample.getNormal2UserRegisterRequest());
-        passwordLoginUserService.registerPasswordLoginUser(
-                PasswordLoginUserSample.getNormalPasswordLoginUserRegisterRequest(), passwordOnlyUser
-        );
-
-        // 3. 소셜로그인과 패스워드 로그인을 둘 다 하는 유저
-        User multiTypeUser = userJoinService.registerUser(UserSample.getNormal3UserRegisterRequest());
-        socialLoginUserService.registerSocialLoginUser(multiTypeUser, OAuth2Provider.kakao, "multi_type_id");
-        passwordLoginUserService.registerPasswordLoginUser(
-                PasswordLoginUserSample.getNormal2PasswordLoginUserRegisterRequest(), multiTypeUser
-        );
-
-        UserSearchRequest request = UserSearchRequest.builder()
-                .subTypes(Arrays.asList(UserSubType.SOCIAL_LOGIN_USER, UserSubType.PASSWORD_LOGIN_USER))
-                .build();
-        Pageable pageable = PageRequest.of(0, 10);
-
-        //when
-        UserIdsWithTotalCount result = findUserByCondition.getUserIdsByCondition(request, pageable);
-
-        //then
-        assertThat(result.getTotalCount()).isEqualTo(1);
-        assertThat(result.getEventIds()).hasSize(1);
-        assertThat(result.getEventIds()).containsExactly(multiTypeUser.getId());
+            //then
+            assertThat(result.getTotalCount()).isEqualTo(1);
+            assertThat(result.getUserIds()).hasSize(1);
+            assertThat(result.getUserIds()).containsExactly(socialAndPasswordUser.getId());
+        }
     }
 }

@@ -43,6 +43,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -74,15 +75,10 @@ public class UserJoinService_IntegrationTest {
     JwtProvider jwtProvider;
 
     @Autowired
-    EntityManager entityManager;
+    PasswordEncoder passwordEncoder;
 
-//    @AfterEach
-//    void tearDown() {
-//        List<User> users = userRepository.findAll();
-//        for(User user : users) {
-//            userJoinService.deleteUser(user.getId());
-//        }
-//    }
+    @Autowired
+    EntityManager entityManager;
 
     @Nested
     @DisplayName("유저 등록 테스트")
@@ -129,6 +125,64 @@ public class UserJoinService_IntegrationTest {
             //when then
             assertThatThrownBy(() -> userJoinService.registerUser(upperCaseUsernameRequest))
                     .isInstanceOf(DuplicateUsernameException.class);
+        }
+
+        @Test
+        @DisplayName("패스워드 로그인 유저 정상 등록")
+        @Transactional
+        void shouldOk_WhenRegisterNormalPasswordLoginUser() {
+            //given
+            User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
+            //when
+            passwordLoginUserService.registerPasswordLoginUser(
+                    PasswordLoginUserSample.getNormalPasswordLoginUserRegisterRequest(),
+                    user
+            );
+            //then
+
+        }
+
+        @Test
+        @DisplayName("소셜 로그인 유저 정상 등록")
+        @Transactional
+        void shouldOk_WhenRegisterNormalSocialLoginUser() {
+            //given
+            SocialLoginUserJoinRequest socialLoginUserJoinRequest = SocialLoginUserSample
+                    .getMockSocialLoginUserJoinRequest();
+            String socialLoginUserId = "xxxx";
+            OAuth2Provider oauthProvider = OAuth2Provider.kakao;
+            OAuth2JoinTokenInfo oAuth2JoinTokenInfo = jwtProvider.createOAuth2JoinToken(
+                    OAuth2JoinTokenSubject.builder()
+                            .socialLoginId(socialLoginUserId)
+                            .oAuth2Provider(oauthProvider)
+                            .build()
+            );
+
+
+            socialLoginUserJoinRequest.setJoinToken(oAuth2JoinTokenInfo.getJwt());
+            //when
+            SocialLoginUser socialLoginUser = userJoinService.joinSocialLoginUser(socialLoginUserJoinRequest);
+            //then
+            assertThat(socialLoginUser.getId()).isEqualTo(socialLoginUserId);
+            assertThat(socialLoginUser.getProvider()).isEqualTo(oauthProvider);
+        }
+
+        @Test
+        @DisplayName("관리자 관리 이벤트 호스트 유저 정상 등록")
+        @Transactional
+        void shouldOk_WhenRegisterNormalAdminManageEventHostUser() {
+            //given when
+            AdminManageEventHostUser adminManageEventHostUser = userJoinService.joinAdminManageEventHostUser(
+                    AdminManageEventHostUserSample.getNormalAdminManageEventHostUserRegisterRequest()
+            );
+            //then
+            Long adminManageEventHostUserId = adminManageEventHostUser.getId();
+            Long userId = adminManageEventHostUser.getUser().getId();
+            AdminManageEventHostUser findAdminManageEventHostUser = adminManageEventHostUserRepository
+                    .findById(adminManageEventHostUserId).orElse(null);
+            User findUser = userRepository.findById(userId).orElse(null);
+            assertThat(findAdminManageEventHostUser).isNotNull();
+            assertThat(findUser).isNotNull();
         }
     }
 
@@ -181,6 +235,67 @@ public class UserJoinService_IntegrationTest {
             assertThat(findPasswordLoginUser).isNull();
             assertThat(findUser).isNull();
         }
+
+        @Test
+        @DisplayName("소셜 로그인 유저 삭제")
+        @Transactional
+        void deleteNormalSocialLoginUserTest() {
+            //given
+            SocialLoginUserJoinRequest socialLoginUserJoinRequest = SocialLoginUserSample
+                    .getMockSocialLoginUserJoinRequest();
+            String socialLoginUserId = "xxxx";
+            OAuth2Provider oauthProvider = OAuth2Provider.kakao;
+            OAuth2JoinTokenInfo oAuth2JoinTokenInfo = jwtProvider.createOAuth2JoinToken(
+                    OAuth2JoinTokenSubject.builder()
+                            .socialLoginId(socialLoginUserId)
+                            .oAuth2Provider(oauthProvider)
+                            .build()
+            );
+            socialLoginUserJoinRequest.setJoinToken(oAuth2JoinTokenInfo.getJwt());
+            SocialLoginUser socialLoginUser = userJoinService.joinSocialLoginUser(
+                    socialLoginUserJoinRequest
+            );
+            entityManager.flush();
+            entityManager.clear();
+
+            //when
+            Long userId = socialLoginUser.getUser().getId();
+            userJoinService.deleteUser(userId);
+            entityManager.flush();
+            entityManager.clear();
+
+            //then
+            User findUser = userRepository.findById(userId).orElse(null);
+            SocialLoginUser findsocialLoginUser = socialLoginUserRepository.findById(socialLoginUserId).orElse(null);
+            assertThat(findUser).isNull();
+            assertThat(findsocialLoginUser).isNull();
+        }
+
+        @Test
+        @DisplayName("관리자 관리 이벤트 호스트 유저 삭제")
+        @Transactional
+        void deleteAdminManageEventHostUser() {
+            //given
+            AdminManageEventHostUser adminManageEventHostUser = userJoinService.joinAdminManageEventHostUser(
+                    AdminManageEventHostUserSample.getNormalAdminManageEventHostUserRegisterRequest()
+            );
+            Long adminManageEventHostUserId = adminManageEventHostUser.getId();
+            Long userId = adminManageEventHostUser.getUser().getId();
+            entityManager.flush();
+            entityManager.clear();
+
+            //when
+            userJoinService.deleteAdminManageEventHostUser(adminManageEventHostUserId);
+            entityManager.flush();
+            entityManager.clear();
+
+            //then
+            User findUser = userRepository.findById(userId).orElse(null);
+            AdminManageEventHostUser findAdminManageEventHostUser = adminManageEventHostUserRepository
+                    .findById(adminManageEventHostUserId).orElse(null);
+            assertThat(findUser).isNull();
+            assertThat(findAdminManageEventHostUser).isNull();
+        }
     }
 
     @Nested
@@ -222,126 +337,6 @@ public class UserJoinService_IntegrationTest {
             boolean isDuplicate = userJoinService.checkDuplicateUsername(userRegisterRequest.getNickname());
             //then
             assertThat(isDuplicate).isFalse();
-        }
-    }
-
-    @Nested
-    @DisplayName("소셜 로그인 유저 등록 테스트")
-    class registerSocialLoginUserTest {
-        @Test
-        @DisplayName("정상 등록")
-        @Transactional
-        void shouldOk() {
-            //given
-            SocialLoginUserJoinRequest socialLoginUserJoinRequest = SocialLoginUserSample
-                    .getMockSocialLoginUserJoinRequest();
-            String socialLoginUserId = "xxxx";
-            OAuth2Provider oauthProvider = OAuth2Provider.kakao;
-            OAuth2JoinTokenInfo oAuth2JoinTokenInfo = jwtProvider.createOAuth2JoinToken(
-                    OAuth2JoinTokenSubject.builder()
-                            .socialLoginId(socialLoginUserId)
-                            .oAuth2Provider(oauthProvider)
-                            .build()
-            );
-
-
-            socialLoginUserJoinRequest.setJoinToken(oAuth2JoinTokenInfo.getJwt());
-            //when
-            SocialLoginUser socialLoginUser = userJoinService.joinSocialLoginUser(socialLoginUserJoinRequest);
-            //then
-            assertThat(socialLoginUser.getId()).isEqualTo(socialLoginUserId);
-            assertThat(socialLoginUser.getProvider()).isEqualTo(oauthProvider);
-        }
-    }
-
-    @Nested
-    @DisplayName("소셜 로그인 유저 삭제 테스트")
-    class deleteSocialLoginUserTest {
-        @Test
-        @DisplayName("정상 삭제")
-        @Transactional
-        void shouldOk() {
-            //given
-            SocialLoginUserJoinRequest socialLoginUserJoinRequest = SocialLoginUserSample
-                    .getMockSocialLoginUserJoinRequest();
-            String socialLoginUserId = "xxxx";
-            OAuth2Provider oauthProvider = OAuth2Provider.kakao;
-            OAuth2JoinTokenInfo oAuth2JoinTokenInfo = jwtProvider.createOAuth2JoinToken(
-                    OAuth2JoinTokenSubject.builder()
-                            .socialLoginId(socialLoginUserId)
-                            .oAuth2Provider(oauthProvider)
-                            .build()
-            );
-            socialLoginUserJoinRequest.setJoinToken(oAuth2JoinTokenInfo.getJwt());
-            SocialLoginUser socialLoginUser = userJoinService.joinSocialLoginUser(
-                    socialLoginUserJoinRequest
-            );
-            entityManager.flush();
-            entityManager.clear();
-
-            //when
-            Long userId = socialLoginUser.getUser().getId();
-            userJoinService.deleteUser(userId);
-            entityManager.flush();
-            entityManager.clear();
-
-            //then
-            User findUser = userRepository.findById(userId).orElse(null);
-            SocialLoginUser findsocialLoginUser = socialLoginUserRepository.findById(socialLoginUserId).orElse(null);
-            assertThat(findUser).isNull();
-            assertThat(findsocialLoginUser).isNull();
-        }
-    }
-
-    @Nested
-    @DisplayName("관리자 관리 이벤트 호스트 유저 등록 테스트")
-    class registerAdminManageEventHostUserTest {
-        @Test
-        @DisplayName("정상 등록")
-        @Transactional
-        void shouldOk() {
-            //given when
-            AdminManageEventHostUser adminManageEventHostUser = userJoinService.joinAdminManageEventHostUser(
-                    AdminManageEventHostUserSample.getNormalAdminManageEventHostUserRegisterRequest()
-            );
-            //then
-            Long adminManageEventHostUserId = adminManageEventHostUser.getId();
-            Long userId = adminManageEventHostUser.getUser().getId();
-            AdminManageEventHostUser findAdminManageEventHostUser = adminManageEventHostUserRepository
-                    .findById(adminManageEventHostUserId).orElse(null);
-            User findUser = userRepository.findById(userId).orElse(null);
-            assertThat(findAdminManageEventHostUser).isNotNull();
-            assertThat(findUser).isNotNull();
-        }
-    }
-
-    @Nested
-    @DisplayName("관리자 관리 이벤트 호스트 유저 삭제 테스트")
-    class deleteAdminManageEventHostUserTest {
-        @Test
-        @DisplayName("정상 삭제")
-        @Transactional
-        void shouldOk() {
-            //given
-            AdminManageEventHostUser adminManageEventHostUser = userJoinService.joinAdminManageEventHostUser(
-                    AdminManageEventHostUserSample.getNormalAdminManageEventHostUserRegisterRequest()
-            );
-            Long adminManageEventHostUserId = adminManageEventHostUser.getId();
-            Long userId = adminManageEventHostUser.getUser().getId();
-            entityManager.flush();
-            entityManager.clear();
-
-            //when
-            userJoinService.deleteAdminManageEventHostUser(adminManageEventHostUserId);
-            entityManager.flush();
-            entityManager.clear();
-
-            //then
-            User findUser = userRepository.findById(userId).orElse(null);
-            AdminManageEventHostUser findAdminManageEventHostUser = adminManageEventHostUserRepository
-                    .findById(adminManageEventHostUserId).orElse(null);
-            assertThat(findUser).isNull();
-            assertThat(findAdminManageEventHostUser).isNull();
         }
     }
 }

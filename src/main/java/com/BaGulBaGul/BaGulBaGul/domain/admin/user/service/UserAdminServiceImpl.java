@@ -30,7 +30,7 @@ public class UserAdminServiceImpl implements UserAdminService {
     ) {
         UserIdsWithTotalCount result = findUserByCondition.getUserIdsByCondition(userSearchRequest,
                 pageable);
-        List<UserSearchByAdminResponse> responses = getUserInfoByAdminSearchResponses(result.getEventIds());
+        List<UserSearchByAdminResponse> responses = getUserInfoByAdminSearchResponses(result.getUserIds());
         return new PageImpl<>(responses, pageable, result.getTotalCount());
     }
 

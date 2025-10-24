@@ -45,6 +45,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 
     @Override
+    @Transactional
     public UserInfoResponse getUserInfo(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
         return UserInfoResponse.builder()
@@ -57,6 +58,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
+    @Transactional
     public MyUserInfoResponse getMyUserInfo(Long userId) {
         UserInfoResponse userInfo = getUserInfo(userId);
         return MyUserInfoResponse.from(
@@ -68,6 +70,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
+    @Transactional
     public OtherUserInfoResponse getOtherUserInfo(Long userId) {
         UserInfoResponse userInfo = getUserInfo(userId);
         return OtherUserInfoResponse.from(
