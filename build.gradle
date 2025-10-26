@@ -138,6 +138,7 @@ tasks.named('compileJava') {
 	dependsOn tasks.named('compileQuerydsl')  // QueryDSL 컴파일 우선 실행:cite[1]
 }
 
+
 tasks.named('test') {
 	doFirst {
 		println "========================================================"
@@ -159,6 +160,13 @@ tasks.named('test') {
 			}
 			println "========================================================"
 		}
+		println "========================================================"
+		println "테스트 스프링 컨텍스트 캐시 제한 설정"
+		def contextCacheSize = project.hasProperty('spring.test.context.cache.maxSize') ? project.property('spring.test.context.cache.maxSize').toString() : 13
+		systemProperty 'spring.test.context.cache.maxSize', contextCacheSize
+		println contextCacheSize
+		println "========================================================"
+
 	}
 	useJUnitPlatform()
 }
