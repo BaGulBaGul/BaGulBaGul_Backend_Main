@@ -46,7 +46,7 @@ public class Event {
 
     @Setter
     @JoinColumn(name = "event_host_user_id")
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     User hostUser;
 
     @Setter

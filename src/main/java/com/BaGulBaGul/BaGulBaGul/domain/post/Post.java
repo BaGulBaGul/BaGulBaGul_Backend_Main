@@ -24,6 +24,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.LazyToOne;
+import org.hibernate.annotations.LazyToOneOption;
 
 
 @Getter
@@ -80,9 +82,11 @@ public class Post extends BaseTimeEntity {
     private List<PostComment> comments = new ArrayList<>();
 
     @OneToOne(mappedBy = "post", fetch = FetchType.LAZY)
+    @LazyToOne(LazyToOneOption.NO_PROXY)
     private Event event;
 
     @OneToOne(mappedBy = "post", fetch = FetchType.LAZY)
+    @LazyToOne(LazyToOneOption.NO_PROXY)
     private Recruitment recruitment;
 
     @Builder

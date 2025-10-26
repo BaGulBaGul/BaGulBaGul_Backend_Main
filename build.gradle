@@ -1,9 +1,19 @@
+buildscript {
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath "org.hibernate:hibernate-gradle-plugin:$hibernateVersion"
+	}
+}
 plugins {
 	id 'java'
 	id 'org.springframework.boot' version '2.7.13'
 	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
 	id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
 }
+apply plugin: 'org.hibernate.orm'
+
 
 group = 'com.BaGulBaGul'
 version = '0.0.1-SNAPSHOT'
@@ -99,6 +109,12 @@ dependencies {
 	annotationProcessor "jakarta.annotation:jakarta.annotation-api" // java.lang.NoClassDefFoundError (javax.annotation.Generated) 발생 대응
 }
 
+hibernate {
+	enhance {
+		//@OneToOne의 연관관계 주인이 아닐 때도 fetch=LAZY를 동작하게 하기 위함
+		enableLazyInitialization = true
+	}
+}
 querydsl {
 	jpa = true
 	querydslSourcesDir = querydslDir

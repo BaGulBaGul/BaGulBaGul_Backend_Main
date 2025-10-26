@@ -19,6 +19,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import lombok.Setter;
+import org.hibernate.annotations.LazyToOne;
+import org.hibernate.annotations.LazyToOneOption;
 
 
 @Getter
@@ -55,18 +57,22 @@ public class User extends BaseTimeEntity {
 
     @Setter
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
+    @LazyToOne(LazyToOneOption.NO_PROXY)
     SocialLoginUser socialLoginUser;
 
     @Setter
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
+    @LazyToOne(LazyToOneOption.NO_PROXY)
     PasswordLoginUser passwordLoginUser;
 
     @Setter
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
+    @LazyToOne(LazyToOneOption.NO_PROXY)
     AdminManageEventHostUser adminManageEventHostUser;
 
     @Setter
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
+    @LazyToOne(LazyToOneOption.NO_PROXY)
     UserSuspensionStatus userSuspensionStatus;
 
     @Builder

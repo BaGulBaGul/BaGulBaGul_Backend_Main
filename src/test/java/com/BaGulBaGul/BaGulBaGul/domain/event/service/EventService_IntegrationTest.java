@@ -417,6 +417,8 @@ class EventService_IntegrationTest {
                     authenticatedUserInfo,
                     eventRegisterRequest
             );
+            entityManager.flush();
+            entityManager.clear();
             //when
             EventDetailResponse eventDetailResponse = eventService.getEventDetailById(eventId);
             //then
@@ -448,6 +450,8 @@ class EventService_IntegrationTest {
                 );
                 eventIds.add(eventId);
             }
+            entityManager.flush();
+            entityManager.clear();
             //when
             List<EventSimpleResponse> eventSimpleResponses = eventService.getEventSimpleResponseByIds(eventIds);
             //then

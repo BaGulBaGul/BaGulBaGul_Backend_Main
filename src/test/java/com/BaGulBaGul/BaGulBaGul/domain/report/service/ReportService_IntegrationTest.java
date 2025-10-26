@@ -3,13 +3,13 @@ package com.BaGulBaGul.BaGulBaGul.domain.report.service;
 
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.sampledata.EventSample;
+import com.BaGulBaGul.BaGulBaGul.domain.event.service.EventCommentService;
 import com.BaGulBaGul.BaGulBaGul.domain.event.service.EventService;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentChildRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentRegisterRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.response.RegisterPostCommentChildResponse;
-import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostCommentService;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.request.RecruitmentRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.sampledata.RecruitmentSample;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.service.RecruitmentCommentService;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.service.RecruitmentService;
 import com.BaGulBaGul.BaGulBaGul.domain.report.CommentChildReport;
 import com.BaGulBaGul.BaGulBaGul.domain.report.CommentChildReportStatus;
@@ -79,7 +79,9 @@ class ReportService_IntegrationTest {
     @Autowired
     RecruitmentService recruitmentService;
     @Autowired
-    PostCommentService postCommentService;
+    EventCommentService eventCommentService;
+    @Autowired
+    RecruitmentCommentService recruitmentCommentService;
     @Autowired
     EntityManager em;
     @Autowired
@@ -340,7 +342,7 @@ class ReportService_IntegrationTest {
             EventRegisterRequest eventRegisterRequest = EventSample.getNormalRegisterRequest(reportedUser.getId());
             eventId = eventService.registerEvent(reportedUserInfo, eventRegisterRequest);
             PostCommentRegisterRequest postCommentRegisterRequest = new PostCommentRegisterRequest("test comment");
-            postCommentId = postCommentService.registerPostComment(eventId, reportedUser.getId(), postCommentRegisterRequest);
+            postCommentId = eventCommentService.registerComment(reportedUserInfo, eventId, postCommentRegisterRequest);
         }
 
         @Test
@@ -457,11 +459,9 @@ class ReportService_IntegrationTest {
             EventRegisterRequest eventRegisterRequest = EventSample.getNormalRegisterRequest(reportedUser.getId());
             eventId = eventService.registerEvent(reportedUserInfo, eventRegisterRequest);
             PostCommentRegisterRequest postCommentRegisterRequest = new PostCommentRegisterRequest("test comment");
-            postCommentId = postCommentService.registerPostComment(eventId, reportedUser.getId(), postCommentRegisterRequest);
+            postCommentId = eventCommentService.registerComment(reportedUserInfo, eventId, postCommentRegisterRequest);
             PostCommentChildRegisterRequest postCommentChildRegisterRequest = new PostCommentChildRegisterRequest("test child comment", null);
-            RegisterPostCommentChildResponse response = postCommentService.registerPostCommentChild(
-                    postCommentId, reportedUser.getId(), postCommentChildRegisterRequest);
-            postCommentChildId = response.getPostCommentChildId();
+            postCommentChildId = eventCommentService.registerCommentChild(reportedUserInfo, postCommentId, postCommentChildRegisterRequest);
         }
 
         @Test
