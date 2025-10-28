@@ -21,8 +21,10 @@ import com.BaGulBaGul.BaGulBaGul.domain.recruitment.repository.RecruitmentReposi
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.service.RecruitmentCommentService;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.service.RecruitmentService;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.PasswordLoginUserRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.UserRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.user.service.PasswordLoginUserService;
 import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserJoinService;
 import com.BaGulBaGul.BaGulBaGul.global.auth.constant.GeneralRoleType;
 import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AuthenticatedUserInfo;
@@ -46,6 +48,7 @@ public class InitDummyDB implements ApplicationListener<ApplicationReadyEvent> {
     private final RecruitmentRepository recruitmentRepository;
 
     private final UserJoinService userJoinService;
+    private final PasswordLoginUserService passwordLoginUserService;
     private final EventService eventService;
     private final RecruitmentService recruitmentService;
     private final PostCommentService postCommentService;
@@ -90,6 +93,17 @@ public class InitDummyDB implements ApplicationListener<ApplicationReadyEvent> {
             );
             result.add(user);
         }
+        User adminUser = userJoinService.registerUser(UserRegisterRequest.builder()
+                .email("admin@email.com")
+                .nickname("admin")
+                .roles(List.of(GeneralRoleType.ADMIN.name(), GeneralRoleType.EVENT_HOST.name()))
+                .build());
+        passwordLoginUserService.registerPasswordLoginUser(
+                PasswordLoginUserRegisterRequest.builder()
+                        .loginId("admin")
+                        .loginPassword("admin").build(),
+                adminUser
+        );
         return result;
     }
 
@@ -167,11 +181,10 @@ public class InitDummyDB implements ApplicationListener<ApplicationReadyEvent> {
             Long eventId = eventService.registerEvent(
                     AuthenticatedUserInfo.builder()
                             .userId(writer.getId())
-                            .roles(List.of(GeneralRoleType.ADMIN.name()))
+                            .roles(List.of(GeneralRoleType.ADMIN.name(), GeneralRoleType.EVENT_HOST.name()))
                             .build(),
                     EventRegisterRequest.builder()
                             .type(type)
-
                             .ageLimit(rand.nextBoolean())
                             .categories(categoryNameSet.stream().collect(Collectors.toList()))
                             .postRegisterRequest(
