@@ -105,7 +105,6 @@ class UserAuthController_IntegrationTest {
     void setup(WebApplicationContext ctx) {
         mvc = MockMvcBuilders.webAppContextSetup(ctx)
                 .apply(springSecurity())
-                .defaultRequest(get("/").with(csrf()))
                 .build();
     }
 
@@ -228,6 +227,7 @@ class UserAuthController_IntegrationTest {
             //when then
             ResponseCode responseCode = ResponseCode.SUCCESS;
             mvc.perform(post(path)
+                            .with(csrf())
                             .cookie(new Cookie(ACCESS_TOKEN_COOKIE_NAME, atInfo.getJwt())))
                     .andExpect(status().is(responseCode.getHttpStatus().value()))
                     .andExpect(jsonPath("$.errorCode").value(responseCode.getCode()))
@@ -259,6 +259,7 @@ class UserAuthController_IntegrationTest {
             //when then
             ResponseCode responseCode = ResponseCode.SUCCESS;
             mvc.perform(post(path)
+                            .with(csrf())
                             .cookie(new Cookie(ACCESS_TOKEN_COOKIE_NAME, atInfo.getJwt())))
                     .andExpect(status().is(responseCode.getHttpStatus().value()))
                     .andExpect(jsonPath("$.errorCode").value(responseCode.getCode()))
@@ -280,7 +281,7 @@ class UserAuthController_IntegrationTest {
         void should401_WhenNoAt() throws Exception {
             //when then
             ResponseCode responseCode = ResponseCode.FORBIDDEN;
-            mvc.perform(post(path))
+            mvc.perform(post(path).with(csrf()))
                     .andExpect(status().is(responseCode.getHttpStatus().value()))
                     .andExpect(jsonPath("$.errorCode").value(responseCode.getCode()));
         }
@@ -310,6 +311,7 @@ class UserAuthController_IntegrationTest {
             //when then
             ResponseCode responseCode = ResponseCode.FORBIDDEN;
             mvc.perform(post(path)
+                            .with(csrf())
                             .cookie(new Cookie(ACCESS_TOKEN_COOKIE_NAME, atInfo.getJwt()))
                             .cookie(new Cookie(REFRESH_TOKEN_COOKIE_NAME, rtInfo.getJwt())))
                     .andExpect(status().is(responseCode.getHttpStatus().value()))
@@ -337,6 +339,7 @@ class UserAuthController_IntegrationTest {
             //when then
             ResponseCode responseCode = ResponseCode.SUCCESS;
             mvc.perform(post(path)
+                            .with(csrf())
                             .cookie(new Cookie(ACCESS_TOKEN_COOKIE_NAME, atInfo.getJwt()))
                             .cookie(new Cookie(REFRESH_TOKEN_COOKIE_NAME, rtInfo.getJwt())))
                     .andExpect(status().is(responseCode.getHttpStatus().value()))
@@ -367,6 +370,7 @@ class UserAuthController_IntegrationTest {
             //when then
             ResponseCode responseCode = ResponseCode.FORBIDDEN;
             mvc.perform(post(path)
+                            .with(csrf())
                             .cookie(new Cookie(ACCESS_TOKEN_COOKIE_NAME, atInfo.getJwt()))
                             .cookie(new Cookie(REFRESH_TOKEN_COOKIE_NAME, rtInfo.getJwt())))
                     .andExpect(status().is(responseCode.getHttpStatus().value()))
@@ -389,6 +393,7 @@ class UserAuthController_IntegrationTest {
             //when
             ResponseCode responseCode = ResponseCode.AUTH_EXPIRED_REFRESH_TOKEN;
             ResultActions perform = mvc.perform(post(path)
+                    .with(csrf())
                     .cookie(new Cookie(ACCESS_TOKEN_COOKIE_NAME, atInfo.getJwt()))
                     .cookie(new Cookie(REFRESH_TOKEN_COOKIE_NAME, rtInfo.getJwt())));
 
@@ -416,6 +421,7 @@ class UserAuthController_IntegrationTest {
             //when then
             ResponseCode responseCode = ResponseCode.FORBIDDEN;
             mvc.perform(post(path)
+                            .with(csrf())
                             .cookie(new Cookie(ACCESS_TOKEN_COOKIE_NAME, atInfo.getJwt()))
                             .cookie(new Cookie(REFRESH_TOKEN_COOKIE_NAME, rtInfo.getJwt())))
                     .andExpect(status().is(responseCode.getHttpStatus().value()))
@@ -450,6 +456,7 @@ class UserAuthController_IntegrationTest {
 
             //when
             ResultActions resultActions = mvc.perform(post(path)
+                    .with(csrf())
                     .cookie(new Cookie(ACCESS_TOKEN_COOKIE_NAME, atInfo.getJwt()))
                     .cookie(new Cookie(REFRESH_TOKEN_COOKIE_NAME, rtInfo.getJwt()))
             );
