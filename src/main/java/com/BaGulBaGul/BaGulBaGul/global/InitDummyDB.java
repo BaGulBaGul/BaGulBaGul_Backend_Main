@@ -28,6 +28,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.service.PasswordLoginUserService;
 import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserJoinService;
 import com.BaGulBaGul.BaGulBaGul.global.auth.constant.GeneralRoleType;
 import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AuthenticatedUserInfo;
+import com.BaGulBaGul.BaGulBaGul.global.validation.ValidationUtil;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -178,46 +179,48 @@ public class InitDummyDB implements ApplicationListener<ApplicationReadyEvent> {
             }
 
             //이벤트 등록
+            EventRegisterRequest eventRegisterRequest = EventRegisterRequest.builder()
+                    .type(type)
+                    .eventHostUserId(writer.getId())
+                    .ageLimit(rand.nextBoolean())
+                    .categories(categoryNameSet.stream().collect(Collectors.toList()))
+                    .postRegisterRequest(
+                            PostRegisterRequest.builder()
+                                    .title(title)
+                                    .content(content)
+                                    .tags(tagList)
+                                    .imageIds(null)
+                                    .type(PostType.Event)
+                                    .build()
+                    )
+                    .locationRegisterRequest(
+                            LocationRegisterRequest.builder()
+                                    .fullLocation(fullLocation)
+                                    .abstractLocation(abstractLocation)
+                                    .latitudeLocation(latitudeLocation)
+                                    .longitudeLocation(longitudeLocation)
+                                    .build()
+                    )
+                    .periodRegisterRequest(
+                            PeriodRegisterRequest.builder()
+                                    .startDate(startDate)
+                                    .endDate(endDate)
+                                    .build()
+                    )
+                    .participantStatusRegisterRequest(
+                            ParticipantStatusRegisterRequest.builder()
+                                    .maxHeadCount(maxHeadCount)
+                                    .build()
+                    )
+                    .build();
+            ValidationUtil.validate(eventRegisterRequest);
             Long eventId = eventService.registerEvent(
                     AuthenticatedUserInfo.builder()
                             .userId(writer.getId())
                             .roles(List.of(GeneralRoleType.ADMIN.name(), GeneralRoleType.EVENT_HOST.name()))
                             .build(),
-                    EventRegisterRequest.builder()
-                            .type(type)
-                            .ageLimit(rand.nextBoolean())
-                            .categories(categoryNameSet.stream().collect(Collectors.toList()))
-                            .postRegisterRequest(
-                                    PostRegisterRequest.builder()
-                                            .title(title)
-                                            .content(content)
-                                            .tags(tagList)
-                                            .imageIds(null)
-                                            .type(PostType.Event)
-                                            .build()
-                            )
-                            .locationRegisterRequest(
-                                    LocationRegisterRequest.builder()
-                                            .fullLocation(fullLocation)
-                                            .abstractLocation(abstractLocation)
-                                            .latitudeLocation(latitudeLocation)
-                                            .longitudeLocation(longitudeLocation)
-                                            .build()
-                            )
-                            .periodRegisterRequest(
-                                    PeriodRegisterRequest.builder()
-                                            .startDate(startDate)
-                                            .endDate(endDate)
-                                            .build()
-                            )
-                            .participantStatusRegisterRequest(
-                                    ParticipantStatusRegisterRequest.builder()
-                                            .maxHeadCount(maxHeadCount)
-                                            .build()
-                            )
-                            .build()
+                    eventRegisterRequest
             );
-
             Event event = eventRepository.findById(eventId).get();
             //댓글, 대댓글
             int commentCount = rand.nextInt(COMMENT_MAX_COUNT);
@@ -293,25 +296,27 @@ public class InitDummyDB implements ApplicationListener<ApplicationReadyEvent> {
             String content = "테스트게시글" + cnt;
             List<String> tagStr = tagSet.stream().collect(Collectors.toList());
 
+            RecruitmentRegisterRequest recruitmentRegisterRequest = RecruitmentRegisterRequest.builder()
+                    .periodRegisterRequest(PeriodRegisterRequest.builder()
+                            .startDate(startDate)
+                            .endDate(endDate)
+                            .build())
+                    .participantStatusRegisterRequest(ParticipantStatusRegisterRequest.builder()
+                            .maxHeadCount(maxHeadCount)
+                            .build())
+                    .postRegisterRequest(PostRegisterRequest.builder()
+                            .title(title)
+                            .content(content)
+                            .tags(tagStr)
+                            .imageIds(null)
+                            .type(PostType.Recruitment)
+                            .build())
+                    .build();
+            ValidationUtil.validate(recruitmentRegisterRequest);
             Long recruitmentId = recruitmentService.registerRecruitment(
                     authenticatedUserInfo,
                     event.getId(),
-                    RecruitmentRegisterRequest.builder()
-                            .periodRegisterRequest(PeriodRegisterRequest.builder()
-                                    .startDate(startDate)
-                                    .endDate(endDate)
-                                    .build())
-                            .participantStatusRegisterRequest(ParticipantStatusRegisterRequest.builder()
-                                    .maxHeadCount(maxHeadCount)
-                                    .build())
-                            .postRegisterRequest(PostRegisterRequest.builder()
-                                    .title(title)
-                                    .content(content)
-                                    .tags(tagStr)
-                                    .imageIds(null)
-                                    .type(PostType.Recruitment)
-                                    .build())
-                            .build()
+                    recruitmentRegisterRequest
             );
 
             Recruitment recruitment = recruitmentRepository.findById(recruitmentId).get();

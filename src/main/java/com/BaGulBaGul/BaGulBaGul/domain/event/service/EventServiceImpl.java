@@ -13,10 +13,12 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.applicationevent.NewEventLikeAppli
 import com.BaGulBaGul.BaGulBaGul.domain.event.constant.EventType;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventConditionalRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.EventDetailInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.EventDetailInfo.EventDetailInfoBuilder;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.EventDetailResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.EventSimpleInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.EventSimpleInfo.EventSimpleInfoBuilder;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.EventSimpleResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.GetLikeEventRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.GetLikeEventResponse;
@@ -403,12 +405,9 @@ public class EventServiceImpl implements EventService {
     }
 
     private EventSimpleInfo getEventSimpleInfo(Event event) {
-        return EventSimpleInfo.builder()
+        EventSimpleInfoBuilder builder = EventSimpleInfo.builder()
                 .eventId(event.getId())
                 .type(event.getType())
-                .eventHostUserId(event.getHostUser().getId())
-                .eventHostUserName(event.getHostUser().getNickname())
-                .eventHostUserProfileImageUrl(event.getHostUser().getProfileMessage())
                 .abstractLocation(event.getAbstractLocation())
                 .currentHeadCount(event.getCurrentHeadCount())
                 .maxHeadCount(event.getMaxHeadCount())
@@ -418,17 +417,20 @@ public class EventServiceImpl implements EventService {
                         event.getCategories().stream()
                                 .map(eventCategory -> eventCategory.getCategory().getName())
                                 .collect(Collectors.toList())
-                )
-                .build();
+                );
+        User hostUser = event.getHostUser();
+        if(hostUser != null) {
+            builder.eventHostUserId(hostUser.getId())
+                    .eventHostUserName(hostUser.getNickname())
+                    .eventHostUserProfileImageUrl(hostUser.getProfileMessage());
+        }
+        return builder.build();
     }
 
     private EventDetailInfo getEventDetailInfo(Event event) {
-        return EventDetailInfo.builder()
+        EventDetailInfoBuilder builder = EventDetailInfo.builder()
                 .eventId(event.getId())
                 .type(event.getType())
-                .eventHostUserId(event.getHostUser().getId())
-                .eventHostUserName(event.getHostUser().getNickname())
-                .eventHostUserProfileImageUrl(event.getHostUser().getProfileMessage())
                 .currentHeadCount(event.getCurrentHeadCount())
                 .maxHeadCount(event.getMaxHeadCount())
                 .fullLocation(event.getFullLocation())
@@ -442,7 +444,13 @@ public class EventServiceImpl implements EventService {
                         event.getCategories().stream()
                                 .map(eventCategory -> eventCategory.getCategory().getName())
                                 .collect(Collectors.toList())
-                )
-                .build();
+                );
+        User hostUser = event.getHostUser();
+        if(hostUser != null) {
+            builder.eventHostUserId(hostUser.getId())
+                    .eventHostUserName(hostUser.getNickname())
+                    .eventHostUserProfileImageUrl(hostUser.getProfileMessage());
+        }
+        return builder.build();
     }
 }
