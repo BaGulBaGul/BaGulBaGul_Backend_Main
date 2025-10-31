@@ -16,13 +16,11 @@ import lombok.Setter;
 @AllArgsConstructor
 public class ParticipantStatusRegisterRequest {
     //현재 인원
-    @Min(value = 0, message = "현재 인원은 {value}명 이상이여야 합니다")
     private Integer currentHeadCount;
     //모집 인원
-    @Min(value = 1, message = "모집 인원은 {value}명 이상이여야 합니다")
     private Integer maxHeadCount;
 
-    @AssertTrue(message = "참여 인원은 0명 이상이여야 합니다")
+    @AssertTrue(message = "현재 인원은 0명 이상이여야 합니다")
     public boolean isCurrentHeadCountNonNegative() {
         //값null이거나 0명 이상이여야 함
         return currentHeadCount == null || currentHeadCount >= 0;

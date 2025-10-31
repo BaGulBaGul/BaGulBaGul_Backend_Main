@@ -166,7 +166,7 @@ public class InitDummyDB implements ApplicationListener<ApplicationReadyEvent> {
 
             //기타
             EventType type = eventTypes[rand.nextInt(eventTypes.length)];
-            int maxHeadCount = rand.nextInt(100);
+            int maxHeadCount = rand.nextInt(100) + 1;
             String title = "테스트" + cnt;
             String content = "테스트게시글" + cnt;
             List<String> tagList = tagSet.stream().collect(Collectors.toList());
@@ -291,7 +291,7 @@ public class InitDummyDB implements ApplicationListener<ApplicationReadyEvent> {
                     .build();
 
             //기타
-            int maxHeadCount = rand.nextInt(100);
+            int maxHeadCount = rand.nextInt(100) + 1;
             String title = "테스트" + cnt;
             String content = "테스트게시글" + cnt;
             List<String> tagStr = tagSet.stream().collect(Collectors.toList());
