@@ -9,7 +9,6 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response.EventCategoryApiR
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response.EventDetailApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response.EventIdApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response.EventPageApiResponse;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response.GetLikeEventApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.IsMyLikeResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.LikeCountResponse;
 import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AuthenticatedUserInfo;
@@ -51,7 +50,7 @@ public interface EventController {
             Long eventId,
             AuthenticatedUserInfo authenticatedUserInfo
     );
-    ApiResponse<Page<GetLikeEventApiResponse>> getMyLike(
+    ApiResponse<Page<EventPageApiResponse>> getMyLike(
             AuthenticatedUserInfo authenticatedUserInfo,
             GetLikeEventApiRequest getLikeEventApiRequest,
             Pageable pageable

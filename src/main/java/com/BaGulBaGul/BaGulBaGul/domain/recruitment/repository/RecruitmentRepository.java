@@ -28,9 +28,9 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long>,
     List<Recruitment> findWithPostAndUserByIds(@Param("recruitmentIds") List<Long> recruitmentIds);
 
     @Query(
-            value = "SELECT r FROM Recruitment r INNER JOIN r.post p INNER JOIN p.likes pl WHERE pl.user.id = :userId"
+            value = "SELECT r.id FROM Recruitment r INNER JOIN r.post p INNER JOIN p.likes pl WHERE pl.user.id = :userId"
     )
-    Page<Recruitment> getLikeRecruitmentByUser(
+    Page<Long> getLikeRecruitmentIdsByUser(
             @Param("userId") Long userId, Pageable pageable
     );
     @Query(

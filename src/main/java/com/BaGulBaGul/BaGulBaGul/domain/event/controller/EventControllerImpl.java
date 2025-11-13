@@ -10,7 +10,6 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventModifyReq
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.EventSimpleResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.GetLikeEventRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.GetLikeEventResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.request.EventModifyApiRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.request.EventPageApiRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.request.EventRegisterApiRequest;
@@ -18,7 +17,6 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.request.GetLikeEventApiReq
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response.EventDetailApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response.EventIdApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response.EventPageApiResponse;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response.GetLikeEventApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response.EventCategoryApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.service.CategoryService;
 import com.BaGulBaGul.BaGulBaGul.domain.event.service.EventBannerService;
@@ -219,16 +217,16 @@ public class EventControllerImpl implements EventController {
                     + "이벤트 타입 파라메터 전달 필수\n"
                     + "페이징 지원"
     )
-    public ApiResponse<Page<GetLikeEventApiResponse>> getMyLike(
+    public ApiResponse<Page<EventPageApiResponse>> getMyLike(
             @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo,
             GetLikeEventApiRequest getLikeEventApiRequest,
             Pageable pageable
     ) {
         Long userId = authenticatedUserInfo.getUserId();
         GetLikeEventRequest getLikeEventRequest = getLikeEventApiRequest.toGetLikeEventRequest();
-        Page<GetLikeEventResponse> myLikeEvents = eventService
+        Page<EventSimpleResponse> myLikeEvents = eventService
                 .getMyLikeEvent(getLikeEventRequest, userId, pageable);
-        Page<GetLikeEventApiResponse> responses = myLikeEvents.map(GetLikeEventApiResponse::from);
+        Page<EventPageApiResponse> responses = myLikeEvents.map(EventPageApiResponse::from);
         return ApiResponse.of(responses);
     }
 

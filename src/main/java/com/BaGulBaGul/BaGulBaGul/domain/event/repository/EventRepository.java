@@ -30,9 +30,9 @@ public interface EventRepository extends JpaRepository<Event, Long>, FindEventBy
     List<Event> findWithPostAndUserAndCategoriesByIds(@Param("eventIds") List<Long> eventIds);
 
     @Query(
-            value = "SELECT e FROM Event e INNER JOIN e.post p INNER JOIN p.likes pl WHERE e.type = :type and pl.user.id = :userId"
+            value = "SELECT e.id FROM Event e INNER JOIN e.post p INNER JOIN p.likes pl WHERE e.type = :type and pl.user.id = :userId"
     )
-    Page<Event> getLikeEventByUserAndType(
+    Page<Long> getLikeEventIdsByUserAndType(
             @Param("userId") Long userId, @Param("type")EventType type, Pageable pageable
     );
 

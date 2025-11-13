@@ -3,7 +3,6 @@ package com.BaGulBaGul.BaGulBaGul.domain.recruitment.service;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.Recruitment;
-import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.response.GetLikeRecruitmentResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.request.RecruitmentConditionalRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.response.RecruitmentDetailInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.response.RecruitmentDetailResponse;
@@ -26,7 +25,7 @@ public interface RecruitmentService {
     List<RecruitmentSimpleResponse> getRecruitmentSimpleResponseByIdsWithFetch(List<Long> recruitmentIds);
     List<Recruitment> fetchForRecruitmentSimpleResponse(List<Long> recruitmentIds);
     Page<RecruitmentSimpleResponse> getRecruitmentPageByCondition(RecruitmentConditionalRequest recruitmentConditionalRequest, Pageable pageable);
-    Page<GetLikeRecruitmentResponse> getMyLikeRecruitment(Long userId, Pageable pageable);
+    Page<RecruitmentSimpleResponse> getMyLikeRecruitment(Long userId, Pageable pageable);
     Long registerRecruitment(AuthenticatedUserInfo authenticatedUserInfo, Long eventId, RecruitmentRegisterRequest recruitmentRegisterRequest);
     void modifyRecruitment(AuthenticatedUserInfo authenticatedUserInfo, Long recruitmentId, RecruitmentModifyRequest recruitmentModifyRequest);
     void deleteRecruitment(AuthenticatedUserInfo authenticatedUserInfo, Long recruitmentId);

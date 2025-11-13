@@ -5,7 +5,6 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.applicationevent.QueryRecruitmentDetailByUserApplicationEvent;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.applicationevent.QueryRecruitmentWithConditionByUserApplicationEvent;
-import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.response.GetLikeRecruitmentResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.request.RecruitmentConditionalRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.response.RecruitmentDetailResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.request.RecruitmentModifyRequest;
@@ -14,7 +13,6 @@ import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.response.Recruit
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.api.request.RecruitmentModifyApiRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.api.request.RecruitmentPageApiRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.api.request.RecruitmentRegisterApiRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.api.response.GetLikeRecruitmentApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.api.response.RecruitmentDetailApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.api.response.RecruitmentIdApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.api.response.RecruitmentPageApiResponse;
@@ -221,17 +219,17 @@ public class RecruitmentControllerImpl implements RecruitmentController {
             description = "로그인 필요\n"
                     + "페이징 지원"
     )
-    public ApiResponse<Page<GetLikeRecruitmentApiResponse>> getMyLike(
+    public ApiResponse<Page<RecruitmentPageApiResponse>> getMyLike(
             @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo,
             Pageable pageable
     ) {
         //좋아요 누른 페이지 검색
         Long userId = authenticatedUserInfo.getUserId();
-        Page<GetLikeRecruitmentResponse> myLikeRecruitments = recruitmentService
+        Page<RecruitmentSimpleResponse> myLikeRecruitments = recruitmentService
                 .getMyLikeRecruitment(userId, pageable);
         //api 응답 dto로 변환
-        Page<GetLikeRecruitmentApiResponse> responses = myLikeRecruitments
-                .map(GetLikeRecruitmentApiResponse::from);
+        Page<RecruitmentPageApiResponse> responses = myLikeRecruitments
+                .map(RecruitmentPageApiResponse::from);
         return ApiResponse.of(responses);
     }
 }

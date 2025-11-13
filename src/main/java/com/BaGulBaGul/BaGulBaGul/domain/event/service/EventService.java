@@ -5,7 +5,6 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.Event;
 import com.BaGulBaGul.BaGulBaGul.domain.event.constant.EventType;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.EventDetailResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.GetLikeEventRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.GetLikeEventResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventConditionalRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventRegisterRequest;
@@ -32,7 +31,7 @@ public interface EventService {
     List<Event> fetchForEventSimpleResponse(List<Long> eventIds);
 
     //유저가 좋아요를 누른 이벤트를 페이지로 반환
-    Page<GetLikeEventResponse> getMyLikeEvent(GetLikeEventRequest getLikeEventRequest, Long userId, Pageable pageable);
+    Page<EventSimpleResponse> getMyLikeEvent(GetLikeEventRequest getLikeEventRequest, Long userId, Pageable pageable);
 
     //이벤트 등록
     Long registerEvent(AuthenticatedUserInfo authenticatedUserInfo, EventRegisterRequest eventRegisterRequest);

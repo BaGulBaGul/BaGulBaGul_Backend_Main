@@ -15,6 +15,7 @@ import com.BaGulBaGul.BaGulBaGul.global.auth.constant.GeneralRoleType;
 import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AuthenticatedUserInfo;
 import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtProvider;
 import com.BaGulBaGul.BaGulBaGul.global.response.ResponseCode;
+import com.amazonaws.services.s3.AmazonS3;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -25,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
@@ -65,6 +67,9 @@ class EventBannerAdminController_IntegrationTest {
     EventService eventService;
     @Autowired
     ResourceService resourceService;
+
+    @MockBean
+    AmazonS3 amazonS3;
 
     @Value("${user.login.access_token_cookie_name}")
     private String ACCESS_TOKEN_COOKIE_NAME;

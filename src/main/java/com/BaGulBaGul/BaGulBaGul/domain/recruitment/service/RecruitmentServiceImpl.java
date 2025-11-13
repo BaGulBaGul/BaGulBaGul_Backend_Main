@@ -17,7 +17,6 @@ import com.BaGulBaGul.BaGulBaGul.domain.recruitment.applicationevent.NewRecruitm
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.request.RecruitmentConditionalRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.request.RecruitmentModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.request.RecruitmentRegisterRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.response.GetLikeRecruitmentResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.response.RecruitmentDetailInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.response.RecruitmentDetailResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.response.RecruitmentSimpleInfo;
@@ -153,14 +152,13 @@ public class RecruitmentServiceImpl implements RecruitmentService {
 
     @Override
     @Transactional
-    public Page<GetLikeRecruitmentResponse> getMyLikeRecruitment(Long userId, Pageable pageable) {
-        Page<Recruitment> recruitments = recruitmentRepository.getLikeRecruitmentByUser(userId, pageable);
-        //post와 fetch join
-        if(recruitments.getNumberOfElements() > 0) {
-            List<Long> ids = recruitments.stream().map(Recruitment::getId).collect(Collectors.toList());
-            recruitmentRepository.findWithPostAndEventAndEventPostByIds(ids);
-        }
-        return recruitments.map(GetLikeRecruitmentResponse::of);
+    public Page<RecruitmentSimpleResponse> getMyLikeRecruitment(Long userId, Pageable pageable) {
+        Page<Long> pageResult = recruitmentRepository.getLikeRecruitmentIdsByUser(userId, pageable);
+        return new PageImpl<>(
+                getRecruitmentSimpleResponseByIdsWithFetch(pageResult.getContent()),
+                pageable,
+                pageResult.getTotalElements()
+        );
     }
 
     @Override

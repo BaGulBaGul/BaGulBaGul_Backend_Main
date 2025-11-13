@@ -21,7 +21,6 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.EventSimpleIn
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.EventSimpleInfo.EventSimpleInfoBuilder;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.EventSimpleResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.GetLikeEventRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.GetLikeEventResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.exception.CategoryNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.event.exception.EventNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.event.repository.EventCategoryRepository;
@@ -147,18 +146,14 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public Page<GetLikeEventResponse> getMyLikeEvent(
+    public Page<EventSimpleResponse> getMyLikeEvent(
             GetLikeEventRequest getLikeEventRequest,
             Long userId,
             Pageable pageable
     ) {
-        Page<Event> events = eventRepository.getLikeEventByUserAndType(userId, getLikeEventRequest.getType(), pageable);
-        //post와 fetch join
-        if(events.getNumberOfElements() > 0) {
-            List<Long> ids = events.stream().map(Event::getId).collect(Collectors.toList());
-            eventRepository.findWithPostAndUserByIds(ids);
-        }
-        return events.map(GetLikeEventResponse::of);
+        Page<Long> eventIds = eventRepository.getLikeEventIdsByUserAndType(
+                userId, getLikeEventRequest.getType(), pageable);
+        return new PageImpl<>(getEventSimpleResponseByIds(eventIds.getContent()), pageable, eventIds.getTotalElements());
     }
 
     @Override
