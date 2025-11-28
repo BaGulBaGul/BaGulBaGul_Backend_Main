@@ -11,6 +11,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.LazyToOne;
+import org.hibernate.annotations.LazyToOneOption;
 
 @Entity
 @Getter
@@ -28,6 +30,11 @@ public class PasswordLoginUser {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="user_id")
     User user;
+
+    @Setter
+    @OneToOne(mappedBy = "passwordLoginUser", fetch = FetchType.LAZY)
+    @LazyToOne(LazyToOneOption.NO_PROXY)
+    AdminManagePasswordLoginUser adminManagePasswordLoginUser;
 
     @Builder
     public PasswordLoginUser(

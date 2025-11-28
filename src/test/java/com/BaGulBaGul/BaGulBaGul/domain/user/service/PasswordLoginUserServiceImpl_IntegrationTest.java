@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.PasswordLoginUser;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
+import com.BaGulBaGul.BaGulBaGul.domain.user.UserTestUtils;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.PasswordLoginUserRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.UserRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.PasswordLoginUserRepository;
@@ -50,9 +51,11 @@ class PasswordLoginUserServiceImpl_IntegrationTest {
                 user
         );
         //then
-        String rawPW = normalPasswordLoginUserRegisterRequest.getLoginPassword();
-        assertThat(passwordLoginUser.getLoginId()).isEqualTo(normalPasswordLoginUserRegisterRequest.getLoginId());
-        assertTrue(passwordEncoder.matches(rawPW, passwordLoginUser.getEncodedLoginPassword()));
+        UserTestUtils.assertPasswordLoginUserRegister(
+                passwordLoginUser,
+                normalPasswordLoginUserRegisterRequest,
+                passwordEncoder
+        );
     }
 
     @Test
@@ -81,7 +84,7 @@ class PasswordLoginUserServiceImpl_IntegrationTest {
         PasswordLoginUserRegisterRequest normalPasswordLoginUserRegisterRequest = PasswordLoginUserSample.getNormalPasswordLoginUserRegisterRequest();
         UserRegisterRequest userRegisterRequest = UserSample.getNormalUserRegisterRequest();
         User user = userJoinService.registerUser(userRegisterRequest);
-        PasswordLoginUser passwordLoginUser = passwordLoginUserService.registerPasswordLoginUser(
+        passwordLoginUserService.registerPasswordLoginUser(
                 normalPasswordLoginUserRegisterRequest,
                 user
         );
@@ -90,7 +93,8 @@ class PasswordLoginUserServiceImpl_IntegrationTest {
         String loginPassword = normalPasswordLoginUserRegisterRequest.getLoginPassword();
         PasswordLoginUser findResult = passwordLoginUserService.findPasswordLoginUser(loginId, loginPassword);
         //then
-        assertThat(findResult.getLoginId()).isEqualTo(loginId);
-        assertTrue(passwordEncoder.matches(loginPassword, findResult.getEncodedLoginPassword()));
+        UserTestUtils.assertPasswordLoginUserRegister(
+                findResult, normalPasswordLoginUserRegisterRequest, passwordEncoder
+        );
     }
 }

@@ -6,10 +6,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.AdminManageEventHostUser;
+import com.BaGulBaGul.BaGulBaGul.domain.user.AdminManagePasswordLoginUser;
 import com.BaGulBaGul.BaGulBaGul.domain.user.PasswordLoginUser;
 import com.BaGulBaGul.BaGulBaGul.domain.user.SocialLoginUser;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.UserRole;
+import com.BaGulBaGul.BaGulBaGul.domain.user.UserTestUtils;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.AdminManageEventHostUserJoinRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.AdminManagePasswordLoginUserJoinRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.PasswordLoginUserRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.SocialLoginUserJoinRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.UserRegisterRequest;
@@ -128,24 +132,9 @@ public class UserJoinService_IntegrationTest {
         }
 
         @Test
-        @DisplayName("패스워드 로그인 유저 정상 등록")
+        @DisplayName("소셜 로그인 유저 정상 가입")
         @Transactional
-        void shouldOk_WhenRegisterNormalPasswordLoginUser() {
-            //given
-            User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
-            //when
-            passwordLoginUserService.registerPasswordLoginUser(
-                    PasswordLoginUserSample.getNormalPasswordLoginUserRegisterRequest(),
-                    user
-            );
-            //then
-
-        }
-
-        @Test
-        @DisplayName("소셜 로그인 유저 정상 등록")
-        @Transactional
-        void shouldOk_WhenRegisterNormalSocialLoginUser() {
+        void shouldOk_WhenJoinNormalSocialLoginUser() {
             //given
             SocialLoginUserJoinRequest socialLoginUserJoinRequest = SocialLoginUserSample
                     .getMockSocialLoginUserJoinRequest();
@@ -157,32 +146,58 @@ public class UserJoinService_IntegrationTest {
                             .oAuth2Provider(oauthProvider)
                             .build()
             );
-
-
             socialLoginUserJoinRequest.setJoinToken(oAuth2JoinTokenInfo.getJwt());
             //when
             SocialLoginUser socialLoginUser = userJoinService.joinSocialLoginUser(socialLoginUserJoinRequest);
             //then
-            assertThat(socialLoginUser.getId()).isEqualTo(socialLoginUserId);
-            assertThat(socialLoginUser.getProvider()).isEqualTo(oauthProvider);
+            UserTestUtils.assertSocialLoginUserRegister(
+                    socialLoginUser, socialLoginUserId, oauthProvider
+            );
         }
 
         @Test
         @DisplayName("관리자 관리 이벤트 호스트 유저 정상 등록")
         @Transactional
-        void shouldOk_WhenRegisterNormalAdminManageEventHostUser() {
+        void shouldOk_WhenJoinNormalAdminManageEventHostUser() {
             //given when
+            AdminManageEventHostUserJoinRequest normalAdminManageEventHostUserRegisterRequest =
+                    AdminManageEventHostUserSample.getNormalAdminManageEventHostUserRegisterRequest();
             AdminManageEventHostUser adminManageEventHostUser = userJoinService.joinAdminManageEventHostUser(
-                    AdminManageEventHostUserSample.getNormalAdminManageEventHostUserRegisterRequest()
+                    normalAdminManageEventHostUserRegisterRequest
             );
             //then
             Long adminManageEventHostUserId = adminManageEventHostUser.getId();
-            Long userId = adminManageEventHostUser.getUser().getId();
             AdminManageEventHostUser findAdminManageEventHostUser = adminManageEventHostUserRepository
                     .findById(adminManageEventHostUserId).orElse(null);
-            User findUser = userRepository.findById(userId).orElse(null);
             assertThat(findAdminManageEventHostUser).isNotNull();
-            assertThat(findUser).isNotNull();
+            UserTestUtils.assertUserRegister(
+                    findAdminManageEventHostUser.getUser(),
+                    normalAdminManageEventHostUserRegisterRequest.getUserRegisterRequest()
+            );
+        }
+
+        @Test
+        @DisplayName("관리자 관리 패스워드 로그인 유저 정상 등록")
+        @Transactional
+        void shouldOk_WhenJoinNormalAdminManagePasswordLoginUser() {
+            //given when
+            AdminManagePasswordLoginUserJoinRequest joinRequest = AdminManagePasswordLoginUserJoinRequest.builder()
+                    .userRegisterRequest(UserSample.getNormalUserRegisterRequest())
+                    .passwordLoginUserRegisterRequest(
+                            PasswordLoginUserSample.getNormalPasswordLoginUserRegisterRequest())
+                    .build();
+            AdminManagePasswordLoginUser adminManagePasswordLoginUser =
+                    userJoinService.joinAdminManagePasswordLoginUser(joinRequest);
+
+            //then
+            assertThat(adminManagePasswordLoginUser).isNotNull();
+            UserTestUtils.assertPasswordLoginUserRegister(
+                    adminManagePasswordLoginUser.getPasswordLoginUser(),
+                    joinRequest.getPasswordLoginUserRegisterRequest(),
+                    passwordEncoder
+            );
+            UserTestUtils.assertUserRegister(adminManagePasswordLoginUser.getPasswordLoginUser().getUser(),
+                    joinRequest.getUserRegisterRequest());
         }
     }
 

@@ -1,20 +1,22 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user.service;
 
+import com.BaGulBaGul.BaGulBaGul.domain.alarm.UserAlarmStatus;
+import com.BaGulBaGul.BaGulBaGul.domain.alarm.repository.UserAlarmStatusRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.AdminManageEventHostUser;
+import com.BaGulBaGul.BaGulBaGul.domain.user.AdminManagePasswordLoginUser;
 import com.BaGulBaGul.BaGulBaGul.domain.user.PasswordLoginUser;
 import com.BaGulBaGul.BaGulBaGul.domain.user.SocialLoginUser;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
-import com.BaGulBaGul.BaGulBaGul.domain.alarm.UserAlarmStatus;
-import com.BaGulBaGul.BaGulBaGul.domain.alarm.repository.UserAlarmStatusRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.AdminManageEventHostUserJoinRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.AdminManagePasswordLoginUserJoinRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.SocialLoginUserJoinRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.UserRegisterRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.user.repository.AdminManageEventHostUserRepository;
-import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtProvider;
 import com.BaGulBaGul.BaGulBaGul.domain.user.exception.DuplicateUsernameException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.exception.UserNotFoundException;
+import com.BaGulBaGul.BaGulBaGul.domain.user.repository.AdminManageEventHostUserRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.SocialLoginUserRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserRepository;
+import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -33,6 +35,7 @@ public class UserJoinServiceImpl implements UserJoinService {
     private final UserImageService userImageService;
     private final UserRoleService userRoleService;
     private final PasswordLoginUserService passwordLoginUserService;
+    private final AdminManagePasswordLoginUserService adminManagePasswordLoginUserService;
     private final SocialLoginUserService socialLoginUserService;
     private final AdminManageEventHostUserService adminManageEventHostUserService;
 
@@ -57,6 +60,19 @@ public class UserJoinServiceImpl implements UserJoinService {
                         .build()
         );
         return adminManageEventHostUser;
+    }
+
+    @Override
+    public AdminManagePasswordLoginUser joinAdminManagePasswordLoginUser(
+            AdminManagePasswordLoginUserJoinRequest adminManagePasswordLoginUserJoinRequest) {
+        User user = registerUser(adminManagePasswordLoginUserJoinRequest.getUserRegisterRequest());
+        PasswordLoginUser passwordLoginUser = passwordLoginUserService.registerPasswordLoginUser(
+                adminManagePasswordLoginUserJoinRequest.getPasswordLoginUserRegisterRequest(),
+                user
+        );
+        AdminManagePasswordLoginUser adminManagePasswordLoginUser = adminManagePasswordLoginUserService
+                .registerAdminManagePasswordLoginUser(passwordLoginUser);
+        return adminManagePasswordLoginUser;
     }
 
     @Override
@@ -102,6 +118,12 @@ public class UserJoinServiceImpl implements UserJoinService {
         //password login user 정보 삭제
         PasswordLoginUser passwordLoginUser = user.getPasswordLoginUser();
         if(passwordLoginUser != null) {
+            //AdminManagePasswordLoginUser 정보 삭제
+            AdminManagePasswordLoginUser ampwUser = passwordLoginUser.getAdminManagePasswordLoginUser();
+            if(ampwUser != null) {
+                adminManagePasswordLoginUserService.deRegisterAdminManagePasswordLoginUser(ampwUser.getId());
+            }
+            //PasswordLoginUser 정보 삭제
             passwordLoginUserService.deRegisterPasswordLoginUser(passwordLoginUser.getLoginId());
         }
         //AdminManageEventHostUser 정보 삭제
@@ -109,6 +131,7 @@ public class UserJoinServiceImpl implements UserJoinService {
         if(adminManageEventHostUser != null) {
             adminManageEventHostUserService.deRegisterAdminManageEventHostUser(adminManageEventHostUser.getId());
         }
+
         //역할 삭제는 on delete cascade
         //유저 정보 삭제
         userRepository.deleteById(userId);
@@ -120,6 +143,17 @@ public class UserJoinServiceImpl implements UserJoinService {
         AdminManageEventHostUser adminManageEventHostUser = adminManageEventHostUserRepository
                 .findById(adminManageEventHostUserId).orElseThrow(UserNotFoundException::new);
         deleteUser(adminManageEventHostUser.getUser().getId());
+    }
+
+    @Override
+    public void deleteAdminManagePasswordLoginUserByUserId(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        PasswordLoginUser passwordLoginUser = user.getPasswordLoginUser();
+        AdminManagePasswordLoginUser adminManagePasswordLoginUser = passwordLoginUser
+                .getAdminManagePasswordLoginUser();
+        if(adminManagePasswordLoginUser == null) {
+
+        }
     }
 
 

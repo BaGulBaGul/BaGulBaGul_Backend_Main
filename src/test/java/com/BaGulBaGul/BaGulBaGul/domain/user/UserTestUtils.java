@@ -2,10 +2,13 @@ package com.BaGulBaGul.BaGulBaGul.domain.user;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.PasswordLoginUserRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.SocialLoginUserJoinRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.UserRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.response.EventHostUserInfoResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.response.MyUserInfoResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.response.OtherUserInfoResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.response.UserInfoResponse;
+import com.BaGulBaGul.BaGulBaGul.global.auth.oauth2.constant.OAuth2Provider;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -66,5 +69,34 @@ public class UserTestUtils {
         if(partyCount != null) {
             assertThat(eventHostUserInfoResponse.getPartyCount()).isEqualTo(partyCount);
         }
+    }
+
+    public static void assertUserRegister(
+            User user, UserRegisterRequest userRegisterRequest
+    ) {
+        assertThat(user.getNickname()).isEqualTo(userRegisterRequest.getNickname());
+        assertThat(user.getEmail()).isEqualTo(userRegisterRequest.getEmail());
+        assertThat(user.getUserRoles().stream().map(userRole -> userRole.getRole().getName()))
+                .containsExactlyInAnyOrder(userRegisterRequest.getRoles().toArray(String[]::new));
+    }
+
+    public static void assertPasswordLoginUserRegister(
+            PasswordLoginUser passwordLoginUser,
+            PasswordLoginUserRegisterRequest passwordLoginUserRegisterRequest,
+            PasswordEncoder passwordEncoder
+    ) {
+        assertThat(passwordLoginUser.getLoginId()).isEqualTo(passwordLoginUserRegisterRequest.getLoginId());
+        assertThat(passwordEncoder.matches(
+                passwordLoginUserRegisterRequest.getLoginPassword(), passwordLoginUser.getEncodedLoginPassword())
+        ).isTrue();
+    }
+
+    public static void assertSocialLoginUserRegister(
+            SocialLoginUser socialLoginUser,
+            String socialLoginUserId,
+            OAuth2Provider oAuth2Provider
+    ) {
+        assertThat(socialLoginUser.getId()).isEqualTo(socialLoginUserId);
+        assertThat(socialLoginUser.getProvider()).isEqualTo(oAuth2Provider);
     }
 }
