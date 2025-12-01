@@ -85,44 +85,6 @@ class EventHostUserAdminController_SliceTest {
     }
 
     @Test
-    @WithMockUser(authorities = "ROLE_USER")
-    @DisplayName("권한 없이 이벤트 호스트 유저 검색 요청 - 403 응답")
-    void searchAdminManageEventHostUser_noPermission() throws Exception {
-        mockMvc.perform(get("/api/admin/user/amehuser/"))
-                .andExpect(status().isForbidden());
-    }
-
-    @Test
-    @WithMockUser(authorities = "MANAGE_USER")
-    @DisplayName("이벤트 호스트 유저 검색 요청 - 성공")
-    void searchAdminManageEventHostUser_success() throws Exception {
-        //given
-        UserSearchByAdminResponse response = UserSearchByAdminResponse.builder()
-                .id(1L)
-                .email("test@test.com")
-                .nickname("testUser")
-                .build();
-        Page<UserSearchByAdminResponse> page = new PageImpl<>(Collections.singletonList(response), PageRequest.of(0,10), 1);
-
-        when(userAdminService.getUserPageByAdminSearch(any(UserSearchRequest.class), any(PageRequest.class))).thenReturn(page);
-
-        //when
-        ResultActions result = mockMvc.perform(get("/api/admin/user/amehuser/")
-                .param("userName", "testUser")
-                .param("page", "0")
-                .param("size", "10")
-                .contentType(MediaType.APPLICATION_JSON)
-        );
-        //then
-        result
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.content[0].userId").value(1L))
-                .andExpect(jsonPath("$.data.content[0].username").value("testUser"))
-                .andExpect(jsonPath("$.data.totalElements").value(1))
-                .andDo(print());
-    }
-
-    @Test
     @DisplayName("인증 없이 이벤트 호스트 유저 등록 요청 - 401 응답")
     void registerAdminManageEventHostUser_noAuth() throws Exception {
         mockMvc.perform(post("/api/admin/user/amehuser/"))

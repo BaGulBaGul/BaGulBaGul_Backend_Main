@@ -27,5 +27,6 @@ public class UserRegisterRequest {
     @Size(min = 1, message = "이메일은 빈 문자열일 수 없습니다")
     String email;
 
-    List<String> roles;
+    @Builder.Default
+    List<String> roles = new ArrayList<>();
 }

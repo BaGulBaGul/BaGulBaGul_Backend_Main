@@ -3,6 +3,7 @@ package com.BaGulBaGul.BaGulBaGul.domain.user.sampledata;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.UserModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.UserRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.global.auth.constant.GeneralRoleType;
+import java.util.ArrayList;
 import java.util.List;
 import org.openapitools.jackson.nullable.JsonNullable;
 
@@ -18,6 +19,10 @@ public abstract class UserSample {
     public static final String NORMAL_EMAIL3 = "osm3@naver.com";
     public static final String NORMAL_USERNAME3 = "osm3입니다";
     public static final String NORMAL_PROFILE_MESSAGE3 = "안녕하세요3";
+
+    public static final String NORMAL_EMAIL4 = "osm4@naver.com";
+    public static final String NORMAL_USERNAME4 = "osm4입니다";
+    public static final String NORMAL_PROFILE_MESSAGE4 = "안녕하세요4";
 
     public static final String UNNORMAL_EMAIL = "osm@";
     public static final String UNNORMAL_USERNAME = "o";
@@ -36,7 +41,7 @@ public abstract class UserSample {
         return UserRegisterRequest.builder()
                 .nickname(NORMAL_USERNAME)
                 .email(NORMAL_EMAIL)
-                .roles(List.of(GeneralRoleType.USER.name()))
+                .roles(new ArrayList<>(List.of(GeneralRoleType.USER.name())))
                 .build();
     }
 
@@ -52,7 +57,7 @@ public abstract class UserSample {
         return UserRegisterRequest.builder()
                 .nickname(NORMAL_USERNAME2)
                 .email(NORMAL_EMAIL2)
-                .roles(List.of(GeneralRoleType.USER.name()))
+                .roles(new ArrayList<>(List.of(GeneralRoleType.USER.name())))
                 .build();
     }
 
@@ -68,7 +73,7 @@ public abstract class UserSample {
         return UserRegisterRequest.builder()
                 .nickname(NORMAL_USERNAME3)
                 .email(NORMAL_EMAIL3)
-                .roles(List.of(GeneralRoleType.USER.name()))
+                .roles(new ArrayList<>(List.of(GeneralRoleType.USER.name())))
                 .build();
     }
 
@@ -80,11 +85,27 @@ public abstract class UserSample {
                 .build();
     }
 
+    public static UserRegisterRequest getNormal4UserRegisterRequest() {
+        return UserRegisterRequest.builder()
+                .nickname(NORMAL_USERNAME4)
+                .email(NORMAL_EMAIL4)
+                .roles(new ArrayList<>(List.of(GeneralRoleType.USER.name())))
+                .build();
+    }
+
+    public static UserModifyRequest getNormal4UserModifyRequest() {
+        return UserModifyRequest.builder()
+                .username(JsonNullable.of(NORMAL_USERNAME4))
+                .profileMessage(JsonNullable.of(NORMAL_PROFILE_MESSAGE4))
+                .email(JsonNullable.of(NORMAL_EMAIL4))
+                .build();
+    }
+
     public static UserRegisterRequest getUnNormalUserRegisterRequest() {
         return UserRegisterRequest.builder()
                 .nickname(UNNORMAL_USERNAME)
                 .email(UNNORMAL_EMAIL)
-                .roles(List.of(GeneralRoleType.USER.name()))
+                .roles(new ArrayList<>(List.of(GeneralRoleType.USER.name())))
                 .build();
     }
 
@@ -100,7 +121,7 @@ public abstract class UserSample {
         return UserRegisterRequest.builder()
                 .nickname(ADMIN_USERNAME)
                 .email(ADMIN_EMAIL)
-                .roles(List.of(GeneralRoleType.ADMIN.name()))
+                .roles(new ArrayList<>(List.of(GeneralRoleType.ADMIN.name(), GeneralRoleType.USER.name())))
                 .build();
     }
 
@@ -108,7 +129,7 @@ public abstract class UserSample {
         return UserRegisterRequest.builder()
                 .nickname(EVENT_HOST_USERNAME)
                 .email(EVENT_HOST_EMAIL)
-                .roles(List.of(GeneralRoleType.EVENT_HOST.name()))
+                .roles(new ArrayList<>(List.of(GeneralRoleType.EVENT_HOST.name())))
                 .build();
     }
 }

@@ -4,7 +4,9 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 
 import com.BaGulBaGul.BaGulBaGul.domain.event.QEvent;
 import com.BaGulBaGul.BaGulBaGul.domain.user.QUser;
+import com.BaGulBaGul.BaGulBaGul.domain.user.QUserRole;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.UserSearchRequest;
+import com.BaGulBaGul.BaGulBaGul.global.auth.QRole;
 import com.BaGulBaGul.BaGulBaGul.global.auth.constant.UserSubType;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -48,9 +50,23 @@ public class FindUserByConditionApplierImpl implements FindUserByConditionApplie
                     query.join(user.socialLoginUser);
                 } else if(userSubType == UserSubType.PASSWORD_LOGIN_USER) {
                     query.join(user.passwordLoginUser);
+                } else if(userSubType == UserSubType.ADMIN_MANAGE_PASSWORD_LOGIN_USER) {
+                    query.join(user.passwordLoginUser.adminManagePasswordLoginUser);
                 } else if(userSubType == UserSubType.ADMIN_MANAGE_EVENT_HOST_USER) {
                     query.join(user.adminManageEventHostUser);
                 }
+            }
+        }
+        //역할 조건
+        if(userSearchRequest.getRoles() != null) {
+            //모든 역할을 and로 처리
+            int roleNum = 1;
+            for(String roleName : userSearchRequest.getRoles()) {
+                QRole role = new QRole("Role" + roleNum++);
+                QUserRole userRole = QUserRole.userRole;
+                query.join(user.userRoles, userRole);
+                query.join(userRole.role, role);
+                query.where(role.name.eq(roleName));
             }
         }
         return query;

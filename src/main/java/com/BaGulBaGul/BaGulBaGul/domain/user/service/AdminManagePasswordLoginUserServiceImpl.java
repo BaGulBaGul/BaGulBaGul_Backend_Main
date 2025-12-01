@@ -21,6 +21,7 @@ public class AdminManagePasswordLoginUserServiceImpl implements AdminManagePassw
                 .passwordLoginUser(passwordLoginUser)
                 .build()
         );
+        passwordLoginUser.setAdminManagePasswordLoginUser(adminManagePasswordLoginUser);
         return adminManagePasswordLoginUser;
     }
 

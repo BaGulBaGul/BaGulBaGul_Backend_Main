@@ -8,7 +8,8 @@ public class PasswordLoginUserSample {
     public static String normalLoginPassword = "testPW";
     public static String normal2LoginId = "test2";
     public static String normal2LoginPassword = "test2PW";
-
+    public static String normal3LoginId = "test3";
+    public static String normal3LoginPassword = "test3PW";
     public static PasswordLoginUserRegisterRequest getNormalPasswordLoginUserRegisterRequest() {
         return PasswordLoginUserRegisterRequest.builder()
                 .loginId(normalLoginId)
@@ -20,6 +21,13 @@ public class PasswordLoginUserSample {
         return PasswordLoginUserRegisterRequest.builder()
                 .loginId(normal2LoginId)
                 .loginPassword(normal2LoginPassword)
+                .build();
+    }
+
+    public static PasswordLoginUserRegisterRequest getNormal3PasswordLoginUserRegisterRequest() {
+        return PasswordLoginUserRegisterRequest.builder()
+                .loginId(normal3LoginId)
+                .loginPassword(normal3LoginPassword)
                 .build();
     }
 }

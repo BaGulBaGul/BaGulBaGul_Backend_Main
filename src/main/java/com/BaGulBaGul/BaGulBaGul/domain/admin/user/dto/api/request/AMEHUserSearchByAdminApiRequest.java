@@ -4,6 +4,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.UserSearchReque
 import com.BaGulBaGul.BaGulBaGul.global.auth.constant.UserSubType;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -14,7 +15,7 @@ public class AMEHUserSearchByAdminApiRequest {
     private LocalDateTime joinDateSearchStart;
     private LocalDateTime joinDateSearchEnd;
 
-    private static final List<UserSubType> types = List.of(UserSubType.ADMIN_MANAGE_EVENT_HOST_USER);
+    private static final Set<UserSubType> types = Set.of(UserSubType.ADMIN_MANAGE_EVENT_HOST_USER);
 
     public UserSearchRequest toUserSearchRequest() {
         return UserSearchRequest.builder()

@@ -34,7 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/admin/user/amehuser")
 @RequiredArgsConstructor
-@Api(tags = "관리자 - 사용자 관리 - 이벤트 호스트 유저 관리")
+@Api(tags = "관리자 - 사용자 관리 - 관리자 관리 이벤트 호스트 유저(AdminManageEventHostUser = AMEHUser) 관리")
 @PreAuthorize("hasAuthority('MANAGE_USER')")
 public class EventHostUserAdminController {
 
@@ -42,17 +42,6 @@ public class EventHostUserAdminController {
     private final UserInfoService userInfoService;
     private final FindUserByCondition findUserByCondition;
     private final UserAdminService userAdminService;
-
-    //조회
-    @GetMapping("/")
-    @Operation(summary = "이벤트 호스트 유저 페이지 검색")
-    public ApiResponse<Page<UserSearchByAdminApiResponse>> searchAdminManageEventHostUser(
-            AMEHUserSearchByAdminApiRequest apiRequest, Pageable pageable
-    ) {
-        Page<UserSearchByAdminResponse> pageResult = userAdminService.getUserPageByAdminSearch(
-                apiRequest.toUserSearchRequest(), pageable);
-        return ApiResponse.of(pageResult.map(UserSearchByAdminApiResponse::from));
-    }
 
     //등록
     @PostMapping("/")

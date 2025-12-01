@@ -3,11 +3,14 @@ package com.BaGulBaGul.BaGulBaGul.domain.user.service;
 import com.BaGulBaGul.BaGulBaGul.domain.user.PasswordLoginUser;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.PasswordLoginUserRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.exception.DuplicatePasswordLoginUserException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.exception.UserNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.PasswordLoginUserRepository;
 import com.BaGulBaGul.BaGulBaGul.global.auth.Role;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.persistence.EntityExistsException;
+import javax.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,6 +23,8 @@ public class PasswordLoginUserServiceImpl implements PasswordLoginUserService {
     private final PasswordEncoder passwordEncoder;
 
     private final PasswordLoginUserRepository passwordLoginUserRepository;
+
+    private final EntityManager entityManager;
 
     @Override
     public PasswordLoginUser findPasswordLoginUser(String loginId, String loginPassword) {
@@ -53,13 +58,20 @@ public class PasswordLoginUserServiceImpl implements PasswordLoginUserService {
         String loginId = passwordLoginUserRegisterRequest.getLoginId();
         String loginPassword = passwordLoginUserRegisterRequest.getLoginPassword();
         String encodedLoginPassword = passwordEncoder.encode(loginPassword);
-        PasswordLoginUser passwordLoginUser = passwordLoginUserRepository.save(
-                PasswordLoginUser.builder()
-                        .user(user)
-                        .loginId(loginId)
-                        .encodedLoginPassword(encodedLoginPassword)
-                        .build()
-        );
+
+        PasswordLoginUser passwordLoginUser = PasswordLoginUser.builder()
+                .user(user)
+                .loginId(loginId)
+                .encodedLoginPassword(encodedLoginPassword)
+                .build();
+        try {
+            entityManager.persist(passwordLoginUser);
+            entityManager.flush();
+        } catch (EntityExistsException e) {
+            throw new DuplicatePasswordLoginUserException();
+        }
+        user.setPasswordLoginUser(passwordLoginUser);
+
         return passwordLoginUser;
     }
 

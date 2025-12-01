@@ -59,6 +59,7 @@ public class UserJoinServiceImpl implements UserJoinService {
                         .user(user)
                         .build()
         );
+        user.setAdminManageEventHostUser(adminManageEventHostUser);
         return adminManageEventHostUser;
     }
 
