@@ -23,10 +23,10 @@ public class AMPWUserRegisterApiRequest {
     @ApiModelProperty(value = "이메일")
     private String email;
 
-    @ApiModelProperty(value = "로그인 id")
+    @ApiModelProperty(value = "로그인 id", required = true)
     private String loginId;
 
-    @ApiModelProperty(value = "로그인 pw")
+    @ApiModelProperty(value = "로그인 pw", required = true)
     private String loginPw;
 
 
@@ -35,7 +35,7 @@ public class AMPWUserRegisterApiRequest {
                 UserRegisterRequest.builder()
                         .nickname(nickname)
                         .email(email)
-                        .roles(Arrays.asList("EVENT_HOST"))
+                        .roles(Arrays.asList("USER"))
                         .build(),
                 PasswordLoginUserRegisterRequest.builder()
                         .loginId(loginId)

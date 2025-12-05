@@ -4,12 +4,12 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.PasswordLoginUs
 
 public class PasswordLoginUserSample {
 
-    public static String normalLoginId = "test";
-    public static String normalLoginPassword = "testPW";
-    public static String normal2LoginId = "test2";
-    public static String normal2LoginPassword = "test2PW";
-    public static String normal3LoginId = "test3";
-    public static String normal3LoginPassword = "test3PW";
+    public static String normalLoginId = "testtest";
+    public static String normalLoginPassword = "testtestPW";
+    public static String normal2LoginId = "testtest2";
+    public static String normal2LoginPassword = "testtest2PW";
+    public static String normal3LoginId = "testtest3";
+    public static String normal3LoginPassword = "testtest3PW";
     public static PasswordLoginUserRegisterRequest getNormalPasswordLoginUserRegisterRequest() {
         return PasswordLoginUserRegisterRequest.builder()
                 .loginId(normalLoginId)

@@ -150,11 +150,14 @@ public class UserJoinServiceImpl implements UserJoinService {
     public void deleteAdminManagePasswordLoginUserByUserId(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         PasswordLoginUser passwordLoginUser = user.getPasswordLoginUser();
-        AdminManagePasswordLoginUser adminManagePasswordLoginUser = passwordLoginUser
-                .getAdminManagePasswordLoginUser();
-        if(adminManagePasswordLoginUser == null) {
-
+        if(passwordLoginUser == null) {
+            throw new UserNotFoundException();
         }
+        AdminManagePasswordLoginUser ampwUser = passwordLoginUser.getAdminManagePasswordLoginUser();
+        if(ampwUser == null) {
+            throw new UserNotFoundException();
+        }
+        deleteUser(userId);
     }
 
 
