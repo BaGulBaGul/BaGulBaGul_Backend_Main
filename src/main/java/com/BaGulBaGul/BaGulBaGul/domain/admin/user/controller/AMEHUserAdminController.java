@@ -1,11 +1,8 @@
 package com.BaGulBaGul.BaGulBaGul.domain.admin.user.controller;
 
 import com.BaGulBaGul.BaGulBaGul.domain.admin.user.dto.api.request.AMEHUserRegisterApiRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.admin.user.dto.api.request.AMEHUserSearchByAdminApiRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.admin.user.dto.api.request.AMEHUserUpdateApiRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.admin.user.dto.api.request.UserSearchByAdminApiRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.admin.user.dto.api.response.UserSearchByAdminApiResponse;
-import com.BaGulBaGul.BaGulBaGul.domain.admin.user.dto.service.response.UserSearchByAdminResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.admin.user.dto.api.response.AMEHUserRegisterApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.admin.user.service.UserAdminService;
 import com.BaGulBaGul.BaGulBaGul.domain.user.AdminManageEventHostUser;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.AdminManageEventHostUserJoinRequest;
@@ -19,11 +16,8 @@ import com.BaGulBaGul.BaGulBaGul.global.validation.ValidationUtil;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,30 +30,33 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @Api(tags = "관리자 - 사용자 관리 - 관리자 관리 이벤트 호스트 유저(AdminManageEventHostUser = AMEHUser) 관리")
 @PreAuthorize("hasAuthority('MANAGE_USER')")
-public class EventHostUserAdminController {
+public class AMEHUserAdminController {
 
     private final UserJoinService userJoinService;
     private final UserInfoService userInfoService;
-    private final FindUserByCondition findUserByCondition;
     private final UserAdminService userAdminService;
 
     //등록
     @PostMapping("/")
-    @Operation(summary = "이벤트 호스트 유저 등록")
-    public ApiResponse<Long> registerAdminManageEventHostUser(
+    @Operation(summary = "관리자 관리 이벤트 호스트 유저 등록")
+    public ApiResponse<AMEHUserRegisterApiResponse> registerAdminManageEventHostUser(
             @RequestBody AMEHUserRegisterApiRequest apiRequest
     ) {
         AdminManageEventHostUserJoinRequest serviceRequest = apiRequest.toServiceRequest();
         ValidationUtil.validate(serviceRequest);
-        AdminManageEventHostUser amehUser = userJoinService.joinAdminManageEventHostUser(serviceRequest);
-        return ApiResponse.of(amehUser.getId());
+        Long userId = userAdminService.registerAMEHUserAndGetUserId(serviceRequest);
+        return ApiResponse.of(
+                AMEHUserRegisterApiResponse.builder()
+                        .userId(userId)
+                        .build()
+        );
     }
 
     //수정
-    @PatchMapping("/{amehUserId}")
-    @Operation(summary = "이벤트 호스트 유저 수정")
+    @PatchMapping("/{userId}")
+    @Operation(summary = "관리자 관리 이벤트 호스트 유저 수정")
     public ApiResponse<Void> modifyAdminManageEventHostUser(
-            @PathVariable(name="amehUserId") Long amehUserId,
+            @PathVariable(name="userId") Long userId,
             @RequestBody AMEHUserUpdateApiRequest apiRequest
     ) {
         UserModifyRequest userModifyRequest = apiRequest.toUserModifyRequest();
@@ -68,19 +65,19 @@ public class EventHostUserAdminController {
                 AdminManageEventHostUserModifyRequest.builder()
                         .userModifyRequest(userModifyRequest)
                         .build(),
-                amehUserId
+                userId
         );
         return ApiResponse.of(null);
     }
 
 
     //삭제
-    @DeleteMapping("/{amehUserId}")
-    @Operation(summary = "이벤트 호스트 유저 삭제")
+    @DeleteMapping("/{userId}")
+    @Operation(summary = "관리자 관리 이벤트 호스트 유저 삭제")
     public ApiResponse<Void> deleteAdminManageEventHostUser(
-            @PathVariable(name="amehUserId") Long amehUserId
+            @PathVariable(name="userId") Long userId
     ) {
-        userJoinService.deleteAdminManageEventHostUser(amehUserId);
+        userJoinService.deleteAdminManageEventHostUser(userId);
         return ApiResponse.of(null);
     }
 }

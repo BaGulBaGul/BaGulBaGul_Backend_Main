@@ -2,10 +2,8 @@ package com.BaGulBaGul.BaGulBaGul.domain.admin.user.controller;
 
 import com.BaGulBaGul.BaGulBaGul.domain.admin.user.dto.api.request.AMPWUserRegisterApiRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.admin.user.dto.api.response.AMPWUserRegisterApiResponse;
-import com.BaGulBaGul.BaGulBaGul.domain.admin.user.service.AMPWAdminService;
-import com.BaGulBaGul.BaGulBaGul.domain.user.AdminManagePasswordLoginUser;
+import com.BaGulBaGul.BaGulBaGul.domain.admin.user.service.UserAdminService;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.AdminManagePasswordLoginUserJoinRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.user.service.AdminManagePasswordLoginUserService;
 import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserJoinService;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
 import com.BaGulBaGul.BaGulBaGul.global.validation.ValidationUtil;
@@ -25,10 +23,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @Api(tags = "관리자 - 사용자 관리 - 관리자 관리 패스워드 로그인 유저 관리")
 @PreAuthorize("hasAuthority('MANAGE_USER')")
-public class PasswordLoginUserAdminController {
+public class AMPWUserAdminController {
 
-    private final AMPWAdminService ampwAdminService;
     private final UserJoinService userJoinService;
+    private final UserAdminService userAdminService;
 
     @PostMapping("/")
     @Operation(summary = "관리자 관리 패스워드 로그인 유저 등록")
@@ -37,7 +35,7 @@ public class PasswordLoginUserAdminController {
     ) {
         AdminManagePasswordLoginUserJoinRequest joinRequest = ampwUserRegisterApiRequest.toServiceRequest();
         ValidationUtil.validate(joinRequest);
-        Long userId = ampwAdminService.registerAMPWUserAndGetUserId(joinRequest);
+        Long userId = userAdminService.registerAMPWUserAndGetUserId(joinRequest);
         return ApiResponse.of(
                 AMPWUserRegisterApiResponse.builder()
                         .userId(userId)
@@ -50,7 +48,7 @@ public class PasswordLoginUserAdminController {
     public ApiResponse<Void> deleteAMPWUser(
             @PathVariable Long userId
     ) {
-        userJoinService.deleteAdminManageEventHostUser(userId);
+        userJoinService.deleteAdminManagePasswordLoginUser(userId);
         return ApiResponse.empty();
     }
 }

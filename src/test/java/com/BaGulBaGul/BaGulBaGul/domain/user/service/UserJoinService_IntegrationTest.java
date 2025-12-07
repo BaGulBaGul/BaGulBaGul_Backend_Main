@@ -300,7 +300,7 @@ public class UserJoinService_IntegrationTest {
             entityManager.clear();
 
             //when
-            userJoinService.deleteAdminManageEventHostUser(adminManageEventHostUserId);
+            userJoinService.deleteAdminManageEventHostUser(userId);
             entityManager.flush();
             entityManager.clear();
 

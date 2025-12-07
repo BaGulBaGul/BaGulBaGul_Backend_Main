@@ -12,17 +12,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.BaGulBaGul.BaGulBaGul.domain.admin.user.dto.api.request.AMEHUserRegisterApiRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.admin.user.dto.api.request.AMPWUserRegisterApiRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.admin.user.service.AMPWAdminService;
 import com.BaGulBaGul.BaGulBaGul.domain.admin.user.service.UserAdminService;
-import com.BaGulBaGul.BaGulBaGul.domain.user.AdminManageEventHostUser;
 import com.BaGulBaGul.BaGulBaGul.domain.user.AdminManagePasswordLoginUser;
-import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.AdminManageEventHostUserJoinRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.PasswordLoginUser;
+import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.AdminManagePasswordLoginUserJoinRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.sampledata.PasswordLoginUserSample;
 import com.BaGulBaGul.BaGulBaGul.domain.user.sampledata.UserSample;
-import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserInfoService;
 import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserJoinService;
 import com.BaGulBaGul.BaGulBaGul.extension.AllTestContainerExtension;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -47,15 +44,15 @@ import org.springframework.web.context.WebApplicationContext;
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-public class PasswordLoginUserAdminController_SliceTest {
+public class AMPWUserAdminController_SliceTest {
     @Autowired
     MockMvc mockMvc;
 
     @MockBean
-    AMPWAdminService ampwAdminService;
+    UserJoinService userJoinService;
 
     @MockBean
-    UserJoinService userJoinService;
+    UserAdminService userAdminService;
 
     @Autowired
     ObjectMapper objectMapper;
@@ -63,7 +60,7 @@ public class PasswordLoginUserAdminController_SliceTest {
     @Autowired
     WebApplicationContext webApplicationContext;
 
-    Long amehUserId = 1L;
+    Long userId = 1L;
 
     @BeforeEach
     void setup() {
@@ -73,7 +70,6 @@ public class PasswordLoginUserAdminController_SliceTest {
                 .defaultRequest(get("/").with(csrf()))
                 .build();
     }
-
 
     @Test
     @DisplayName("인증 없이 관리자 관리 패스워드 로그인 유저 등록 요청 - 401 응답")
@@ -106,9 +102,7 @@ public class PasswordLoginUserAdminController_SliceTest {
     @DisplayName("관리자 관리 패스워드 로그인 등록 요청 - 성공")
     void registerAdminManageEventHostUser_success() throws Exception {
         //given
-        long userId = 1L;
-        when(ampwAdminService.registerAMPWUserAndGetUserId(any(AdminManagePasswordLoginUserJoinRequest.class)))
-                .thenReturn(userId);
+        when(userAdminService.registerAMPWUserAndGetUserId(any())).thenReturn(userId);
 
         //when
         AMPWUserRegisterApiRequest request = AMPWUserRegisterApiRequest.builder()
@@ -133,7 +127,7 @@ public class PasswordLoginUserAdminController_SliceTest {
     @Test
     @DisplayName("인증 없이 관리자 관리 패스워드 로그인 유저 삭제 요청 - 401 응답")
     void deleteAdminManageEventHostUser_noAuth() throws Exception {
-        mockMvc.perform(delete("/api/admin/user/ampwuser/1")
+        mockMvc.perform(delete("/api/admin/user/ampwuser/{userId}", userId)
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                 )
@@ -145,7 +139,7 @@ public class PasswordLoginUserAdminController_SliceTest {
     @DisplayName("권한 없이 관리자 관리 패스워드 로그인 유저 삭제 요청 - 403 응답")
     void deleteAdminManageEventHostUser_noPermission() throws Exception {
         //when
-        ResultActions result = mockMvc.perform(delete("/api/admin/user/ampwuser/1")
+        ResultActions result = mockMvc.perform(delete("/api/admin/user/ampwuser/{userId}", userId)
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(status().isForbidden());
@@ -155,12 +149,8 @@ public class PasswordLoginUserAdminController_SliceTest {
     @WithMockUser(authorities = "MANAGE_USER")
     @DisplayName("관리자 관리 패스워드 로그인 삭제 요청 - 성공")
     void deleteAdminManageEventHostUser_success() throws Exception {
-        //given
-        long userId = 1L;
-        doNothing().when(userJoinService).deleteAdminManageEventHostUser(any());
-
-        //when
-        ResultActions result = mockMvc.perform(delete("/api/admin/user/ampwuser/1")
+        //given when
+        ResultActions result = mockMvc.perform(delete("/api/admin/user/ampwuser/{userId}", userId)
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
         );
@@ -168,6 +158,7 @@ public class PasswordLoginUserAdminController_SliceTest {
         //then
         result
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").isEmpty())
                 .andDo(print());
     }
 }

@@ -2,11 +2,10 @@ package com.BaGulBaGul.BaGulBaGul.domain.admin.user.controller;
 
 import com.BaGulBaGul.BaGulBaGul.domain.admin.user.dto.api.request.AMEHUserRegisterApiRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.admin.user.dto.api.request.AMEHUserUpdateApiRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.admin.user.dto.service.response.UserSearchByAdminResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.admin.user.service.UserAdminService;
 import com.BaGulBaGul.BaGulBaGul.domain.user.AdminManageEventHostUser;
+import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.AdminManageEventHostUserJoinRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.UserSearchRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.sampledata.UserSample;
 import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserInfoService;
 import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserJoinService;
@@ -22,16 +21,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-import java.util.Collections;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -49,7 +44,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-class EventHostUserAdminController_SliceTest {
+class AMEHUserAdminController_SliceTest {
 
     @Autowired
     MockMvc mockMvc;
@@ -69,7 +64,7 @@ class EventHostUserAdminController_SliceTest {
     @Autowired
     WebApplicationContext webApplicationContext;
 
-    Long amehUserId = 1L;
+    Long userId = 1L;
 
     @BeforeEach
     void setup() {
@@ -81,14 +76,14 @@ class EventHostUserAdminController_SliceTest {
     }
 
     @Test
-    @DisplayName("인증 없이 이벤트 호스트 유저 검색 요청 - 401 응답")
+    @DisplayName("인증 없이 관리자 관리 이벤트 호스트 유저 검색 요청 - 401 응답")
     void searchAdminManageEventHostUser_noAuth() throws Exception {
         mockMvc.perform(get("/api/admin/user/amehuser/"))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
-    @DisplayName("인증 없이 이벤트 호스트 유저 등록 요청 - 401 응답")
+    @DisplayName("인증 없이 관리자 관리 이벤트 호스트 유저 등록 요청 - 401 응답")
     void registerAdminManageEventHostUser_noAuth() throws Exception {
         mockMvc.perform(post("/api/admin/user/amehuser/"))
                 .andExpect(status().isUnauthorized());
@@ -96,7 +91,7 @@ class EventHostUserAdminController_SliceTest {
 
     @Test
     @WithMockUser(authorities = "ROLE_USER")
-    @DisplayName("권한 없이 이벤트 호스트 유저 등록 요청 - 403 응답")
+    @DisplayName("권한 없이 관리자 관리 이벤트 호스트 유저 등록 요청 - 403 응답")
     void registerAdminManageEventHostUser_noPermission() throws Exception {
         AMEHUserRegisterApiRequest request = AMEHUserRegisterApiRequest.builder()
                 .nickname(UserSample.NORMAL_USERNAME)
@@ -111,19 +106,18 @@ class EventHostUserAdminController_SliceTest {
 
     @Test
     @WithMockUser(authorities = "MANAGE_USER")
-    @DisplayName("이벤트 호스트 유저 등록 요청 - 성공")
+    @DisplayName("관리자 관리 이벤트 호스트 유저 등록 요청 - 성공")
     void registerAdminManageEventHostUser_success() throws Exception {
         //given
         AdminManageEventHostUser amehUser = Mockito.mock(AdminManageEventHostUser.class);
-        when(amehUser.getId()).thenReturn(amehUserId);
-        when(userJoinService.joinAdminManageEventHostUser(any(AdminManageEventHostUserJoinRequest.class))).thenReturn(amehUser);
-
+        when(userAdminService.registerAMEHUserAndGetUserId(any())).thenReturn(userId);
         //when
         AMEHUserRegisterApiRequest request = AMEHUserRegisterApiRequest.builder()
                 .nickname(UserSample.NORMAL_USERNAME)
                 .email(UserSample.NORMAL_EMAIL)
                 .build();
-        ResultActions result = mockMvc.perform(post("/api/admin/user/amehuser/")                        .with(csrf())
+        ResultActions result = mockMvc.perform(post("/api/admin/user/amehuser/")
+                .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
         );
@@ -131,27 +125,27 @@ class EventHostUserAdminController_SliceTest {
         //then
         result
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data").value(amehUserId))
+                .andExpect(jsonPath("$.data.userId").value(userId))
                 .andDo(print());
     }
 
     @Test
-    @DisplayName("인증 없이 이벤트 호스트 유저 수정 요청 - 401 응답")
+    @DisplayName("인증 없이 관리자 관리 이벤트 호스트 유저 수정 요청 - 401 응답")
     void modifyAdminManageEventHostUser_noAuth() throws Exception {
-        mockMvc.perform(patch("/api/admin/user/amehuser/{amehUserId}", amehUserId))
+        mockMvc.perform(patch("/api/admin/user/amehuser/{userId}", userId))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     @WithMockUser(authorities = "ROLE_USER")
-    @DisplayName("권한 없이 이벤트 호스트 유저 수정 요청 - 403 응답")
+    @DisplayName("권한 없이 관리자 관리 이벤트 호스트 유저 수정 요청 - 403 응답")
     void modifyAdminManageEventHostUser_noPermission() throws Exception {
         AMEHUserUpdateApiRequest request = AMEHUserUpdateApiRequest.builder()
                 .username(JsonNullable.of(UserSample.NORMAL_USERNAME2))
                 .email(JsonNullable.of(UserSample.NORMAL_EMAIL2))
                 .build();
 
-        mockMvc.perform(patch("/api/admin/user/amehuser/{amehUserId}", amehUserId)
+        mockMvc.perform(patch("/api/admin/user/amehuser/{userId}", userId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request))
                 )
@@ -160,7 +154,7 @@ class EventHostUserAdminController_SliceTest {
 
     @Test
     @WithMockUser(authorities = "MANAGE_USER")
-    @DisplayName("이벤트 호스트 유저 수정 요청 - 성공")
+    @DisplayName("관리자 관리 이벤트 호스트 유저 수정 요청 - 성공")
     void modifyAdminManageEventHostUser_success() throws Exception {
         //given
         doNothing().when(userInfoService).modifyAdminManageEventHostUser(any(), any());
@@ -171,7 +165,7 @@ class EventHostUserAdminController_SliceTest {
                 .email(JsonNullable.of(UserSample.NORMAL_EMAIL2))
                 .build();
 
-        ResultActions result = mockMvc.perform(patch("/api/admin/user/amehuser/{amehUserId}", amehUserId)
+        ResultActions result = mockMvc.perform(patch("/api/admin/user/amehuser/{userId}", userId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
         );
@@ -183,29 +177,26 @@ class EventHostUserAdminController_SliceTest {
     }
 
     @Test
-    @DisplayName("인증 없이 이벤트 호스트 유저 삭제 요청 - 401 응답")
+    @DisplayName("인증 없이 관리자 관리 이벤트 호스트 유저 삭제 요청 - 401 응답")
     void deleteAdminManageEventHostUser_noAuth() throws Exception {
-        mockMvc.perform(delete("/api/admin/user/amehuser/{amehUserId}", amehUserId))
+        mockMvc.perform(delete("/api/admin/user/amehuser/{userId}", userId))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     @WithMockUser(authorities = "ROLE_USER")
-    @DisplayName("권한 없이 이벤트 호스트 유저 삭제 요청 - 403 응답")
+    @DisplayName("권한 없이 관리자 관리 이벤트 호스트 유저 삭제 요청 - 403 응답")
     void deleteAdminManageEventHostUser_noPermission() throws Exception {
-        mockMvc.perform(delete("/api/admin/user/amehuser/{amehUserId}", amehUserId))
+        mockMvc.perform(delete("/api/admin/user/amehuser/{userId}", userId))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     @WithMockUser(authorities = "MANAGE_USER")
-    @DisplayName("이벤트 호스트 유저 삭제 요청 - 성공")
+    @DisplayName("관리자 관리 이벤트 호스트 유저 삭제 요청 - 성공")
     void deleteAdminManageEventHostUser_success() throws Exception {
-        //given
-        doNothing().when(userJoinService).deleteAdminManageEventHostUser(amehUserId);
-
-        //when
-        ResultActions result = mockMvc.perform(delete("/api/admin/user/amehuser/{amehUserId}", amehUserId));
+        //given when
+        ResultActions result = mockMvc.perform(delete("/api/admin/user/amehuser/{userId}", userId));
         //then
         result
                 .andExpect(status().isOk())

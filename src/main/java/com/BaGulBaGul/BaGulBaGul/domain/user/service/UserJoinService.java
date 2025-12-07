@@ -20,7 +20,7 @@ public interface UserJoinService {
     User registerUser(UserRegisterRequest userRegisterRequest);
     void deleteUser(Long userId);
 
-    void deleteAdminManageEventHostUser(Long adminManageEventHostUserId);
-    void deleteAdminManagePasswordLoginUserByUserId(Long userId);
+    void deleteAdminManageEventHostUser(Long userId);
+    void deleteAdminManagePasswordLoginUser(Long userId);
     boolean checkDuplicateUsername(String username);
 }

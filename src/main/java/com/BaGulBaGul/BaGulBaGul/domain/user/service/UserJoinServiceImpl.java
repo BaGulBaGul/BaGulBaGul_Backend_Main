@@ -17,6 +17,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.repository.AdminManageEventHostUser
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.SocialLoginUserRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserRepository;
 import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtProvider;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -140,14 +141,17 @@ public class UserJoinServiceImpl implements UserJoinService {
 
     @Override
     @Transactional
-    public void deleteAdminManageEventHostUser(Long adminManageEventHostUserId) {
-        AdminManageEventHostUser adminManageEventHostUser = adminManageEventHostUserRepository
-                .findById(adminManageEventHostUserId).orElseThrow(UserNotFoundException::new);
-        deleteUser(adminManageEventHostUser.getUser().getId());
+    public void deleteAdminManageEventHostUser(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        AdminManageEventHostUser adminManageEventHostUser = user.getAdminManageEventHostUser();
+        if(adminManageEventHostUser == null) {
+            throw new UserNotFoundException();
+        }
+        deleteUser(userId);
     }
 
     @Override
-    public void deleteAdminManagePasswordLoginUserByUserId(Long userId) {
+    public void deleteAdminManagePasswordLoginUser(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         PasswordLoginUser passwordLoginUser = user.getPasswordLoginUser();
         if(passwordLoginUser == null) {

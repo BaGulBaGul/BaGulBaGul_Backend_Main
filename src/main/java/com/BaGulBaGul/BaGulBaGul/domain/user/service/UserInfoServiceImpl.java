@@ -5,6 +5,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.constant.EventType;
 import com.BaGulBaGul.BaGulBaGul.domain.event.repository.EventRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostLikeRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.user.AdminManageEventHostUser;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.calendar.event.repository.EventCalendarRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.calendar.recruitment.repository.RecruitmentCalendarRepository;
@@ -127,10 +128,16 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
+    @Transactional
     public void modifyAdminManageEventHostUser(
             AdminManageEventHostUserModifyRequest adminManageEventHostUserModifyRequest,
             Long userId
     ) {
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        AdminManageEventHostUser adminManageEventHostUser = user.getAdminManageEventHostUser();
+        if(adminManageEventHostUser == null) {
+            throw new UserNotFoundException();
+        }
         modifyUserInfo(adminManageEventHostUserModifyRequest.getUserModifyRequest(), userId);
     }
 
