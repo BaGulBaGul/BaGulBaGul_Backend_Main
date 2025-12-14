@@ -13,14 +13,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-@Service
 @RequiredArgsConstructor
 public class FindUserByConditionImpl implements FindUserByCondition {
     @PersistenceContext
     private EntityManager em;
     private final JPAQueryFactory queryFactory;
     private final FindUserByConditionApplier findUserByConditionApplier;
-    private final UserSuspensionService userSuspensionService;
+
     @Override
     public UserIdsWithTotalCount getUserIdsByCondition(UserSearchRequest userSearchRequest, Pageable pageable) {
         QUser qUser = QUser.user;

@@ -1,13 +1,14 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user.repository;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
+import com.BaGulBaGul.BaGulBaGul.domain.user.repository.querydsl.FindUserByCondition;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, Long>, FindUserByCondition {
     //대소문자 무시하고 중복 닉네임 검사
     boolean existsByNicknameIgnoreCase(String nickname);
 

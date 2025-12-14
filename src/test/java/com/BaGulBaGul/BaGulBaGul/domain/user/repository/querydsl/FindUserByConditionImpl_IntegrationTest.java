@@ -47,7 +47,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class FindUserByConditionImpl_IntegrationTest {
 
     @Autowired
-    FindUserByCondition findUserByCondition;
+    FindUserByConditionImpl findUserByConditionImpl;
 
     @Autowired
     UserJoinService userJoinService;
@@ -81,7 +81,7 @@ class FindUserByConditionImpl_IntegrationTest {
         Pageable pageable = PageRequest.of(0, 10);
 
         //when
-        UserIdsWithTotalCount result = findUserByCondition.getUserIdsByCondition(request, pageable);
+        UserIdsWithTotalCount result = findUserByConditionImpl.getUserIdsByCondition(request, pageable);
 
         //then
 
@@ -101,7 +101,7 @@ class FindUserByConditionImpl_IntegrationTest {
         Pageable pageable = PageRequest.of(0, 10);
 
         //when
-        UserIdsWithTotalCount result = findUserByCondition.getUserIdsByCondition(request, pageable);
+        UserIdsWithTotalCount result = findUserByConditionImpl.getUserIdsByCondition(request, pageable);
 
         //then
         assertThat(result.getTotalCount()).isEqualTo(1);
@@ -144,7 +144,7 @@ class FindUserByConditionImpl_IntegrationTest {
             //when
             UserSearchRequest request = UserSearchRequest.builder().joinDateSearchStart(searchStartDate).build();
             Pageable pageable = PageRequest.of(0, 10);
-            UserIdsWithTotalCount result = findUserByCondition.getUserIdsByCondition(request, pageable);
+            UserIdsWithTotalCount result = findUserByConditionImpl.getUserIdsByCondition(request, pageable);
 
             //then
             assertThat(result.getTotalCount()).isEqualTo(2);
@@ -159,7 +159,7 @@ class FindUserByConditionImpl_IntegrationTest {
             //when
             UserSearchRequest request = UserSearchRequest.builder().joinDateSearchEnd(searchEndDate).build();
             Pageable pageable = PageRequest.of(0, 10);
-            UserIdsWithTotalCount result = findUserByCondition.getUserIdsByCondition(request, pageable);
+            UserIdsWithTotalCount result = findUserByConditionImpl.getUserIdsByCondition(request, pageable);
 
             //then
             assertThat(result.getTotalCount()).isEqualTo(2);
@@ -178,7 +178,7 @@ class FindUserByConditionImpl_IntegrationTest {
             Pageable pageable = PageRequest.of(0, 10);
 
             //when
-            UserIdsWithTotalCount result = findUserByCondition.getUserIdsByCondition(request, pageable);
+            UserIdsWithTotalCount result = findUserByConditionImpl.getUserIdsByCondition(request, pageable);
 
             //then
             assertThat(result.getTotalCount()).isEqualTo(1);
@@ -210,8 +210,8 @@ class FindUserByConditionImpl_IntegrationTest {
             UserSearchRequest request = UserSearchRequest.builder().build();
             Pageable pageable = PageRequest.of(0, 2, Sort.by(Sort.Order.asc("id")));
             Pageable pageable2 = PageRequest.of(1, 2, Sort.by(Sort.Order.asc("id")));
-            UserIdsWithTotalCount result = findUserByCondition.getUserIdsByCondition(request, pageable);
-            UserIdsWithTotalCount result2 = findUserByCondition.getUserIdsByCondition(request, pageable2);
+            UserIdsWithTotalCount result = findUserByConditionImpl.getUserIdsByCondition(request, pageable);
+            UserIdsWithTotalCount result2 = findUserByConditionImpl.getUserIdsByCondition(request, pageable2);
 
             //then
             assertThat(result.getTotalCount()).isEqualTo(3);
@@ -230,7 +230,7 @@ class FindUserByConditionImpl_IntegrationTest {
             //when
             UserSearchRequest request = UserSearchRequest.builder().build();
             Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Order.desc("id")));
-            UserIdsWithTotalCount result = findUserByCondition.getUserIdsByCondition(request, pageable);
+            UserIdsWithTotalCount result = findUserByConditionImpl.getUserIdsByCondition(request, pageable);
 
             //then
             assertThat(result.getUserIds()).isEqualTo(Arrays.asList(user3.getId(), user2.getId(), user1.getId()));
@@ -286,7 +286,7 @@ class FindUserByConditionImpl_IntegrationTest {
                     .subTypes(Set.of(UserSubType.SOCIAL_LOGIN_USER))
                     .build();
             Pageable pageable = PageRequest.of(0, 10);
-            UserIdsWithTotalCount result = findUserByCondition.getUserIdsByCondition(request, pageable);
+            UserIdsWithTotalCount result = findUserByConditionImpl.getUserIdsByCondition(request, pageable);
 
             //then
             assertThat(result.getTotalCount()).isEqualTo(2);
@@ -304,7 +304,7 @@ class FindUserByConditionImpl_IntegrationTest {
                     .subTypes(Set.of(UserSubType.PASSWORD_LOGIN_USER))
                     .build();
             Pageable pageable = PageRequest.of(0, 10);
-            UserIdsWithTotalCount result = findUserByCondition.getUserIdsByCondition(request, pageable);
+            UserIdsWithTotalCount result = findUserByConditionImpl.getUserIdsByCondition(request, pageable);
 
             //then
             List<Long> expected = List.of(passwordUser.getId(), adminManagePasswordLoginUser.getId(),
@@ -323,7 +323,7 @@ class FindUserByConditionImpl_IntegrationTest {
                     .subTypes(Set.of(UserSubType.ADMIN_MANAGE_EVENT_HOST_USER))
                     .build();
             Pageable pageable = PageRequest.of(0, 10);
-            UserIdsWithTotalCount result = findUserByCondition.getUserIdsByCondition(request, pageable);
+            UserIdsWithTotalCount result = findUserByConditionImpl.getUserIdsByCondition(request, pageable);
 
             //then
             List<Long> expected = List.of(adminManageEventHostUser.getId());
@@ -341,7 +341,7 @@ class FindUserByConditionImpl_IntegrationTest {
                     .subTypes(Set.of(UserSubType.ADMIN_MANAGE_PASSWORD_LOGIN_USER))
                     .build();
             Pageable pageable = PageRequest.of(0, 10);
-            UserIdsWithTotalCount result = findUserByCondition.getUserIdsByCondition(request, pageable);
+            UserIdsWithTotalCount result = findUserByConditionImpl.getUserIdsByCondition(request, pageable);
 
             //then
             List<Long> expected = List.of(adminManagePasswordLoginUser.getId());
@@ -359,7 +359,7 @@ class FindUserByConditionImpl_IntegrationTest {
                     .subTypes(Set.of(UserSubType.SOCIAL_LOGIN_USER, UserSubType.PASSWORD_LOGIN_USER))
                     .build();
             Pageable pageable = PageRequest.of(0, 10);
-            UserIdsWithTotalCount result = findUserByCondition.getUserIdsByCondition(request, pageable);
+            UserIdsWithTotalCount result = findUserByConditionImpl.getUserIdsByCondition(request, pageable);
 
             //then
             List<Long> expected = List.of(socialAndPasswordUser.getId());
@@ -406,7 +406,7 @@ class FindUserByConditionImpl_IntegrationTest {
             UserSearchRequest findByUser = UserSearchRequest.builder()
                     .roles(Set.of(GeneralRoleType.USER.name()))
                     .build();
-            UserIdsWithTotalCount findByUserResult = findUserByCondition.getUserIdsByCondition(findByUser, pageable);
+            UserIdsWithTotalCount findByUserResult = findUserByConditionImpl.getUserIdsByCondition(findByUser, pageable);
             //then
             List<Long> expectedUser = List.of(
                     user.getId(), role1User.getId(), role2User.getId()
@@ -424,7 +424,7 @@ class FindUserByConditionImpl_IntegrationTest {
             UserSearchRequest findByUserAndRole1 = UserSearchRequest.builder()
                     .roles(Set.of(GeneralRoleType.USER.name(), role1Name))
                     .build();
-            UserIdsWithTotalCount findByUserAndRole1Result = findUserByCondition.getUserIdsByCondition(findByUserAndRole1, pageable);
+            UserIdsWithTotalCount findByUserAndRole1Result = findUserByConditionImpl.getUserIdsByCondition(findByUserAndRole1, pageable);
             //then
             List<Long> expectedUser = List.of(
                     role1User.getId()

@@ -7,7 +7,6 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.AdminManagePass
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.UserSearchRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.admin.user.dto.service.response.UserSearchByAdminResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserRepository;
-import com.BaGulBaGul.BaGulBaGul.domain.user.repository.querydsl.FindUserByCondition;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.querydsl.FindUserByCondition.UserIdsWithTotalCount;
 import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserJoinService;
 import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserSuspensionService;
@@ -24,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserAdminServiceImpl implements UserAdminService {
 
-    private final FindUserByCondition findUserByCondition;
     private final UserRepository userRepository;
     private final UserSuspensionService userSuspensionService;
     private final UserJoinService userJoinService;
@@ -34,7 +32,7 @@ public class UserAdminServiceImpl implements UserAdminService {
     public Page<UserSearchByAdminResponse> getUserPageByAdminSearch(
             UserSearchRequest userSearchRequest, Pageable pageable
     ) {
-        UserIdsWithTotalCount result = findUserByCondition.getUserIdsByCondition(userSearchRequest,
+        UserIdsWithTotalCount result = userRepository.getUserIdsByCondition(userSearchRequest,
                 pageable);
         List<UserSearchByAdminResponse> responses = getUserInfoByAdminSearchResponses(result.getUserIds());
         return new PageImpl<>(responses, pageable, result.getTotalCount());
@@ -65,6 +63,4 @@ public class UserAdminServiceImpl implements UserAdminService {
                         userSuspensionService.getUserSuspensionStatus(userId)))
                 .collect(Collectors.toList());
     }
-
-
 }

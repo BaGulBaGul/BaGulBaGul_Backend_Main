@@ -4,11 +4,9 @@ import com.BaGulBaGul.BaGulBaGul.domain.admin.user.dto.api.request.AMEHUserRegis
 import com.BaGulBaGul.BaGulBaGul.domain.admin.user.dto.api.request.AMEHUserUpdateApiRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.admin.user.dto.api.response.AMEHUserRegisterApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.admin.user.service.UserAdminService;
-import com.BaGulBaGul.BaGulBaGul.domain.user.AdminManageEventHostUser;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.AdminManageEventHostUserJoinRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.AdminManageEventHostUserModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.UserModifyRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.user.repository.querydsl.FindUserByCondition;
 import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserInfoService;
 import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserJoinService;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
