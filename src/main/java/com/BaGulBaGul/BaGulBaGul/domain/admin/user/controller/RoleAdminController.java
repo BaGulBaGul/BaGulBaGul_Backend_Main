@@ -4,7 +4,9 @@ import com.BaGulBaGul.BaGulBaGul.domain.admin.user.dto.api.request.AddRolePermis
 import com.BaGulBaGul.BaGulBaGul.domain.admin.user.dto.api.request.DeleteRolePermissionsApiRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.admin.user.dto.api.request.RoleRegisterApiRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.admin.user.dto.api.request.SearchRoleApiRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.admin.user.dto.api.response.SearchPermissionApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.admin.user.dto.api.response.SearchRoleApiResponse;
+import com.BaGulBaGul.BaGulBaGul.global.auth.constant.PermissionType;
 import com.BaGulBaGul.BaGulBaGul.global.auth.dto.RoleRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.global.auth.dto.SearchRoleResponse;
 import com.BaGulBaGul.BaGulBaGul.global.auth.dto.SearchRoleRequest;
@@ -89,5 +91,16 @@ public class RoleAdminController {
     ) {
         permissionService.deletePermissions(roleName, deleteRolePermissionsApiRequest.getPermissions());
         return ApiResponse.empty();
+    }
+
+    @GetMapping("/permissions")
+    @Operation(summary = "모든 권한을 나열")
+    @PreAuthorize("hasAuthority('READ_ROLE')")
+    public ApiResponse<SearchPermissionApiResponse> searchPermission() {
+        return ApiResponse.of(
+                SearchPermissionApiResponse.builder()
+                        .permissions(PermissionType.values())
+                        .build()
+        );
     }
 }

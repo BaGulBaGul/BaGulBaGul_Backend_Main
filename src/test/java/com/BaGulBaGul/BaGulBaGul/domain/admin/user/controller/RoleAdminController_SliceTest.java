@@ -22,6 +22,7 @@ import com.BaGulBaGul.BaGulBaGul.global.auth.dto.SearchRoleResponse;
 import com.BaGulBaGul.BaGulBaGul.global.auth.service.PermissionService;
 import com.BaGulBaGul.BaGulBaGul.global.auth.service.RoleService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
@@ -108,31 +109,6 @@ public class RoleAdminController_SliceTest {
                 .andDo(print());
     }
 
-    @NotNull
-    private ResultActions doSearchRole(UserRequestPostProcessor userProcessor) throws Exception {
-        //given
-        PageImpl<SearchRoleResponse> mockResult = new PageImpl<>(
-                List.of(
-                        SearchRoleResponse.builder()
-                                .roleName(testRoleName)
-                                .permissions(testRolePermissions)
-                                .build()
-                )
-        );
-        when(roleService.findRoleByCondition(any(), any())).thenReturn(mockResult);
-        //when
-        ResultActions result = mockMvc.perform(get("/api/admin/user/role/")
-                .with(userProcessor)
-                .param("roleName", testRoleName)
-                .param("permissions", testRolePermissionNames.toArray(String[]::new))
-                .param("page", "0")
-                .param("size", "10")
-                .contentType(MediaType.APPLICATION_JSON)
-        );
-        return result;
-    }
-
-
     @Test
     @WithMockUser(authorities = "MANAGE_ROLE")
     @DisplayName("역할 생성 요청 - 성공")
@@ -153,20 +129,6 @@ public class RoleAdminController_SliceTest {
         //then
         result.andExpect(MockMvcResultMatchers.status().isForbidden())
                 .andDo(print());
-    }
-
-    private ResultActions doCreateRole() throws Exception {
-        //given
-        when(roleService.createRole(any())).thenReturn(testRole);
-        //when
-        RoleRegisterApiRequest apiRequest = RoleRegisterApiRequest.builder()
-                .roleName(testRoleName)
-                .build();
-        ResultActions result = mockMvc.perform(post("/api/admin/user/role/").with(csrf())
-                .content(objectMapper.writeValueAsString(apiRequest))
-                .contentType(MediaType.APPLICATION_JSON)
-        );
-        return result;
     }
 
     @Test
@@ -191,14 +153,6 @@ public class RoleAdminController_SliceTest {
                 .andDo(print());
     }
 
-    private ResultActions doDeleteRole() throws Exception {
-        //given
-        doNothing().when(roleService).deleteRole(any());
-        //when
-        ResultActions result = mockMvc.perform(delete("/api/admin/user/role/{roleName}", testRoleName).with(csrf()));
-        return result;
-    }
-
     @Test
     @WithMockUser(authorities = "MANAGE_ROLE")
     @DisplayName("역할에 권한을 추가 - 성공")
@@ -221,20 +175,6 @@ public class RoleAdminController_SliceTest {
                 .andDo(print());
     }
 
-    private ResultActions doAddPermission() throws Exception {
-        //given
-        doNothing().when(permissionService).addPermissions(any(), any());
-        //when
-        AddRolePermissionsApiRequest apiRequest = AddRolePermissionsApiRequest.builder()
-                .permissions(testRolePermissions)
-                .build();
-        ResultActions result = mockMvc.perform(post("/api/admin/user/role/").with(csrf())
-                .content(objectMapper.writeValueAsString(apiRequest))
-                .contentType(MediaType.APPLICATION_JSON)
-        );
-        return result;
-    }
-
     @Test
     @WithMockUser(authorities = "MANAGE_ROLE")
     @DisplayName("역할에 권한을 삭제 - 성공")
@@ -255,6 +195,96 @@ public class RoleAdminController_SliceTest {
         //then
         result.andExpect(MockMvcResultMatchers.status().isForbidden())
                 .andDo(print());
+    }
+
+    @Test
+    @WithMockUser(authorities = "READ_ROLE")
+    @DisplayName("모든 권한을 검색 - 성공")
+    void findAllPermissions_Success() throws Exception {
+        //when
+        ResultActions result = mockMvc.perform(get("/api/admin/user/role/permissions")
+                .contentType(MediaType.APPLICATION_JSON)
+        );
+        //then
+        List<String> allPermissionNames = Arrays.stream(PermissionType.values())
+                .map(PermissionType::name)
+                .collect(Collectors.toList());
+        result.andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(jsonPath("$.data.permissions").value(allPermissionNames))
+                .andDo(print());
+    }
+
+    @Test
+    @WithMockUser(authorities = "ROLE_USER")
+    @DisplayName("모든 권한을 검색 - 권한 부족")
+    void findAllPermissions_NoPermission() throws Exception {
+        //when
+        ResultActions result = mockMvc.perform(get("/api/admin/user/role/permissions")
+                .contentType(MediaType.APPLICATION_JSON)
+        );
+        //then
+        result.andExpect(MockMvcResultMatchers.status().isForbidden())
+                .andDo(print());
+    }
+
+    private ResultActions doSearchRole(UserRequestPostProcessor userProcessor) throws Exception {
+        //given
+        PageImpl<SearchRoleResponse> mockResult = new PageImpl<>(
+                List.of(
+                        SearchRoleResponse.builder()
+                                .roleName(testRoleName)
+                                .permissions(testRolePermissions)
+                                .build()
+                )
+        );
+        when(roleService.findRoleByCondition(any(), any())).thenReturn(mockResult);
+        //when
+        ResultActions result = mockMvc.perform(get("/api/admin/user/role/")
+                .with(userProcessor)
+                .param("roleName", testRoleName)
+                .param("permissions", testRolePermissionNames.toArray(String[]::new))
+                .param("page", "0")
+                .param("size", "10")
+                .contentType(MediaType.APPLICATION_JSON)
+        );
+        return result;
+    }
+
+    private ResultActions doCreateRole() throws Exception {
+        //given
+        when(roleService.createRole(any())).thenReturn(testRole);
+        //when
+        RoleRegisterApiRequest apiRequest = RoleRegisterApiRequest.builder()
+                .roleName(testRoleName)
+                .build();
+        ResultActions result = mockMvc.perform(post("/api/admin/user/role/").with(csrf())
+                .content(objectMapper.writeValueAsString(apiRequest))
+                .contentType(MediaType.APPLICATION_JSON)
+        );
+        return result;
+    }
+
+    private ResultActions doDeleteRole() throws Exception {
+        //given
+        doNothing().when(roleService).deleteRole(any());
+        //when
+        ResultActions result = mockMvc.perform(delete("/api/admin/user/role/{roleName}", testRoleName).with(csrf()));
+        return result;
+    }
+
+
+    private ResultActions doAddPermission() throws Exception {
+        //given
+        doNothing().when(permissionService).addPermissions(any(), any());
+        //when
+        AddRolePermissionsApiRequest apiRequest = AddRolePermissionsApiRequest.builder()
+                .permissions(testRolePermissions)
+                .build();
+        ResultActions result = mockMvc.perform(post("/api/admin/user/role/").with(csrf())
+                .content(objectMapper.writeValueAsString(apiRequest))
+                .contentType(MediaType.APPLICATION_JSON)
+        );
+        return result;
     }
 
     private ResultActions doDeletePermission() throws Exception {
