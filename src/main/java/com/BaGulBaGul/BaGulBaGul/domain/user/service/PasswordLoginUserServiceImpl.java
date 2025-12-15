@@ -6,7 +6,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.PasswordLoginUs
 import com.BaGulBaGul.BaGulBaGul.domain.user.exception.DuplicatePasswordLoginUserException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.exception.UserNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.PasswordLoginUserRepository;
-import com.BaGulBaGul.BaGulBaGul.global.auth.Role;
+import com.BaGulBaGul.BaGulBaGul.domain.user.Role;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.persistence.EntityExistsException;

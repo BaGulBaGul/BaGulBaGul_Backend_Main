@@ -1,22 +1,19 @@
-package com.BaGulBaGul.BaGulBaGul.global.auth.service;
+package com.BaGulBaGul.BaGulBaGul.domain.user.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.BaGulBaGul.BaGulBaGul.extension.AllTestContainerExtension;
-import com.BaGulBaGul.BaGulBaGul.global.auth.Role;
-import com.BaGulBaGul.BaGulBaGul.global.auth.RoleTestUtils;
-import com.BaGulBaGul.BaGulBaGul.global.auth.constant.PermissionType;
-import com.BaGulBaGul.BaGulBaGul.global.auth.dto.RoleRegisterRequest;
-import com.BaGulBaGul.BaGulBaGul.global.auth.dto.SearchRoleRequest;
-import com.BaGulBaGul.BaGulBaGul.global.auth.dto.SearchRoleResponse;
-import com.BaGulBaGul.BaGulBaGul.global.auth.repository.RoleRepository;
-import com.BaGulBaGul.BaGulBaGul.global.auth.repository.querydsl.FindRoleByConditionImpl;
+import com.BaGulBaGul.BaGulBaGul.domain.user.Role;
+import com.BaGulBaGul.BaGulBaGul.domain.user.RoleTestUtils;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.RoleRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.SearchRoleRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.response.SearchRoleResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.user.repository.RoleRepository;
 import java.util.List;
 import java.util.Optional;
 import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;

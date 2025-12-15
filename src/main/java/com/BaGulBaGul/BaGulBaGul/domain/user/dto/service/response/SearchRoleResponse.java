@@ -1,8 +1,8 @@
-package com.BaGulBaGul.BaGulBaGul.global.auth.dto;
+package com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.response;
 
-import com.BaGulBaGul.BaGulBaGul.global.auth.Permission;
-import com.BaGulBaGul.BaGulBaGul.global.auth.Role;
-import com.BaGulBaGul.BaGulBaGul.global.auth.RolePermission;
+import com.BaGulBaGul.BaGulBaGul.domain.user.Permission;
+import com.BaGulBaGul.BaGulBaGul.domain.user.Role;
+import com.BaGulBaGul.BaGulBaGul.domain.user.RolePermission;
 import com.BaGulBaGul.BaGulBaGul.global.auth.constant.PermissionType;
 import java.util.List;
 import java.util.stream.Collectors;

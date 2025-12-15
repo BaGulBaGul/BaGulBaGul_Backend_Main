@@ -1,4 +1,4 @@
-package com.BaGulBaGul.BaGulBaGul.global.auth;
+package com.BaGulBaGul.BaGulBaGul.domain.user;
 
 import com.BaGulBaGul.BaGulBaGul.global.auth.constant.PermissionType;
 import javax.persistence.Column;

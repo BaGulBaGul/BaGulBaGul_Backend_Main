@@ -1,7 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.domain.admin.user.dto.api.request;
 
 import com.BaGulBaGul.BaGulBaGul.global.auth.constant.PermissionType;
-import com.BaGulBaGul.BaGulBaGul.global.auth.dto.SearchRoleRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.SearchRoleRequest;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

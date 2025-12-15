@@ -1,4 +1,4 @@
-package com.BaGulBaGul.BaGulBaGul.global.auth.dto;
+package com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request;
 
 import com.BaGulBaGul.BaGulBaGul.global.auth.constant.PermissionType;
 import java.util.List;

@@ -1,11 +1,11 @@
-package com.BaGulBaGul.BaGulBaGul.global.auth.service;
+package com.BaGulBaGul.BaGulBaGul.domain.user.service;
 
-import com.BaGulBaGul.BaGulBaGul.global.auth.dto.SearchRoleResponse;
-import com.BaGulBaGul.BaGulBaGul.global.auth.Role;
-import com.BaGulBaGul.BaGulBaGul.global.auth.dto.RoleRegisterRequest;
-import com.BaGulBaGul.BaGulBaGul.global.auth.dto.SearchRoleRequest;
-import com.BaGulBaGul.BaGulBaGul.global.auth.repository.RoleRepository;
-import com.BaGulBaGul.BaGulBaGul.global.auth.repository.querydsl.FindRoleByCondition.RoleNamesWithTotalCount;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.response.SearchRoleResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.user.Role;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.RoleRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.SearchRoleRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.repository.RoleRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.user.repository.querydsl.FindRoleByCondition.RoleNamesWithTotalCount;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;

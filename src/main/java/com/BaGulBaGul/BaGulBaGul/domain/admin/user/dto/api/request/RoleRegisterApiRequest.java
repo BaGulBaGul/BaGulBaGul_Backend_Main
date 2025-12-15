@@ -1,8 +1,6 @@
 package com.BaGulBaGul.BaGulBaGul.domain.admin.user.dto.api.request;
 
-import com.BaGulBaGul.BaGulBaGul.global.auth.constant.PermissionType;
-import com.BaGulBaGul.BaGulBaGul.global.auth.dto.RoleRegisterRequest;
-import java.util.List;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.RoleRegisterRequest;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

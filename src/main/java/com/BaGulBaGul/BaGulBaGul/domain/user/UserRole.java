@@ -1,7 +1,6 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.UserRole.UserRoleId;
-import com.BaGulBaGul.BaGulBaGul.global.auth.Role;
 import java.io.Serializable;
 import java.util.Objects;
 import javax.persistence.Entity;

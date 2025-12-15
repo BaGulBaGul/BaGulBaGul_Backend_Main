@@ -2,17 +2,14 @@ package com.BaGulBaGul.BaGulBaGul.domain.user.repository.querydsl;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 
-import com.BaGulBaGul.BaGulBaGul.domain.event.QEvent;
+import com.BaGulBaGul.BaGulBaGul.domain.user.QRole;
 import com.BaGulBaGul.BaGulBaGul.domain.user.QUser;
 import com.BaGulBaGul.BaGulBaGul.domain.user.QUserRole;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.UserSearchRequest;
-import com.BaGulBaGul.BaGulBaGul.global.auth.QRole;
 import com.BaGulBaGul.BaGulBaGul.global.auth.constant.UserSubType;
 import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQuery;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

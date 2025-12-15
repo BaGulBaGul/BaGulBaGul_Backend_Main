@@ -29,7 +29,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.exception.UserNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserRepository;
 import com.BaGulBaGul.BaGulBaGul.global.auth.constant.PermissionType;
 import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AuthenticatedUserInfo;
-import com.BaGulBaGul.BaGulBaGul.global.auth.service.PermissionService;
+import com.BaGulBaGul.BaGulBaGul.domain.user.service.PermissionService;
 import com.BaGulBaGul.BaGulBaGul.global.exception.NoPermissionException;
 import java.util.Collections;
 import java.util.List;

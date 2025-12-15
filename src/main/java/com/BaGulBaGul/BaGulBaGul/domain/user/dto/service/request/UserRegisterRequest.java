@@ -1,10 +1,8 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request;
 
-import com.BaGulBaGul.BaGulBaGul.global.auth.Role;
 import java.util.ArrayList;
 import java.util.List;
 import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;

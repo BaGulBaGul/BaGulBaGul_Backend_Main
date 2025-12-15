@@ -1,7 +1,7 @@
-package com.BaGulBaGul.BaGulBaGul.global.auth.repository;
+package com.BaGulBaGul.BaGulBaGul.domain.user.repository;
 
-import com.BaGulBaGul.BaGulBaGul.global.auth.Role;
-import com.BaGulBaGul.BaGulBaGul.global.auth.repository.querydsl.FindRoleByCondition;
+import com.BaGulBaGul.BaGulBaGul.domain.user.Role;
+import com.BaGulBaGul.BaGulBaGul.domain.user.repository.querydsl.FindRoleByCondition;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

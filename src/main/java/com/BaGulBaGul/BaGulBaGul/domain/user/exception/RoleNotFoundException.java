@@ -1,4 +1,4 @@
-package com.BaGulBaGul.BaGulBaGul.global.auth.exception;
+package com.BaGulBaGul.BaGulBaGul.domain.user.exception;
 
 public class RoleNotFoundException extends RuntimeException {
 }

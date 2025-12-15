@@ -1,26 +1,24 @@
-package com.BaGulBaGul.BaGulBaGul.global.auth.service;
+package com.BaGulBaGul.BaGulBaGul.domain.user.service;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.awaitility.Awaitility.await;
 
 import com.BaGulBaGul.BaGulBaGul.extension.AllTestContainerExtension;
-import com.BaGulBaGul.BaGulBaGul.global.auth.Role;
-import com.BaGulBaGul.BaGulBaGul.global.auth.RolePermission;
-import com.BaGulBaGul.BaGulBaGul.global.auth.RolePermission.RolePermissionId;
+import com.BaGulBaGul.BaGulBaGul.domain.user.Role;
+import com.BaGulBaGul.BaGulBaGul.domain.user.RolePermission;
+import com.BaGulBaGul.BaGulBaGul.domain.user.RolePermission.RolePermissionId;
 import com.BaGulBaGul.BaGulBaGul.global.auth.constant.PermissionType;
-import com.BaGulBaGul.BaGulBaGul.global.auth.dto.RoleRegisterRequest;
-import com.BaGulBaGul.BaGulBaGul.global.auth.repository.RolePermissionRepository;
-import com.BaGulBaGul.BaGulBaGul.global.auth.repository.RoleRepository;
-import com.BaGulBaGul.BaGulBaGul.global.auth.sampledata.RoleSample;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.RoleRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.repository.RolePermissionRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.user.repository.RoleRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.user.sampledata.RoleSample;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,7 +30,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.transaction.support.TransactionTemplate;
 
 

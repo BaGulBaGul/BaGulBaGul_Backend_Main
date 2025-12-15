@@ -1,7 +1,6 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user;
 
 import com.BaGulBaGul.BaGulBaGul.domain.base.BaseTimeEntity;
-import com.BaGulBaGul.BaGulBaGul.global.auth.Role;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;

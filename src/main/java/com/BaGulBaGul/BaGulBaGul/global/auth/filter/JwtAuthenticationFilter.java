@@ -6,11 +6,10 @@ import com.BaGulBaGul.BaGulBaGul.global.auth.exception.ExpiredAccessTokenExcepti
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.InvalidAccessTokenException;
 import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtProvider;
 import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtCookieService;
-import com.BaGulBaGul.BaGulBaGul.global.auth.service.PermissionService;
+import com.BaGulBaGul.BaGulBaGul.domain.user.service.PermissionService;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;

@@ -1,7 +1,7 @@
-package com.BaGulBaGul.BaGulBaGul.global.auth.repository.querydsl;
+package com.BaGulBaGul.BaGulBaGul.domain.user.repository.querydsl;
 
-import com.BaGulBaGul.BaGulBaGul.global.auth.QRole;
-import com.BaGulBaGul.BaGulBaGul.global.auth.dto.SearchRoleRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.QRole;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.SearchRoleRequest;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQuery;
 import java.util.List;

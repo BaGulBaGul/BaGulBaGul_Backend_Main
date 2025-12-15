@@ -1,4 +1,4 @@
-package com.BaGulBaGul.BaGulBaGul.global.auth;
+package com.BaGulBaGul.BaGulBaGul.domain.user;
 
 import java.util.HashSet;
 import java.util.Set;

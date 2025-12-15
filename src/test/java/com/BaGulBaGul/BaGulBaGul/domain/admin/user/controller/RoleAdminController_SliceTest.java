@@ -16,16 +16,15 @@ import com.BaGulBaGul.BaGulBaGul.domain.admin.user.dto.api.request.AddRolePermis
 import com.BaGulBaGul.BaGulBaGul.domain.admin.user.dto.api.request.DeleteRolePermissionsApiRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.admin.user.dto.api.request.RoleRegisterApiRequest;
 import com.BaGulBaGul.BaGulBaGul.extension.AllTestContainerExtension;
-import com.BaGulBaGul.BaGulBaGul.global.auth.Role;
+import com.BaGulBaGul.BaGulBaGul.domain.user.Role;
 import com.BaGulBaGul.BaGulBaGul.global.auth.constant.PermissionType;
-import com.BaGulBaGul.BaGulBaGul.global.auth.dto.SearchRoleResponse;
-import com.BaGulBaGul.BaGulBaGul.global.auth.service.PermissionService;
-import com.BaGulBaGul.BaGulBaGul.global.auth.service.RoleService;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.response.SearchRoleResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.user.service.PermissionService;
+import com.BaGulBaGul.BaGulBaGul.domain.user.service.RoleService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -45,8 +44,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 @ExtendWith(AllTestContainerExtension.class)
 @SpringBootTest

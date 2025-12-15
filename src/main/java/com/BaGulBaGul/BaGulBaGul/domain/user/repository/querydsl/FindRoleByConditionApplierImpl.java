@@ -1,14 +1,13 @@
-package com.BaGulBaGul.BaGulBaGul.global.auth.repository.querydsl;
+package com.BaGulBaGul.BaGulBaGul.domain.user.repository.querydsl;
 
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 
-import com.BaGulBaGul.BaGulBaGul.domain.user.QUser;
-import com.BaGulBaGul.BaGulBaGul.global.auth.QPermission;
-import com.BaGulBaGul.BaGulBaGul.global.auth.QRole;
-import com.BaGulBaGul.BaGulBaGul.global.auth.QRolePermission;
+import com.BaGulBaGul.BaGulBaGul.domain.user.QPermission;
+import com.BaGulBaGul.BaGulBaGul.domain.user.QRole;
+import com.BaGulBaGul.BaGulBaGul.domain.user.QRolePermission;
 import com.BaGulBaGul.BaGulBaGul.global.auth.constant.PermissionType;
-import com.BaGulBaGul.BaGulBaGul.global.auth.dto.SearchRoleRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.SearchRoleRequest;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQuery;

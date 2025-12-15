@@ -2,7 +2,6 @@ package com.BaGulBaGul.BaGulBaGul.domain.user.repository.querydsl;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.QUser;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.UserSearchRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserSuspensionService;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -11,7 +10,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 public class FindUserByConditionImpl implements FindUserByCondition {

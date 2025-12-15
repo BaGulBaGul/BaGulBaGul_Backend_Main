@@ -1,6 +1,6 @@
-package com.BaGulBaGul.BaGulBaGul.global.auth.sampledata;
+package com.BaGulBaGul.BaGulBaGul.domain.user.sampledata;
 
-import com.BaGulBaGul.BaGulBaGul.global.auth.dto.RoleRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.RoleRegisterRequest;
 
 public class RoleSample {
 

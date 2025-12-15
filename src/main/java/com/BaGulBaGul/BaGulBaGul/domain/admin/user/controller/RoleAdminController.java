@@ -7,11 +7,11 @@ import com.BaGulBaGul.BaGulBaGul.domain.admin.user.dto.api.request.SearchRoleApi
 import com.BaGulBaGul.BaGulBaGul.domain.admin.user.dto.api.response.SearchPermissionApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.admin.user.dto.api.response.SearchRoleApiResponse;
 import com.BaGulBaGul.BaGulBaGul.global.auth.constant.PermissionType;
-import com.BaGulBaGul.BaGulBaGul.global.auth.dto.RoleRegisterRequest;
-import com.BaGulBaGul.BaGulBaGul.global.auth.dto.SearchRoleResponse;
-import com.BaGulBaGul.BaGulBaGul.global.auth.dto.SearchRoleRequest;
-import com.BaGulBaGul.BaGulBaGul.global.auth.service.PermissionService;
-import com.BaGulBaGul.BaGulBaGul.global.auth.service.RoleService;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.RoleRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.response.SearchRoleResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.SearchRoleRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.service.PermissionService;
+import com.BaGulBaGul.BaGulBaGul.domain.user.service.RoleService;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
 import com.BaGulBaGul.BaGulBaGul.global.validation.ValidationUtil;
 import io.swagger.annotations.Api;

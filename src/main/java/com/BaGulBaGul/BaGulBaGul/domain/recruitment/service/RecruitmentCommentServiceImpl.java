@@ -27,7 +27,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.recruitment.exception.RecruitmentNotFoun
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.repository.RecruitmentRepository;
 import com.BaGulBaGul.BaGulBaGul.global.auth.constant.PermissionType;
 import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AuthenticatedUserInfo;
-import com.BaGulBaGul.BaGulBaGul.global.auth.service.PermissionService;
+import com.BaGulBaGul.BaGulBaGul.domain.user.service.PermissionService;
 import com.BaGulBaGul.BaGulBaGul.global.exception.NoPermissionException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;

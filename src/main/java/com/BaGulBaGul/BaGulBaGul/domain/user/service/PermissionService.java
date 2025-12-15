@@ -1,4 +1,4 @@
-package com.BaGulBaGul.BaGulBaGul.global.auth.service;
+package com.BaGulBaGul.BaGulBaGul.domain.user.service;
 
 import com.BaGulBaGul.BaGulBaGul.global.auth.constant.PermissionType;
 import java.util.Collection;

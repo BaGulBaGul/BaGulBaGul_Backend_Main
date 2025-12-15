@@ -1,16 +1,17 @@
-package com.BaGulBaGul.BaGulBaGul.global.auth.repository;
+package com.BaGulBaGul.BaGulBaGul.domain.user.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.BaGulBaGul.BaGulBaGul.domain.user.repository.RoleRepository;
 import com.BaGulBaGul.BaGulBaGul.extension.AllTestContainerExtension;
-import com.BaGulBaGul.BaGulBaGul.global.auth.Role;
+import com.BaGulBaGul.BaGulBaGul.domain.user.Role;
 import com.BaGulBaGul.BaGulBaGul.global.auth.constant.PermissionType;
-import com.BaGulBaGul.BaGulBaGul.global.auth.dto.RoleRegisterRequest;
-import com.BaGulBaGul.BaGulBaGul.global.auth.dto.SearchRoleRequest;
-import com.BaGulBaGul.BaGulBaGul.global.auth.repository.querydsl.FindRoleByCondition.RoleNamesWithTotalCount;
-import com.BaGulBaGul.BaGulBaGul.global.auth.repository.querydsl.FindRoleByConditionImpl;
-import com.BaGulBaGul.BaGulBaGul.global.auth.service.PermissionService;
-import com.BaGulBaGul.BaGulBaGul.global.auth.service.RoleService;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.RoleRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.SearchRoleRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.repository.querydsl.FindRoleByCondition.RoleNamesWithTotalCount;
+import com.BaGulBaGul.BaGulBaGul.domain.user.repository.querydsl.FindRoleByConditionImpl;
+import com.BaGulBaGul.BaGulBaGul.domain.user.service.PermissionService;
+import com.BaGulBaGul.BaGulBaGul.domain.user.service.RoleService;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

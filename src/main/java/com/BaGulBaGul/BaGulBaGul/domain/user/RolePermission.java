@@ -1,34 +1,20 @@
-package com.BaGulBaGul.BaGulBaGul.global.auth;
+package com.BaGulBaGul.BaGulBaGul.domain.user;
 
-import com.BaGulBaGul.BaGulBaGul.domain.user.UserRole;
-import com.BaGulBaGul.BaGulBaGul.global.auth.RolePermission.RolePermissionId;
-import com.BaGulBaGul.BaGulBaGul.global.auth.constant.PermissionType;
+import com.BaGulBaGul.BaGulBaGul.domain.user.RolePermission.RolePermissionId;
 import java.io.Serializable;
 import java.util.Objects;
-import javax.persistence.Access;
-import javax.persistence.AccessType;
-import javax.persistence.AttributeConverter;
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.Converter;
-import javax.persistence.Embeddable;
-import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.MapsId;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
 @Entity
