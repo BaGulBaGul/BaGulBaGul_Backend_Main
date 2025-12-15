@@ -9,6 +9,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserRoleRepository;
 import com.BaGulBaGul.BaGulBaGul.global.auth.Role;
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.RoleNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.global.auth.repository.RoleRepository;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -61,8 +62,9 @@ public class UserRoleServiceImpl implements UserRoleService {
 
     @Override
     @Transactional
-    public void addRoles(Long userId, List<String> roleNames) {
-        for(String roleName : roleNames) {
+    public void addRoles(Long userId, Collection<String> roleNames) {
+        Set<String> roleNamesSet = roleNames.stream().collect(Collectors.toSet());
+        for(String roleName : roleNamesSet) {
             addRole(userId, roleName);
         }
     }
@@ -81,15 +83,16 @@ public class UserRoleServiceImpl implements UserRoleService {
 
     @Override
     @Transactional
-    public void deleteRoles(Long userId, List<String> roleNames) {
-        for(String roleName : roleNames) {
+    public void deleteRoles(Long userId, Collection<String> roleNames) {
+        Set<String> roleNamesSet = roleNames.stream().collect(Collectors.toSet());
+        for(String roleName : roleNamesSet) {
             deleteRole(userId, roleName);
         }
     }
 
     @Override
     @Transactional
-    public void changeRole(Long userId, List<String> newRoleNames) {
+    public void changeRole(Long userId, Collection<String> newRoleNames) {
         User user = userRepository.getReferenceById(userId);
 
         Set<String> existingRoles = getAllRole(userId).stream().collect(Collectors.toSet());
