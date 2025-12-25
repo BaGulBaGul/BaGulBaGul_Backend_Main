@@ -4,11 +4,14 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.Permission;
 import com.BaGulBaGul.BaGulBaGul.domain.user.Role;
 import com.BaGulBaGul.BaGulBaGul.domain.user.RolePermission;
 import com.BaGulBaGul.BaGulBaGul.domain.user.RolePermission.RolePermissionId;
+import com.BaGulBaGul.BaGulBaGul.global.auth.constant.GeneralRoleType;
 import com.BaGulBaGul.BaGulBaGul.global.auth.constant.PermissionType;
 import com.BaGulBaGul.BaGulBaGul.domain.user.exception.RoleNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.PermissionRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.RolePermissionRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.RoleRepository;
+import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
+import com.BaGulBaGul.BaGulBaGul.global.response.ResponseCode;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -105,6 +108,9 @@ public class PermissionServiceImpl implements PermissionService {
     @Override
     @Transactional
     public void addPermission(String roleName, PermissionType permissionType) {
+        //admin 보호
+        protectAdmin(roleName);
+
         Role role = roleRepository.findById(roleName).orElseThrow(RoleNotFoundException::new);
         Permission permission = permissionRepository.getReferenceById(permissionType.name());
         role.getRolePermissions().add(
@@ -119,6 +125,9 @@ public class PermissionServiceImpl implements PermissionService {
     @Override
     @Transactional
     public void addPermissions(String roleName, Collection<PermissionType> permissionTypes) {
+        //admin 보호
+        protectAdmin(roleName);
+
         Role role = roleRepository.findById(roleName).orElseThrow(RoleNotFoundException::new);
         Set<RolePermission> rolePermissions = role.getRolePermissions();
         for(PermissionType permissionType : permissionTypes) {
@@ -136,6 +145,9 @@ public class PermissionServiceImpl implements PermissionService {
     @Override
     @Transactional
     public void deletePermission(String roleName, PermissionType permissionType) {
+        //admin 보호
+        protectAdmin(roleName);
+
         Role role = roleRepository.findById(roleName).orElseThrow(RoleNotFoundException::new);
         Permission permission = permissionRepository.getReferenceById(permissionType.name());
         Set<RolePermission> rolePermissions = role.getRolePermissions();
@@ -151,6 +163,9 @@ public class PermissionServiceImpl implements PermissionService {
     @Override
     @Transactional
     public void deletePermissions(String roleName, Collection<PermissionType> permissionTypes) {
+        //admin 보호
+        protectAdmin(roleName);
+
         Role role = roleRepository.findById(roleName).orElseThrow(RoleNotFoundException::new);
         Set<RolePermission> rolePermissions = role.getRolePermissions();
         for(PermissionType permissionType : permissionTypes) {
@@ -168,6 +183,9 @@ public class PermissionServiceImpl implements PermissionService {
     @Override
     @Transactional
     public void changePermission(String roleName, Collection<PermissionType> newPermissions) {
+        //admin 보호
+        protectAdmin(roleName);
+
         Role role = roleRepository.findById(roleName).orElseThrow(RoleNotFoundException::new);
         Set<RolePermission> rolePermissions = role.getRolePermissions();
         rolePermissions.clear();
@@ -182,17 +200,6 @@ public class PermissionServiceImpl implements PermissionService {
             rolePermissions.add(rolePermission);
         }
         publishRefreshEventAfterCommit();
-    }
-
-    private void savePermission(String roleName, PermissionType permissionType) {
-        Role role = roleRepository.getReferenceById(roleName);
-        Permission permission = permissionRepository.getReferenceById(permissionType.name());
-        rolePermissionRepository.save(
-                RolePermission.builder()
-                        .role(role)
-                        .permission(permission)
-                        .build()
-        );
     }
 
     /**
@@ -223,7 +230,7 @@ public class PermissionServiceImpl implements PermissionService {
      * 조회 -> 업데이트 사이에 스레드 경합으로 이전 버전으로 업데이트될 수 있으므로 전체 synchronize
      * 역할이 갖는 권한을 업데이트할 일은 거의 없으므로 단순히 전부 재조회 + 동기화로 구현
      */
-    private synchronized void refreshPermission() {
+    public synchronized void refreshPermission() {
         //새로운 역할, 권한을 db에서 가져옴
         List<RolePermission> rolePermissions = rolePermissionRepository.findAll();
         Map<String, Set<PermissionType>> newRolePermissions = new HashMap<>();
@@ -249,6 +256,15 @@ public class PermissionServiceImpl implements PermissionService {
         //변경된 권한을 새로운 권한 set으로 변경
         for (String roleName : newRolePermissions.keySet()) {
             rolePermissionCacheMap.put(roleName, newRolePermissions.get(roleName)); 
+        }
+    }
+
+    /**
+     * admin 보호
+     */
+    private void protectAdmin(String roleName) {
+        if(roleName.equals(GeneralRoleType.ADMIN.name())) {
+            throw new GeneralException(ResponseCode.FORBIDDEN);
         }
     }
 }

@@ -29,6 +29,8 @@ public abstract class UserSample {
 
     public static final String ADMIN_USERNAME = "admin";
     public static final String ADMIN_EMAIL = "admin@gmail.com";
+    public static final String ADMIN2_USERNAME = "admin2";
+    public static final String ADMIN2_EMAIL = "admin2@gmail.com";
 
     public static final String EVENT_HOST_USERNAME = "eventHost";
     public static final String EVENT_HOST_EMAIL = "eventHost@gmail.com";
@@ -121,6 +123,14 @@ public abstract class UserSample {
         return UserRegisterRequest.builder()
                 .nickname(ADMIN_USERNAME)
                 .email(ADMIN_EMAIL)
+                .roles(new ArrayList<>(List.of(GeneralRoleType.ADMIN.name(), GeneralRoleType.USER.name())))
+                .build();
+    }
+
+    public static UserRegisterRequest getAdmin2UserRegisterRequest() {
+        return UserRegisterRequest.builder()
+                .nickname(ADMIN2_USERNAME)
+                .email(ADMIN2_EMAIL)
                 .roles(new ArrayList<>(List.of(GeneralRoleType.ADMIN.name(), GeneralRoleType.USER.name())))
                 .build();
     }

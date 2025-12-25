@@ -1,6 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import com.BaGulBaGul.BaGulBaGul.extension.AllTestContainerExtension;
 import com.BaGulBaGul.BaGulBaGul.domain.user.Role;
@@ -9,6 +10,8 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.RoleRegisterReq
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.SearchRoleRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.response.SearchRoleResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.RoleRepository;
+import com.BaGulBaGul.BaGulBaGul.global.auth.constant.GeneralRoleType;
+import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
 import java.util.List;
 import java.util.Optional;
 import javax.persistence.EntityManager;
@@ -16,6 +19,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
@@ -38,15 +44,11 @@ public class RoleServiceImpl_IntegrationTest {
     @Autowired
     EntityManager entityManager;
 
-    @BeforeEach
-    void init() {
-        roleRepository.deleteAll();
-    }
-
     @Test
     @DisplayName("조회 테스트")
     void findTest() {
         //given
+        roleRepository.deleteAll();
         RoleRegisterRequest registerRequest = RoleRegisterRequest.builder()
                 .roleName("testRole1")
                 .build();
@@ -89,5 +91,15 @@ public class RoleServiceImpl_IntegrationTest {
         //then
         Optional<Role> findResult = roleRepository.findById(role.getName());
         assertThat(findResult.isEmpty()).isTrue();
+    }
+
+    @ParameterizedTest
+    @EnumSource(GeneralRoleType.class)
+    @DisplayName("삭제 테스트 - GeneralRoleType을 삭제하려고 시도하면 예외")
+    void shouldForbiddenWhenDeleteGeneralRoleType(GeneralRoleType generalRoleType) {
+        //when
+        assertThrows(GeneralException.class, () ->{
+            roleService.deleteRole(generalRoleType.name());
+        });
     }
 }

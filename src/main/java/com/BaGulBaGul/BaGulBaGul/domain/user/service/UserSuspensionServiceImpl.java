@@ -12,6 +12,9 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.exception.UserNotSuspendedException
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserSuspensionLogRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserSuspensionStatusRepository;
+import com.BaGulBaGul.BaGulBaGul.global.auth.constant.GeneralRoleType;
+import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
+import com.BaGulBaGul.BaGulBaGul.global.response.ResponseCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,9 +29,13 @@ public class UserSuspensionServiceImpl implements UserSuspensionService {
     private final UserSuspensionStatusRepository userSuspensionStatusRepository;
     private final UserSuspensionLogRepository userSuspensionLogRepository;
 
+    private final UserRoleService userRoleService;
+
     @Override
     @Transactional
     public void suspendUser(Long adminId, Long userId, SuspendUserRequest suspendUserRequest) {
+        //admin 보호
+        checkAdmin(userId);
 
         LocalDateTime currentTime = LocalDateTime.now();
 
@@ -65,6 +72,9 @@ public class UserSuspensionServiceImpl implements UserSuspensionService {
     @Override
     @Transactional
     public void liftSuspension(Long adminId, Long userId, LiftUserSuspensionRequest liftUserSuspensionRequest) {
+        //admin 보호
+        checkAdmin(userId);
+
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         User admin = userRepository.findById(adminId).orElseThrow(UserNotFoundException::new);
 
@@ -112,5 +122,11 @@ public class UserSuspensionServiceImpl implements UserSuspensionService {
             userSuspensionStatus.setReason(null);
             return new UserSuspensionStatusResponse(false, null, null);
         }
+    }
+
+    private void checkAdmin(Long userId) {
+        if(userRoleService.hasRole(userId, GeneralRoleType.ADMIN.name())) {
+            throw new GeneralException(ResponseCode.FORBIDDEN);
+        };
     }
 }

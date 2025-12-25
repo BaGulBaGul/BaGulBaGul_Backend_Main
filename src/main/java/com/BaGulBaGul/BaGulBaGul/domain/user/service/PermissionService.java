@@ -28,12 +28,19 @@ public interface PermissionService {
     void addPermissions(String roleName, Collection<PermissionType> permissionTypes);
 
     /**
-     * 어떤 역할에 어떤 권한을 제거
+     * 어떤 역할에서 어떤 권한을 제거
      */
     void deletePermission(String roleName, PermissionType permissionType);
 
+    /**
+     * 어떤 역할에서 어떤 권한들을 제거
+     */
+
     void deletePermissions(String roleName, Collection<PermissionType> permissionTypes);
 
+    /**
+     * 어떤 역할의 권한들을 설정
+     */
     void changePermission(String roleName, Collection<PermissionType> newPermissions);
 
     /**

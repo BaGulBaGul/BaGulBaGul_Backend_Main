@@ -10,6 +10,8 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserSuspensionStatusRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.sampledata.UserSample;
 import com.BaGulBaGul.BaGulBaGul.extension.AllTestContainerExtension;
+import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,27 +46,73 @@ public class UserSuspensionService_IntegrationTest {
     @Autowired
     EntityManager em;
 
+    //정상 유저
+    User normalUser;
+
+    //이미 정지된 유저
+    User suspendedUser;
+    String suspendedUserReason;
+    LocalDateTime suspendedUserEndDate;
+
+    //정지가 만료된 유저
+    User suspendExpiredUser;
+    String suspendedExpiredUserReason;
+    LocalDateTime suspendedExpiredUserEndDate;
+
+    //대상 Admin 유저
+    User targetAdminUser;
+    //요청자 Admin 유저
+    User requestAdminUser;
+
+    @BeforeEach
+    void init() {
+        normalUser = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
+        requestAdminUser = userJoinService.registerUser(UserSample.getAdminUserRegisterRequest());
+        targetAdminUser = userJoinService.registerUser(UserSample.getAdmin2UserRegisterRequest());
+
+        suspendedUser = userJoinService.registerUser(UserSample.getNormal2UserRegisterRequest());
+        suspendedUserReason = "test reason";
+        suspendedUserEndDate = LocalDateTime.now().truncatedTo(ChronoUnit.HOURS).plusDays(7);
+
+        suspendExpiredUser = userJoinService.registerUser(UserSample.getNormal3UserRegisterRequest());
+        suspendedExpiredUserReason = "test reason2";
+        suspendedExpiredUserEndDate = LocalDateTime.now().minusDays(1); // 과거 날짜로 설정
+
+        userSuspensionService.suspendUser(
+                requestAdminUser.getId(),
+                suspendedUser.getId(),
+                new SuspendUserRequest(suspendedUserReason, suspendedUserEndDate)
+        );
+        userSuspensionService.suspendUser(
+                requestAdminUser.getId(),
+                suspendExpiredUser.getId(),
+                new SuspendUserRequest(suspendedExpiredUserReason, suspendedExpiredUserEndDate)
+        );
+
+        em.flush();
+        em.clear();
+    }
+
     @Test
     @DisplayName("정지되어 있지 않은 유저를 정지시킨다.")
     @Transactional
     void test_suspendUser_ifNotSuspended() {
         //given
-        User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
-        User admin = userJoinService.registerUser(UserSample.getAdminUserRegisterRequest());
         String reason = "test reason";
         LocalDateTime endDate = LocalDateTime.now().truncatedTo(ChronoUnit.HOURS).plusDays(7);
 
         //when
-        userSuspensionService.suspendUser(admin.getId(), user.getId(), new SuspendUserRequest(reason, endDate));
+        userSuspensionService.suspendUser(
+                requestAdminUser.getId(), normalUser.getId(), new SuspendUserRequest(reason, endDate));
 
         //then
         em.flush();
         em.clear();
 
-        User suspendedUser = userRepository.findById(user.getId()).get();
+        User suspendedUser = userRepository.findById(normalUser.getId()).get();
         assertThat(suspendedUser.isSuspended()).isTrue();
 
-        UserSuspensionStatus status = userSuspensionStatusRepository.findById(user.getId()).get();
+        UserSuspensionStatus status = userSuspensionStatusRepository.findById(normalUser.getId()).get();
         assertThat(status.getReason()).isEqualTo(reason);
         assertThat(status.getEndDate()).isEqualTo(endDate);
     }
@@ -74,53 +122,63 @@ public class UserSuspensionService_IntegrationTest {
     @Transactional
     void test_extendSuspension_ifAlreadySuspended() {
         //given
-        User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
-        User admin = userJoinService.registerUser(UserSample.getAdminUserRegisterRequest());
-        String reason1 = "test reason";
-        LocalDateTime endDate1 = LocalDateTime.now().truncatedTo(ChronoUnit.HOURS).plusDays(7);
-        userSuspensionService.suspendUser(admin.getId(), user.getId(), new SuspendUserRequest(reason1, endDate1));
-
         String reason2 = "extended reason";
-        LocalDateTime endDate2 = endDate1.plusDays(7);
+        LocalDateTime endDate2 = suspendedUserEndDate.plusDays(7);
 
         //when
-        userSuspensionService.suspendUser(admin.getId(), user.getId(), new SuspendUserRequest(reason2, endDate2));
+        userSuspensionService.suspendUser(
+                requestAdminUser.getId(), suspendedUser.getId(), new SuspendUserRequest(reason2, endDate2));
 
         //then
         em.flush();
         em.clear();
 
-        User suspendedUser = userRepository.findById(user.getId()).get();
+        //유저 엔티티의 정지 상태도 동기화되어야 한다
+        suspendedUser = userRepository.findById(suspendedUser.getId()).get();
         assertThat(suspendedUser.isSuspended()).isTrue();
 
-        UserSuspensionStatus status = userSuspensionStatusRepository.findById(user.getId()).get();
+        //유저의 정지 상태 확인
+        UserSuspensionStatus status = userSuspensionStatusRepository.findById(suspendedUser.getId()).get();
         assertThat(status.getReason()).isEqualTo(reason2);
         assertThat(status.getEndDate()).isEqualTo(endDate2);
     }
+
+    @Test
+    @DisplayName("정지 대상이 ADMIN이라면 예외")
+    @Transactional
+    void test_suspendUser_ifTargetUserIsAdmin() {
+        //given
+        String reason = "test reason";
+        LocalDateTime endDate = LocalDateTime.now().truncatedTo(ChronoUnit.HOURS).plusDays(7);
+        //when
+        assertThrows(GeneralException.class, () -> {
+            userSuspensionService.suspendUser(
+                    requestAdminUser.getId(), targetAdminUser.getId(), new SuspendUserRequest(reason, endDate));
+        });
+    }
+
     @Test
     @DisplayName("유저의 정지를 해제한다.")
     @Transactional
     void test_liftSuspension_ifSuspended() {
-        //given
-        User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
-        User admin = userJoinService.registerUser(UserSample.getAdminUserRegisterRequest());
-        String reason = "test reason";
-        LocalDateTime endDate = LocalDateTime.now().truncatedTo(ChronoUnit.HOURS).plusDays(7);
-        userSuspensionService.suspendUser(admin.getId(), user.getId(), new SuspendUserRequest(reason, endDate));
-
-        String liftReason = "lift reason";
-
         //when
-        userSuspensionService.liftSuspension(admin.getId(), user.getId(), new LiftUserSuspensionRequest(liftReason));
+        String liftReason = "lift reason";
+        userSuspensionService.liftSuspension(
+                requestAdminUser.getId(),
+                suspendedUser.getId(),
+                new LiftUserSuspensionRequest(liftReason)
+        );
 
         //then
         em.flush();
         em.clear();
 
-        User unsuspendedUser = userRepository.findById(user.getId()).get();
+        //유저의 정지를 해제한 이후에는 유저 엔티티의 정지 상태도 동기화되어야 한다
+        User unsuspendedUser = userRepository.findById(suspendedUser.getId()).get();
         assertThat(unsuspendedUser.isSuspended()).isFalse();
 
-        UserSuspensionStatus status = userSuspensionStatusRepository.findById(user.getId()).get();
+        //유저의 정지를 해제한 이후에는 정지 상태에서 정보가 사라져야 한다
+        UserSuspensionStatus status = userSuspensionStatusRepository.findById(suspendedUser.getId()).get();
         assertThat(status.getEndDate()).isNull();
         assertThat(status.getReason()).isNull();
     }
@@ -129,15 +187,10 @@ public class UserSuspensionService_IntegrationTest {
     @DisplayName("정지되지 않은 유저의 정지를 해제하려하면 예외가 발생한다.")
     @Transactional
     void should_throw_UserNotSuspendedException_when_liftingNotSuspended() {
-        //given
-        User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
-        User admin = userJoinService.registerUser(UserSample.getAdminUserRegisterRequest());
+        //when then
         String liftReason = "lift reason";
-
-        //when
-        //then
         assertThrows(UserNotSuspendedException.class, () -> {
-            userSuspensionService.liftSuspension(admin.getId(), user.getId(), new LiftUserSuspensionRequest(liftReason));
+            userSuspensionService.liftSuspension(requestAdminUser.getId(), normalUser.getId(), new LiftUserSuspensionRequest(liftReason));
         });
     }
 
@@ -146,10 +199,8 @@ public class UserSuspensionService_IntegrationTest {
     @Transactional
     void test_getUserSuspensionStatus_ifNotSuspended() {
         //given
-        User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
-
         //when
-        UserSuspensionStatusResponse result = userSuspensionService.getUserSuspensionStatus(user.getId());
+        UserSuspensionStatusResponse result = userSuspensionService.getUserSuspensionStatus(normalUser.getId());
 
         //then
         assertThat(result.isSuspended()).isFalse();
@@ -162,24 +213,15 @@ public class UserSuspensionService_IntegrationTest {
     @Transactional
     void test_getUserSuspensionStatus_ifCurrentlySuspended() {
         //given
-        User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
-        User admin = userJoinService.registerUser(UserSample.getAdminUserRegisterRequest());
-        String reason = "test reason";
-        LocalDateTime endDate = LocalDateTime.now().plusDays(7).withNano(0);
-        userSuspensionService.suspendUser(admin.getId(), user.getId(), new SuspendUserRequest(reason, endDate));
-
-        em.flush();
-        em.clear();
-
         //when
-        UserSuspensionStatusResponse result = userSuspensionService.getUserSuspensionStatus(user.getId());
+        UserSuspensionStatusResponse result = userSuspensionService.getUserSuspensionStatus(suspendedUser.getId());
 
         //then
         assertThat(result.isSuspended()).isTrue();
-        assertThat(result.getReason()).isEqualTo(reason);
-        assertThat(result.getEndDate()).isEqualTo(endDate);
+        assertThat(result.getReason()).isEqualTo(suspendedUserReason);
+        assertThat(result.getEndDate()).isEqualTo(suspendedUserEndDate);
 
-        User checkedUser = userRepository.findById(user.getId()).get();
+        User checkedUser = userRepository.findById(suspendedUser.getId()).get();
         assertThat(checkedUser.isSuspended()).isTrue();
     }
 
@@ -188,17 +230,9 @@ public class UserSuspensionService_IntegrationTest {
     @Transactional
     void test_getUserSuspensionStatus_ifSuspensionExpired() {
         //given
-        User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
-        User admin = userJoinService.registerUser(UserSample.getAdminUserRegisterRequest());
-        String reason = "test reason";
-        LocalDateTime endDate = LocalDateTime.now().minusDays(1); // 과거 날짜로 설정
-        userSuspensionService.suspendUser(admin.getId(), user.getId(), new SuspendUserRequest(reason, endDate));
-
-        em.flush();
-        em.clear();
-
         //when
-        UserSuspensionStatusResponse result = userSuspensionService.getUserSuspensionStatus(user.getId());
+        UserSuspensionStatusResponse result = userSuspensionService.getUserSuspensionStatus(
+                suspendExpiredUser.getId());
 
         //then
         assertThat(result.isSuspended()).isFalse();
@@ -208,10 +242,12 @@ public class UserSuspensionService_IntegrationTest {
         em.flush();
         em.clear();
 
-        User checkedUser = userRepository.findById(user.getId()).get();
+        //정지가 만료된 유저의 정지 상태를 조회한 이후에는 User엔티티의 정지 상태도 동기화되어야 한다
+        User checkedUser = userRepository.findById(suspendExpiredUser.getId()).get();
         assertThat(checkedUser.isSuspended()).isFalse();
 
-        UserSuspensionStatus status = userSuspensionStatusRepository.findById(user.getId()).get();
+        //정지가 만료된 유저의 정지 상태를 조회한 이후에는 정지 상태에서 정보가 사라져야 한다
+        UserSuspensionStatus status = userSuspensionStatusRepository.findById(suspendExpiredUser.getId()).get();
         assertThat(status.getEndDate()).isNull();
         assertThat(status.getReason()).isNull();
     }

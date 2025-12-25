@@ -6,6 +6,10 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.RoleRegisterReq
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.SearchRoleRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.RoleRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.querydsl.FindRoleByCondition.RoleNamesWithTotalCount;
+import com.BaGulBaGul.BaGulBaGul.global.auth.constant.GeneralRoleType;
+import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
+import com.BaGulBaGul.BaGulBaGul.global.response.ResponseCode;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +46,10 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public void deleteRole(String roleName) {
+        //GeneralRoleType은 보호된다.
+        if(Arrays.stream(GeneralRoleType.values()).anyMatch(r -> r.name().equals(roleName))) {
+            throw new GeneralException(ResponseCode.FORBIDDEN);
+        }
         //연결된 권한은 cascade로 삭제
         roleRepository.deleteById(roleName);
     }
