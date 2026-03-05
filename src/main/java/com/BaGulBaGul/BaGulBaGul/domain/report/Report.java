@@ -16,6 +16,7 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -57,6 +58,11 @@ public abstract class Report extends BaseTimeEntity {
     @JoinColumn(name = "reporting_user_id")
     @ManyToOne(fetch = FetchType.LAZY)
     private User reportingUser;
+
+    //신고 처리 상태
+    @JoinColumn(name = "report_status_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private ReportStatus reportStatus;
 
     protected Report(ReportBuilder<?, ?> b) {
         this.reportType = b.reportType;

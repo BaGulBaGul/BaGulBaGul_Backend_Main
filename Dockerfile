@@ -1,7 +1,7 @@
 FROM amazoncorretto:11-alpine as builder
 WORKDIR /app
 
-COPY ./build.gradle ./settings.gradle ./gradlew ./
+COPY ./build.gradle ./gradle.properties ./settings.gradle ./gradlew ./
 COPY ./gradle ./gradle
 #윈도우 시스템인 경우를 위해 dos2unix 실행
 RUN dos2unix gradlew

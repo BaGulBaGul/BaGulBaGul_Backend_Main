@@ -1,7 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user.service;
 
-import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.AdminManageEventHostUserModifyRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.UserModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.AdminManageEventHostUserModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.UserModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.response.EventHostUserInfoResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.response.MyUserInfoResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.response.OtherUserInfoResponse;

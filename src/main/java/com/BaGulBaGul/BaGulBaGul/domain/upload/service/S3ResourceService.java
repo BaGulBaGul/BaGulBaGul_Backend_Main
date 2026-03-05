@@ -11,6 +11,7 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -80,7 +81,7 @@ public class S3ResourceService extends ResourceService {
 
     @Override
     @Transactional
-    public void deleteResources(List<Long> resourceIds) {
+    public void deleteResources(Collection<Long> resourceIds) {
         if(resourceIds == null)
             return;
         List<Resource> resources = resourceRepository.findAllById(resourceIds);
@@ -108,7 +109,7 @@ public class S3ResourceService extends ResourceService {
     @Override
     @Async
     @Transactional
-    public void deleteResourcesAsync(List<Long> resourceIds) {
+    public void deleteResourcesAsync(Collection<Long> resourceIds) {
         deleteResources(resourceIds);
     }
 
@@ -120,7 +121,7 @@ public class S3ResourceService extends ResourceService {
     }
 
     @Override
-    public List<String> getResourceUrlsFromIds(List<Long> resourceIds) {
+    public List<String> getResourceUrlsFromIds(Collection<Long> resourceIds) {
         //한번에 받아옴
         resourceRepository.findAllByIds(resourceIds);
         //순서 유지하면서 url로 변환
@@ -141,7 +142,7 @@ public class S3ResourceService extends ResourceService {
     }
 
     @Override
-    public void cancelTempResources(List<Long> resourceIds) {
+    public void cancelTempResources(Collection<Long> resourceIds) {
         s3TempResourceRepository.deleteAllByIdInBatch(resourceIds);
     }
 
@@ -154,7 +155,7 @@ public class S3ResourceService extends ResourceService {
 
     @Override
     @Transactional
-    public void deleteTempResources(List<Long> resourceIds) {
+    public void deleteTempResources(Collection<Long> resourceIds) {
         s3TempResourceRepository.deleteAllByIdInBatch(resourceIds);
         deleteResources(resourceIds);
     }

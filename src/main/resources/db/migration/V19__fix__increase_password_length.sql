@@ -1,0 +1,1 @@
+ALTER TABLE `password_login_user` MODIFY COLUMN `encoded_login_password` VARCHAR(200) NOT NULL;

@@ -5,6 +5,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.PostComment;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostCommentChild;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.GetPostCommentChildPageResponse;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -12,9 +13,37 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface PostCommentChildRepository extends JpaRepository<PostCommentChild, Long> {
+
+    @Query(value = "SELECT pch FROM PostCommentChild pch WHERE pch.id = :id and pch.deletedAt IS NULL")
+    Optional<PostCommentChild> findByIdIfNotDeleted(@Param("id") Long postCommentChildId);
+
+    @Query(value = "SELECT pch "
+            + "FROM PostCommentChild pch "
+                + "JOIN FETCH pch.user pchu "
+                + "JOIN FETCH pch.postComment pc "
+                    + "JOIN FETCH pc.post p "
+                        + "LEFT JOIN FETCH p.event e "
+                        + "LEFT JOIN FETCH p.event e "
+                        + "LEFT JOIN FETCH e.categories ec "
+                        + "LEFT JOIN FETCH ec.category c "
+            + "WHERE pch.id IN :ids"
+    )
+    List<PostCommentChild> findWithCommentChildWriterAndCommentAndPostAndEventByIds(@Param("ids") List<Long> postCommentChildIds);
+
+    @Query(value = "SELECT pch "
+            + "FROM PostCommentChild pch "
+                + "JOIN FETCH pch.user pchu "
+                + "JOIN FETCH pch.postComment pc "
+                + "JOIN FETCH pc.post p "
+            + "WHERE pch.id IN :ids"
+    )
+    List<PostCommentChild> findWithCommentChildWriterAndCommentAndPostByIds(@Param("ids") List<Long> postCommentChildIds);
+
+
     @Modifying
     @Query(value =
-            "DELETE FROM PostCommentChild pch "
+            "UPDATE PostCommentChild pch "
+                + "SET pch.deletedAt = CURRENT_TIMESTAMP "
                 + "WHERE pch.postComment.id in ("
                     + "SELECT pc.id "
                     + "FROM PostComment pc "
@@ -25,9 +54,26 @@ public interface PostCommentChildRepository extends JpaRepository<PostCommentChi
 
     @Modifying
     @Query(value =
-            "DELETE FROM PostCommentChild pch WHERE pch.postComment = :postComment"
+            "DELETE FROM PostCommentChild pch "
+                + "WHERE pch.postComment.id in ("
+                    + "SELECT pc.id "
+                    + "FROM PostComment pc "
+                    + "WHERE pc.post = :post"
+                + ")"
+    )
+    void deleteAllHardByPost(@Param("post") Post post);
+
+    @Modifying
+    @Query(value =
+            "UPDATE PostCommentChild pch SET pch.deletedAt = CURRENT_TIMESTAMP WHERE pch.postComment = :postComment"
     )
     void deleteAllByPostComment(@Param("postComment") PostComment postComment);
+
+    @Modifying
+    @Query(value =
+            "DELETE FROM PostCommentChild pch WHERE pch.postComment = :postComment"
+    )
+    void deleteAllHardByPostComment(@Param("postComment") PostComment postComment);
 
     @Query(
             value = "SELECT new com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.GetPostCommentChildPageResponse( "

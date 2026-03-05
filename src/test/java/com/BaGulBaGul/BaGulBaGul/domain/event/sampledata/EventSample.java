@@ -18,6 +18,8 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.EventCategory;
 import com.BaGulBaGul.BaGulBaGul.domain.event.constant.EventType;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.constant.PostType;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.request.PostRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.sampledata.PostSample;
 import java.time.LocalDateTime;
 import java.time.Month;
@@ -69,6 +71,8 @@ public abstract class EventSample {
 
     //정상 이벤트 생성 요청
     public static EventRegisterRequest getNormalRegisterRequest(Long hostUserId) {
+        PostRegisterRequest normalPostRegisterRequest = PostSample.getNormalRegisterRequest();
+        normalPostRegisterRequest.setType(PostType.Event);
         return EventRegisterRequest.builder()
                 .type(NORMAL_EVENT_TYPE)
                 .eventHostUserId(hostUserId)
@@ -77,7 +81,7 @@ public abstract class EventSample {
                 .participantStatusRegisterRequest(ParticipantStatusSample.getNormalRegisterRequest())
                 .locationRegisterRequest(LocationSample.getNormalRegisterRequest())
                 .periodRegisterRequest(PeriodSample.getNormalRegisterRequest())
-                .postRegisterRequest(PostSample.getNormalRegisterRequest())
+                .postRegisterRequest(normalPostRegisterRequest)
                 .build();
     }
 

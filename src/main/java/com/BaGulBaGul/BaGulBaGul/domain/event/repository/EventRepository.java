@@ -15,20 +15,24 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface EventRepository extends JpaRepository<Event, Long>, FindEventByCondition {
+
+    @Query(value = "SELECT e FROM Event e WHERE e.id = :id and e.deleted = false")
+    Optional<Event> findByIdIfNotDeleted(@Param(value = "id") Long eventId);
+
     @EntityGraph(attributePaths = {"post.user", "categories.category"})
     Optional<Event> findWithPostAndUserAndCategoryById(Long eventId);
 
     //카테고리와 같은 1:N:1 관계는 반드시 left outer join 으로 fetch join 해 줘야 한다. 카테고리가 없는 엔티티도 fetch join하기 위해.
     //user과 같이 삭제되어 null이 될수 있는 관계도 left outer join으로 fetch join이 필요
     @Query(
-            value = "SELECT e FROM Event e LEFT JOIN FETCH e.categories ec LEFT JOIN FETCH ec.category LEFT JOIN FETCH e.hostUser eh INNER JOIN FETCH e.post p LEFT JOIN FETCH p.user WHERE e.id in :eventIds"
+            value = "SELECT e FROM Event e INNER JOIN FETCH e.post p LEFT JOIN FETCH p.user LEFT JOIN FETCH e.categories ec LEFT JOIN FETCH ec.category LEFT JOIN FETCH e.hostUser eh WHERE e.id in :eventIds"
     )
     List<Event> findWithPostAndUserAndCategoriesByIds(@Param("eventIds") List<Long> eventIds);
 
     @Query(
-            value = "SELECT e FROM Event e INNER JOIN e.post p INNER JOIN p.likes pl WHERE e.type = :type and pl.user.id = :userId"
+            value = "SELECT e.id FROM Event e INNER JOIN e.post p INNER JOIN p.likes pl WHERE e.type = :type and pl.user.id = :userId"
     )
-    Page<Event> getLikeEventByUserAndType(
+    Page<Long> getLikeEventIdsByUserAndType(
             @Param("userId") Long userId, @Param("type")EventType type, Pageable pageable
     );
 

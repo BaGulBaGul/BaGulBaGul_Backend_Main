@@ -1,7 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.domain.report.dto.api.request;
 
 import com.BaGulBaGul.BaGulBaGul.domain.report.constant.ReportType;
-import com.BaGulBaGul.BaGulBaGul.domain.report.dto.ReportRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.report.dto.service.request.ReportRegisterRequest;
 import io.swagger.annotations.ApiModelProperty;
 import javax.validation.constraints.NotNull;
 import lombok.Getter;

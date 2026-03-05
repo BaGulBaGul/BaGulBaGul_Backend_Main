@@ -1,10 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user.dto.api.request;
 
-import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.UserModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.UserModifyRequest;
 import io.swagger.annotations.ApiModelProperty;
-import java.util.regex.Pattern;
-import javax.validation.constraints.AssertTrue;
-import javax.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

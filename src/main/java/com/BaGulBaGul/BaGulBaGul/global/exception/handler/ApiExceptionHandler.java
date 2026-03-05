@@ -1,10 +1,13 @@
 package com.BaGulBaGul.BaGulBaGul.global.exception.handler;
 
+import com.BaGulBaGul.BaGulBaGul.domain.event.exception.CategoryNameExistsException;
 import com.BaGulBaGul.BaGulBaGul.domain.event.exception.CategoryNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.event.exception.EventNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.PostNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.exception.RecruitmentNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.report.exception.DuplicateReportException;
+import com.BaGulBaGul.BaGulBaGul.domain.user.exception.UserNotSuspendedException;
+import com.BaGulBaGul.BaGulBaGul.global.auth.exception.AccountSuspendedException;
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.ExpiredRefreshTokenException;
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.InvalidAccessTokenException;
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.JoinTokenExpiredException;
@@ -14,6 +17,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.user.exception.UserNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.RefreshTokenException;
 import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
 import com.BaGulBaGul.BaGulBaGul.global.exception.NoPermissionException;
+import com.BaGulBaGul.BaGulBaGul.global.exception.handler.dto.AuthBySuspendedUserResponse;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
 import com.BaGulBaGul.BaGulBaGul.global.response.ResponseCode;
 import com.BaGulBaGul.BaGulBaGul.domain.upload.exception.NotImageException;
@@ -24,6 +28,8 @@ import javax.validation.ConstraintViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+
 import org.springframework.transaction.TransactionSystemException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
@@ -54,6 +60,12 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> noPermission(Exception e, WebRequest request) {
         return handleExceptionInternal(e, ResponseCode.FORBIDDEN, request);
     }
+    //@PreAuthorize 등 mvc단에서 처리해야 할 AccessDeniedException
+    @ExceptionHandler(value = AccessDeniedException.class)
+    public ResponseEntity<Object> accessDenied(Exception e, WebRequest request) {
+        return handleExceptionInternal(e, ResponseCode.FORBIDDEN, request);
+    }
+    
 
     //검증 예외에서 메세지를 추출하도록 재정의
     //쿼리 파라메터의 @Valid 검증
@@ -137,6 +149,11 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = CategoryNotFoundException.class)
     public ResponseEntity<Object> categoryNotFound(CategoryNotFoundException e, WebRequest webRequest) {
         return handleExceptionInternal(e, ResponseCode.EVENT_CATEGORY_NOT_EXIST, webRequest);
+    }
+    //이벤트 카테고리 이름이 이미 존재함
+    @ExceptionHandler(value = CategoryNameExistsException.class)
+    public ResponseEntity<Object> categoryNameExists(CategoryNameExistsException e, WebRequest webRequest) {
+        return handleExceptionInternal(e, ResponseCode.EVENT_CATEGORY_EXISTS, webRequest);
     }
 
     /************************
@@ -242,6 +259,25 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> invalidAccessToken(InvalidAccessTokenException e, WebRequest webRequest) {
         return handleExceptionInternal(e, ResponseCode.FORBIDDEN, webRequest);
     }
+    //정지된 유저의 토큰 발급(로그인, 토큰 재발급) 시도
+    @ExceptionHandler(
+            AccountSuspendedException.class
+    )
+    public ResponseEntity<Object> authRequestBySupendedUser(AccountSuspendedException e, WebRequest webRequest) {
+        AuthBySuspendedUserResponse data = new AuthBySuspendedUserResponse(e.getEndDate(), e.getReason());
+        return handleExceptionInternal(e, ResponseCode.AUTH_SUSPENDED_USER, data, webRequest);
+    }
+
+    /************************
+     *  관리자 - 유저
+     ************************/
+    //유저가 정지된 상태가 아님
+    @ExceptionHandler(
+            UserNotSuspendedException.class
+    )
+    public ResponseEntity<Object> userNotSuspended(UserNotSuspendedException e, WebRequest webRequest) {
+        return handleExceptionInternal(e, ResponseCode.ADMIN_USER_NOT_SUSPENDED, webRequest);
+    }
 
     /************************
      *   스프링 내부 예외처리와 연결
@@ -257,14 +293,22 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleExceptionInternal(
             Exception ex, ResponseCode responseCode, WebRequest request
     ) {
-        return handleExceptionInternal(ex, responseCode, HttpHeaders.EMPTY, responseCode.getHttpStatus(), request);
+        return handleExceptionInternal(ex, responseCode, null, HttpHeaders.EMPTY, responseCode.getHttpStatus(), request);
     }
 
-    protected ResponseEntity<Object> handleExceptionInternal(Exception ex, ResponseCode responseCode, HttpHeaders headers,
-                                                             HttpStatus status, WebRequest request) {
+    protected ResponseEntity<Object> handleExceptionInternal(
+            Exception ex, ResponseCode responseCode, Object data, WebRequest request
+    ) {
+        return handleExceptionInternal(ex,  responseCode, data, HttpHeaders.EMPTY, responseCode.getHttpStatus(), request);
+    }
+
+    protected ResponseEntity<Object> handleExceptionInternal(
+            Exception ex, ResponseCode responseCode, Object data,
+            HttpHeaders headers, HttpStatus status, WebRequest request
+    ) {
         return super.handleExceptionInternal(
                 ex,
-                ApiResponse.of(null, responseCode),
+                ApiResponse.of(data, responseCode),
                 headers,
                 status,
                 request

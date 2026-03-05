@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -21,6 +22,7 @@ import org.springframework.web.filter.CorsFilter;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -38,7 +40,9 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.cors().and()
                 //Double-Submit Cookie를 이용한 csrf 방어 적용
-                .csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).and()
+                .csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                    .ignoringAntMatchers("/api/auth/login/password")
+                    .ignoringAntMatchers("/api/user/join/social").and()
                 //세션 x
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -65,6 +69,7 @@ public class SecurityConfig {
                 //auth 비로그인 허용
                 .antMatchers(HttpMethod.POST, "/api/auth/refresh").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/auth/logout").permitAll()
+                .antMatchers(HttpMethod.POST, "/api/auth/login/password").permitAll()
 
                 //상태 체크 비로그인 허용
                 .antMatchers(HttpMethod.GET, "/").permitAll()

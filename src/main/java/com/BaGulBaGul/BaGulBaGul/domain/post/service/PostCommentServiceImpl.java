@@ -12,6 +12,8 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentRegister
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.GetPostCommentChildPageResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.GetPostCommentPageResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.PostCommentDetailResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.response.PostCommentChildInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.response.PostCommentInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.response.RegisterPostCommentChildResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
@@ -26,6 +28,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.exception.UserNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserInfoService;
 import com.BaGulBaGul.BaGulBaGul.global.exception.NoPermissionException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -47,12 +50,15 @@ public class PostCommentServiceImpl implements PostCommentService {
     private final PostCommentLikeRepository postCommentLikeRepository;
     private final PostCommentChildLikeRepository postCommentChildLikeRepository;
 
+    private final UserInfoService userInfoService;
+
     @Override
     public PostCommentDetailResponse getPostCommentDetail(Long postCommentId) {
         return postCommentRepository.getPostCommentDetail(postCommentId);
     }
 
     @Override
+    @Transactional
     public Page<GetPostCommentPageResponse> getPostCommentPage(Long postId, Long requestUserId, Pageable pageable) {
         //repo에서 Page를 바로 받아오면 count query에서는 requestUserId를 쓰지 않아서 Could not locate named parameter예외 발생
         List<GetPostCommentPageResponse> result;
@@ -68,6 +74,7 @@ public class PostCommentServiceImpl implements PostCommentService {
     }
 
     @Override
+    @Transactional
     public Page<GetPostCommentChildPageResponse> getPostCommentChildPage(Long postCommentId, Long requestUserId, Pageable pageable) {
         List<GetPostCommentChildPageResponse> result;
         if(requestUserId == null) {
@@ -78,6 +85,36 @@ public class PostCommentServiceImpl implements PostCommentService {
         }
         Long count = postCommentChildRepository.getPostCommentChildPageCount(postCommentId);
         return new PageImpl(result, pageable, count);
+    }
+
+    @Override
+    @Transactional
+    public PostCommentInfo getPostCommentInfo(Long postCommentId) {
+        PostComment postComment = postCommentRepository.findById(postCommentId)
+                .orElseThrow(PostCommentNotFoundException::new);
+        return PostCommentInfo.builder()
+                .commentId(postCommentId)
+                .content(postComment.getContent())
+                .commentChildCount(postComment.getCommentChildCount())
+                .likeCount(postComment.getLikeCount())
+                .createdAt(postComment.getCreatedAt())
+                .writerInfo(userInfoService.getUserInfo(postComment.getUser().getId()))
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public PostCommentChildInfo getPostCommentChildInfo(Long postCommentChildId) {
+        PostCommentChild postCommentChild = postCommentChildRepository.findById(postCommentChildId)
+                .orElseThrow(PostCommentChildNotFoundException::new);
+        return PostCommentChildInfo.builder()
+                .commentChildId(postCommentChildId)
+                .commentId(postCommentChild.getPostComment().getId())
+                .content(postCommentChild.getContent())
+                .likeCount(postCommentChild.getLikeCount())
+                .createdAt(postCommentChild.getCreatedAt())
+                .writerInfo(userInfoService.getUserInfo(postCommentChild.getUser().getId()))
+                .build();
     }
 
     @Override
@@ -103,11 +140,8 @@ public class PostCommentServiceImpl implements PostCommentService {
     @Transactional
     public void modifyPostComment(Long postCommentId, Long userId, PostCommentModifyRequest postCommentModifyRequest) {
         //엔티티 로드 & 검증
-        PostComment postComment = postCommentRepository.findById(postCommentId).orElseThrow(() -> new PostCommentNotFoundException());
-        //수정할 권한이 있는지
-        if(!userId.equals(postComment.getUser().getId())) {
-            throw new NoPermissionException();
-        }
+        PostComment postComment = postCommentRepository.findByIdIfNotDeleted(postCommentId)
+                .orElseThrow(() -> new PostCommentNotFoundException());
         // 수정
         if(postCommentModifyRequest.getContent() != null) {
             postComment.setContent(postCommentModifyRequest.getContent());
@@ -118,21 +152,14 @@ public class PostCommentServiceImpl implements PostCommentService {
     @Transactional
     public void deletePostComment(Long postCommentId, Long userId) {
         //엔티티 로드 & 검증
-        PostComment postComment = postCommentRepository.findById(postCommentId).orElseThrow(() -> new PostCommentNotFoundException());
-        //삭제할 권한이 있는지
-        if(!userId.equals(postComment.getUser().getId())) {
-            throw new NoPermissionException();
-        }
-        //대댓글과 연결된 좋아요 전부 삭제
-        postCommentChildLikeRepository.deleteAllByPostComment(postComment);
-        //연결된 대댓글 전부 삭제
+        PostComment postComment = postCommentRepository.findByIdIfNotDeleted(postCommentId)
+                .orElseThrow(() -> new PostCommentNotFoundException());
+        //연결된 대댓글 삭제(soft)
         postCommentChildRepository.deleteAllByPostComment(postComment);
-        //댓글과 연결된 좋아요 전부 삭제
-        postCommentLikeRepository.deleteAllByPostComment(postComment);
-        //댓글 삭제
-        postCommentRepository.delete(postComment);
         //게시글 댓글 개수 1 감소
         postRepository.decreaseCommentCount(postComment.getPost());
+        //댓글 삭제(soft)
+        postCommentRepository.delete(postComment);
     }
 
     @Override
@@ -142,7 +169,8 @@ public class PostCommentServiceImpl implements PostCommentService {
             Long userId,
             PostCommentChildRegisterRequest postCommentChildRegisterRequest
     ) {
-        PostComment postComment = postCommentRepository.findById(postCommentId).orElseThrow(() -> new PostCommentNotFoundException());
+        PostComment postComment = postCommentRepository.findByIdIfNotDeleted(postCommentId)
+                .orElseThrow(() -> new PostCommentNotFoundException());
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
 
         //정상적인 답글이 맞는지 검증한다
@@ -188,11 +216,8 @@ public class PostCommentServiceImpl implements PostCommentService {
             PostCommentChildModifyRequest postCommentChildModifyRequest
     ) {
         //엔티티 로드 & 검증
-        PostCommentChild postCommentChild = postCommentChildRepository.findById(postCommentChildId).orElseThrow(() -> new PostCommentChildNotFoundException());
-        //수정할 권한이 있는지
-        if(!userId.equals(postCommentChild.getUser().getId())) {
-            throw new NoPermissionException();
-        }
+        PostCommentChild postCommentChild = postCommentChildRepository.findByIdIfNotDeleted(postCommentChildId).orElseThrow(() -> new PostCommentChildNotFoundException());
+
         //내용 수정
         if(postCommentChildModifyRequest.getContent() != null) {
             postCommentChild.setContent(postCommentChildModifyRequest.getContent());
@@ -209,22 +234,17 @@ public class PostCommentServiceImpl implements PostCommentService {
     @Transactional
     public void deletePostCommentChild(Long postCommentChildId, Long userId) {
         //엔티티 로드 & 검증
-        PostCommentChild postCommentChild = postCommentChildRepository.findById(postCommentChildId).orElseThrow(() -> new PostCommentChildNotFoundException());
-        //삭제할 권한이 있는지
-        if(!userId.equals(postCommentChild.getUser().getId())) {
-            throw new NoPermissionException();
-        }
-        //대댓글과 연결된 좋아요 삭제
-        postCommentChildLikeRepository.deleteAllByPostCommentChild(postCommentChild);
-        //대댓글 삭제
-        postCommentChildRepository.delete(postCommentChild);
+        PostCommentChild postCommentChild = postCommentChildRepository.findByIdIfNotDeleted(postCommentChildId).orElseThrow(() -> new PostCommentChildNotFoundException());
         //댓글의 대댓글 개수 1 감소
         postCommentRepository.decreaseCommentChildCount(postCommentChild.getPostComment());
+        //삭제(soft)
+        postCommentChildRepository.delete(postCommentChild);
     }
 
     @Override
     public int getLikeCountFromComment(Long postCommentId) {
-        PostComment postComment = postCommentRepository.findById(postCommentId).orElseThrow(() -> new PostCommentNotFoundException());
+        PostComment postComment = postCommentRepository.findByIdIfNotDeleted(postCommentId)
+                .orElseThrow(() -> new PostCommentNotFoundException());
         return postComment.getLikeCount();
     }
 
@@ -232,7 +252,8 @@ public class PostCommentServiceImpl implements PostCommentService {
     @Transactional
     public void addLikeToComment(Long postCommentId, Long userId) throws DuplicateLikeException {
         //엔티티 로드 & 검증
-        PostComment postComment = postCommentRepository.findById(postCommentId).orElseThrow(() -> new PostCommentNotFoundException());
+        PostComment postComment = postCommentRepository.findByIdIfNotDeleted(postCommentId)
+                .orElseThrow(() -> new PostCommentNotFoundException());
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
         //이미 존재하는지 검색
         if(postCommentLikeRepository.existsByPostCommentAndUser(postComment, user)) {
@@ -252,7 +273,8 @@ public class PostCommentServiceImpl implements PostCommentService {
     @Transactional
     public void deleteLikeToComment(Long postCommentId, Long userId) throws LikeNotExistException {
         //엔티티 로드 & 검증
-        PostComment postComment = postCommentRepository.findById(postCommentId).orElseThrow(() -> new PostCommentNotFoundException());
+        PostComment postComment = postCommentRepository.findByIdIfNotDeleted(postCommentId)
+                .orElseThrow(() -> new PostCommentNotFoundException());
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
         //존재하지 않는지 검색
         if(postCommentLikeRepository.existsByPostCommentAndUser(postComment, user) != true) {
@@ -270,14 +292,15 @@ public class PostCommentServiceImpl implements PostCommentService {
     @Override
     @Transactional
     public boolean existsCommentLike(Long postCommentId, Long userId) {
-        PostComment postComment = postCommentRepository.findById(postCommentId).orElseThrow(() -> new PostCommentNotFoundException());
+        PostComment postComment = postCommentRepository.findByIdIfNotDeleted(postCommentId)
+                .orElseThrow(() -> new PostCommentNotFoundException());
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
         return postCommentLikeRepository.existsByPostCommentAndUser(postComment, user);
     }
 
     @Override
     public int getLikeCountFromCommentChild(Long postCommentChildId) {
-        PostCommentChild postCommentChild = postCommentChildRepository.findById(postCommentChildId)
+        PostCommentChild postCommentChild = postCommentChildRepository.findByIdIfNotDeleted(postCommentChildId)
                 .orElseThrow(() -> new PostCommentChildNotFoundException());
         return postCommentChild.getLikeCount();
     }
@@ -285,7 +308,7 @@ public class PostCommentServiceImpl implements PostCommentService {
     @Override
     @Transactional
     public void addLikeToCommentChild(Long postCommentChildId, Long userId) throws DuplicateLikeException {
-        PostCommentChild postCommentChild = postCommentChildRepository.findById(postCommentChildId)
+        PostCommentChild postCommentChild = postCommentChildRepository.findByIdIfNotDeleted(postCommentChildId)
                 .orElseThrow(() -> new PostCommentChildNotFoundException());
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
         //좋아요가 이미 존재하는지 검색
@@ -305,7 +328,7 @@ public class PostCommentServiceImpl implements PostCommentService {
     @Override
     @Transactional
     public void deleteLikeToCommentChild(Long postCommentChildId, Long userId) throws LikeNotExistException {
-        PostCommentChild postCommentChild = postCommentChildRepository.findById(postCommentChildId)
+        PostCommentChild postCommentChild = postCommentChildRepository.findByIdIfNotDeleted(postCommentChildId)
                 .orElseThrow(() -> new PostCommentChildNotFoundException());
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
         //존재하지 않는지 검색
@@ -324,7 +347,7 @@ public class PostCommentServiceImpl implements PostCommentService {
     @Override
     @Transactional
     public boolean existsCommentChildLike(Long postCommentChildId, Long userId) {
-        PostCommentChild postCommentChild = postCommentChildRepository.findById(postCommentChildId)
+        PostCommentChild postCommentChild = postCommentChildRepository.findByIdIfNotDeleted(postCommentChildId)
                 .orElseThrow(() -> new PostCommentChildNotFoundException());
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
         return postCommentChildLikeRepository.existsByPostCommentChildAndUser(postCommentChild, user);

@@ -8,6 +8,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.response.PostSimpleInfo
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
+import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AuthenticatedUserInfo;
 import com.BaGulBaGul.BaGulBaGul.global.exception.NoPermissionException;
 
 public interface PostService {
@@ -19,6 +20,4 @@ public interface PostService {
     void addLike(Post post, User user) throws DuplicateLikeException;
     void deleteLike(Post post, User user) throws LikeNotExistException;
     boolean existsLike(Post post, User user);
-
-    void checkWritePermission(Post post, User user) throws NoPermissionException;
 }

@@ -1,12 +1,10 @@
 package com.BaGulBaGul.BaGulBaGul.domain.recruitment.controller;
 
-import com.BaGulBaGul.BaGulBaGul.domain.event.applicationevent.QueryEventDetailByUserApplicationEvent;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.LikeCountResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.applicationevent.QueryRecruitmentDetailByUserApplicationEvent;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.applicationevent.QueryRecruitmentWithConditionByUserApplicationEvent;
-import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.response.GetLikeRecruitmentResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.request.RecruitmentConditionalRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.response.RecruitmentDetailResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.request.RecruitmentModifyRequest;
@@ -15,7 +13,6 @@ import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.response.Recruit
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.api.request.RecruitmentModifyApiRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.api.request.RecruitmentPageApiRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.api.request.RecruitmentRegisterApiRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.api.response.GetLikeRecruitmentApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.api.response.RecruitmentDetailApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.api.response.RecruitmentIdApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.api.response.RecruitmentPageApiResponse;
@@ -58,7 +55,7 @@ public class RecruitmentControllerImpl implements RecruitmentController {
             @PathVariable(name="recruitmentId") Long recruitmentId
     ) {
         //모집글 상세조회
-        RecruitmentDetailResponse recruitmentDetailResponse = recruitmentService.getRecruitmentDetailById(recruitmentId);
+        RecruitmentDetailResponse recruitmentDetailResponse = recruitmentService.getRecruitmentDetailResponseById(recruitmentId);
         //모집글을 유저가 상세조회 했을 경우에 대한 이벤트 발행
         applicationEventPublisher.publishEvent(
                 new QueryRecruitmentDetailByUserApplicationEvent(recruitmentDetailResponse)
@@ -87,7 +84,7 @@ public class RecruitmentControllerImpl implements RecruitmentController {
         ValidationUtil.validate(recruitmentConditionalRequest);
         //페이지 조회
         Page<RecruitmentSimpleResponse> recruitmentPageByCondition = recruitmentService.getRecruitmentPageByCondition(
-                recruitmentPageApiRequest.toRecruitmentConditionalRequest(),
+                recruitmentConditionalRequest,
                 pageable
         );
         //모집글을 유저가 조건검색 했을 경우에 대한 이벤트 발행
@@ -116,7 +113,7 @@ public class RecruitmentControllerImpl implements RecruitmentController {
                 .toRecruitmentRegisterRequest();
         ValidationUtil.validate(recruitmentRegisterRequest);
         //모집글 생성
-        Long id = recruitmentService.registerRecruitment(eventId, userId, recruitmentRegisterRequest);
+        Long id = recruitmentService.registerRecruitment(authenticatedUserInfo, eventId, recruitmentRegisterRequest);
         return ApiResponse.of(new RecruitmentIdApiResponse(id));
     }
 
@@ -137,7 +134,7 @@ public class RecruitmentControllerImpl implements RecruitmentController {
                 .toRecruitmentModifyRequest();
         ValidationUtil.validate(recruitmentModifyRequest);
         //모집글 수정
-        recruitmentService.modifyRecruitment(recruitmentId, userId, recruitmentModifyRequest);
+        recruitmentService.modifyRecruitment(authenticatedUserInfo, recruitmentId, recruitmentModifyRequest);
         return ApiResponse.of(null);
     }
 
@@ -151,7 +148,7 @@ public class RecruitmentControllerImpl implements RecruitmentController {
             @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo
     ) {
         Long userId = authenticatedUserInfo.getUserId();
-        recruitmentService.deleteRecruitment(recruitmentId, userId);
+        recruitmentService.deleteRecruitment(authenticatedUserInfo, recruitmentId);
         return ApiResponse.of(null);
     }
 
@@ -222,17 +219,17 @@ public class RecruitmentControllerImpl implements RecruitmentController {
             description = "로그인 필요\n"
                     + "페이징 지원"
     )
-    public ApiResponse<Page<GetLikeRecruitmentApiResponse>> getMyLike(
+    public ApiResponse<Page<RecruitmentPageApiResponse>> getMyLike(
             @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo,
             Pageable pageable
     ) {
         //좋아요 누른 페이지 검색
         Long userId = authenticatedUserInfo.getUserId();
-        Page<GetLikeRecruitmentResponse> myLikeRecruitments = recruitmentService
+        Page<RecruitmentSimpleResponse> myLikeRecruitments = recruitmentService
                 .getMyLikeRecruitment(userId, pageable);
         //api 응답 dto로 변환
-        Page<GetLikeRecruitmentApiResponse> responses = myLikeRecruitments
-                .map(GetLikeRecruitmentApiResponse::from);
+        Page<RecruitmentPageApiResponse> responses = myLikeRecruitments
+                .map(RecruitmentPageApiResponse::from);
         return ApiResponse.of(responses);
     }
 }

@@ -27,6 +27,7 @@ public class EventRegisterRequest {
     private EventType type;
 
     //주최자 유저 id
+    @NotNull(message = "주최자 id는 null일 수 없습니다.")
     private Long eventHostUserId;
 
     //연령 제한 여부

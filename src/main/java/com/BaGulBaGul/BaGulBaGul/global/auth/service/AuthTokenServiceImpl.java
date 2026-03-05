@@ -1,8 +1,10 @@
 package com.BaGulBaGul.BaGulBaGul.global.auth.service;
 
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.response.UserSuspensionStatusResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserSuspensionService;
 import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AccessTokenInfo;
 import com.BaGulBaGul.BaGulBaGul.global.auth.dto.RefreshTokenInfo;
-import com.BaGulBaGul.BaGulBaGul.global.auth.exception.ExpiredAccessTokenException;
+import com.BaGulBaGul.BaGulBaGul.global.auth.exception.AccountSuspendedException;
 import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
 import com.BaGulBaGul.BaGulBaGul.global.response.ResponseCode;
 import javax.servlet.http.HttpServletRequest;
@@ -18,9 +20,15 @@ public class AuthTokenServiceImpl implements AuthTokenService {
     private final JwtProvider jwtProvider;
     private final JwtCookieService jwtCookieService;
     private final JwtStorageService jwtStorageService;
+    private final UserSuspensionService userSuspensionService;
 
     @Override
     public void issueToken(HttpServletResponse response, Long userId) {
+        //정지된 유저라면 예외
+        UserSuspensionStatusResponse userSuspensionStatus = userSuspensionService.getUserSuspensionStatus(userId);
+        if (userSuspensionStatus.isSuspended()) {
+            throw new AccountSuspendedException(userSuspensionStatus.getEndDate(), userSuspensionStatus.getReason());
+        }
         //토큰 발급
         AccessTokenInfo atInfo = jwtProvider.createAccessToken(userId);
         RefreshTokenInfo rtInfo = jwtProvider.createRefreshToken(userId);
@@ -70,14 +78,6 @@ public class AuthTokenServiceImpl implements AuthTokenService {
 
         //검증 성공, 토큰 재발급
         Long userId = parsedRefreshTokenInfo.getUserId();
-        AccessTokenInfo newATInfo = jwtProvider.createAccessToken(userId);
-        RefreshTokenInfo newRTInfo = jwtProvider.createRefreshToken(userId);
-
-        //새로운 AT, RT 쌍을 db에 저장
-        jwtStorageService.save(newATInfo, newRTInfo);
-
-        //재발급한 토큰을 응답 쿠키에 저장
-        jwtCookieService.setAccessToken(response, newATInfo.getJwt());
-        jwtCookieService.setRefreshToken(response, newRTInfo.getJwt());
+        issueToken(response, userId);
     }
 }

@@ -60,7 +60,7 @@ public class PostAlarmServiceImpl implements PostAlarmService {
     ) {
         //새로 등록된 댓글을 조회
         PostComment newComment = postCommentRepository
-                .findById(newCommentId)
+                .findByIdIfNotDeleted(newCommentId)
                 .orElse(null);
         //새로 등록된 댓글이 없을 경우
         if(newComment == null){
@@ -120,7 +120,7 @@ public class PostAlarmServiceImpl implements PostAlarmService {
     ) {
         //좋아요를 받은 댓글을 조회
         PostComment likedComment = postCommentRepository
-                .findById(likedCommentId)
+                .findByIdIfNotDeleted(likedCommentId)
                 .orElse(null);
         //댓글이 없을 경우
         if(likedComment == null) {

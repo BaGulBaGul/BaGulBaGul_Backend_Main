@@ -6,7 +6,9 @@ import com.BaGulBaGul.BaGulBaGul.global.auth.exception.ExpiredAccessTokenExcepti
 import com.BaGulBaGul.BaGulBaGul.global.auth.exception.InvalidAccessTokenException;
 import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtProvider;
 import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtCookieService;
+import com.BaGulBaGul.BaGulBaGul.domain.user.service.PermissionService;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.servlet.FilterChain;
@@ -18,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -30,6 +32,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
     private final JwtCookieService jwtCookieService;
+    private final PermissionService permissionService;
 
 
     public static final String ACCESS_TOKEN_EXPIRE_MARK = "AT_EXPIRED";
@@ -68,20 +71,31 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        //인증 처리를 위해 security context설정
         Long userId = parsedAccessTokenInfo.getUserId();
-        List<String> roles = parsedAccessTokenInfo.getRoles().stream()
-                .map(s -> "ROLE_" + s)
-                .collect(Collectors.toList());
+        List<String> roles = parsedAccessTokenInfo.getRoles();
+
+        //역할과 권한을 모두 GrantedAuthority로 변환
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        //역할 추가
+        authorities.addAll(roles.stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role)).collect(Collectors.toList()));
+        //권한 추가
+        authorities.addAll(
+                permissionService.getPermissionsByRoles(roles).stream()
+                        .map(permission -> new SimpleGrantedAuthority(permission.name()))
+                        .collect(Collectors.toList())
+        );
+
         AuthenticatedUserInfo authenticatedUserInfo = AuthenticatedUserInfo.builder()
                 .userId(userId)
                 .roles(roles)
                 .build();
+		
         AbstractAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                 authenticatedUserInfo,
                 null,
-                AuthorityUtils.createAuthorityList(roles.toArray(String[]::new))
+                authorities
         );
+		
         SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
         securityContext.setAuthentication(authenticationToken);
         SecurityContextHolder.setContext(securityContext);

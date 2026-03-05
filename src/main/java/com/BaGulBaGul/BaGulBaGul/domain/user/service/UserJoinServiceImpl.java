@@ -1,24 +1,23 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user.service;
 
-import com.BaGulBaGul.BaGulBaGul.domain.user.AdminManageEventHostUser;
-import com.BaGulBaGul.BaGulBaGul.domain.user.SocialLoginUser;
-import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.alarm.UserAlarmStatus;
 import com.BaGulBaGul.BaGulBaGul.domain.alarm.repository.UserAlarmStatusRepository;
-import com.BaGulBaGul.BaGulBaGul.domain.user.UserRole;
-import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.AdminManageEventHostUserRegisterRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.SocialLoginUserJoinRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.UserRegisterRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.user.repository.AdminManageEventHostUserRepository;
-import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserRoleRepository;
-import com.BaGulBaGul.BaGulBaGul.global.auth.Role;
-import com.BaGulBaGul.BaGulBaGul.global.auth.repository.RoleRepository;
-import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtProvider;
+import com.BaGulBaGul.BaGulBaGul.domain.user.AdminManageEventHostUser;
+import com.BaGulBaGul.BaGulBaGul.domain.user.AdminManagePasswordLoginUser;
+import com.BaGulBaGul.BaGulBaGul.domain.user.PasswordLoginUser;
+import com.BaGulBaGul.BaGulBaGul.domain.user.SocialLoginUser;
+import com.BaGulBaGul.BaGulBaGul.domain.user.User;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.AdminManageEventHostUserJoinRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.AdminManagePasswordLoginUserJoinRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.SocialLoginUserJoinRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.UserRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.exception.DuplicateUsernameException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.exception.UserNotFoundException;
+import com.BaGulBaGul.BaGulBaGul.domain.user.repository.AdminManageEventHostUserRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.SocialLoginUserRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserRepository;
-import com.BaGulBaGul.BaGulBaGul.global.auth.oauth2.dto.OAuth2JoinTokenSubject;
+import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtProvider;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -36,29 +35,24 @@ public class UserJoinServiceImpl implements UserJoinService {
 
     private final UserImageService userImageService;
     private final UserRoleService userRoleService;
+    private final PasswordLoginUserService passwordLoginUserService;
+    private final AdminManagePasswordLoginUserService adminManagePasswordLoginUserService;
+    private final SocialLoginUserService socialLoginUserService;
+    private final AdminManageEventHostUserService adminManageEventHostUserService;
 
     @Override
     @Transactional
-    public SocialLoginUser registerSocialLoginUser(SocialLoginUserJoinRequest socialLoginUserJoinRequest) {
+    public SocialLoginUser joinSocialLoginUser(SocialLoginUserJoinRequest socialLoginUserJoinRequest) {
         String joinToken = socialLoginUserJoinRequest.getJoinToken();
-        //joinToken에서 OAuth2JoinTokenSubject 추출.
-        OAuth2JoinTokenSubject oAuth2JoinTokenSubject = jwtProvider.getOAuth2JoinTokenSubject(joinToken);
-        //유저 생성
         User user = registerUser(socialLoginUserJoinRequest.getUserRegisterRequest());
-        //소셜 유저 생성
-        SocialLoginUser socialLoginUser = SocialLoginUser.builder()
-                .id(oAuth2JoinTokenSubject.getSocialLoginId())
-                .provider(oAuth2JoinTokenSubject.getOAuth2Provider())
-                .user(user)
-                .build();
-        socialLoginUserRepository.save(socialLoginUser);
+        SocialLoginUser socialLoginUser = socialLoginUserService.registerSocialLoginUser(user, joinToken);
         return socialLoginUser;
     }
 
     @Override
     @Transactional
-    public AdminManageEventHostUser registerAdminManageEventHostUser(
-            AdminManageEventHostUserRegisterRequest eventHostUserRegisterRequest
+    public AdminManageEventHostUser joinAdminManageEventHostUser(
+            AdminManageEventHostUserJoinRequest eventHostUserRegisterRequest
     ) {
         User user = registerUser(eventHostUserRegisterRequest.getUserRegisterRequest());
         AdminManageEventHostUser adminManageEventHostUser = adminManageEventHostUserRepository.save(
@@ -66,7 +60,21 @@ public class UserJoinServiceImpl implements UserJoinService {
                         .user(user)
                         .build()
         );
+        user.setAdminManageEventHostUser(adminManageEventHostUser);
         return adminManageEventHostUser;
+    }
+
+    @Override
+    public AdminManagePasswordLoginUser joinAdminManagePasswordLoginUser(
+            AdminManagePasswordLoginUserJoinRequest adminManagePasswordLoginUserJoinRequest) {
+        User user = registerUser(adminManagePasswordLoginUserJoinRequest.getUserRegisterRequest());
+        PasswordLoginUser passwordLoginUser = passwordLoginUserService.registerPasswordLoginUser(
+                adminManagePasswordLoginUserJoinRequest.getPasswordLoginUserRegisterRequest(),
+                user
+        );
+        AdminManagePasswordLoginUser adminManagePasswordLoginUser = adminManagePasswordLoginUserService
+                .registerAdminManagePasswordLoginUser(passwordLoginUser);
+        return adminManagePasswordLoginUser;
     }
 
     @Override
@@ -101,22 +109,59 @@ public class UserJoinServiceImpl implements UserJoinService {
     @Override
     @Transactional
     public void deleteUser(Long userId) {
-        //유저 이미지 삭제
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
+        //유저 이미지 삭제
         userImageService.setImage(user, null);
         //소셜로그인 정보 삭제
-        socialLoginUserRepository.deleteByUserId(userId);
+        SocialLoginUser socialLoginUser = user.getSocialLoginUser();
+        if(socialLoginUser != null) {
+            socialLoginUserService.deRegisterSocialLoginUser(socialLoginUser.getId());
+        }
+        //password login user 정보 삭제
+        PasswordLoginUser passwordLoginUser = user.getPasswordLoginUser();
+        if(passwordLoginUser != null) {
+            //AdminManagePasswordLoginUser 정보 삭제
+            AdminManagePasswordLoginUser ampwUser = passwordLoginUser.getAdminManagePasswordLoginUser();
+            if(ampwUser != null) {
+                adminManagePasswordLoginUserService.deRegisterAdminManagePasswordLoginUser(ampwUser.getId());
+            }
+            //PasswordLoginUser 정보 삭제
+            passwordLoginUserService.deRegisterPasswordLoginUser(passwordLoginUser.getLoginId());
+        }
+        //AdminManageEventHostUser 정보 삭제
+        AdminManageEventHostUser adminManageEventHostUser = user.getAdminManageEventHostUser();
+        if(adminManageEventHostUser != null) {
+            adminManageEventHostUserService.deRegisterAdminManageEventHostUser(adminManageEventHostUser.getId());
+        }
+
+        //역할 삭제는 on delete cascade
         //유저 정보 삭제
         userRepository.deleteById(userId);
     }
 
     @Override
     @Transactional
-    public void deleteAdminManageEventHostUser(Long adminManageEventHostUserId) {
-        AdminManageEventHostUser adminManageEventHostUser = adminManageEventHostUserRepository
-                .findById(adminManageEventHostUserId).orElseThrow(UserNotFoundException::new);
-        adminManageEventHostUserRepository.deleteById(adminManageEventHostUserId);
-        deleteUser(adminManageEventHostUser.getUser().getId());
+    public void deleteAdminManageEventHostUser(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        AdminManageEventHostUser adminManageEventHostUser = user.getAdminManageEventHostUser();
+        if(adminManageEventHostUser == null) {
+            throw new UserNotFoundException();
+        }
+        deleteUser(userId);
+    }
+
+    @Override
+    public void deleteAdminManagePasswordLoginUser(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        PasswordLoginUser passwordLoginUser = user.getPasswordLoginUser();
+        if(passwordLoginUser == null) {
+            throw new UserNotFoundException();
+        }
+        AdminManagePasswordLoginUser ampwUser = passwordLoginUser.getAdminManagePasswordLoginUser();
+        if(ampwUser == null) {
+            throw new UserNotFoundException();
+        }
+        deleteUser(userId);
     }
 
 

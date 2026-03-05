@@ -15,6 +15,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface RecruitmentRepository extends JpaRepository<Recruitment, Long>, FindRecruitmentByCondition {
+
+    @Query("SELECT rc FROM Recruitment rc WHERE rc.id = id and rc.deleted = false")
+    Optional<Recruitment> findByIdIfNotDeleted(@Param(value = "id") Long recruitmentId);
+
     @EntityGraph(attributePaths = {"post.user"})
     Optional<Recruitment> findWithPostAndUserById(Long recruitmentId);
 
@@ -24,9 +28,9 @@ public interface RecruitmentRepository extends JpaRepository<Recruitment, Long>,
     List<Recruitment> findWithPostAndUserByIds(@Param("recruitmentIds") List<Long> recruitmentIds);
 
     @Query(
-            value = "SELECT r FROM Recruitment r INNER JOIN r.post p INNER JOIN p.likes pl WHERE pl.user.id = :userId"
+            value = "SELECT r.id FROM Recruitment r INNER JOIN r.post p INNER JOIN p.likes pl WHERE pl.user.id = :userId"
     )
-    Page<Recruitment> getLikeRecruitmentByUser(
+    Page<Long> getLikeRecruitmentIdsByUser(
             @Param("userId") Long userId, Pageable pageable
     );
     @Query(

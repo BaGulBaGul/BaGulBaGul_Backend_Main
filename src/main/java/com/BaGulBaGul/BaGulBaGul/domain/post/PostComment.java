@@ -2,6 +2,7 @@ package com.BaGulBaGul.BaGulBaGul.domain.post;
 
 import com.BaGulBaGul.BaGulBaGul.domain.base.BaseTimeEntity;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Column;
@@ -18,10 +19,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLDelete(sql = "UPDATE post_comment SET deleted_at = NOW() WHERE post_comment_id = ?")
+@Where(clause = "deleted_at is null")
 public class PostComment extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,6 +54,9 @@ public class PostComment extends BaseTimeEntity {
     @Setter
     @Column(name = "like_count")
     int likeCount;
+
+    @Column(name = "deleted_at")
+    LocalDateTime deletedAt;
 
     @OneToMany(mappedBy = "postComment", fetch = FetchType.LAZY)
     List<PostCommentChild> children = new ArrayList<>();

@@ -14,12 +14,11 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostService;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.Recruitment;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.applicationevent.NewRecruitmentLikeApplicationEvent;
-import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.response.GetLikeRecruitmentResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.request.RecruitmentConditionalRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.response.RecruitmentDetailInfo;
-import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.response.RecruitmentDetailResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.request.RecruitmentModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.request.RecruitmentRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.response.RecruitmentDetailInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.response.RecruitmentDetailResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.response.RecruitmentSimpleInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.response.RecruitmentSimpleResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.exception.RecruitmentNotFoundException;
@@ -28,7 +27,11 @@ import com.BaGulBaGul.BaGulBaGul.domain.recruitment.repository.querydsl.FindRecr
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.user.exception.UserNotFoundException;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserRepository;
+import com.BaGulBaGul.BaGulBaGul.global.auth.constant.PermissionType;
+import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AuthenticatedUserInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.user.service.PermissionService;
 import com.BaGulBaGul.BaGulBaGul.global.exception.NoPermissionException;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -48,6 +51,7 @@ public class RecruitmentServiceImpl implements RecruitmentService {
     private final UserRepository userRepository;
 
     private final PostService postService;
+    private final PermissionService permissionService;
 
     private final ApplicationEventPublisher applicationEventPublisher;
 
@@ -82,7 +86,7 @@ public class RecruitmentServiceImpl implements RecruitmentService {
 
     @Override
     @Transactional
-    public RecruitmentDetailResponse getRecruitmentDetailById(Long recruitmentId) {
+    public RecruitmentDetailResponse getRecruitmentDetailResponseById(Long recruitmentId) {
         Recruitment recruitment = recruitmentRepository.findWithPostAndUserById(recruitmentId).orElseThrow(() -> new RecruitmentNotFoundException());
 
         //삭제된 모집글은 제외
@@ -104,6 +108,31 @@ public class RecruitmentServiceImpl implements RecruitmentService {
     }
 
     @Override
+    public RecruitmentSimpleResponse getRecruitmentSimpleResponseById(Long recruitmentId) {
+        Recruitment recruitment = recruitmentRepository.findById(recruitmentId).orElseThrow(() -> new RecruitmentNotFoundException());
+        return RecruitmentSimpleResponse.builder()
+                .recruitment(getRecruitmentSimpleInfoById(recruitmentId))
+                .post(postService.getPostSimpleInfo(recruitment.getPost().getId()))
+                .build();
+    }
+
+    @Override
+    public List<RecruitmentSimpleResponse> getRecruitmentSimpleResponseByIdsWithFetch(List<Long> recruitmentIds) {
+        fetchForRecruitmentSimpleResponse(recruitmentIds);
+        return recruitmentIds.stream()
+                .map(this::getRecruitmentSimpleResponseById)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Recruitment> fetchForRecruitmentSimpleResponse(List<Long> recruitmentIds) {
+        if(recruitmentIds == null || recruitmentIds.size() == 0) {
+            return Collections.emptyList();
+        }
+        return recruitmentRepository.findWithPostAndUserByIds(recruitmentIds);
+    }
+
+    @Override
     @Transactional
     public Page<RecruitmentSimpleResponse> getRecruitmentPageByCondition(
             RecruitmentConditionalRequest recruitmentConditionalRequest, Pageable pageable
@@ -114,18 +143,8 @@ public class RecruitmentServiceImpl implements RecruitmentService {
                 pageable
         );
 
-        //fetch join 수행
-        recruitmentRepository.findWithPostAndUserByIds(pageResult.getRecruitmentIds());
-
         //응답 dto에 정보를 담는다
-        List<RecruitmentSimpleResponse> content = pageResult.getRecruitmentIds()
-                .stream()
-                .map(id -> recruitmentRepository.findById(id))
-                .map(recruitment -> RecruitmentSimpleResponse.builder()
-                        .recruitment(getRecruitmentSimpleInfoById(recruitment.get().getId()))
-                        .post(postService.getPostSimpleInfo(recruitment.get().getPost().getId()))
-                        .build()
-                ).collect(Collectors.toList());
+        List<RecruitmentSimpleResponse> content = getRecruitmentSimpleResponseByIdsWithFetch(pageResult.getRecruitmentIds());
 
         //최종 페이지 객체를 만들고 반환
         return new PageImpl<>(content, pageable, pageResult.getTotalCount());
@@ -133,20 +152,19 @@ public class RecruitmentServiceImpl implements RecruitmentService {
 
     @Override
     @Transactional
-    public Page<GetLikeRecruitmentResponse> getMyLikeRecruitment(Long userId, Pageable pageable) {
-        Page<Recruitment> recruitments = recruitmentRepository.getLikeRecruitmentByUser(userId, pageable);
-        //post와 fetch join
-        if(recruitments.getNumberOfElements() > 0) {
-            List<Long> ids = recruitments.stream().map(Recruitment::getId).collect(Collectors.toList());
-            recruitmentRepository.findWithPostAndEventAndEventPostByIds(ids);
-        }
-        return recruitments.map(GetLikeRecruitmentResponse::of);
+    public Page<RecruitmentSimpleResponse> getMyLikeRecruitment(Long userId, Pageable pageable) {
+        Page<Long> pageResult = recruitmentRepository.getLikeRecruitmentIdsByUser(userId, pageable);
+        return new PageImpl<>(
+                getRecruitmentSimpleResponseByIdsWithFetch(pageResult.getContent()),
+                pageable,
+                pageResult.getTotalElements()
+        );
     }
 
     @Override
     @Transactional
-    public Long registerRecruitment(Long eventId, Long userId, RecruitmentRegisterRequest recruitmentRegisterRequest) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
+    public Long registerRecruitment(AuthenticatedUserInfo authenticatedUserInfo, Long eventId, RecruitmentRegisterRequest recruitmentRegisterRequest) {
+        User user = userRepository.findById(authenticatedUserInfo.getUserId()).orElseThrow(() -> new UserNotFoundException());
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new EventNotFoundException());
         //게시글 생성은 게시글 서비스에 위임
         Post post = postService.registerPost(user, recruitmentRegisterRequest.getPostRegisterRequest());
@@ -169,7 +187,7 @@ public class RecruitmentServiceImpl implements RecruitmentService {
 
     @Override
     @Transactional
-    public void modifyRecruitment(Long recruitmentId, Long userId, RecruitmentModifyRequest recruitmentModifyRequest) {
+    public void modifyRecruitment(AuthenticatedUserInfo authenticatedUserInfo, Long recruitmentId, RecruitmentModifyRequest recruitmentModifyRequest) {
         Recruitment recruitment = recruitmentRepository.findById(recruitmentId).orElseThrow(() -> new RecruitmentNotFoundException());
         //삭제된 모집글은 제외
         if(recruitment.getDeleted()) {
@@ -177,7 +195,7 @@ public class RecruitmentServiceImpl implements RecruitmentService {
         }
 
         //요청한 유저의 쓰기 권한을 확인
-        checkWritePermission(userId, recruitment);
+        checkModifyPermission(authenticatedUserInfo, recruitment);
 
         //patch 방식으로 recruitmentModifyRequest에서 null이 아닌 모든 필드를 변경
         //jsonnullable의 경우 null값 가능. isPresent를 확인하고 변경
@@ -208,7 +226,7 @@ public class RecruitmentServiceImpl implements RecruitmentService {
 
     @Override
     @Transactional
-    public void deleteRecruitment(Long recruitmentId, Long userId) {
+    public void deleteRecruitment(AuthenticatedUserInfo authenticatedUserInfo, Long recruitmentId) {
         Recruitment recruitment = recruitmentRepository.findById(recruitmentId).orElseThrow(() -> new RecruitmentNotFoundException());
         //삭제된 모집글은 제외
         if(recruitment.getDeleted()) {
@@ -216,13 +234,23 @@ public class RecruitmentServiceImpl implements RecruitmentService {
         }
 
         //요청한 유저의 쓰기 권한을 확인
-        checkWritePermission(userId, recruitment);
+        checkModifyPermission(authenticatedUserInfo, recruitment);
 
         int updatedCount = recruitmentRepository.setDeletedTrueAndGetCountIfNotDeleted(recruitmentId);
         //중복요청 등의 이유로 이미 삭제된 경우
         if(updatedCount == 0) {
             throw new RecruitmentNotFoundException();
         }
+    }
+
+    @Override
+    @Transactional
+    public void restoreRecruitment(AuthenticatedUserInfo authenticatedUserInfo, Long recruitmentId) {
+        if(!permissionService.checkPermission(authenticatedUserInfo.getRoles(), PermissionType.MANAGE_RECRUITMENT)) {
+            throw new NoPermissionException();
+        }
+        Recruitment recruitment = recruitmentRepository.findById(recruitmentId).orElseThrow(() -> new RecruitmentNotFoundException());
+        recruitment.setDeleted(false);
     }
 
     @Override
@@ -264,10 +292,18 @@ public class RecruitmentServiceImpl implements RecruitmentService {
     }
 
     @Override
-    //어떤 유저의 어떤 모집글에 대한 쓰기 권한을 확인
-    public void checkWritePermission(Long userId, Recruitment recruitment) throws NoPermissionException {
-        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
-        //게시글에 대한 권한 확인에 위임
-        postService.checkWritePermission(recruitment.getPost(), user);
+    //어떤 유저의 어떤 모집글에 대한 수정 권한을 확인
+    public void checkModifyPermission(AuthenticatedUserInfo authenticatedUserInfo, Recruitment recruitment) throws NoPermissionException {
+        //MANAGE_RECRUITMENT 권한이 있다면 허용
+        if(permissionService.checkPermission(authenticatedUserInfo.getRoles(), PermissionType.MANAGE_RECRUITMENT)) {
+            return;
+        }
+        //작성자 본인이라면 허용
+        User writer = recruitment.getWriter();
+        if(authenticatedUserInfo.getUserId().equals(writer.getId())) {
+            return;
+        }
+        //그 외에는 권한 없음
+        throw new NoPermissionException();
     }
 }

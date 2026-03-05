@@ -5,7 +5,6 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.IsMyLikeResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.api.request.RecruitmentModifyApiRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.api.request.RecruitmentPageApiRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.api.request.RecruitmentRegisterApiRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.api.response.GetLikeRecruitmentApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.api.response.RecruitmentDetailApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.api.response.RecruitmentIdApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.api.response.RecruitmentPageApiResponse;
@@ -49,7 +48,7 @@ public interface RecruitmentController {
             Long recruitmentId,
             AuthenticatedUserInfo authenticatedUserInfo
     );
-    ApiResponse<Page<GetLikeRecruitmentApiResponse>> getMyLike(
+    ApiResponse<Page<RecruitmentPageApiResponse>> getMyLike(
             AuthenticatedUserInfo authenticatedUserInfo,
             Pageable pageable
     );

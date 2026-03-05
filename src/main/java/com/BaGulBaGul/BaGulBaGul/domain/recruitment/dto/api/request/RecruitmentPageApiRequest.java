@@ -41,6 +41,7 @@ public class RecruitmentPageApiRequest {
                         .username(username)
                         .tags(tags)
                         .build())
+                .deleted(false)
                 .build();
     }
 }

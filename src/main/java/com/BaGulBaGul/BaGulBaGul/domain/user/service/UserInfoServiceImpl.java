@@ -5,11 +5,12 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.constant.EventType;
 import com.BaGulBaGul.BaGulBaGul.domain.event.repository.EventRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostLikeRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.post.repository.PostRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.user.AdminManageEventHostUser;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import com.BaGulBaGul.BaGulBaGul.domain.calendar.event.repository.EventCalendarRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.calendar.recruitment.repository.RecruitmentCalendarRepository;
-import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.AdminManageEventHostUserModifyRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.UserModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.AdminManageEventHostUserModifyRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.UserModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.response.EventHostUserInfoResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.response.MyUserInfoResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.response.OtherUserInfoResponse;
@@ -45,6 +46,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
 
     @Override
+    @Transactional
     public UserInfoResponse getUserInfo(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException());
         return UserInfoResponse.builder()
@@ -57,6 +59,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
+    @Transactional
     public MyUserInfoResponse getMyUserInfo(Long userId) {
         UserInfoResponse userInfo = getUserInfo(userId);
         return MyUserInfoResponse.from(
@@ -68,6 +71,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
+    @Transactional
     public OtherUserInfoResponse getOtherUserInfo(Long userId) {
         UserInfoResponse userInfo = getUserInfo(userId);
         return OtherUserInfoResponse.from(
@@ -124,10 +128,16 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
+    @Transactional
     public void modifyAdminManageEventHostUser(
             AdminManageEventHostUserModifyRequest adminManageEventHostUserModifyRequest,
             Long userId
     ) {
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        AdminManageEventHostUser adminManageEventHostUser = user.getAdminManageEventHostUser();
+        if(adminManageEventHostUser == null) {
+            throw new UserNotFoundException();
+        }
         modifyUserInfo(adminManageEventHostUserModifyRequest.getUserModifyRequest(), userId);
     }
 

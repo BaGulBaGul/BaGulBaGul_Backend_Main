@@ -1,6 +1,5 @@
 package com.BaGulBaGul.BaGulBaGul.global.auth.controller;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -13,14 +12,25 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.PasswordLoginUserRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.SuspendUserRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.UserRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.sampledata.UserSample;
+import com.BaGulBaGul.BaGulBaGul.domain.user.service.PasswordLoginUserService;
 import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserJoinService;
+import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserRoleService;
+import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserSuspensionService;
 import com.BaGulBaGul.BaGulBaGul.extension.AllTestContainerExtension;
+import com.BaGulBaGul.BaGulBaGul.global.auth.constant.GeneralRoleType;
 import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AccessTokenInfo;
+import com.BaGulBaGul.BaGulBaGul.global.auth.dto.LoginApiRequest;
 import com.BaGulBaGul.BaGulBaGul.global.auth.dto.RefreshTokenInfo;
 import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtProvider;
 import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtStorageService;
 import com.BaGulBaGul.BaGulBaGul.global.response.ResponseCode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Set;
@@ -38,6 +48,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -66,6 +77,18 @@ class UserAuthController_IntegrationTest {
     @Autowired
     UserJoinService userJoinService;
 
+    @Autowired
+    PasswordLoginUserService passwordLoginUserService;
+
+    @Autowired
+    UserSuspensionService userSuspensionService;
+
+    @Autowired
+    UserRoleService userRoleService;
+
+    @Autowired
+    ObjectMapper objectMapper;
+
     @Value("${user.login.access_token_cookie_name}")
     private String ACCESS_TOKEN_COOKIE_NAME;
 
@@ -75,11 +98,13 @@ class UserAuthController_IntegrationTest {
     @Value("${user.login.refresh_token_expire_minute}")
     private int REFRESH_TOKEN_EXPIRE_MINUTE;
 
+    @Value("${user.login.access_token_expire_minute}")
+    private int ACCESS_TOKEN_EXPIRE_MINUTE;
+
     @BeforeEach
     void setup(WebApplicationContext ctx) {
         mvc = MockMvcBuilders.webAppContextSetup(ctx)
                 .apply(springSecurity())
-                .defaultRequest(get("/").with(csrf()))
                 .build();
     }
 
@@ -87,6 +112,98 @@ class UserAuthController_IntegrationTest {
     void tearDown() {
         Set<String> keys = redisTemplate.keys("*");
         redisTemplate.delete(keys);
+    }
+
+    @Nested
+    @DisplayName("로그인 테스트")
+    class LoginTest {
+
+        private final String path = "/api/auth/login/password";
+
+        @Test
+        @DisplayName("정상 패스워드 로그인 테스트")
+        @Transactional
+        void shouldOk_WhenNormalPasswordLoginUser() throws Exception {
+            //given
+            UserRegisterRequest userRegisterRequest = UserSample.getNormalUserRegisterRequest();
+            User user = userJoinService.registerUser(userRegisterRequest);
+            String password = "password";
+            passwordLoginUserService.registerPasswordLoginUser(
+                    new PasswordLoginUserRegisterRequest(userRegisterRequest.getEmail(), password),
+                    user
+            );
+            LoginApiRequest loginApiRequest = new LoginApiRequest(userRegisterRequest.getEmail(), password);
+
+            int rtExpireSecond = REFRESH_TOKEN_EXPIRE_MINUTE * 60;
+            //AT는 재발급 시 검증을 위해 RT 만료 전까지 쿠키에 살아있어야 한다.
+            int atExpireSecond = rtExpireSecond;
+
+            //when
+            ResultActions resultActions = mvc.perform(post(path)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(loginApiRequest))
+            );
+
+            //then
+            ResponseCode responseCode = ResponseCode.SUCCESS;
+            resultActions.andExpect(status().is(responseCode.getHttpStatus().value()))
+                    .andExpect(jsonPath("$.errorCode").value(responseCode.getCode()))
+                    .andExpectAll(
+                            cookie().exists(ACCESS_TOKEN_COOKIE_NAME),
+                            cookie().path(ACCESS_TOKEN_COOKIE_NAME, "/"),
+                            cookie().maxAge(ACCESS_TOKEN_COOKIE_NAME, atExpireSecond)
+                    )
+                    .andExpectAll(
+                            cookie().exists(REFRESH_TOKEN_COOKIE_NAME),
+                            cookie().path(REFRESH_TOKEN_COOKIE_NAME, "/api/auth/refresh"),
+                            cookie().maxAge(REFRESH_TOKEN_COOKIE_NAME, rtExpireSecond)
+                    );
+            verify(jwtStorageService, times(1)).save(any(), any());
+        }
+
+        @Test
+        @DisplayName("정지된 패스워드 로그인 유저 로그인 테스트")
+        @Transactional
+        void should403_WhenSuspendedPasswordLoginUser() throws Exception {
+            //given
+            //정지할 유저 생성
+            UserRegisterRequest userRegisterRequest = UserSample.getNormalUserRegisterRequest();
+            User user = userJoinService.registerUser(userRegisterRequest);
+            String password = "password";
+            passwordLoginUserService.registerPasswordLoginUser(
+                    new PasswordLoginUserRegisterRequest(userRegisterRequest.getEmail(), password),
+                    user
+            );
+
+            //관리자 유저 생성
+            UserRegisterRequest adminRegisterRequest = UserSample.getAdminUserRegisterRequest();
+            User admin = userJoinService.registerUser(adminRegisterRequest);
+
+            //정지 요청 생성
+            LocalDateTime endDate = LocalDateTime.now().plusDays(1).withNano(0);
+            String reason = "test";
+            SuspendUserRequest suspendUserRequest = new SuspendUserRequest(reason, endDate);
+            //정지
+            userSuspensionService.suspendUser(admin.getId(), user.getId(), suspendUserRequest);
+            //로그인 요청 생성
+            LoginApiRequest loginApiRequest = new LoginApiRequest(userRegisterRequest.getEmail(), password);
+
+            //when
+            ResultActions resultActions = mvc.perform(post(path)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(loginApiRequest))
+            );
+
+            //then
+            ResponseCode responseCode = ResponseCode.AUTH_SUSPENDED_USER;
+            resultActions.andExpect(status().is(responseCode.getHttpStatus().value()))
+                    .andExpect(jsonPath("$.errorCode")
+                            .value(responseCode.getCode()))
+                    .andExpect(jsonPath("$.data.endDate")
+                            .value(endDate.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
+                    .andExpect(jsonPath("$.data.reason")
+                            .value(reason));
+        }
     }
 
     @Nested
@@ -110,6 +227,7 @@ class UserAuthController_IntegrationTest {
             //when then
             ResponseCode responseCode = ResponseCode.SUCCESS;
             mvc.perform(post(path)
+                            .with(csrf())
                             .cookie(new Cookie(ACCESS_TOKEN_COOKIE_NAME, atInfo.getJwt())))
                     .andExpect(status().is(responseCode.getHttpStatus().value()))
                     .andExpect(jsonPath("$.errorCode").value(responseCode.getCode()))
@@ -141,6 +259,7 @@ class UserAuthController_IntegrationTest {
             //when then
             ResponseCode responseCode = ResponseCode.SUCCESS;
             mvc.perform(post(path)
+                            .with(csrf())
                             .cookie(new Cookie(ACCESS_TOKEN_COOKIE_NAME, atInfo.getJwt())))
                     .andExpect(status().is(responseCode.getHttpStatus().value()))
                     .andExpect(jsonPath("$.errorCode").value(responseCode.getCode()))
@@ -162,7 +281,7 @@ class UserAuthController_IntegrationTest {
         void should401_WhenNoAt() throws Exception {
             //when then
             ResponseCode responseCode = ResponseCode.FORBIDDEN;
-            mvc.perform(post(path))
+            mvc.perform(post(path).with(csrf()))
                     .andExpect(status().is(responseCode.getHttpStatus().value()))
                     .andExpect(jsonPath("$.errorCode").value(responseCode.getCode()));
         }
@@ -192,6 +311,7 @@ class UserAuthController_IntegrationTest {
             //when then
             ResponseCode responseCode = ResponseCode.FORBIDDEN;
             mvc.perform(post(path)
+                            .with(csrf())
                             .cookie(new Cookie(ACCESS_TOKEN_COOKIE_NAME, atInfo.getJwt()))
                             .cookie(new Cookie(REFRESH_TOKEN_COOKIE_NAME, rtInfo.getJwt())))
                     .andExpect(status().is(responseCode.getHttpStatus().value()))
@@ -211,6 +331,7 @@ class UserAuthController_IntegrationTest {
             RefreshTokenInfo rtInfo = jwtProvider.createRefreshToken(userId);
 
             int rtExpireSecond = REFRESH_TOKEN_EXPIRE_MINUTE * 60;
+            //AT는 재발급 시 검증을 위해 RT 만료 전까지 쿠키에 살아있어야 한다.
             int atExpireSecond = rtExpireSecond;
 
             jwtStorageService.save(atInfo, rtInfo);
@@ -218,6 +339,7 @@ class UserAuthController_IntegrationTest {
             //when then
             ResponseCode responseCode = ResponseCode.SUCCESS;
             mvc.perform(post(path)
+                            .with(csrf())
                             .cookie(new Cookie(ACCESS_TOKEN_COOKIE_NAME, atInfo.getJwt()))
                             .cookie(new Cookie(REFRESH_TOKEN_COOKIE_NAME, rtInfo.getJwt())))
                     .andExpect(status().is(responseCode.getHttpStatus().value()))
@@ -248,6 +370,7 @@ class UserAuthController_IntegrationTest {
             //when then
             ResponseCode responseCode = ResponseCode.FORBIDDEN;
             mvc.perform(post(path)
+                            .with(csrf())
                             .cookie(new Cookie(ACCESS_TOKEN_COOKIE_NAME, atInfo.getJwt()))
                             .cookie(new Cookie(REFRESH_TOKEN_COOKIE_NAME, rtInfo.getJwt())))
                     .andExpect(status().is(responseCode.getHttpStatus().value()))
@@ -270,6 +393,7 @@ class UserAuthController_IntegrationTest {
             //when
             ResponseCode responseCode = ResponseCode.AUTH_EXPIRED_REFRESH_TOKEN;
             ResultActions perform = mvc.perform(post(path)
+                    .with(csrf())
                     .cookie(new Cookie(ACCESS_TOKEN_COOKIE_NAME, atInfo.getJwt()))
                     .cookie(new Cookie(REFRESH_TOKEN_COOKIE_NAME, rtInfo.getJwt())));
 
@@ -290,9 +414,6 @@ class UserAuthController_IntegrationTest {
             AccessTokenInfo atInfo = jwtProvider.createAccessToken(userId, expiredDate, expiredDate);
             RefreshTokenInfo rtInfo = jwtProvider.createRefreshToken(userId);
 
-            int rtExpireSecond = REFRESH_TOKEN_EXPIRE_MINUTE * 60;
-            int atExpireSecond = rtExpireSecond;
-
             //등록 후 삭제 = 필요없는 코드이지만 의도 파악을 위해 남겨둠
             jwtStorageService.save(atInfo, rtInfo);
             jwtStorageService.delete(atInfo);
@@ -300,10 +421,55 @@ class UserAuthController_IntegrationTest {
             //when then
             ResponseCode responseCode = ResponseCode.FORBIDDEN;
             mvc.perform(post(path)
+                            .with(csrf())
                             .cookie(new Cookie(ACCESS_TOKEN_COOKIE_NAME, atInfo.getJwt()))
                             .cookie(new Cookie(REFRESH_TOKEN_COOKIE_NAME, rtInfo.getJwt())))
                     .andExpect(status().is(responseCode.getHttpStatus().value()))
                     .andExpect(jsonPath("$.errorCode").value(responseCode.getCode()));
+        }
+
+        @Test
+        @DisplayName("정지된 유저일 경우 => 403 AUTH_SUSPENDED_USER")
+        @Transactional
+        void should403_WhenSuspendedUser() throws Exception {
+            //given
+            //정지할 유저 생성
+            UserRegisterRequest userRegisterRequest = UserSample.getNormalUserRegisterRequest();
+            User user = userJoinService.registerUser(userRegisterRequest);
+
+            //관리자 유저 생성
+            UserRegisterRequest adminRegisterRequest = UserSample.getAdminUserRegisterRequest();
+            User admin = userJoinService.registerUser(adminRegisterRequest);
+
+            //정지 요청 생성
+            LocalDateTime endDate = LocalDateTime.now().plusDays(1).withNano(0);
+            String reason = "test";
+            SuspendUserRequest suspendUserRequest = new SuspendUserRequest(reason, endDate);
+            //정지
+            userSuspensionService.suspendUser(admin.getId(), user.getId(), suspendUserRequest);
+
+            //토큰 생성
+            Date expiredDate = getExpiredDate();
+            AccessTokenInfo atInfo = jwtProvider.createAccessToken(user.getId(), expiredDate, expiredDate);
+            RefreshTokenInfo rtInfo = jwtProvider.createRefreshToken(user.getId());
+            jwtStorageService.save(atInfo, rtInfo);
+
+            //when
+            ResultActions resultActions = mvc.perform(post(path)
+                    .with(csrf())
+                    .cookie(new Cookie(ACCESS_TOKEN_COOKIE_NAME, atInfo.getJwt()))
+                    .cookie(new Cookie(REFRESH_TOKEN_COOKIE_NAME, rtInfo.getJwt()))
+            );
+
+            //then
+            ResponseCode responseCode = ResponseCode.AUTH_SUSPENDED_USER;
+            resultActions.andExpect(status().is(responseCode.getHttpStatus().value()))
+                    .andExpect(jsonPath("$.errorCode")
+                            .value(responseCode.getCode()))
+                    .andExpect(jsonPath("$.data.endDate")
+                            .value(endDate.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
+                    .andExpect(jsonPath("$.data.reason")
+                            .value(reason));
         }
     }
 

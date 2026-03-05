@@ -11,8 +11,8 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.EventDetailRe
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.EventSimpleInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.EventSimpleResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.PostTestUtils;
-import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.request.PostRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.response.PostDetailInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 
 public class EventTestUtils {
     public static void assertEventDetailResponse(
@@ -69,6 +69,17 @@ public class EventTestUtils {
         );
     }
 
+    public static void assertEventSimpleResponse(
+            EventSimpleResponse eventSimpleResponse,
+            Event event
+    ) {
+        assertEventSimpleInfo(eventSimpleResponse.getEvent(), event);
+        PostTestUtils.assertPostSimpleInfo(
+                eventSimpleResponse.getPost(),
+                event.getPost()
+        );
+    }
+
     public static void assertEventSimpleInfo(
             EventRegisterRequest eventRegisterRequest,
             EventSimpleInfo eventSimpleInfo
@@ -95,5 +106,22 @@ public class EventTestUtils {
                 .isEqualTo(participantStatusRegisterRequest.getCurrentHeadCount());
         assertThat(participantStatusRegisterRequest.getMaxHeadCount())
                 .isEqualTo(participantStatusRegisterRequest.getMaxHeadCount());
+    }
+
+    public static void assertEventSimpleInfo(
+            EventSimpleInfo eventSimpleInfo,
+            Event event
+    ) {
+        User host = event.getHostUser();
+        assertThat(eventSimpleInfo.getEventId()).isEqualTo(event.getId());
+        assertThat(eventSimpleInfo.getType()).isEqualTo(event.getType());
+        assertThat(eventSimpleInfo.getEventHostUserId()).isEqualTo(host.getId());
+        assertThat(eventSimpleInfo.getEventHostUserName()).isEqualTo(host.getNickname());
+        assertThat(eventSimpleInfo.getEventHostUserProfileImageUrl()).isEqualTo(host.getImageURI());
+        assertThat(eventSimpleInfo.getAbstractLocation()).isEqualTo(event.getAbstractLocation());
+        assertThat(eventSimpleInfo.getCurrentHeadCount()).isEqualTo(event.getCurrentHeadCount());
+        assertThat(eventSimpleInfo.getMaxHeadCount()).isEqualTo(event.getMaxHeadCount());
+        assertThat(eventSimpleInfo.getStartDate()).isEqualTo(event.getStartDate());
+        assertThat(eventSimpleInfo.getEndDate()).isEqualTo(event.getEndDate());
     }
 }

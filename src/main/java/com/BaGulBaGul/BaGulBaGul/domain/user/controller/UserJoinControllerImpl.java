@@ -1,7 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.domain.user.controller;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.SocialLoginUser;
-import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.requset.SocialLoginUserJoinRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.SocialLoginUserJoinRequest;
 import com.BaGulBaGul.BaGulBaGul.global.auth.constant.GeneralRoleType;
 import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AuthenticatedUserInfo;
 import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtCookieService;
@@ -13,10 +13,8 @@ import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
 import com.BaGulBaGul.BaGulBaGul.global.validation.ValidationUtil;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
-import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -54,7 +52,7 @@ public class UserJoinControllerImpl implements UserJoinController {
                 .toSocialLoginUserJoinRequest(normalUserRoles);
         ValidationUtil.validate(socialLoginUserJoinRequest);
 
-        SocialLoginUser user = userJoinService.registerSocialLoginUser(socialLoginUserJoinRequest);
+        SocialLoginUser user = userJoinService.joinSocialLoginUser(socialLoginUserJoinRequest);
 
         jwtCookieService.setAccessToken(response, jwtProvider.createAccessToken(user.getUser().getId()).getJwt());
         jwtCookieService.setRefreshToken(response, jwtProvider.createRefreshToken(user.getUser().getId()).getJwt());

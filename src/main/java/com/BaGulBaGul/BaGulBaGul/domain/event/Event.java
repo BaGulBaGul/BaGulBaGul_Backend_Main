@@ -46,7 +46,7 @@ public class Event {
 
     @Setter
     @JoinColumn(name = "event_host_user_id")
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     User hostUser;
 
     @Setter
@@ -141,5 +141,9 @@ public class Event {
         this.longitudeLocation = longitudeLocation;
         this.startDate = startDate;
         this.endDate = endDate;
+    }
+
+    public User getWriter() {
+        return this.getPost().getUser();
     }
 }
