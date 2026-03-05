@@ -16,6 +16,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.service.PostCommentService;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.api.response.RecruitmentIdApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.service.RecruitmentCommentService;
+import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AuthenticatedUserInfo;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
@@ -61,10 +62,17 @@ public class RecruitmentCommentControllerImpl implements RecruitmentCommentContr
     )
     public ApiResponse<Page<GetPostCommentPageResponse>> getRecruitmentCommentPage(
             @PathVariable(name = "recruitmentId") Long recruitmentId,
-            @AuthenticationPrincipal Long requestUserId,
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo,
             Pageable pageable
     ) {
-        return ApiResponse.of(recruitmentCommentService.getRecruitmentCommentPage(recruitmentId, requestUserId, pageable));
+        Long userId = authenticatedUserInfo.getUserId();
+        return ApiResponse.of(
+                recruitmentCommentService.getRecruitmentCommentPage(
+                        recruitmentId,
+                        userId,
+                        pageable
+                )
+        );
     }
 
     @Override
@@ -76,12 +84,13 @@ public class RecruitmentCommentControllerImpl implements RecruitmentCommentContr
     )
     public ApiResponse<Page<GetPostCommentChildPageResponse>> getRecruitmentCommentChildPage(
             @PathVariable(name = "commentId") Long commentId,
-            @AuthenticationPrincipal Long requestUserId,
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo,
             Pageable pageable
     ) {
+        Long userId = authenticatedUserInfo.getUserId();
         return ApiResponse.of(
                 recruitmentCommentService.getRecruitmentCommentChildPage(
-                        commentId, requestUserId, pageable
+                        commentId, userId, pageable
                 )
         );
     }
@@ -94,10 +103,13 @@ public class RecruitmentCommentControllerImpl implements RecruitmentCommentContr
     )
     public ApiResponse<PostCommentRegisterResponse> registerComment(
             @PathVariable(name = "recruitmentId") Long recruitmentId,
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo,
             @RequestBody @Valid PostCommentRegisterRequest postCommentRegisterRequest
     ) {
-        Long commentId = recruitmentCommentService.registerComment(recruitmentId, userId, postCommentRegisterRequest);
+        Long commentId = recruitmentCommentService.registerComment(
+                authenticatedUserInfo,
+                recruitmentId,
+                postCommentRegisterRequest);
         return ApiResponse.of(
                 new PostCommentRegisterResponse(commentId)
         );
@@ -111,10 +123,10 @@ public class RecruitmentCommentControllerImpl implements RecruitmentCommentContr
     )
     public ApiResponse<Object> modifyComment(
             @PathVariable(name = "commentId") Long commentId,
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo,
             @RequestBody PostCommentModifyRequest postCommentModifyRequest
     ) {
-        recruitmentCommentService.modifyComment(commentId, userId, postCommentModifyRequest);
+        recruitmentCommentService.modifyComment(authenticatedUserInfo, commentId, postCommentModifyRequest);
         return ApiResponse.of(null);
     }
 
@@ -125,9 +137,9 @@ public class RecruitmentCommentControllerImpl implements RecruitmentCommentContr
     )
     public ApiResponse<Object> deleteComment(
             @PathVariable(name = "commentId") Long commentId,
-            @AuthenticationPrincipal Long userId
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo
     ) {
-        recruitmentCommentService.deleteComment(commentId, userId);
+        recruitmentCommentService.deleteComment(authenticatedUserInfo, commentId);
         return ApiResponse.of(null);
     }
 
@@ -139,10 +151,13 @@ public class RecruitmentCommentControllerImpl implements RecruitmentCommentContr
     )
     public ApiResponse<PostCommentChildRegisterResponse> registerCommentChild(
             @PathVariable(name = "commentId") Long commentId,
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo,
             @RequestBody @Valid PostCommentChildRegisterRequest postCommentChildRegisterRequest
     ) {
-        Long commentChildId = recruitmentCommentService.registerCommentChild(commentId, userId, postCommentChildRegisterRequest);
+        Long commentChildId = recruitmentCommentService.registerCommentChild(
+                authenticatedUserInfo,
+                commentId,
+                postCommentChildRegisterRequest);
         return ApiResponse.of(
                 new PostCommentChildRegisterResponse(commentChildId)
         );
@@ -156,10 +171,13 @@ public class RecruitmentCommentControllerImpl implements RecruitmentCommentContr
     )
     public ApiResponse<Object> modifyCommentChild(
             @PathVariable(name = "commentChildId") Long commentChildId,
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo,
             @RequestBody PostCommentChildModifyRequest postCommentChildModifyRequest
     ) {
-        recruitmentCommentService.modifyCommentChild(commentChildId, userId, postCommentChildModifyRequest);
+        recruitmentCommentService.modifyCommentChild(
+                authenticatedUserInfo,
+                commentChildId,
+                postCommentChildModifyRequest);
         return ApiResponse.of(null);
     }
 
@@ -170,9 +188,9 @@ public class RecruitmentCommentControllerImpl implements RecruitmentCommentContr
     )
     public ApiResponse<Object> deleteCommentChild(
             @PathVariable(name = "commentChildId") Long commentChildId,
-            @AuthenticationPrincipal Long userId
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo
     ) {
-        recruitmentCommentService.deleteCommentChild(commentChildId, userId);
+        recruitmentCommentService.deleteCommentChild(authenticatedUserInfo, commentChildId);
         return ApiResponse.of(null);
     }
 
@@ -185,8 +203,9 @@ public class RecruitmentCommentControllerImpl implements RecruitmentCommentContr
     )
     public ApiResponse<LikeCountResponse> addLikeToComment(
             @PathVariable(name = "commentId") Long commentId,
-            @AuthenticationPrincipal Long userId
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo
     ) {
+        Long userId = authenticatedUserInfo.getUserId();
         try {
             recruitmentCommentService.addLikeToComment(commentId, userId);
         } catch (DuplicateLikeException e) {
@@ -202,13 +221,14 @@ public class RecruitmentCommentControllerImpl implements RecruitmentCommentContr
     @Override
     @DeleteMapping("/comment/{commentId}/like")
     @Operation(summary = "댓글 좋아요 삭제",
-            description = "로그인 필요\n"
+            description = "로그인 필요\n" 
                     + "삭제할 좋아요가 없다면 무시됨"
     )
     public ApiResponse<LikeCountResponse> deleteLikeToComment(
             @PathVariable(name = "commentId") Long commentId,
-            @AuthenticationPrincipal Long userId
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo
     ) {
+        Long userId = authenticatedUserInfo.getUserId();
         try{
             recruitmentCommentService.deleteLikeToComment(commentId, userId);
         } catch (LikeNotExistException e) {
@@ -227,8 +247,9 @@ public class RecruitmentCommentControllerImpl implements RecruitmentCommentContr
     )
     public ApiResponse<IsMyLikeResponse> isMyLikeComment(
             @PathVariable(name = "commentId") Long commentId,
-            @AuthenticationPrincipal Long userId
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo
     ) {
+        Long userId = authenticatedUserInfo.getUserId();
         return ApiResponse.of(
                 new IsMyLikeResponse(
                         recruitmentCommentService.existsCommentLike(commentId, userId)
@@ -239,14 +260,15 @@ public class RecruitmentCommentControllerImpl implements RecruitmentCommentContr
     @Override
     @PostMapping("/comment/children/{commentChildId}/like")
     @Operation(summary = "대댓글 좋아요 등록",
-            description = "로그인 필요\n"
-                    + "유저당 한번만 좋아요 등록 가능\n"
+            description = "로그인 필요\n" 
+                    + "유저당 한번만 좋아요 등록 가능\n" 
                     + "이미 좋아요를 눌렀다면 무시됨"
     )
     public ApiResponse<LikeCountResponse> addLikeToCommentChild(
             @PathVariable(name = "commentChildId") Long commentChildId,
-            @AuthenticationPrincipal Long userId
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo
     ) {
+        Long userId = authenticatedUserInfo.getUserId();
         try {
             recruitmentCommentService.addLikeToCommentChild(commentChildId, userId);
         } catch (DuplicateLikeException e) {
@@ -261,13 +283,14 @@ public class RecruitmentCommentControllerImpl implements RecruitmentCommentContr
     @Override
     @DeleteMapping("/comment/children/{commentChildId}/like")
     @Operation(summary = "대댓글 좋아요 삭제",
-            description = "로그인 필요\n"
+            description = "로그인 필요\n" 
                     + "삭제할 좋아요가 없다면 무시됨"
     )
     public ApiResponse<LikeCountResponse> deleteLikeToCommentChild(
             @PathVariable(name = "commentChildId") Long commentChildId,
-            @AuthenticationPrincipal Long userId
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo
     ) {
+        Long userId = authenticatedUserInfo.getUserId();
         try {
             recruitmentCommentService.deleteLikeToCommentChild(commentChildId, userId);
         } catch (LikeNotExistException e) {
@@ -286,11 +309,14 @@ public class RecruitmentCommentControllerImpl implements RecruitmentCommentContr
     )
     public ApiResponse<IsMyLikeResponse> isMyLikeCommentChild(
             @PathVariable(name = "commentChildId") Long commentChildId,
-            @AuthenticationPrincipal Long userId
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo
     ) {
+        Long userId = authenticatedUserInfo.getUserId();
         return ApiResponse.of(
                 new IsMyLikeResponse(
-                        recruitmentCommentService.existsCommentChildLike(commentChildId, userId)
+                        recruitmentCommentService.existsCommentChildLike(
+                                commentChildId,
+                                userId)
                 )
         );
     }

@@ -20,6 +20,8 @@ public class RecruitmentConditionalRequest {
 
     private Integer leftHeadCount;
 
+    private boolean deleted;
+
     @Valid
     @Builder.Default
     private PostConditionalRequest postConditionalRequest = new PostConditionalRequest();

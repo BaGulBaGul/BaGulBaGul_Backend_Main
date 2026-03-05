@@ -2,13 +2,35 @@ package com.BaGulBaGul.BaGulBaGul.domain.user.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 
-import com.BaGulBaGul.BaGulBaGul.domain.user.dto.UserRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.AdminManageEventHostUser;
+import com.BaGulBaGul.BaGulBaGul.domain.user.AdminManagePasswordLoginUser;
+import com.BaGulBaGul.BaGulBaGul.domain.user.PasswordLoginUser;
+import com.BaGulBaGul.BaGulBaGul.domain.user.SocialLoginUser;
+import com.BaGulBaGul.BaGulBaGul.domain.user.User;
+import com.BaGulBaGul.BaGulBaGul.domain.user.UserTestUtils;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.AdminManageEventHostUserJoinRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.AdminManagePasswordLoginUserJoinRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.PasswordLoginUserRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.SocialLoginUserJoinRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.UserRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.exception.DuplicateUsernameException;
+import com.BaGulBaGul.BaGulBaGul.domain.user.repository.AdminManageEventHostUserRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.user.repository.PasswordLoginUserRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.user.repository.SocialLoginUserRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.user.sampledata.AdminManageEventHostUserSample;
+import com.BaGulBaGul.BaGulBaGul.domain.user.sampledata.PasswordLoginUserSample;
+import com.BaGulBaGul.BaGulBaGul.domain.user.sampledata.SocialLoginUserSample;
 import com.BaGulBaGul.BaGulBaGul.domain.user.sampledata.UserSample;
-import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserJoinService;
 import com.BaGulBaGul.BaGulBaGul.extension.AllTestContainerExtension;
-import com.BaGulBaGul.BaGulBaGul.extension.MysqlTestContainerExtension;
+import com.BaGulBaGul.BaGulBaGul.global.auth.dto.OAuth2JoinTokenInfo;
+import com.BaGulBaGul.BaGulBaGul.global.auth.oauth2.constant.OAuth2Provider;
+import com.BaGulBaGul.BaGulBaGul.global.auth.oauth2.dto.OAuth2JoinTokenSubject;
+import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtProvider;
+import javax.persistence.EntityManager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -16,6 +38,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +51,30 @@ public class UserJoinService_IntegrationTest {
     @Autowired
     UserJoinService userJoinService;
 
+    @Autowired
+    PasswordLoginUserService passwordLoginUserService;
+
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    PasswordLoginUserRepository passwordLoginUserRepository;
+
+    @Autowired
+    AdminManageEventHostUserRepository adminManageEventHostUserRepository;
+
+    @Autowired
+    SocialLoginUserRepository socialLoginUserRepository;
+
+    @Autowired
+    JwtProvider jwtProvider;
+
+    @Autowired
+    PasswordEncoder passwordEncoder;
+
+    @Autowired
+    EntityManager entityManager;
+
     @Nested
     @DisplayName("유저 등록 테스트")
     class registerUserTest {
@@ -35,9 +82,15 @@ public class UserJoinService_IntegrationTest {
         @DisplayName("정상 동작")
         @Transactional
         void shouldOK() {
-            userJoinService.registerUser(
-                    UserSample.NORMAL_USER_REGISTER_REQUEST
+            //given
+            UserRegisterRequest userRegisterRequest = UserSample.getNormalUserRegisterRequest();
+            //when
+            User user = userJoinService.registerUser(
+                    userRegisterRequest
             );
+            //then
+            assertThat(user.getEmail()).isEqualTo(userRegisterRequest.getEmail());
+            assertThat(user.getNickname()).isEqualTo(userRegisterRequest.getNickname());
         }
 
         @Test
@@ -45,7 +98,7 @@ public class UserJoinService_IntegrationTest {
         @Transactional
         void shouldThrowDuplicateUsernameException_WhenExactlySame() {
             //given
-            UserRegisterRequest userRegisterRequest = UserSample.NORMAL_USER_REGISTER_REQUEST;
+            UserRegisterRequest userRegisterRequest = UserSample.getNormalUserRegisterRequest();
             userJoinService.registerUser(
                     userRegisterRequest
             );
@@ -59,18 +112,195 @@ public class UserJoinService_IntegrationTest {
         @Transactional
         void shouldThrowDuplicateUsernameException_WhenCaseInsensitive() {
             //given
-            UserRegisterRequest lowerCaseUsernameRequest = UserRegisterRequest.builder()
-                    .nickname(UserSample.NORMAL_USERNAME)
-                    .email(UserSample.NORMAL_EMAIL)
-                    .build();
-            UserRegisterRequest upperCaseUsernameRequest = UserRegisterRequest.builder()
-                    .nickname(UserSample.NORMAL_USERNAME_UPPERCASE)
-                    .email(UserSample.NORMAL_EMAIL)
-                    .build();
+            UserRegisterRequest lowerCaseUsernameRequest = UserSample.getNormalUserRegisterRequest();
+            lowerCaseUsernameRequest.setNickname(lowerCaseUsernameRequest.getNickname().toLowerCase());
+            UserRegisterRequest upperCaseUsernameRequest = UserSample.getNormal2UserRegisterRequest();
+            upperCaseUsernameRequest.setNickname(lowerCaseUsernameRequest.getNickname().toUpperCase());
             userJoinService.registerUser(lowerCaseUsernameRequest);
             //when then
             assertThatThrownBy(() -> userJoinService.registerUser(upperCaseUsernameRequest))
                     .isInstanceOf(DuplicateUsernameException.class);
+        }
+
+        @Test
+        @DisplayName("소셜 로그인 유저 정상 가입")
+        @Transactional
+        void shouldOk_WhenJoinNormalSocialLoginUser() {
+            //given
+            SocialLoginUserJoinRequest socialLoginUserJoinRequest = SocialLoginUserSample
+                    .getMockSocialLoginUserJoinRequest();
+            String socialLoginUserId = "xxxx";
+            OAuth2Provider oauthProvider = OAuth2Provider.kakao;
+            OAuth2JoinTokenInfo oAuth2JoinTokenInfo = jwtProvider.createOAuth2JoinToken(
+                    OAuth2JoinTokenSubject.builder()
+                            .socialLoginId(socialLoginUserId)
+                            .oAuth2Provider(oauthProvider)
+                            .build()
+            );
+            socialLoginUserJoinRequest.setJoinToken(oAuth2JoinTokenInfo.getJwt());
+            //when
+            SocialLoginUser socialLoginUser = userJoinService.joinSocialLoginUser(socialLoginUserJoinRequest);
+            //then
+            UserTestUtils.assertSocialLoginUserRegister(
+                    socialLoginUser, socialLoginUserId, oauthProvider
+            );
+        }
+
+        @Test
+        @DisplayName("관리자 관리 이벤트 호스트 유저 정상 등록")
+        @Transactional
+        void shouldOk_WhenJoinNormalAdminManageEventHostUser() {
+            //given when
+            AdminManageEventHostUserJoinRequest normalAdminManageEventHostUserRegisterRequest =
+                    AdminManageEventHostUserSample.getNormalAdminManageEventHostUserRegisterRequest();
+            AdminManageEventHostUser adminManageEventHostUser = userJoinService.joinAdminManageEventHostUser(
+                    normalAdminManageEventHostUserRegisterRequest
+            );
+            //then
+            Long adminManageEventHostUserId = adminManageEventHostUser.getId();
+            AdminManageEventHostUser findAdminManageEventHostUser = adminManageEventHostUserRepository
+                    .findById(adminManageEventHostUserId).orElse(null);
+            assertThat(findAdminManageEventHostUser).isNotNull();
+            UserTestUtils.assertUserRegister(
+                    findAdminManageEventHostUser.getUser(),
+                    normalAdminManageEventHostUserRegisterRequest.getUserRegisterRequest()
+            );
+        }
+
+        @Test
+        @DisplayName("관리자 관리 패스워드 로그인 유저 정상 등록")
+        @Transactional
+        void shouldOk_WhenJoinNormalAdminManagePasswordLoginUser() {
+            //given when
+            AdminManagePasswordLoginUserJoinRequest joinRequest = AdminManagePasswordLoginUserJoinRequest.builder()
+                    .userRegisterRequest(UserSample.getNormalUserRegisterRequest())
+                    .passwordLoginUserRegisterRequest(
+                            PasswordLoginUserSample.getNormalPasswordLoginUserRegisterRequest())
+                    .build();
+            AdminManagePasswordLoginUser adminManagePasswordLoginUser =
+                    userJoinService.joinAdminManagePasswordLoginUser(joinRequest);
+
+            //then
+            assertThat(adminManagePasswordLoginUser).isNotNull();
+            UserTestUtils.assertPasswordLoginUserRegister(
+                    adminManagePasswordLoginUser.getPasswordLoginUser(),
+                    joinRequest.getPasswordLoginUserRegisterRequest(),
+                    passwordEncoder
+            );
+            UserTestUtils.assertUserRegister(adminManagePasswordLoginUser.getPasswordLoginUser().getUser(),
+                    joinRequest.getUserRegisterRequest());
+        }
+    }
+
+    @Nested
+    @DisplayName("유저 삭제 테스트")
+    class deleteUserTest {
+        @Test
+        @DisplayName("정상 삭제")
+        @Transactional
+        void deleteNormalUserTest() {
+            //given
+            User user = userJoinService.registerUser(UserSample.getNormalUserRegisterRequest());
+            entityManager.flush();
+            entityManager.clear();
+            //when
+            userJoinService.deleteUser(user.getId());
+            entityManager.flush();
+            entityManager.clear();
+            //then
+            User findUser = userRepository.findById(user.getId()).orElse(null);
+            assertThat(findUser).isNull();
+        }
+
+        @Test
+        @DisplayName("패스워드 로그인 유저 삭제")
+        @Transactional
+        void deleteNormalPasswordLoginUserTest() {
+            //given
+            PasswordLoginUserRegisterRequest normalPasswordLoginUserRegisterRequest = PasswordLoginUserSample.getNormalPasswordLoginUserRegisterRequest();
+            UserRegisterRequest userRegisterRequest = UserSample.getNormalUserRegisterRequest();
+            User user = userJoinService.registerUser(userRegisterRequest);
+            PasswordLoginUser passwordLoginUser = passwordLoginUserService.registerPasswordLoginUser(
+                    normalPasswordLoginUserRegisterRequest,
+                    user
+            );
+            entityManager.flush();
+            entityManager.clear();
+
+            //when
+            user = passwordLoginUser.getUser();
+            userJoinService.deleteUser(user.getId());
+            entityManager.flush();
+            entityManager.clear();
+
+            //then
+            PasswordLoginUser findPasswordLoginUser = passwordLoginUserRepository.findById(
+                    normalPasswordLoginUserRegisterRequest.getLoginId()).orElse(null);
+            User findUser = userRepository.findById(user.getId()).orElse(null);
+
+            assertThat(findPasswordLoginUser).isNull();
+            assertThat(findUser).isNull();
+        }
+
+        @Test
+        @DisplayName("소셜 로그인 유저 삭제")
+        @Transactional
+        void deleteNormalSocialLoginUserTest() {
+            //given
+            SocialLoginUserJoinRequest socialLoginUserJoinRequest = SocialLoginUserSample
+                    .getMockSocialLoginUserJoinRequest();
+            String socialLoginUserId = "xxxx";
+            OAuth2Provider oauthProvider = OAuth2Provider.kakao;
+            OAuth2JoinTokenInfo oAuth2JoinTokenInfo = jwtProvider.createOAuth2JoinToken(
+                    OAuth2JoinTokenSubject.builder()
+                            .socialLoginId(socialLoginUserId)
+                            .oAuth2Provider(oauthProvider)
+                            .build()
+            );
+            socialLoginUserJoinRequest.setJoinToken(oAuth2JoinTokenInfo.getJwt());
+            SocialLoginUser socialLoginUser = userJoinService.joinSocialLoginUser(
+                    socialLoginUserJoinRequest
+            );
+            entityManager.flush();
+            entityManager.clear();
+
+            //when
+            Long userId = socialLoginUser.getUser().getId();
+            userJoinService.deleteUser(userId);
+            entityManager.flush();
+            entityManager.clear();
+
+            //then
+            User findUser = userRepository.findById(userId).orElse(null);
+            SocialLoginUser findsocialLoginUser = socialLoginUserRepository.findById(socialLoginUserId).orElse(null);
+            assertThat(findUser).isNull();
+            assertThat(findsocialLoginUser).isNull();
+        }
+
+        @Test
+        @DisplayName("관리자 관리 이벤트 호스트 유저 삭제")
+        @Transactional
+        void deleteAdminManageEventHostUser() {
+            //given
+            AdminManageEventHostUser adminManageEventHostUser = userJoinService.joinAdminManageEventHostUser(
+                    AdminManageEventHostUserSample.getNormalAdminManageEventHostUserRegisterRequest()
+            );
+            Long adminManageEventHostUserId = adminManageEventHostUser.getId();
+            Long userId = adminManageEventHostUser.getUser().getId();
+            entityManager.flush();
+            entityManager.clear();
+
+            //when
+            userJoinService.deleteAdminManageEventHostUser(userId);
+            entityManager.flush();
+            entityManager.clear();
+
+            //then
+            User findUser = userRepository.findById(userId).orElse(null);
+            AdminManageEventHostUser findAdminManageEventHostUser = adminManageEventHostUserRepository
+                    .findById(adminManageEventHostUserId).orElse(null);
+            assertThat(findUser).isNull();
+            assertThat(findAdminManageEventHostUser).isNull();
         }
     }
 
@@ -82,9 +312,10 @@ public class UserJoinService_IntegrationTest {
         @Transactional
         void shouldDuplicateUsername_WhenMatchExactly() {
             //given
-            userJoinService.registerUser(UserSample.NORMAL_USER_REGISTER_REQUEST);
+            UserRegisterRequest userRegisterRequest = UserSample.getNormalUserRegisterRequest();
+            userJoinService.registerUser(userRegisterRequest);
             //when
-            boolean isDuplicate = userJoinService.checkDuplicateUsername(UserSample.NORMAL_USERNAME);
+            boolean isDuplicate = userJoinService.checkDuplicateUsername(userRegisterRequest.getNickname());
             //then
             assertThat(isDuplicate).isTrue();
         }
@@ -94,9 +325,11 @@ public class UserJoinService_IntegrationTest {
         @Transactional
         void shouldDuplicateUsername_WhenMatchLowerCase() {
             //given
-            userJoinService.registerUser(UserSample.NORMAL_USER_REGISTER_REQUEST);
+            UserRegisterRequest lowerCaseUsernameRequest = UserSample.getNormalUserRegisterRequest();
+            lowerCaseUsernameRequest.setNickname(lowerCaseUsernameRequest.getNickname().toLowerCase());
+            userJoinService.registerUser(lowerCaseUsernameRequest);
             //when
-            boolean isDuplicate = userJoinService.checkDuplicateUsername(UserSample.NORMAL_USERNAME_UPPERCASE);
+            boolean isDuplicate = userJoinService.checkDuplicateUsername(lowerCaseUsernameRequest.getNickname().toUpperCase());
             //then
             assertThat(isDuplicate).isTrue();
         }
@@ -104,9 +337,10 @@ public class UserJoinService_IntegrationTest {
         @Test
         @DisplayName("유저명이 중복되지 않는 경우")
         @Transactional
-        void shouldDuplicateUsername_WhenNotMatch() {
+        void shouldNotDuplicateUsername() {
             //given when
-            boolean isDuplicate = userJoinService.checkDuplicateUsername(UserSample.NORMAL_USERNAME);
+            UserRegisterRequest userRegisterRequest = UserSample.getNormalUserRegisterRequest();
+            boolean isDuplicate = userJoinService.checkDuplicateUsername(userRegisterRequest.getNickname());
             //then
             assertThat(isDuplicate).isFalse();
         }

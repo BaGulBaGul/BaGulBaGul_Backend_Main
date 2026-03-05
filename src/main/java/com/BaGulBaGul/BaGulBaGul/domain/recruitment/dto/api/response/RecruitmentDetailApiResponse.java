@@ -1,5 +1,6 @@
 package com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.api.response;
 
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.PostDetailApiInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.response.PostDetailInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.response.RecruitmentDetailInfo;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.dto.service.response.RecruitmentDetailResponse;
@@ -16,15 +17,15 @@ import lombok.Setter;
 public class RecruitmentDetailApiResponse {
 
     @ApiModelProperty(value = "모잡글 정보")
-    private RecruitmentDetailInfo recruitment;
+    private RecruitmentDetailApiInfo recruitment;
 
     @ApiModelProperty(value = "게시글 정보")
-    private PostDetailInfo post;
+    private PostDetailApiInfo post;
 
     public static RecruitmentDetailApiResponse from(RecruitmentDetailResponse recruitmentDetailResponse) {
         return RecruitmentDetailApiResponse.builder()
-                .recruitment(recruitmentDetailResponse.getRecruitment())
-                .post(recruitmentDetailResponse.getPost())
+                .recruitment(RecruitmentDetailApiInfo.from(recruitmentDetailResponse.getRecruitment()))
+                .post(PostDetailApiInfo.from(recruitmentDetailResponse.getPost()))
                 .build();
     }
 }

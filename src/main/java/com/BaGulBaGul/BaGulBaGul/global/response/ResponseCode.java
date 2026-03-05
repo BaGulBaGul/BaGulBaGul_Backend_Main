@@ -4,7 +4,6 @@ import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 
 @Getter
@@ -22,6 +21,7 @@ public class ResponseCode {
     //EVENT
     public static final ResponseCode EVENT_NOT_FOUND = new ResponseCode("E00000", HttpStatus.OK, "이벤트가 존재하지 않습니다");
     public static final ResponseCode EVENT_CATEGORY_NOT_EXIST = new ResponseCode("E00001", HttpStatus.OK, "존재하지 않는 카테고리입니다");
+    public static final ResponseCode EVENT_CATEGORY_EXISTS = new ResponseCode("E00002", HttpStatus.BAD_REQUEST, "이미 존재하는 이벤트 카테고리입니다.");
     //RECRUITMENT
     public static final ResponseCode RECRUITMENT_NOT_FOUND = new ResponseCode("R00000", HttpStatus.OK, "모집글이 존재하지 않습니다");
     //POST
@@ -39,6 +39,15 @@ public class ResponseCode {
     //Upload
     public static final ResponseCode UPLOAD_NOT_IMAGE = new ResponseCode("UPLOAD00000", HttpStatus.OK, "이미지 파일이 아닙니다");
     public static final ResponseCode UPLOAD_RESOURCE_NOT_FOUND = new ResponseCode("UPLOAD00001", HttpStatus.OK, "등록하려는 자원을 찾을 수 없습니다. resourceId={0}");
+    //AUTH
+    public static final ResponseCode AUTH_EXPIRED_ACCESS_TOKEN = new ResponseCode("AUTH00000", HttpStatus.UNAUTHORIZED, "AccessToken 만료");
+    public static final ResponseCode AUTH_EXPIRED_REFRESH_TOKEN = new ResponseCode("AUTH00001", HttpStatus.UNAUTHORIZED, "RefreshToken 만료");
+    public static final ResponseCode AUTH_SUSPENDED_USER = new ResponseCode("AUTH00002", HttpStatus.FORBIDDEN, "정지된 유저입니다.");
+
+    //ADMIN
+    //USER SUSPEND
+    public static final ResponseCode ADMIN_USER_NOT_SUSPENDED = new ResponseCode("ADMIN00000", HttpStatus.BAD_REQUEST, "유저는 현재 정지된 상태가 아닙니다");
+
 
     public static final ResponseCode[] types = {SUCCESS, BAD_REQUEST};
 

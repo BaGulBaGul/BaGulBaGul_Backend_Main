@@ -1,15 +1,21 @@
 package com.BaGulBaGul.BaGulBaGul.global.auth.oauth2;
 
 import com.BaGulBaGul.BaGulBaGul.domain.user.SocialLoginUser;
+import com.BaGulBaGul.BaGulBaGul.global.auth.exception.AccountSuspendedException;
+import com.BaGulBaGul.BaGulBaGul.global.auth.service.AuthTokenService;
 import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtProvider;
 import com.BaGulBaGul.BaGulBaGul.global.auth.oauth2.dto.ApplicationOAuth2User;
 import com.BaGulBaGul.BaGulBaGul.global.auth.oauth2.dto.OAuth2JoinTokenSubject;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.SocialLoginUserRepository;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.BaGulBaGul.BaGulBaGul.global.auth.service.JwtCookieService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -22,7 +28,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
     private final SocialLoginUserRepository socialUserRepository;
     private final JwtProvider jwtProvider;
-    private final JwtCookieService jwtCookieService;
+    private final AuthTokenService authTokenService;
 
     @Value("${spring.security.oauth2.client.front_join_redirect_url}")
     private String FRONT_JOIN_REDIRECT_URL;
@@ -30,7 +36,12 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     @Value("${spring.security.oauth2.client.front_login_redirect_url}")
     private String FRONT_LOGIN_REDIRECT_URL;
 
+    @Value("${spring.security.oauth2.client.front_suspended_user_redirect_url}")
+    private String FRONT_SUSPENDED_USER_REDIRECT_URL;
+
     private final String JOIN_TOKEN_PARAM_NAME = "join_token";
+    private final String SUSPEND_END_DATE_PARAM_NAME = "endDate";
+    private final String SUSPEND_REASON_PARAM_NAME = "reason";
 
 
 
@@ -50,7 +61,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                     .socialLoginId(socialLoginId)
                     .oAuth2Provider(applicationOAuth2User.getOAuthProvider())
                     .build();
-            String oauth2JoinToken = jwtProvider.createOAuth2JoinToken(oAuth2JoinTokenSubject);
+            String oauth2JoinToken = jwtProvider.createOAuth2JoinToken(oAuth2JoinTokenSubject).getJwt();
             response.sendRedirect(
                     composeQueryParam(FRONT_JOIN_REDIRECT_URL, JOIN_TOKEN_PARAM_NAME, oauth2JoinToken)
             );
@@ -59,11 +70,18 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         else{
             Long userId = socialLoginUser.getUser().getId();
             //토큰 발급
-            String accessToken = jwtProvider.createAccessToken(userId);
-            String refreshToken = jwtProvider.createRefreshToken(userId);
-            //쿠키 저장
-            jwtCookieService.setAccessToken(response, accessToken);
-            jwtCookieService.setRefreshToken(response, refreshToken);
+            try {
+                authTokenService.issueToken(response, userId);
+            } catch (AccountSuspendedException e) {
+                //정지된 유저는 계정 정지 처리 페이지로 리다이렉트
+                response.sendRedirect(
+                        composeQueryParam(
+                                FRONT_SUSPENDED_USER_REDIRECT_URL,
+                                Map.of(SUSPEND_END_DATE_PARAM_NAME, e.getEndDate().toString(), SUSPEND_REASON_PARAM_NAME, e.getReason())
+                        )
+                );
+                return;
+            }
             //로그인 성공 처리 페이지로 리다이렉트
             response.sendRedirect(
                     FRONT_LOGIN_REDIRECT_URL
@@ -72,6 +90,18 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     }
 
     private String composeQueryParam(String url, String paramName, String value) {
-        return url + "?" + paramName + "=" + value;
+        return url + "?" + paramName + "=" + URLEncoder.encode(value, StandardCharsets.UTF_8);
+    }
+
+    private String composeQueryParam(String url, Map<String, String> params) {
+        String paramsString = params.entrySet().stream().map(entry -> {
+            return entry.getKey() + "=" + URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8);
+        }).collect(Collectors.joining("&"));
+
+        if(paramsString.isEmpty()) {
+            return url;
+        }
+
+        return url + "?" + paramsString;
     }
 }

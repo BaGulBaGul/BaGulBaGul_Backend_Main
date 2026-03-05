@@ -3,7 +3,7 @@ package com.BaGulBaGul.BaGulBaGul.domain.upload.controller;
 import com.BaGulBaGul.BaGulBaGul.global.exception.GeneralException;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
 import com.BaGulBaGul.BaGulBaGul.global.response.ResponseCode;
-import com.BaGulBaGul.BaGulBaGul.domain.upload.dto.UploadResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.upload.dto.api.response.UploadApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.upload.service.ImageUploadService;
 import com.BaGulBaGul.BaGulBaGul.domain.upload.service.ResourceService;
 import io.swagger.annotations.Api;
@@ -28,7 +28,7 @@ public class UploadControllerImpl implements UploadController {
     @Operation(summary = "이미지 파일을 받아 리소스를 등록하고 resource id를 응답",
             description = "참고 : 로그인 필요, 이미지 확장자가 아니라면 에러"
     )
-    public ApiResponse<UploadResponse> uploadImage(@RequestParam MultipartFile imageFile) {
+    public ApiResponse<UploadApiResponse> uploadImage(@RequestParam MultipartFile imageFile) {
         Long resourceId;
         try {
             resourceId = imageUploadService.uploadImage(imageFile);
@@ -36,7 +36,7 @@ public class UploadControllerImpl implements UploadController {
             throw new GeneralException(ResponseCode.INTERNAL_SERVER_ERROR);
         }
         return ApiResponse.of(
-                new UploadResponse(
+                new UploadApiResponse(
                         resourceId,
                         resourceService.getResourceUrlFromId(resourceId)
                 )

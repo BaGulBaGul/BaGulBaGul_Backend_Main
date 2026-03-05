@@ -1,6 +1,5 @@
 package com.BaGulBaGul.BaGulBaGul.domain.report.dto.api.request;
 
-import com.BaGulBaGul.BaGulBaGul.domain.report.dto.ReportRegisterRequest;
 import io.swagger.annotations.ApiModelProperty;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

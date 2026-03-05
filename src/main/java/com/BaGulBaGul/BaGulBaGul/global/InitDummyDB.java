@@ -9,6 +9,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.repository.EventRepository;
 import com.BaGulBaGul.BaGulBaGul.domain.event.service.EventCommentService;
 import com.BaGulBaGul.BaGulBaGul.domain.event.service.EventService;
 import com.BaGulBaGul.BaGulBaGul.domain.event.constant.EventType;
+import com.BaGulBaGul.BaGulBaGul.domain.post.constant.PostType;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentChildRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.request.PostRegisterRequest;
@@ -20,9 +21,14 @@ import com.BaGulBaGul.BaGulBaGul.domain.recruitment.repository.RecruitmentReposi
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.service.RecruitmentCommentService;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.service.RecruitmentService;
 import com.BaGulBaGul.BaGulBaGul.domain.user.User;
-import com.BaGulBaGul.BaGulBaGul.domain.user.dto.UserRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.PasswordLoginUserRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.request.UserRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.user.repository.UserRepository;
+import com.BaGulBaGul.BaGulBaGul.domain.user.service.PasswordLoginUserService;
 import com.BaGulBaGul.BaGulBaGul.domain.user.service.UserJoinService;
+import com.BaGulBaGul.BaGulBaGul.global.auth.constant.GeneralRoleType;
+import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AuthenticatedUserInfo;
+import com.BaGulBaGul.BaGulBaGul.global.validation.ValidationUtil;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -43,6 +49,7 @@ public class InitDummyDB implements ApplicationListener<ApplicationReadyEvent> {
     private final RecruitmentRepository recruitmentRepository;
 
     private final UserJoinService userJoinService;
+    private final PasswordLoginUserService passwordLoginUserService;
     private final EventService eventService;
     private final RecruitmentService recruitmentService;
     private final PostCommentService postCommentService;
@@ -87,6 +94,17 @@ public class InitDummyDB implements ApplicationListener<ApplicationReadyEvent> {
             );
             result.add(user);
         }
+        User adminUser = userJoinService.registerUser(UserRegisterRequest.builder()
+                .email("admin@email.com")
+                .nickname("admin")
+                .roles(List.of(GeneralRoleType.ADMIN.name(), GeneralRoleType.EVENT_HOST.name()))
+                .build());
+        passwordLoginUserService.registerPasswordLoginUser(
+                PasswordLoginUserRegisterRequest.builder()
+                        .loginId("admin")
+                        .loginPassword("admin").build(),
+                adminUser
+        );
         return result;
     }
 
@@ -148,7 +166,7 @@ public class InitDummyDB implements ApplicationListener<ApplicationReadyEvent> {
 
             //기타
             EventType type = eventTypes[rand.nextInt(eventTypes.length)];
-            int maxHeadCount = rand.nextInt(100);
+            int maxHeadCount = rand.nextInt(100) + 1;
             String title = "테스트" + cnt;
             String content = "테스트게시글" + cnt;
             List<String> tagList = tagSet.stream().collect(Collectors.toList());
@@ -161,43 +179,48 @@ public class InitDummyDB implements ApplicationListener<ApplicationReadyEvent> {
             }
 
             //이벤트 등록
+            EventRegisterRequest eventRegisterRequest = EventRegisterRequest.builder()
+                    .type(type)
+                    .eventHostUserId(writer.getId())
+                    .ageLimit(rand.nextBoolean())
+                    .categories(categoryNameSet.stream().collect(Collectors.toList()))
+                    .postRegisterRequest(
+                            PostRegisterRequest.builder()
+                                    .title(title)
+                                    .content(content)
+                                    .tags(tagList)
+                                    .imageIds(null)
+                                    .type(PostType.Event)
+                                    .build()
+                    )
+                    .locationRegisterRequest(
+                            LocationRegisterRequest.builder()
+                                    .fullLocation(fullLocation)
+                                    .abstractLocation(abstractLocation)
+                                    .latitudeLocation(latitudeLocation)
+                                    .longitudeLocation(longitudeLocation)
+                                    .build()
+                    )
+                    .periodRegisterRequest(
+                            PeriodRegisterRequest.builder()
+                                    .startDate(startDate)
+                                    .endDate(endDate)
+                                    .build()
+                    )
+                    .participantStatusRegisterRequest(
+                            ParticipantStatusRegisterRequest.builder()
+                                    .maxHeadCount(maxHeadCount)
+                                    .build()
+                    )
+                    .build();
+            ValidationUtil.validate(eventRegisterRequest);
             Long eventId = eventService.registerEvent(
-                    writer.getId(),
-                    EventRegisterRequest.builder()
-                            .type(type)
-
-                            .ageLimit(rand.nextBoolean())
-                            .categories(categoryNameSet.stream().collect(Collectors.toList()))
-                            .postRegisterRequest(
-                                    PostRegisterRequest.builder()
-                                            .title(title)
-                                            .content(content)
-                                            .tags(tagList)
-                                            .imageIds(null)
-                                            .build()
-                            )
-                            .locationRegisterRequest(
-                                    LocationRegisterRequest.builder()
-                                            .fullLocation(fullLocation)
-                                            .abstractLocation(abstractLocation)
-                                            .latitudeLocation(latitudeLocation)
-                                            .longitudeLocation(longitudeLocation)
-                                            .build()
-                            )
-                            .periodRegisterRequest(
-                                    PeriodRegisterRequest.builder()
-                                            .startDate(startDate)
-                                            .endDate(endDate)
-                                            .build()
-                            )
-                            .participantStatusRegisterRequest(
-                                    ParticipantStatusRegisterRequest.builder()
-                                            .maxHeadCount(maxHeadCount)
-                                            .build()
-                            )
-                            .build()
+                    AuthenticatedUserInfo.builder()
+                            .userId(writer.getId())
+                            .roles(List.of(GeneralRoleType.ADMIN.name(), GeneralRoleType.EVENT_HOST.name()))
+                            .build(),
+                    eventRegisterRequest
             );
-
             Event event = eventRepository.findById(eventId).get();
             //댓글, 대댓글
             int commentCount = rand.nextInt(COMMENT_MAX_COUNT);
@@ -262,31 +285,38 @@ public class InitDummyDB implements ApplicationListener<ApplicationReadyEvent> {
 
             //작성자
             User writer = users.get(rand.nextInt(users.size()));
+            AuthenticatedUserInfo authenticatedUserInfo = AuthenticatedUserInfo.builder()
+                    .userId(writer.getId())
+                    .roles(List.of(GeneralRoleType.ADMIN.name()))
+                    .build();
 
             //기타
-            int maxHeadCount = rand.nextInt(100);
+            int maxHeadCount = rand.nextInt(100) + 1;
             String title = "테스트" + cnt;
             String content = "테스트게시글" + cnt;
             List<String> tagStr = tagSet.stream().collect(Collectors.toList());
 
+            RecruitmentRegisterRequest recruitmentRegisterRequest = RecruitmentRegisterRequest.builder()
+                    .periodRegisterRequest(PeriodRegisterRequest.builder()
+                            .startDate(startDate)
+                            .endDate(endDate)
+                            .build())
+                    .participantStatusRegisterRequest(ParticipantStatusRegisterRequest.builder()
+                            .maxHeadCount(maxHeadCount)
+                            .build())
+                    .postRegisterRequest(PostRegisterRequest.builder()
+                            .title(title)
+                            .content(content)
+                            .tags(tagStr)
+                            .imageIds(null)
+                            .type(PostType.Recruitment)
+                            .build())
+                    .build();
+            ValidationUtil.validate(recruitmentRegisterRequest);
             Long recruitmentId = recruitmentService.registerRecruitment(
+                    authenticatedUserInfo,
                     event.getId(),
-                    writer.getId(),
-                    RecruitmentRegisterRequest.builder()
-                            .periodRegisterRequest(PeriodRegisterRequest.builder()
-                                    .startDate(startDate)
-                                    .endDate(endDate)
-                                    .build())
-                            .participantStatusRegisterRequest(ParticipantStatusRegisterRequest.builder()
-                                    .maxHeadCount(maxHeadCount)
-                                    .build())
-                            .postRegisterRequest(PostRegisterRequest.builder()
-                                    .title(title)
-                                    .content(content)
-                                    .tags(tagStr)
-                                    .imageIds(null)
-                                    .build())
-                            .build()
+                    recruitmentRegisterRequest
             );
 
             Recruitment recruitment = recruitmentRepository.findById(recruitmentId).get();
@@ -316,10 +346,14 @@ public class InitDummyDB implements ApplicationListener<ApplicationReadyEvent> {
         //댓글
         for (int cnt = 0; cnt < commentCount; cnt++) {
             User writer = users.get(rand.nextInt(users.size()));
+            AuthenticatedUserInfo authenticatedUserInfo = AuthenticatedUserInfo.builder()
+                    .userId(writer.getId())
+                    .roles(List.of(GeneralRoleType.ADMIN.name()))
+                    .build();
             //댓글 생성
             Long postCommentId = eventCommentService.registerComment(
+                    authenticatedUserInfo,
                     eventId,
-                    writer.getId(),
                     PostCommentRegisterRequest.builder()
                             .content("테스트댓글" + cnt)
                             .build()
@@ -349,10 +383,14 @@ public class InitDummyDB implements ApplicationListener<ApplicationReadyEvent> {
         //댓글
         for (int cnt = 0; cnt < commentCount; cnt++) {
             User writer = users.get(rand.nextInt(users.size()));
+            AuthenticatedUserInfo authenticatedUserInfo = AuthenticatedUserInfo.builder()
+                    .userId(writer.getId())
+                    .roles(List.of(GeneralRoleType.ADMIN.name()))
+                    .build();
             //댓글 생성
             Long postCommentId = recruitmentCommentService.registerComment(
+                    authenticatedUserInfo,
                     recruitmentId,
-                    writer.getId(),
                     PostCommentRegisterRequest.builder()
                             .content("테스트댓글" + cnt)
                             .build()
@@ -380,10 +418,14 @@ public class InitDummyDB implements ApplicationListener<ApplicationReadyEvent> {
         Random rand = new Random();
         for(int cnt=0;cnt<commentChildCount;cnt++) {
             User writer = users.get(rand.nextInt(users.size()));
+            AuthenticatedUserInfo authenticatedUserInfo = AuthenticatedUserInfo.builder()
+                    .userId(writer.getId())
+                    .roles(List.of(GeneralRoleType.ADMIN.name()))
+                    .build();
             //대댓글 등록
             Long postCommentChildId = eventCommentService.registerCommentChild(
+                    authenticatedUserInfo,
                     postCommentId,
-                    writer.getId(),
                     PostCommentChildRegisterRequest.builder()
                             .content("테스트대댓글" + cnt)
                             .replyTargetPostCommentChildId(null)
@@ -407,10 +449,14 @@ public class InitDummyDB implements ApplicationListener<ApplicationReadyEvent> {
         Random rand = new Random();
         for(int cnt=0;cnt<commentChildCount;cnt++) {
             User writer = users.get(rand.nextInt(users.size()));
+            AuthenticatedUserInfo authenticatedUserInfo = AuthenticatedUserInfo.builder()
+                    .userId(writer.getId())
+                    .roles(List.of(GeneralRoleType.ADMIN.name()))
+                    .build();
             //대댓글 등록
             Long postCommentChildId = recruitmentCommentService.registerCommentChild(
+                    authenticatedUserInfo,
                     postCommentId,
-                    writer.getId(),
                     PostCommentChildRegisterRequest.builder()
                             .content("테스트대댓글" + cnt)
                             .replyTargetPostCommentChildId(null)

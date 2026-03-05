@@ -1,5 +1,6 @@
 package com.BaGulBaGul.BaGulBaGul.domain.upload.service;
 
+import java.util.Collection;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,7 @@ public class TransactionResourceServiceImpl implements TransactionResourceServic
     }
 
     @Override
-    public void deleteResourcesAsyncAfterCommit(List<Long> resourceIds) {
+    public void deleteResourcesAsyncAfterCommit(Collection<Long> resourceIds) {
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override
             public void afterCommit() {

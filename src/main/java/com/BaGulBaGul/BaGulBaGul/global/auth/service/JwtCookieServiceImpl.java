@@ -22,6 +22,9 @@ public class JwtCookieServiceImpl implements JwtCookieService {
     @Value("${user.login.refresh_token_expire_minute}")
     private int REFRESH_TOKEN_EXPIRE_MINUTE;
 
+    private final String ACCESS_TOKEN_COOKIE_PATH = "/";
+    private final String REFRESH_TOKEN_COOKIE_PATH = "/api/auth/refresh";
+
     @Override
     public String getAccessToken(HttpServletRequest request) {
         return getToken(request, ACCESS_TOKEN_COOKIE_NAME);
@@ -34,19 +37,19 @@ public class JwtCookieServiceImpl implements JwtCookieService {
 
     @Override
     public void setAccessToken(HttpServletResponse response, String accessToken) {
-        setToken(response, accessToken, ACCESS_TOKEN_COOKIE_NAME);
+        setToken(response, accessToken, ACCESS_TOKEN_COOKIE_NAME, ACCESS_TOKEN_COOKIE_PATH);
     }
 
     @Override
     public void setRefreshToken(HttpServletResponse response, String refreshToken) {
-        setToken(response, refreshToken, REFRESH_TOKEN_COOKIE_NAME);
+        setToken(response, refreshToken, REFRESH_TOKEN_COOKIE_NAME, REFRESH_TOKEN_COOKIE_PATH);
     }
 
     @Override
     public void deleteAccessToken(HttpServletResponse response) {
         Cookie cookie = new Cookie(ACCESS_TOKEN_COOKIE_NAME, null);
         cookie.setMaxAge(0);
-        cookie.setPath("/");
+        cookie.setPath(ACCESS_TOKEN_COOKIE_PATH);
         response.addCookie(cookie);
     }
 
@@ -54,7 +57,7 @@ public class JwtCookieServiceImpl implements JwtCookieService {
     public void deleteRefreshToken(HttpServletResponse response) {
         Cookie cookie = new Cookie(REFRESH_TOKEN_COOKIE_NAME, null);
         cookie.setMaxAge(0);
-        cookie.setPath("/");
+        cookie.setPath(REFRESH_TOKEN_COOKIE_PATH);
         response.addCookie(cookie);
     }
 
@@ -70,9 +73,9 @@ public class JwtCookieServiceImpl implements JwtCookieService {
         return null;
     }
 
-    private void setToken(HttpServletResponse response, String token, String tokenName) {
+    private void setToken(HttpServletResponse response, String token, String tokenName, String path) {
         ResponseCookie tokenCookie = ResponseCookie.from(tokenName, token)
-                .path("/")
+                .path(path)
                 .maxAge(REFRESH_TOKEN_EXPIRE_MINUTE * 60)
                 .secure(true)
                 .sameSite("None")

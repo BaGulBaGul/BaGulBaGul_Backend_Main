@@ -1,5 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response;
 
+import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.response.PostCommentInfo;
+import com.BaGulBaGul.BaGulBaGul.domain.user.dto.service.response.UserInfoResponse;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -37,4 +39,18 @@ public class PostCommentDetailResponse {
 
     @ApiModelProperty(value = "생성일")
     private LocalDateTime createdAt;
+
+    public static PostCommentDetailResponse from(PostCommentInfo postCommentInfo) {
+        UserInfoResponse writerInfo = postCommentInfo.getWriterInfo();
+        return PostCommentDetailResponse.builder()
+                .commentId(postCommentInfo.getCommentId())
+                .userId(writerInfo.getId())
+                .username(writerInfo.getNickname())
+                .userProfileImageUrl(writerInfo.getProfileMessage())
+                .content(postCommentInfo.getContent())
+                .commentChildCount(postCommentInfo.getCommentChildCount())
+                .likeCount(postCommentInfo.getLikeCount())
+                .createdAt(postCommentInfo.getCreatedAt())
+                .build();
+    }
 }

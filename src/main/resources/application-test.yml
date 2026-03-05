@@ -1,0 +1,19 @@
+spring:
+  config:
+    activate:
+      on-profile:
+        - 'test'
+        - 'test2'
+#  datasource:
+#    hikari:
+#      leak-detection-threshold: 2000
+#logging:
+#  level:
+#    com:
+#      zaxxer:
+#        hikari: DEBUG
+#    org:
+#      springframework:
+#        test:
+#          context: DEBUG
+#        context: INFO

@@ -1,9 +1,19 @@
+buildscript {
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath "org.hibernate:hibernate-gradle-plugin:$hibernateVersion"
+	}
+}
 plugins {
 	id 'java'
 	id 'org.springframework.boot' version '2.7.13'
 	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
 	id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
 }
+apply plugin: 'org.hibernate.orm'
+
 
 group = 'com.BaGulBaGul'
 version = '0.0.1-SNAPSHOT'
@@ -41,8 +51,8 @@ dependencies {
 	implementation 'org.flywaydb:flyway-core'
 	implementation 'org.flywaydb:flyway-mysql'
 
-	compileOnly 'org.projectlombok:lombok'
-	annotationProcessor 'org.projectlombok:lombok'
+	compileOnly 'org.projectlombok:lombok:1.18.12'
+	annotationProcessor 'org.projectlombok:lombok:1.18.12'
 	testCompileOnly 'org.projectlombok:lombok:1.18.12' // 테스트 의존성 추가
 	testAnnotationProcessor 'org.projectlombok:lombok:1.18.12' // 테스트 의존성 추가
 
@@ -55,6 +65,7 @@ dependencies {
 	testImplementation "org.testcontainers:testcontainers:1.20.5"
 	testImplementation "org.testcontainers:junit-jupiter:1.20.5"
 	testImplementation "org.testcontainers:mysql:1.20.5"
+	testImplementation 'org.awaitility:awaitility:4.3.0'
 
 	//스프링 logging 기본 slf4j구현체인 logback을 log4j2로 변경
 	implementation("org.springframework.boot:spring-boot-starter-log4j2")
@@ -98,6 +109,12 @@ dependencies {
 	annotationProcessor "jakarta.annotation:jakarta.annotation-api" // java.lang.NoClassDefFoundError (javax.annotation.Generated) 발생 대응
 }
 
+hibernate {
+	enhance {
+		//@OneToOne의 연관관계 주인이 아닐 때도 fetch=LAZY를 동작하게 하기 위함
+		enableLazyInitialization = true
+	}
+}
 querydsl {
 	jpa = true
 	querydslSourcesDir = querydslDir
@@ -108,6 +125,19 @@ sourceSets {
 compileQuerydsl{
 	options.annotationProcessorPath = configurations.querydsl
 }
+
+project.afterEvaluate {
+	project.tasks.compileQuerydsl.options.compilerArgs = [
+			"-proc:only",  // 컴파일 없이 어노테이션 처리만 수행
+			"-processor",
+			project.querydsl.processors() + ',lombok.launch.AnnotationProcessorHider$AnnotationProcessor'
+	]
+}
+
+tasks.named('compileJava') {
+	dependsOn tasks.named('compileQuerydsl')  // QueryDSL 컴파일 우선 실행:cite[1]
+}
+
 
 tasks.named('test') {
 	doFirst {
@@ -130,6 +160,13 @@ tasks.named('test') {
 			}
 			println "========================================================"
 		}
+		println "========================================================"
+		println "테스트 스프링 컨텍스트 캐시 제한 설정"
+		def contextCacheSize = project.hasProperty('spring.test.context.cache.maxSize') ? project.property('spring.test.context.cache.maxSize').toString() : 13
+		systemProperty 'spring.test.context.cache.maxSize', contextCacheSize
+		println contextCacheSize
+		println "========================================================"
+
 	}
 	useJUnitPlatform()
 }

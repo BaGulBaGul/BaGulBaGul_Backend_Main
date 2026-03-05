@@ -4,6 +4,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.calendar.recruitment.dto.RecruitmentCale
 import com.BaGulBaGul.BaGulBaGul.domain.calendar.recruitment.dto.RecruitmentCalendarSearchRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.calendar.recruitment.dto.RecruitmentCalendarSearchResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.calendar.recruitment.service.RecruitmentCalendarService;
+import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AuthenticatedUserInfo;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,13 +32,14 @@ public class RecruitmentCalendarControllerImpl implements RecruitmentCalendarCon
             description = "로그인 필요"
     )
     public ApiResponse<List<RecruitmentCalendarSearchResponse>> searchRecruitmentByCondition(
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo,
             RecruitmentCalendarSearchRequest recruitmentCalendarSearchRequest)
     {
+        Long userId = authenticatedUserInfo.getUserId();
         return ApiResponse.of(
                 recruitmentCalendarService.findRecruitmentCalendarByCondition(
-                    userId,
-                    recruitmentCalendarSearchRequest
+                        userId,
+                        recruitmentCalendarSearchRequest
                 )
         );
     }
@@ -48,12 +50,14 @@ public class RecruitmentCalendarControllerImpl implements RecruitmentCalendarCon
             description = "로그인 필요"
     )
     public ApiResponse<RecruitmentCalendarExistsResponse> existsRecruitmentCalendar(
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo,
             @PathVariable("recruitmentId") Long recruitmentId
     ) {
+        Long userId = authenticatedUserInfo.getUserId();
         return ApiResponse.of(
                 RecruitmentCalendarExistsResponse.builder()
-                        .exists(recruitmentCalendarService.existsRecruitmentCalendar(userId, recruitmentId))
+                        .exists(recruitmentCalendarService.existsRecruitmentCalendar(
+                                userId, recruitmentId))
                         .build()
         );
     }
@@ -64,9 +68,10 @@ public class RecruitmentCalendarControllerImpl implements RecruitmentCalendarCon
             description = "로그인 필요"
     )
     public ApiResponse<Object> registerRecruitmentCalendar(
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo,
             @PathVariable("recruitmentId") Long recruitmentId
     ) {
+        Long userId = authenticatedUserInfo.getUserId();
         recruitmentCalendarService.registerRecruitmentCalendar(userId, recruitmentId);
         return ApiResponse.of(null);
     }
@@ -77,9 +82,10 @@ public class RecruitmentCalendarControllerImpl implements RecruitmentCalendarCon
             description = "로그인 필요"
     )
     public ApiResponse<Object> deleteRecruitmentCalendar(
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo,
             @PathVariable("recruitmentId") Long recruitmentId
     ) {
+        Long userId = authenticatedUserInfo.getUserId();
         recruitmentCalendarService.deleteRecruitmentCalendar(userId, recruitmentId);
         return ApiResponse.of(null);
     }

@@ -4,6 +4,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.calendar.event.dto.EventCalendarExistsRe
 import com.BaGulBaGul.BaGulBaGul.domain.calendar.event.dto.EventCalendarSearchRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.calendar.event.dto.EventCalendarSearchResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.calendar.event.service.EventCalendarService;
+import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AuthenticatedUserInfo;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,9 +32,10 @@ public class EventCalendarControllerImpl implements EventCalendarController {
             description = "로그인 필요"
     )
     public ApiResponse<List<EventCalendarSearchResponse>> searchEventByCondition(
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo,
             EventCalendarSearchRequest eventCalendarSearchRequest
     ) {
+        Long userId = authenticatedUserInfo.getUserId();
         return ApiResponse.of(
                 calendarService.findEventCalendarByCondition(userId, eventCalendarSearchRequest)
         );
@@ -45,9 +47,10 @@ public class EventCalendarControllerImpl implements EventCalendarController {
             description = "로그인 필요"
     )
     public ApiResponse<EventCalendarExistsResponse> existsEventCalendar(
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo,
             @PathVariable("eventId") Long eventId
     ) {
+        Long userId = authenticatedUserInfo.getUserId();
         return ApiResponse.of(
                 EventCalendarExistsResponse.builder()
                         .exists(calendarService.existsEventCalendar(userId, eventId))
@@ -61,9 +64,10 @@ public class EventCalendarControllerImpl implements EventCalendarController {
             description = "이벤트 id를 받아서 등록. 로그인 필요"
     )
     public ApiResponse<Object> registerEventCalendar(
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo,
             @PathVariable("eventId") Long eventId
     ) {
+        Long userId = authenticatedUserInfo.getUserId();
         calendarService.registerEventCalendar(userId, eventId);
         return ApiResponse.of(null);
     }
@@ -74,9 +78,10 @@ public class EventCalendarControllerImpl implements EventCalendarController {
             description = "이벤트 id를 받아서 삭제. 로그인 필요"
     )
     public ApiResponse<Object> deleteEventCalendar(
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo,
             @PathVariable("eventId") Long eventId
     ) {
+        Long userId = authenticatedUserInfo.getUserId();
         calendarService.deleteEventCalendar(userId, eventId);
         return ApiResponse.of(null);
     }

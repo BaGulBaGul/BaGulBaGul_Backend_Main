@@ -9,6 +9,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentModifyRe
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.request.PostCommentRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
+import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AuthenticatedUserInfo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -19,13 +20,13 @@ public interface RecruitmentCommentService {
     Page<GetPostCommentPageResponse> getRecruitmentCommentPage(Long recruitmentId, Long requestUserId, Pageable pageable);
     Page<GetPostCommentChildPageResponse> getRecruitmentCommentChildPage(Long commentId, Long requestUserId, Pageable pageable);
 
-    Long registerComment(Long recruitmentId, Long userId, PostCommentRegisterRequest postCommentRegisterRequest);
-    void modifyComment(Long commentId, Long userId, PostCommentModifyRequest postCommentModifyRequest);
-    void deleteComment(Long commentId, Long userId);
+    Long registerComment(AuthenticatedUserInfo authenticatedUserInfo, Long recruitmentId, PostCommentRegisterRequest postCommentRegisterRequest);
+    void modifyComment(AuthenticatedUserInfo authenticatedUserInfo, Long commentId, PostCommentModifyRequest postCommentModifyRequest);
+    void deleteComment(AuthenticatedUserInfo authenticatedUserInfo, Long commentId);
 
-    Long registerCommentChild(Long commentId, Long userId, PostCommentChildRegisterRequest postCommentChildRegisterRequest);
-    void modifyCommentChild(Long commentChildId, Long userId, PostCommentChildModifyRequest postCommentChildModifyRequest);
-    void deleteCommentChild(Long commentChildId, Long userId);
+    Long registerCommentChild(AuthenticatedUserInfo authenticatedUserInfo, Long commentId, PostCommentChildRegisterRequest postCommentChildRegisterRequest);
+    void modifyCommentChild(AuthenticatedUserInfo authenticatedUserInfo, Long commentChildId, PostCommentChildModifyRequest postCommentChildModifyRequest);
+    void deleteCommentChild(AuthenticatedUserInfo authenticatedUserInfo, Long commentChildId);
 
     void addLikeToComment(Long commentId, Long userId) throws DuplicateLikeException;
     void deleteLikeToComment(Long commentId, Long userId) throws LikeNotExistException;

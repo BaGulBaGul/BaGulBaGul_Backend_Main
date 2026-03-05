@@ -5,6 +5,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.common.dto.request.ParticipantStatusRegi
 import com.BaGulBaGul.BaGulBaGul.domain.common.dto.request.PeriodRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.constant.EventType;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventRegisterRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.post.constant.PostType;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.service.request.PostRegisterRequest;
 import io.swagger.annotations.ApiModelProperty;
 import java.time.LocalDateTime;
@@ -82,6 +83,7 @@ public class EventRegisterApiRequest {
                         .content(content)
                         .tags(tags)
                         .imageIds(imageIds)
+                        .type(PostType.Event)
                         .build())
                 .locationRegisterRequest(LocationRegisterRequest.builder()
                         .fullLocation(fullLocation)

@@ -1,6 +1,7 @@
 package com.BaGulBaGul.BaGulBaGul.domain.upload.service;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.transaction.support.TransactionSynchronization;
@@ -11,15 +12,15 @@ public abstract class ResourceService {
 
     public abstract Long uploadResource(String path, MultipartFile multipartFile) throws IOException;
     public abstract void deleteResource(Long resourceId);
-    public abstract void deleteResources(List<Long> resourceIds);
+    public abstract void deleteResources(Collection<Long> resourceIds);
     public abstract void deleteResourceAsync(Long resourceId);
-    public abstract void deleteResourcesAsync(List<Long> resourceIds);
+    public abstract void deleteResourcesAsync(Collection<Long> resourceIds);
     public abstract String getResourceUrlFromId(Long resourceId);
-    public abstract List<String> getResourceUrlsFromIds(List<Long> resourceIds);
+    public abstract List<String> getResourceUrlsFromIds(Collection<Long> resourceIds);
     public abstract void cancelTempResource(Long resourceId);
-    public abstract void cancelTempResources(List<Long> resourceIds);
+    public abstract void cancelTempResources(Collection<Long> resourceIds);
     public abstract void deleteTempResource(Long resourceId);
-    public abstract void deleteTempResources(List<Long> resourceIds);
+    public abstract void deleteTempResources(Collection<Long> resourceIds);
 
     protected String createKey(String path, String uploadedName) {
         return path + "/" + createRandomFileName(uploadedName);

@@ -19,4 +19,12 @@ public class ApiResponse<T> {
     public static <T> ApiResponse<T> of(T data, ResponseCode responseCode) {
         return new ApiResponse<>(responseCode.getCode(), responseCode.getMessage(), data);
     }
+
+    public static ApiResponse<Void> empty() {
+        return ApiResponse.of(null);
+    }
+
+    public static ApiResponse<Void> empty(ResponseCode responseCode) {
+        return ApiResponse.of(null, responseCode);
+    }
 }

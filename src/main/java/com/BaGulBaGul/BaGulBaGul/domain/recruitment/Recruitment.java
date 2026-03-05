@@ -4,6 +4,7 @@ import com.BaGulBaGul.BaGulBaGul.domain.base.BaseTimeEntity;
 import com.BaGulBaGul.BaGulBaGul.domain.event.Event;
 import com.BaGulBaGul.BaGulBaGul.domain.post.Post;
 import com.BaGulBaGul.BaGulBaGul.domain.recruitment.constant.RecruitmentState;
+import com.BaGulBaGul.BaGulBaGul.domain.user.User;
 import java.time.LocalDateTime;
 import javax.validation.constraints.AssertTrue;
 import lombok.*;
@@ -80,5 +81,9 @@ public class Recruitment extends BaseTimeEntity {
         this.startDate = startDate;
         this.endDate = endDate;
         this.state = RecruitmentState.PROCEEDING;
+    }
+
+    public User getWriter() {
+        return this.post.getUser();
     }
 }

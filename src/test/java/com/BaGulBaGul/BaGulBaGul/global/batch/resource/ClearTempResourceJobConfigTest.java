@@ -37,6 +37,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
@@ -51,6 +52,8 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 @ActiveProfiles("test")
 class ClearTempResourceJobConfigTest {
 
+    @MockBean
+    AmazonS3 amazonS3;
     @Autowired
     JobLauncherTestUtils jobLauncherTestUtils;
     @Autowired
@@ -73,14 +76,6 @@ class ClearTempResourceJobConfigTest {
         @Primary
         Job testJob(@Qualifier("clearTempResourceJob") Job searchKeywordRankingUpdateJob) {
             return searchKeywordRankingUpdateJob;
-        }
-    }
-
-    @TestConfiguration
-    static class AmazonS3MockConfig{
-        @Bean
-        public AmazonS3 amazonS3() {
-            return mock(AmazonS3.class);
         }
     }
 

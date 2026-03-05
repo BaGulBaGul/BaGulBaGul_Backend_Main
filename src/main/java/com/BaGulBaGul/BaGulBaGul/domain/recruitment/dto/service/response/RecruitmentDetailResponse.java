@@ -13,10 +13,8 @@ import lombok.Setter;
 @AllArgsConstructor
 public class RecruitmentDetailResponse {
 
-    @ApiModelProperty(value = "모잡글 정보")
     private RecruitmentDetailInfo recruitment;
 
-    @ApiModelProperty(value = "게시글 정보")
     private PostDetailInfo post;
 
 }

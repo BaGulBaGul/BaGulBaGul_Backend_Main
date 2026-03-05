@@ -70,6 +70,7 @@ public class EventPageApiRequest {
                                 .tags(tags)
                                 .build()
                 )
+                .deleted(false)
                 .build();
     }
 }

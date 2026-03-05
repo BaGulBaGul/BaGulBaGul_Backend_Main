@@ -44,6 +44,9 @@ public class EventConditionalRequest {
     //최대 모집 인원
     private Integer maxHeadCountMax;
 
+    //삭제 여부
+    private boolean deleted;
+
     //게시글 관련 검색
     @Valid
     @Builder.Default

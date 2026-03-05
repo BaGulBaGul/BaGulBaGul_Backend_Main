@@ -2,13 +2,14 @@ package com.BaGulBaGul.BaGulBaGul.domain.event.controller;
 
 import com.BaGulBaGul.BaGulBaGul.domain.event.applicationevent.QueryEventDetailByUserApplicationEvent;
 import com.BaGulBaGul.BaGulBaGul.domain.event.applicationevent.QueryEventWithConditionByUserApplicationEvent;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response.EventBannerApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventConditionalRequest;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.EventBannerResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.EventDetailResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventModifyRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.EventRegisterRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.EventSimpleResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.request.GetLikeEventRequest;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.service.response.GetLikeEventResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.request.EventModifyApiRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.request.EventPageApiRequest;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.request.EventRegisterApiRequest;
@@ -16,16 +17,21 @@ import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.request.GetLikeEventApiReq
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response.EventDetailApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response.EventIdApiResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response.EventPageApiResponse;
-import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response.GetLikeEventApiResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.event.dto.api.response.EventCategoryApiResponse;
+import com.BaGulBaGul.BaGulBaGul.domain.event.service.CategoryService;
+import com.BaGulBaGul.BaGulBaGul.domain.event.service.EventBannerService;
 import com.BaGulBaGul.BaGulBaGul.domain.event.service.EventService;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.IsMyLikeResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.dto.api.response.LikeCountResponse;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.DuplicateLikeException;
 import com.BaGulBaGul.BaGulBaGul.domain.post.exception.LikeNotExistException;
+import com.BaGulBaGul.BaGulBaGul.global.auth.dto.AuthenticatedUserInfo;
 import com.BaGulBaGul.BaGulBaGul.global.response.ApiResponse;
 import com.BaGulBaGul.BaGulBaGul.global.validation.ValidationUtil;
 import io.swagger.annotations.Api;
 import io.swagger.v3.oas.annotations.Operation;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -40,6 +46,8 @@ import org.springframework.web.bind.annotation.*;
 public class EventControllerImpl implements EventController {
 
     private final EventService eventService;
+    private final CategoryService categoryService;
+    private final EventBannerService eventBannerService;
     private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
@@ -98,14 +106,15 @@ public class EventControllerImpl implements EventController {
                     + "생성한 이벤트 id 반환"
     )
     public ApiResponse<EventIdApiResponse> registerEvent(
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo,
             @RequestBody EventRegisterApiRequest eventRegisterApiRequest
     ) {
+        Long userId = authenticatedUserInfo.getUserId();
         //이벤트 등록 요청 변환 후 검증
         EventRegisterRequest eventRegisterRequest = eventRegisterApiRequest.toEventRegisterRequest();
         ValidationUtil.validate(eventRegisterRequest);
         //이벤트 등록
-        Long eventId = eventService.registerEvent(userId, eventRegisterRequest);
+        Long eventId = eventService.registerEvent(authenticatedUserInfo, eventRegisterRequest);
         return ApiResponse.of(new EventIdApiResponse(eventId));
     }
 
@@ -117,12 +126,12 @@ public class EventControllerImpl implements EventController {
     )
     public ApiResponse<Object> modifyEvent(
             @PathVariable(name="eventId") Long eventId,
-            @AuthenticationPrincipal Long userId,
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo,
             @RequestBody EventModifyApiRequest eventModifyApiRequest
     ) {
         EventModifyRequest eventModifyRequest = eventModifyApiRequest.toEventModifyRequest();
         ValidationUtil.validate(eventModifyRequest);
-        eventService.modifyEvent(eventId, userId, eventModifyRequest);
+        eventService.modifyEvent(authenticatedUserInfo, authenticatedUserInfo.getUserId(), eventModifyRequest);
         return ApiResponse.of(null);
     }
 
@@ -133,9 +142,10 @@ public class EventControllerImpl implements EventController {
     )
     public ApiResponse<Object> deleteEvent(
             @PathVariable(name="eventId") Long eventId,
-            @AuthenticationPrincipal Long userId
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo
     ) {
-        eventService.deleteEvent(eventId, userId);
+        Long userId = authenticatedUserInfo.getUserId();
+        eventService.deleteEvent(authenticatedUserInfo, userId);
         return ApiResponse.of(null);
     }
 
@@ -148,8 +158,9 @@ public class EventControllerImpl implements EventController {
     )
     public ApiResponse<LikeCountResponse> addLike(
             @PathVariable(name="eventId") Long eventId,
-            @AuthenticationPrincipal Long userId
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo
     ) {
+        Long userId = authenticatedUserInfo.getUserId();
         try {
             eventService.addLike(eventId, userId);
         } catch (DuplicateLikeException duplicateLikeException) {
@@ -169,8 +180,9 @@ public class EventControllerImpl implements EventController {
     )
     public ApiResponse<LikeCountResponse> deleteLike(
             @PathVariable(name="eventId") Long eventId,
-            @AuthenticationPrincipal Long userId
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo
     ) {
+        Long userId = authenticatedUserInfo.getUserId();
         try {
             eventService.deleteLike(eventId, userId);
         } catch (LikeNotExistException likeNotExistException) {
@@ -190,8 +202,9 @@ public class EventControllerImpl implements EventController {
     )
     public ApiResponse<IsMyLikeResponse> isMyLike(
             @PathVariable(name="eventId") Long eventId,
-            @AuthenticationPrincipal Long userId
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo
     ) {
+        Long userId = authenticatedUserInfo.getUserId();
         return ApiResponse.of(
                 new IsMyLikeResponse(eventService.isMyLike(eventId, userId))
         );
@@ -204,14 +217,36 @@ public class EventControllerImpl implements EventController {
                     + "이벤트 타입 파라메터 전달 필수\n"
                     + "페이징 지원"
     )
-    public ApiResponse<Page<GetLikeEventApiResponse>> getMyLike(
-            @AuthenticationPrincipal Long userId,
+    public ApiResponse<Page<EventPageApiResponse>> getMyLike(
+            @AuthenticationPrincipal AuthenticatedUserInfo authenticatedUserInfo,
             GetLikeEventApiRequest getLikeEventApiRequest,
             Pageable pageable
     ) {
+        Long userId = authenticatedUserInfo.getUserId();
         GetLikeEventRequest getLikeEventRequest = getLikeEventApiRequest.toGetLikeEventRequest();
-        Page<GetLikeEventResponse> myLikeEvents = eventService.getMyLikeEvent(getLikeEventRequest, userId, pageable);
-        Page<GetLikeEventApiResponse> responses = myLikeEvents.map(GetLikeEventApiResponse::from);
+        Page<EventSimpleResponse> myLikeEvents = eventService
+                .getMyLikeEvent(getLikeEventRequest, userId, pageable);
+        Page<EventPageApiResponse> responses = myLikeEvents.map(EventPageApiResponse::from);
         return ApiResponse.of(responses);
+    }
+
+    @Override
+    @GetMapping("/categories")
+    @Operation(summary = "모든 카테고리 조회", description = "모든 카테고리를 조회합니다.")
+    public ApiResponse<List<EventCategoryApiResponse>> getAllCategories() {
+        List<EventCategoryApiResponse> eventCategoryResponses = categoryService.getAllCategories().stream()
+                .map(EventCategoryApiResponse::of)
+                .collect(Collectors.toList());
+        return ApiResponse.of(eventCategoryResponses);
+    }
+
+    @Override
+    @GetMapping("/banner/")
+    @Operation(summary = "모든 이벤트 배너 조회", description = "모든 이벤트 배너를 조회한다.")
+    public ApiResponse<List<EventBannerApiResponse>> getAllBanners() {
+        List<EventBannerResponse> eventBanners = eventBannerService.getEventBanners();
+        List<EventBannerApiResponse> response = eventBanners.stream().map(EventBannerApiResponse::from)
+                .collect(Collectors.toList());
+        return ApiResponse.of(response);
     }
 }
